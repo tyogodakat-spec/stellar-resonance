@@ -523,7 +523,22 @@ const SS = {
 };
 async function loadSave(key) { const c = await cloudGet("saves", key); if (c && c.data) return c.data; const r = await SS.get(key); try { return r ? JSON.parse(r.value) : null; } catch { return null; } }
 async function writeSave(key, d) { try { await SS.set(key, JSON.stringify(d)); } catch {} cloudSet("saves", key, { data: d, updatedAt: Date.now() }); }
-async function loadAccounts() { const c = await cloudGet("meta", "accounts"); if (c && c.list) return c.list; const r = await SS.get(ACCOUNTS_KEY); try { return r ? JSON.parse(r.value) : {}; } catch { return {}; } }
+async function loadAccounts() {
+  // localStorage primeiro: confiável no mesmo dispositivo
+  const r = await SS.get(ACCOUNTS_KEY);
+  let local = {};
+  try { if (r) local = JSON.parse(r.value) || {}; } catch {}
+  // Firebase em background: merge de contas de outros dispositivos
+  try {
+    const c = await cloudGet("meta", "accounts");
+    if (c && c.list && Object.keys(c.list).length > 0) {
+      const merged = { ...c.list, ...local }; // local tem prioridade
+      try { await SS.set(ACCOUNTS_KEY, JSON.stringify(merged)); } catch {}
+      return merged;
+    }
+  } catch {}
+  return local;
+}
 async function saveAccounts(a) { try { await SS.set(ACCOUNTS_KEY, JSON.stringify(a)); } catch {} cloudSet("meta", "accounts", { list: a }); }
 
 /* ---------- TORRE ---------- */
