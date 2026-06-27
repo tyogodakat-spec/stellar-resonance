@@ -1113,6 +1113,49 @@ function WeeklyBoss({ start, stamina, bossMats, lastWeeklyBoss, startAscension, 
 /* ==========================================================================
    GACHA + CINEMATIC
    ========================================================================== */
+function useBannerTimer(key) {
+  const storageKey = "sr_banner_end_" + key;
+  const getEnd = () => {
+    const stored = localStorage.getItem(storageKey);
+    if (stored) return parseInt(stored, 10);
+    const end = Date.now() + 5 * 24 * 60 * 60 * 1000;
+    localStorage.setItem(storageKey, String(end));
+    return end;
+  };
+  const [remaining, setRemaining] = useState(() => Math.max(0, getEnd() - Date.now()));
+  useEffect(() => {
+    const tick = () => {
+      let end = parseInt(localStorage.getItem(storageKey) || "0", 10);
+      if (!end || Date.now() >= end) {
+        end = Date.now() + 5 * 24 * 60 * 60 * 1000;
+        localStorage.setItem(storageKey, String(end));
+      }
+      setRemaining(Math.max(0, end - Date.now()));
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [key]); // eslint-disable-line
+  return remaining;
+}
+function BannerTimer({ ms, color }) {
+  if (ms == null) return null;
+  const total = Math.floor(ms / 1000);
+  const d = Math.floor(total / 86400);
+  const h = Math.floor((total % 86400) / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const pad = (n) => String(n).padStart(2, "0");
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, marginTop: 3 }}>
+      <span>⏳</span>
+      <span style={{ color: C.mute }}>Encerra em:</span>
+      <span style={{ fontFamily: "monospace", fontWeight: 700, color: color || C.gold, letterSpacing: 1 }}>
+        {d}d {pad(h)}:{pad(m)}:{pad(s)}
+      </span>
+    </div>
+  );
+}
 function Gacha({ doPull, pity, jade, charTickets, weaponTickets, standardTickets, featuredChar, setFeaturedChar, featuredWeapon, setFeaturedWeapon, pullHistory, owned, ownedWeapons }) {
   const [tab, setTab] = useState("char");
   const ownedSet = new Set((owned || []).map((o) => o.id));
@@ -1126,6 +1169,9 @@ function Gacha({ doPull, pity, jade, charTickets, weaponTickets, standardTickets
   const cycleWeapon = (d) => { const i = WEAPON_5_IDS.indexOf(featuredWeapon); setFeaturedWeapon(WEAPON_5_IDS[(i + d + WEAPON_5_IDS.length) % WEAPON_5_IDS.length]); };
   const headColor = isWeapon ? "#B98BFF" : isStd ? C.gold : ELEMENTS[fc.element].color;
   const arrow = { background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 8, color: C.text, width: 28, height: 28, fontWeight: 800 };
+  const charMs = useBannerTimer("char");
+  const weaponMs = useBannerTimer("weapon");
+  const bannerMs = isChar ? charMs : isWeapon ? weaponMs : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -1139,6 +1185,7 @@ function Gacha({ doPull, pity, jade, charTickets, weaponTickets, standardTickets
         <div style={{ position: "absolute", inset: 0, background: `radial-gradient(520px 240px at 82% 18%, ${headColor}26, transparent)` }} />
         <div style={{ position: "relative" }}>
           <div style={{ fontSize: 12, letterSpacing: 2, color: C.mute }}>{isChar ? "BANNER DE EVENTO · rate-up 50/50" : isStd ? "BANNER PERMANENTE · pool padrão" : "BANNER DE ARMAS · sem 50/50"}</div>
+          {!isStd && <BannerTimer ms={bannerMs} color={headColor} />}
 
           {isChar && <>
             <div className="flex items-center gap-2" style={{ margin: "4px 0 12px" }}>
