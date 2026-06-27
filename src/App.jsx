@@ -599,7 +599,7 @@ function WeaponIcon({ w, size = 44 }) {
     <ImgFill url={url} fallback="🗡️" size={size} />
   </div>;
 }
-function Btn({ children, onClick, kind = "primary", disabled, style }) {
+function Btn({ children, onClick, kind = "primary", disabled, style, ...rest }) {
   const k = {
     primary: { background: `linear-gradient(135deg, ${C.gold}, ${C.goldDim})`, color: "#1a1200" },
     soft: { background: C.panelHi, color: C.text, border: `1px solid ${C.line}` },
@@ -607,7 +607,7 @@ function Btn({ children, onClick, kind = "primary", disabled, style }) {
     danger: { background: "#3a1525", color: C.bad, border: `1px solid #5a2238` },
   }[kind];
   return <button onClick={onClick} disabled={disabled} className="px-4 py-2 rounded-xl font-bold text-sm transition active:scale-95"
-    style={{ opacity: disabled ? 0.4 : 1, cursor: disabled ? "not-allowed" : "pointer", letterSpacing: 0.3, ...k, ...style }}>{children}</button>;
+    style={{ opacity: disabled ? 0.4 : 1, cursor: disabled ? "not-allowed" : "pointer", letterSpacing: 0.3, ...k, ...style }} {...rest}>{children}</button>;
 }
 function Panel({ children, style, glow }) {
   return <div style={{ background: `linear-gradient(180deg, ${C.panel}, ${C.bg1})`, border: `1px solid ${C.line}`, borderRadius: 18, padding: 16, boxShadow: glow ? `0 0 34px ${glow}26` : "0 10px 28px #00000045", ...style }}>{children}</div>;
@@ -1774,6 +1774,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
   useEffect(() => { if (state.summonFx) { const t = setTimeout(() => setState((s) => ({ ...s, summonFx: null })), 1600); return () => clearTimeout(t); } }, [state.summonFx]);
   useEffect(() => { if (state.hitFx) { const t = setTimeout(() => setState((s) => ({ ...s, hitFx: null })), 620); return () => clearTimeout(t); } }, [state.hitFx]);
   const logRef = useRef(null);
+  const holdTimer = useRef(null);
+  const holdingRef = useRef(false);
+  const [previewKind, setPreviewKind] = useState(null);
   const current = state.turn;
 
   useEffect(() => {
@@ -1817,6 +1820,48 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
   function aliveEnemies(s) { return s.enemies.filter((e) => e.alive); }
   function targetEnemy(s) { const al = aliveEnemies(s); return al[target] || al[0]; }
 
+  function skillPreviewLines(hero, kind) {
+    const sk = hero.skill || {};
+    const atk = Math.round(effStat(hero, "atk"));
+    const lines = [];
+    if (kind === "basic") {
+      const mul = sk.basicMul || 100;
+      lines.push(`Dano: <b>${mul}% de ATK</b>`);
+      if (atk) lines.push(`≈ <b>${Math.round(atk * mul / 100)}</b> de dano (sem crítico)`);
+      lines.push(`Ganha <b>+1 Ponto de Habilidade</b>`);
+    } else if (kind === "skill") {
+      lines.push(`Custo: <b>1 Ponto de Habilidade</b>`);
+      if (sk.skillMul) { lines.push(`Dano: <b>${sk.skillMul}% de ATK</b>${sk.aoe ? " — Área" : ""}`); if (atk) lines.push(`≈ <b>${Math.round(atk * sk.skillMul / 100)}</b> de dano`); }
+      if (sk.skillDot) lines.push(`Aplica <b>${DOT_INFO[sk.skillDot.type]?.n || sk.skillDot.type}</b>: ${sk.skillDot.mul}% ATK/turno por ${sk.skillDot.turns}t`);
+      if (sk.heal) lines.push(`Cura: <b>${sk.heal.mul}% de ATK</b>${sk.heal.aoe ? " para todos" : ""}`);
+      if (sk.shield) lines.push(`Escudo: <b>${sk.shield.mul}% de ATK</b>`);
+      if (sk.skillBuff) lines.push(`+<b>${sk.skillBuff.value}% ${(sk.skillBuff.stat || "atk").toUpperCase()}</b> por ${sk.skillBuff.turns} turnos`);
+      if (sk.skillDebuff) lines.push(`Reduz <b>${(sk.skillDebuff.stat || "def").toUpperCase()}</b> em ${sk.skillDebuff.value}%`);
+      if (sk.summon) lines.push(`Invoca <b>${sk.summon.name}</b>`);
+    } else if (kind === "ult") {
+      if (sk.ultMul) { lines.push(`Dano: <b>${sk.ultMul}% de ATK</b>${sk.ultAoe ? " — Área" : ""}`); if (atk) lines.push(`≈ <b>${Math.round(atk * sk.ultMul / 100)}</b> de dano`); }
+      if (sk.ultDot) lines.push(`Aplica <b>${DOT_INFO[sk.ultDot.type]?.n || sk.ultDot.type}</b>: ${sk.ultDot.mul}% ATK/turno por ${sk.ultDot.turns}t`);
+      if (sk.ultHeal) lines.push(`Cura: <b>${sk.ultHeal.mul}% de ATK</b>${sk.ultHeal.aoe ? " para todos" : ""}`);
+      if (sk.ultShield) lines.push(`Escudo: <b>${sk.ultShield.mul}% de ATK</b>`);
+      if (sk.ultBuff) lines.push(`+<b>${sk.ultBuff.value}% ${(sk.ultBuff.stat || "atk").toUpperCase()}</b> por ${sk.ultBuff.turns} turnos`);
+    }
+    return lines;
+  }
+  function startHold(kind) {
+    holdingRef.current = false;
+    clearTimeout(holdTimer.current);
+    holdTimer.current = setTimeout(() => { holdingRef.current = true; setPreviewKind(kind); }, 400);
+  }
+  function endHold(kind) {
+    clearTimeout(holdTimer.current);
+    if (holdingRef.current) { holdingRef.current = false; setPreviewKind(null); }
+    else { heroAction(kind); }
+  }
+  function cancelHold() {
+    clearTimeout(holdTimer.current);
+    holdingRef.current = false;
+    setPreviewKind(null);
+  }
   function heroAction(kind) {
     setState((s0) => {
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
@@ -2147,12 +2192,30 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
                 </button>))}
             </div>
           </div>
-        ) : isHeroTurn ? (() => { const nm = skillNamesOf(activeHero.id); const kaiba3 = activeHero.id === "kaiba" && aliveDragons(state, activeHero.uid).length >= 3; return (
-          <div>
+        ) : isHeroTurn ? (() => { const nm = skillNamesOf(activeHero.id); const kaiba3 = activeHero.id === "kaiba" && aliveDragons(state, activeHero.uid).length >= 3;
+          const _kindLabel = { basic: "Ataque Básico", skill: "Perícia · 1 PH", ult: "Ultimate" };
+          const _kindName  = { basic: nm[0], skill: nm[1], ult: nm[2] };
+          const _holdBtn = (kind, btnProps, children) => <Btn {...btnProps} onClick={null}
+            onPointerDown={() => startHold(kind)} onPointerUp={() => endHold(kind)}
+            onPointerLeave={cancelHold} onPointerCancel={cancelHold}
+            style={{ flex: 1, minWidth: 96, userSelect: "none", WebkitUserSelect: "none", ...btnProps.style }}>{children}</Btn>;
+          return (
+          <div style={{ position: "relative" }}>
+            {previewKind && (() => {
+              const pvLines = skillPreviewLines(activeHero, previewKind);
+              return <div style={{ position: "absolute", bottom: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)", width: 272, background: "rgba(7,6,19,0.98)", border: `2px solid ${C.gold}`, borderRadius: 8, padding: "12px 14px", zIndex: 50, boxShadow: `0 8px 32px rgba(0,0,0,0.85), 0 0 20px ${C.gold}22`, pointerEvents: "none" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${C.line}`, paddingBottom: 6, marginBottom: 8 }}>
+                  <span style={{ fontWeight: 700, fontSize: 14, color: "#fff" }}>{_kindName[previewKind]}</span>
+                  <span style={{ background: C.panelHi, color: C.gold, padding: "2px 7px", borderRadius: 4, fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>{_kindLabel[previewKind]}</span>
+                </div>
+                {pvLines.map((l, i) => <div key={i} style={{ fontSize: 12, color: C.mute, lineHeight: 1.75 }} dangerouslySetInnerHTML={{ __html: l.replace(/<b>(.*?)<\/b>/g, `<b style="color:${C.gold};font-weight:600">$1</b>`) }} />)}
+                <div style={{ fontSize: 10, color: C.dim, marginTop: 8, borderTop: `1px solid ${C.line}`, paddingTop: 6 }}>Solte para cancelar · Clique rápido para usar</div>
+              </div>;
+            })()}
             <div className="flex gap-2" style={{ flexWrap: "wrap", justifyContent: "center" }}>
-              <Btn kind="soft" onClick={() => heroAction("basic")} style={{ flex: 1, minWidth: 96 }}>⚔️ {nm[0]}</Btn>
-              <Btn disabled={state.sp <= 0} onClick={() => heroAction("skill")} style={{ flex: 1, minWidth: 96 }}>✦ {nm[1]} <span style={{ fontSize: 10, opacity: 0.8 }}>(1 PH)</span></Btn>
-              <Btn kind={canUlt ? "primary" : "soft"} disabled={!canUlt} onClick={() => heroAction("ult")} style={{ flex: 1, minWidth: 96 }}>{canUlt ? "💥 " : "⏳ "}{activeHero.id === "kaiba" && activeHero.energy >= activeHero.energyMax && !kaiba3 ? `Precisa 3 dragões (${aliveDragons(state, activeHero.uid).length}/3)` : kaiba3 && canUlt ? "Invocação Suprema" : nm[2]}</Btn>
+              {_holdBtn("basic", { kind: "soft" }, <>⚔️ {nm[0]}</>)}
+              {_holdBtn("skill", { disabled: state.sp <= 0 }, <>✦ {nm[1]} <span style={{ fontSize: 10, opacity: 0.8 }}>(1 PH)</span></>)}
+              {_holdBtn("ult", { kind: canUlt ? "primary" : "soft", disabled: !canUlt }, <>{canUlt ? "💥 " : "⏳ "}{activeHero.id === "kaiba" && activeHero.energy >= activeHero.energyMax && !kaiba3 ? `Precisa 3 dragões (${aliveDragons(state, activeHero.uid).length}/3)` : kaiba3 && canUlt ? "Invocação Suprema" : nm[2]}</>)}
             </div>
             <div style={{ textAlign: "center", fontSize: 11, color: C.mute, marginTop: 6 }}>{abilityHint(activeHero)}</div>
           </div>); })() : <div style={{ textAlign: "center", color: C.mute, fontSize: 13 }}>{current && (current.side === "enemy") ? "⚔️ Turno do inimigo…" : "🤝 Aliado agindo…"}</div>}
