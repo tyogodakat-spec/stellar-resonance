@@ -694,10 +694,15 @@ function Game({ email, isAdmin, onLogout }) {
       setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []);
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0);
     }
+    // Carrega fotos do localStorage imediatamente (sem depender do Firebase)
+    try { const li = _ls.get("sr_shared_images"); if (li) { const parsed = JSON.parse(li); if (parsed && typeof parsed === "object") setImages(parsed); } } catch {}
     setLoaded(true);
-    // Carrega fotos globais do admin em background (não bloqueia o jogo)
+    // Firebase em background: atualiza se tiver dados mais recentes
     cloudReady.then(() => cloudGet("meta", "images")).then((sharedImgs) => {
-      if (sharedImgs && sharedImgs.map) setImages(sharedImgs.map);
+      if (sharedImgs && sharedImgs.map && Object.keys(sharedImgs.map).length > 0) {
+        setImages(sharedImgs.map);
+        _ls.set("sr_shared_images", JSON.stringify(sharedImgs.map));
+      }
     }).catch(() => {});
   })(); }, [SAVE_KEY]);
 
@@ -2336,8 +2341,8 @@ function RelicsScreen({ relicInv }) {
    ========================================================================== */
 function Admin({ images, setImages, flash }) {
   const [tab, setTab] = useState("chars");
-  const setImg = (id, url) => setImages((m) => { const next = { ...m, [id]: url }; cloudSet("meta", "images", { map: next }); return next; });
-  const clearImg = (id) => setImages((m) => { const n = { ...m }; delete n[id]; cloudSet("meta", "images", { map: n }); return n; });
+  const setImg = (id, url) => setImages((m) => { const next = { ...m, [id]: url }; cloudSet("meta", "images", { map: next }); _ls.set("sr_shared_images", JSON.stringify(next)); return next; });
+  const clearImg = (id) => setImages((m) => { const n = { ...m }; delete n[id]; cloudSet("meta", "images", { map: n }); _ls.set("sr_shared_images", JSON.stringify(n)); return n; });
   return (
     <div className="flex flex-col gap-4">
       <Panel glow={C.gold}>
