@@ -1356,7 +1356,7 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
           <St k="Regen de Energia" v={(stats.energyRegen || 0).toFixed(1) + "%"} /><St k="Perfuração" v={(stats.defPen || 0).toFixed(1) + "%"} /><St k="Dano de DoT" v={(stats.dotDmg || 0).toFixed(1) + "%"} /><St k="Energia Máx" v={stats.energyMax} />
         </div>
         {Object.entries(stats.elem || {}).some(([, v]) => v > 0) && <div style={{ fontSize: 11, color: C.mute, marginTop: 8 }}>Dano elemental: {Object.entries(stats.elem).filter(([, v]) => v > 0).map(([k, v]) => `${k} +${v.toFixed(1)}%`).join(" · ")}</div>}
-        <div style={{ borderTop: `1px solid ${C.line}`, marginTop: 12, paddingTop: 12 }}><b style={{ fontSize: 13 }}>Habilidades</b><SkillList def={def} /></div>
+        <div style={{ borderTop: `1px solid ${C.line}`, marginTop: 12, paddingTop: 12 }}><b style={{ fontSize: 13 }}>Habilidades</b><SkillList def={def} stats={stats} /></div>
       </Panel>}
       {tab === "trace" && <Panel>
         <p style={{ fontSize: 13, color: C.mute, marginBottom: 10 }}>Rastros: subir Básico/Habilidade/Ultimate gasta 💠 Cristais de Habilidade (Dungeons de Tag). Os Nós de Atributo gastam 1 🔮 Núcleo + o material da Dungeon da tag do personagem. Os 3 Rastros Especiais usam 🔮 Núcleos de Vestígio (Boss Semanal).</p>
@@ -1418,20 +1418,64 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
 }
 function St({ k, v }) { return <div className="flex justify-between" style={{ background: C.panelHi, padding: "8px 10px", borderRadius: 10 }}><span style={{ color: C.mute }}>{k}</span><b>{v}</b></div>; }
 function buffText(b) { const p = []; for (const k of ["atk", "def", "spd", "critRate", "critDmg", "dmgBonus"]) if (b[k]) p.push(`+${b[k]}${k === "spd" ? " VEL" : "% " + (STAT_LABEL[k] || k)}`); return `${p.join(", ")}${b.all ? " (time)" : ""} por ${b.turns}t`; }
-function SkillList({ def }) {
-  const s = def.skill, it = [["Básico", `${s.basicMul}% ATK · gera 1 PH`]];
-  if (s.skillMul) it.push(["Habilidade", `${s.skillMul}% ATK${s.aoe ? " (área)" : ""} · usa 1 PH`]);
-  if (s.skillBuff) it.push(["Habilidade (Buff)", buffText(s.skillBuff)]);
-  if (s.skillDebuff) it.push(["Habilidade (Debuff)", `DEF -${s.skillDebuff.defDown}%, +${s.skillDebuff.vuln}% dano recebido por ${s.skillDebuff.turns}t`]);
-  if (s.heal) it.push(["Habilidade (Cura)", `cura ${s.heal.mul}% ATK +${s.heal.flat}`]);
-  if (s.summon) it.push(["Habilidade (Invocar)", `chama ${s.summon.name} (turnos próprios, ${s.summon.mul}% do ATK)`]);
-  if (s.ultMul) it.push(["Ultimate", `${s.ultMul}% ATK${s.ultAoe ? " (área)" : ""}`]);
-  if (s.dragonStrike) it.push(["Ultimate (Dragão)", `o dragão ataca por ${s.dragonStrike}% do ATK`]);
-  if (s.ultBuff) it.push(["Ultimate (Buff)", buffText(s.ultBuff)]);
-  if (s.ultDebuff) it.push(["Ultimate (Debuff)", `+${s.ultDebuff.vuln}% dano a todos por ${s.ultDebuff.turns}t`]);
-  if (s.ultHeal) it.push(["Ultimate (Cura)", `cura todos ${s.ultHeal.mul}% ATK +${s.ultHeal.flat}`]);
-  if (s.energyGift) it.push(["Talento", `dá ${s.energyGift} de energia a um aliado`]);
-  return <div className="flex flex-col gap-1 mt-2">{it.map(([a, b], i) => <div key={i} style={{ fontSize: 12 }}><b>{a}:</b> <span style={{ color: C.mute }}>{b}</span></div>)}</div>;
+function SkillList({ def, stats }) {
+  const s = def.skill || {}, nm = skillNamesOf(def.id);
+  const atk = stats ? Math.round(stats.atk) : null;
+  const gold = C.gold;
+  function hl(html) { return html.replace(/<b>(.*?)<\/b>/g, `<b style="color:${gold};font-weight:600">$1</b>`); }
+  function buildLines(kind) {
+    const L = [];
+    if (kind === "basic") {
+      const mul = s.basicMul || 100;
+      L.push(`Dano: <b>${mul}% de ATK</b>`);
+      if (atk) L.push(`≈ <b>${Math.round(atk * mul / 100)}</b> de dano (sem crítico)`);
+      L.push(`Ganha <b>+1 Ponto de Habilidade</b>`);
+    } else if (kind === "skill") {
+      L.push(`Custo: <b>1 Ponto de Habilidade</b>`);
+      if (s.skillMul) { L.push(`Dano: <b>${s.skillMul}% de ATK</b>${s.aoe ? " — Área" : ""}`); if (atk) L.push(`≈ <b>${Math.round(atk * s.skillMul / 100)}</b> de dano`); }
+      if (s.skillDot) L.push(`Aplica <b>${DOT_INFO[s.skillDot.type]?.n || s.skillDot.type}</b>: <b>${s.skillDot.mul}% ATK</b>/turno por <b>${s.skillDot.turns}</b> turno${s.skillDot.turns > 1 ? "s" : ""}`);
+      if (s.heal) L.push(`Cura: <b>${s.heal.mul}% de ATK</b> (+${s.heal.flat || 0} fixo)${s.heal.all ? " para todos" : ""}`);
+      if (s.shield) L.push(`Escudo: <b>${s.shield.mul || s.shield.defMul}% de ATK/DEF</b> (+${s.shield.flat || 0} fixo)`);
+      if (s.skillBuff) { const st = (s.skillBuff.stat || "atk").toUpperCase(); L.push(`+<b>${s.skillBuff.value}% ${st}</b> por <b>${s.skillBuff.turns}</b> turnos${s.skillBuff.all ? " (para todos)" : ""}`); }
+      if (s.skillDebuff) L.push(`Reduz DEF em <b>${s.skillDebuff.defDown || 0}%</b>, +<b>${s.skillDebuff.vuln || 0}%</b> dano recebido por <b>${s.skillDebuff.turns}</b> turnos`);
+      if (s.summon) L.push(`Invoca <b>${s.summon.name}</b> (${s.summon.mul}% do ATK por turno próprio)`);
+      if (s.energyGift) L.push(`Dá <b>${s.energyGift}</b> de energia a um aliado`);
+      if (s.taunt) L.push(`Provoca inimigos para atacar este personagem`);
+      if (s.basicMul && !s.skillMul && !s.heal && !s.shield) L.push(`Dano Básico: <b>${s.basicMul}% de ATK</b>`);
+    } else if (kind === "ult") {
+      if (s.ultMul) { L.push(`Dano: <b>${s.ultMul}% de ATK</b>${s.ultAoe ? " — Área" : ""}`); if (atk) L.push(`≈ <b>${Math.round(atk * s.ultMul / 100)}</b> de dano`); }
+      if (s.dragonStrike) L.push(`Dragão ataca por <b>${s.dragonStrike}% do ATK</b>`);
+      if (s.ultDot) L.push(`Aplica <b>${DOT_INFO[s.ultDot.type]?.n || s.ultDot.type}</b>: <b>${s.ultDot.mul}% ATK</b>/turno por <b>${s.ultDot.turns}</b> turno${s.ultDot.turns > 1 ? "s" : ""}`);
+      if (s.ultHeal) L.push(`Cura: <b>${s.ultHeal.mul}% de ATK</b> (+${s.ultHeal.flat || 0} fixo) para todos`);
+      if (s.ultShield) L.push(`Escudo para todos: <b>${s.ultShield.mul || s.ultShield.defMul}%</b> (+${s.ultShield.flat || 0} fixo)`);
+      if (s.ultBuff) { const st = (s.ultBuff.stat || "atk").toUpperCase(); L.push(`+<b>${s.ultBuff.value}% ${st}</b> por <b>${s.ultBuff.turns}</b> turnos${s.ultBuff.all ? " (para todos)" : ""}`); }
+      if (s.ultDebuff) L.push(`+<b>${s.ultDebuff.vuln}%</b> dano recebido por todos os inimigos por <b>${s.ultDebuff.turns}</b> turnos`);
+      if (s.kaibaUlt) L.push(`Escolha: invocar <b>Obelisco do Atormentador</b> ou <b>Dragão Definitivo</b>`);
+    }
+    return L;
+  }
+  const kindMeta = [
+    { kind: "basic", badge: "Ataque Básico", name: nm[0] },
+    { kind: "skill", badge: "Perícia",       name: nm[1] },
+    { kind: "ult",   badge: "Ultimate",      name: nm[2] },
+  ];
+  return (
+    <div className="flex flex-col gap-2 mt-2">
+      {kindMeta.map(({ kind, badge, name }) => {
+        const lines = buildLines(kind);
+        return (
+          <div key={kind} style={{ background: C.bg1, border: `1px solid ${C.line}`, borderRadius: 8, padding: "10px 12px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${C.line}`, paddingBottom: 6, marginBottom: 8 }}>
+              <span style={{ fontWeight: 700, fontSize: 13, color: "#fff" }}>{name}</span>
+              <span style={{ background: C.panelHi, color: C.gold, padding: "2px 7px", borderRadius: 4, fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>{badge}</span>
+            </div>
+            {lines.length === 0 && <span style={{ fontSize: 12, color: C.dim }}>—</span>}
+            {lines.map((l, i) => <div key={i} style={{ fontSize: 12, color: C.mute, lineHeight: 1.75 }} dangerouslySetInnerHTML={{ __html: hl(l) }} />)}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 function WeaponRow({ w, active, match }) {
   return <div style={{ background: active ? C.panelHi : C.panel, border: `1px solid ${active ? C.gold : C.line}`, borderRadius: 12, padding: 10 }}>
