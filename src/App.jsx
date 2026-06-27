@@ -679,11 +679,11 @@ function Game({ email, isAdmin, onLogout }) {
       setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []);
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0);
     }
-    // Aguarda Firebase conectar, depois carrega fotos globais do admin
-    await cloudReady;
-    const sharedImgs = await cloudGet("meta", "images");
-    if (sharedImgs && sharedImgs.map) setImages(sharedImgs.map);
     setLoaded(true);
+    // Carrega fotos globais do admin em background (não bloqueia o jogo)
+    cloudReady.then(() => cloudGet("meta", "images")).then((sharedImgs) => {
+      if (sharedImgs && sharedImgs.map) setImages(sharedImgs.map);
+    }).catch(() => {});
   })(); }, [SAVE_KEY]);
 
   const lastStaminaRef = useRef(lastStamina);
