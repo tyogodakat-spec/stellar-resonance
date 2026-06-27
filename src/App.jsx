@@ -477,14 +477,13 @@ async function initCloud() {
   if (Cloud.ready || Cloud.tried) return;
   Cloud.tried = true;
   try {
-    const APP = "firebase/app", FS = "firebase/firestore"; // specifiers não-literais => o bundler não tenta resolver no preview
-    const appMod = await import(APP);
-    const fs = await import(FS);
+    const appMod = await import("firebase/app");
+    const fs = await import("firebase/firestore");
     const app = appMod.initializeApp(firebaseConfig);
     Cloud.db = fs.getFirestore(app);
     Cloud.fs = fs;
     Cloud.ready = true;
-    try { const AN = "firebase/analytics"; const an = await import(AN); Cloud.analytics = an.getAnalytics(app); } catch { /* Analytics é opcional (só no browser) */ }
+    try { const an = await import("firebase/analytics"); Cloud.analytics = an.getAnalytics(app); } catch { /* Analytics é opcional (só no browser) */ }
     console.info("[Cloud] Firebase conectado — save na nuvem e co-op global ativos.");
   } catch (e) { /* preview/offline: segue no localStorage */ }
 }
