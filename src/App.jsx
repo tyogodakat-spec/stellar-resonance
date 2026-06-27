@@ -676,10 +676,13 @@ function Game({ email, isAdmin, onLogout }) {
       setPullHistory(s.pullHistory ?? []);
       if (s.owned) setOwned(s.owned.map(normChar).filter((o) => CHAR_MAP[o.id])); setOwnedWeapons((Array.isArray(s.ownedWeapons) ? s.ownedWeapons : []).filter((id) => WEAPON_MAP[id])); setRelicInv((Array.isArray(s.relicInv) ? s.relicInv : []).filter(isValidRelic));
       if (s.team) setTeam(s.team); setStamina(s.stamina ?? 240); setLastStamina(s.lastStamina ?? Date.now());
-      setPlayerName(s.playerName ?? "Pioneiro"); setImages(s.images ?? {});
+      setPlayerName(s.playerName ?? "Pioneiro");
       setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []);
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0);
     }
+    // Carrega fotos globais definidas pelo admin (visíveis a todos os jogadores)
+    const sharedImgs = await cloudGet("meta", "images");
+    if (sharedImgs && sharedImgs.map) setImages(sharedImgs.map);
     setLoaded(true);
   })(); }, [SAVE_KEY]);
 
@@ -2318,8 +2321,8 @@ function RelicsScreen({ relicInv }) {
    ========================================================================== */
 function Admin({ images, setImages, flash }) {
   const [tab, setTab] = useState("chars");
-  const setImg = (id, url) => setImages((m) => ({ ...m, [id]: url }));
-  const clearImg = (id) => setImages((m) => { const n = { ...m }; delete n[id]; return n; });
+  const setImg = (id, url) => setImages((m) => { const next = { ...m, [id]: url }; cloudSet("meta", "images", { map: next }); return next; });
+  const clearImg = (id) => setImages((m) => { const n = { ...m }; delete n[id]; cloudSet("meta", "images", { map: n }); return n; });
   return (
     <div className="flex flex-col gap-4">
       <Panel glow={C.gold}>
