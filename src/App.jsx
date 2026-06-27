@@ -500,7 +500,7 @@ async function cloudRandomAlly() {
   if (!Cloud.ready) return null;
   try { const { collection, getDocs, query, orderBy, limit } = Cloud.fs; const snap = await withTimeout(getDocs(query(collection(Cloud.db, "coop"), orderBy("updatedAt", "desc"), limit(30))), 4000, null); if (!snap) return null; const arr = []; snap.forEach((d) => arr.push(d.data())); return arr.length ? arr[Math.floor(Math.random() * arr.length)] : null; } catch { return null; }
 }
-initCloud(); // tenta conectar uma vez (no-op no preview)
+const cloudReady = initCloud(); // guarda a promise para await posterior
 
 const SS = {
   get: async (k, shared) => {
@@ -680,7 +680,8 @@ function Game({ email, isAdmin, onLogout }) {
       setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []);
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0);
     }
-    // Carrega fotos globais definidas pelo admin (visíveis a todos os jogadores)
+    // Aguarda Firebase conectar, depois carrega fotos globais do admin
+    await cloudReady;
     const sharedImgs = await cloudGet("meta", "images");
     if (sharedImgs && sharedImgs.map) setImages(sharedImgs.map);
     setLoaded(true);
