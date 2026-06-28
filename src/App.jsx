@@ -595,6 +595,7 @@ function Bar({ value, max, color, bg = "#0b0920", h = 8, glow }) {
 function Rarity({ n }) { return <span style={{ color: n === 5 ? C.gold : n === 4 ? "#B98BFF" : "#6d8fb8", letterSpacing: 1, fontSize: 12 }}>{"★".repeat(n)}</span>; }
 function ImgFill({ url, fallback, size }) {
   const [err, setErr] = useState(false);
+  useEffect(() => { setErr(false); }, [url]);
   if (url && !err) return <img src={url} alt="" onError={() => setErr(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />;
   return <span style={{ fontSize: size * 0.5 }}>{fallback}</span>;
 }
@@ -2768,12 +2769,14 @@ function AdminItemRow({ id, name, icon, url, setImg, clearImg, flash }) {
   const images = useImg();
   const imgUrl = url || images[id] || "";
   const [val, setVal] = useState(imgUrl);
+  const [imgErr, setImgErr] = useState(false);
   useEffect(() => setVal(imgUrl), [imgUrl]);
+  useEffect(() => { setImgErr(false); }, [imgUrl]);
   return (
     <Panel style={{ padding: 12 }}>
       <div className="flex items-center gap-3">
         <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0, overflow: "hidden" }}>
-          {imgUrl ? <img src={imgUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={(e) => { e.target.style.display = "none"; }} /> : icon}
+          {imgUrl && !imgErr ? <img src={imgUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={() => setImgErr(true)} /> : icon}
         </div>
         <div style={{ flex: 1, overflow: "hidden" }}><div style={{ fontWeight: 700, fontSize: 13 }}>{name}</div><div style={{ fontSize: 11, color: C.mute }}>{id}</div></div>
       </div>
