@@ -1180,7 +1180,7 @@ function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, 
     <Panel glow="#B98BFF">
       <div style={{ ...ORB, fontWeight: 800, fontSize: 18 }}>🗝️ Dungeons de Tag</div>
       <div style={{ color: C.mute, fontSize: 12, marginTop: 2 }}>Uma dungeon por tag do elenco (tags repetidas não geram dungeon extra). 6 ondas. Dropam: <b>⚙️ Engrenagens de Arma</b> (subir armas), <b>💠 Cristais de Habilidade</b> (subir Básico/Habilidade/Ultimate) e o <b>material da tag</b> (necessário, junto de 1 🔮 Núcleo, para destravar Nós de Atributo).</div>
-      <div className="flex items-center gap-3 mt-2" style={{ fontSize: 12, flexWrap: "wrap" }}><span>⚙️ <b style={{ color: C.gold }}>{weaponMats}</b></span><span>💠 <b style={{ color: C.gold }}>{skillMats}</b></span></div>
+      <div className="flex items-center gap-3 mt-2" style={{ fontSize: 12, flexWrap: "wrap" }}><span className="flex items-center gap-1"><ItemIcon id="item_wpn_mat" emoji="⚙️" size={14} /> <b style={{ color: C.gold }}>{weaponMats}</b></span><span className="flex items-center gap-1"><ItemIcon id="item_skill_mat" emoji="💠" size={14} /> <b style={{ color: C.gold }}>{skillMats}</b></span></div>
       <div className="grid gap-2 mt-3" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))" }}>
         {ALL_TAGS.map((tag) => <div key={tag} style={{ background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: 10 }}>
           <div style={{ fontWeight: 700, fontSize: 13 }}>{tag}</div>
@@ -1497,8 +1497,8 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
         <div className="flex items-center gap-2 mt-3" style={{ flexWrap: "wrap" }}>
           <span style={{ fontSize: 13 }}>Nível {o.level}/{cap}{cap < MAX_LEVEL ? ` (máx ${MAX_LEVEL})` : ""}</span>
           {atCap
-            ? <Btn kind="primary" style={{ padding: "6px 12px" }} onClick={() => ascendChar(o.id)}>Ascender {isAdmin ? "(admin)" : `(🔶${ascCost})`}</Btn>
-            : <Btn kind="soft" style={{ padding: "6px 12px" }} onClick={() => levelUp(o.id)}>Subir nível {isAdmin ? "(admin)" : `(📘${needExp})`}</Btn>}
+            ? <Btn kind="primary" style={{ padding: "6px 12px" }} onClick={() => ascendChar(o.id)}>Ascender {isAdmin ? "(admin)" : <span className="flex items-center gap-1">(<ItemIcon id="item_asc_mat" emoji="🔶" size={13} />{ascCost})</span>}</Btn>
+            : <Btn kind="soft" style={{ padding: "6px 12px" }} onClick={() => levelUp(o.id)}>Subir nível {isAdmin ? "(admin)" : <span className="flex items-center gap-1">(<ItemIcon id="item_exp" emoji="📘" size={13} />{needExp})</span>}</Btn>}
           <Btn kind="ghost" style={{ padding: "6px 12px", marginLeft: "auto" }} onClick={() => publish(o)}>Publicar p/ Co-op</Btn>
         </div>
         {atCap && <div style={{ fontSize: 11, color: "#ffb86b", marginTop: 6 }}>Limite de nível atingido — derrote o Guardião da Ascensão (aba Boss) para conseguir 🔶 Núcleos de Ascensão. Você tem {ascMats}.</div>}
@@ -1526,7 +1526,7 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
           {[["basic", "Ataque Básico", skillNamesOf(def.id)[0]], ["skill", "Habilidade", skillNamesOf(def.id)[1]], ["ult", "Ultimate", skillNamesOf(def.id)[2]]].map(([key, lbl, nm]) => { const lvl = oc.traces[key] || 1; const max = lvl >= TRACE_MAX; return (
             <div key={key} className="flex items-center justify-between" style={{ background: C.panelHi, borderRadius: 10, padding: "8px 10px" }}>
               <div><div style={{ fontWeight: 700, fontSize: 13 }}>{lbl} <span style={{ color: C.mute, fontWeight: 400 }}>· {nm}</span></div><div style={{ fontSize: 11, color: C.mute }}>Nv {lvl}/{TRACE_MAX} · dano +{Math.round((traceMul(lvl) - 1) * 100)}%</div></div>
-              <Btn kind={max ? "ghost" : "soft"} disabled={max} style={{ padding: "5px 10px" }} onClick={() => traceLevelUp(o.id, key)}>{max ? "MÁX" : isAdmin ? "Subir" : `💠${1 + Math.floor(lvl / 3)}`}</Btn>
+              <Btn kind={max ? "ghost" : "soft"} disabled={max} style={{ padding: "5px 10px" }} onClick={() => traceLevelUp(o.id, key)}>{max ? "MÁX" : isAdmin ? "Subir" : <span className="flex items-center gap-1"><ItemIcon id="item_skill_mat" emoji="💠" size={13} />{1 + Math.floor(lvl / 3)}</span>}</Btn>
             </div>); })}
         </div>
         <b style={{ fontSize: 13, display: "block", marginTop: 12 }}>Nós de Atributo</b>
@@ -1537,12 +1537,12 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
               <div style={{ fontSize: 11, color: C.mute }}>{on ? "ativo" : isAdmin ? "ativar" : `🔮1 · 🗝️${primaryTag(def)}`}</div>
             </button>); })}
         </div>
-        <b style={{ fontSize: 13, display: "block", marginTop: 12 }}>Rastros Especiais <span style={{ color: C.gold }}>(🔮 {bossMats})</span></b>
+        <b style={{ fontSize: 13, display: "block", marginTop: 12 }}>Rastros Especiais <span className="flex items-center gap-1" style={{ color: C.gold, display: "inline-flex", fontWeight: 400 }}>(<ItemIcon id="item_boss_mat" emoji="🔮" size={13} /> {bossMats})</span></b>
         <div className="flex flex-col gap-2 mt-2">
           {sts.map((st, i) => { const on = oc.specialTraces[i]; return (
             <div key={i} className="flex items-center justify-between gap-2" style={{ background: on ? `${C.gold}16` : C.panelHi, border: `1px solid ${on ? C.gold : C.line}`, borderRadius: 10, padding: "8px 10px" }}>
               <div style={{ minWidth: 0 }}><div style={{ fontWeight: 700, fontSize: 13, color: on ? C.gold : C.text }}>{st.name} {on && <Glow color={C.good}>✓</Glow>}</div><div style={{ fontSize: 11, color: C.mute }}>{st.desc}</div></div>
-              <Btn kind={on ? "ghost" : "primary"} disabled={on} style={{ padding: "5px 10px", whiteSpace: "nowrap" }} onClick={() => unlockSpecialTrace(o.id, i)}>{on ? "ativo" : `🔮${st.cost}`}</Btn>
+              <Btn kind={on ? "ghost" : "primary"} disabled={on} style={{ padding: "5px 10px", whiteSpace: "nowrap" }} onClick={() => unlockSpecialTrace(o.id, i)}>{on ? "ativo" : <span className="flex items-center gap-1"><ItemIcon id="item_boss_mat" emoji="🔮" size={13} />{st.cost}</span>}</Btn>
             </div>); })}
         </div>
       </Panel>}
@@ -1563,10 +1563,10 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
           <WeaponRow w={WEAPON_MAP[o.weapon]} active />
           <div className="flex items-center justify-between mt-2" style={{ background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: "8px 10px" }}>
             <div><div style={{ fontSize: 12, fontWeight: 700 }}>Nível da Arma: <span style={{ color: C.gold }}>{o.weaponLv || 1}/{WEAPON_MAX_LEVEL}</span></div>
-              {(o.weaponLv || 1) < WEAPON_MAX_LEVEL ? <div style={{ fontSize: 10, color: C.mute }}>Custa ⚙️{weaponCost(o.weaponLv || 1).wmat} · 📘{weaponCost(o.weaponLv || 1).exp}</div> : <div style={{ fontSize: 10, color: C.gold }}>nível máximo</div>}</div>
+              {(o.weaponLv || 1) < WEAPON_MAX_LEVEL ? <div className="flex items-center gap-1" style={{ fontSize: 10, color: C.mute }}>Custa <ItemIcon id="item_wpn_mat" emoji="⚙️" size={10} />{weaponCost(o.weaponLv || 1).wmat} · <ItemIcon id="item_exp" emoji="📘" size={10} />{weaponCost(o.weaponLv || 1).exp}</div> : <div style={{ fontSize: 10, color: C.gold }}>nível máximo</div>}</div>
             <Btn kind={(o.weaponLv || 1) >= WEAPON_MAX_LEVEL ? "ghost" : "primary"} disabled={(o.weaponLv || 1) >= WEAPON_MAX_LEVEL} style={{ padding: "5px 12px", whiteSpace: "nowrap" }} onClick={() => weaponLevelUp(o.id)}>{(o.weaponLv || 1) >= WEAPON_MAX_LEVEL ? "MÁX" : isAdmin ? "Subir" : "⬆ Subir"}</Btn>
           </div>
-          <div style={{ fontSize: 10, color: C.mute, marginTop: 4 }}>⚙️ Engrenagens de Arma: <b style={{ color: C.gold }}>{weaponMats}</b> · ganhe nas Dungeons de Tag.</div>
+          <div className="flex items-center gap-1" style={{ fontSize: 10, color: C.mute, marginTop: 4 }}><ItemIcon id="item_wpn_mat" emoji="⚙️" size={10} /> Engrenagens de Arma: <b style={{ color: C.gold }}>{weaponMats}</b> · ganhe nas Dungeons de Tag.</div>
         </> : <div style={{ color: C.mute, fontSize: 13 }}>Nenhuma.</div>}
         <div style={{ borderTop: `1px solid ${C.line}`, margin: "12px 0", paddingTop: 12 }}>
           <b style={{ fontSize: 13 }}>Inventário {invWeapons.length === 0 && "(vazio — invoque armas)"}</b>
