@@ -104,6 +104,20 @@ const RELIC_SETS = {
   "Benção Sagrada":    { color: "#FFE08A", p2: { hp: 20 }, flag4: "setHoly4", d2: "+20% de HP máx", d4: "+15% de cura e, ao curar, aplica escudo de 2% do HP máx do alvo" },
 };
 const RELIC_SET_NAMES = Object.keys(RELIC_SETS);
+const RELIC_ITEM_ID = {
+  "Tempestade Eletro": "item_relic_eletro",
+  "Sopro Glacial":     "item_relic_glacial",
+  "Núcleo Ardente":    "item_relic_fire",
+  "Praga Viral":       "item_relic_viral",
+  "Benção Sagrada":    "item_relic_holy",
+};
+const RELIC_EMOJI = {
+  "Tempestade Eletro": "⚡",
+  "Sopro Glacial":     "❄️",
+  "Núcleo Ardente":    "🔥",
+  "Praga Viral":       "🧬",
+  "Benção Sagrada":    "✨",
+};
 const GAME_ITEMS = [
   { id: "item_jade",        name: "Jade Estelar",           icon: "💎" },
   { id: "item_chronicles",  name: "Crônicas",               icon: "📜" },
@@ -1531,10 +1545,24 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
         </div>
         <b style={{ fontSize: 13, display: "block", marginTop: 12 }}>Nós de Atributo</b>
         <div className="grid grid-cols-2 gap-2 mt-2">
-          {traceNodesOf(def).map((n, i) => { const on = oc.traceNodes[i]; return (
-            <button key={i} disabled={on} onClick={() => unlockTraceNode(o.id, i)} className="text-left" style={{ background: on ? `${el.color}22` : C.panelHi, border: `1px solid ${on ? el.color : C.line}`, borderRadius: 10, padding: "8px 10px", opacity: on ? 1 : 0.92 }}>
+          {traceNodesOf(def).map((n, i) => {
+            const on = oc.traceNodes[i];
+            const tag = primaryTag(def);
+            const bossHave = bossMats;
+            const tagHave = tagMats[tag] || 0;
+            const canAfford = isAdmin || (bossHave >= 1 && tagHave >= 1);
+            return (
+            <button key={i} disabled={on || (!isAdmin && !canAfford)} onClick={() => unlockTraceNode(o.id, i)} className="text-left" style={{ background: on ? `${el.color}22` : C.panelHi, border: `1px solid ${on ? el.color : !isAdmin && !canAfford ? C.bad : C.line}`, borderRadius: 10, padding: "8px 10px", opacity: on ? 1 : canAfford ? 0.92 : 0.65 }}>
               <div style={{ fontWeight: 700, fontSize: 12 }}>{n.label} {on && <Glow color={C.good}>✓</Glow>}</div>
-              <div style={{ fontSize: 11, color: C.mute }}>{on ? "ativo" : isAdmin ? "ativar" : `🔮1 · 🗝️${primaryTag(def)}`}</div>
+              <div style={{ fontSize: 11, color: C.mute }}>
+                {on ? "ativo" : isAdmin ? "ativar" : (
+                  <span className="flex items-center gap-1 flex-wrap">
+                    <span className="flex items-center gap-1"><ItemIcon id="item_boss_mat" emoji="🔮" size={11} /><span style={{ color: bossHave >= 1 ? C.text : C.bad, fontWeight: 700 }}>{bossHave}/1</span></span>
+                    <span>·</span>
+                    <span style={{ color: tagHave >= 1 ? C.text : C.bad, fontWeight: 700 }}>🗝️{tag} {tagHave}/1</span>
+                  </span>
+                )}
+              </div>
             </button>); })}
         </div>
         <b style={{ fontSize: 13, display: "block", marginTop: 12 }}>Rastros Especiais <span className="flex items-center gap-1" style={{ color: C.gold, display: "inline-flex", fontWeight: 400 }}>(<ItemIcon id="item_boss_mat" emoji="🔮" size={13} /> {bossMats})</span></b>
@@ -1667,7 +1695,7 @@ function RelicEquip({ o, setOwnedField, relicInv, onUpgradeRelic }) {
               <div style={{ fontSize: 12, fontWeight: 700, color: relicSetData(r.set).color }}>{r.set} <span style={{ color: C.mute }}>+{r.level || 0}</span></div>
               <div style={{ fontSize: 12 }}>{relicMainText(r)}</div>
               <div style={{ fontSize: 10, color: C.mute, lineHeight: 1.35 }}>{(r.subs || []).map((s) => `${relicSubLabel(s)} +${s.value.toFixed(1)}`).join(" · ")}</div>
-              {onUpgradeRelic && r.level < 15 && <div onClick={(e) => { e.stopPropagation(); onUpgradeRelic(r.id); }} style={{ marginTop: 4, fontSize: 11, color: C.gold, fontWeight: 700 }}>⬆ Subir +3 (📘 Lácrimas)</div>}
+              {onUpgradeRelic && r.level < 15 && <div onClick={(e) => { e.stopPropagation(); onUpgradeRelic(r.id); }} className="flex items-center gap-1" style={{ marginTop: 4, fontSize: 11, color: C.gold, fontWeight: 700 }}>⬆ Subir +3 (<ItemIcon id="item_exp" emoji="📘" size={11} /> Lágrimas)</div>}
             </button>)}
           </div>}
       </div>); })()}
@@ -2595,9 +2623,15 @@ function RelicsScreen({ relicInv }) {
   if (!relicInv.length) return <Empty msg="Sem relíquias. Vá ao Co-op farmar conjuntos." />;
   const bySet = {}; relicInv.forEach((r) => (bySet[r.set] = bySet[r.set] || []).push(r));
   return <div className="flex flex-col gap-4">{Object.entries(bySet).map(([set, list]) => (
-    <Panel key={set} glow={RELIC_SETS[set].color}>
-      <div className="flex items-center justify-between"><b style={{ color: RELIC_SETS[set].color }}>{set}</b><span style={{ fontSize: 12, color: C.mute }}>{list.length} peças</span></div>
-      <div style={{ fontSize: 12, color: C.mute, marginTop: 2 }}>4pç: {RELIC_SETS[set].d4}</div>
+    <Panel key={set} glow={RELIC_SETS[set]?.color}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <ItemIcon id={RELIC_ITEM_ID[set]} emoji={RELIC_EMOJI[set] || "💎"} size={22} />
+          <b style={{ color: RELIC_SETS[set]?.color }}>{set}</b>
+        </div>
+        <span style={{ fontSize: 12, color: C.mute }}>{list.length} peças</span>
+      </div>
+      <div style={{ fontSize: 12, color: C.mute, marginTop: 2 }}>4pç: {RELIC_SETS[set]?.d4}</div>
       <div className="grid gap-2 mt-3" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(130px,1fr))" }}>
         {list.map((r) => <div key={r.id} style={{ background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: 8 }}><div style={{ fontSize: 10, color: C.mute }}>{RELIC_SLOTS[r.slot ?? 0]?.name}</div><div style={{ fontSize: 12 }}>{relicMainText(r)} <span style={{color:C.mute}}>+{r.level||0}</span></div></div>)}
       </div>
