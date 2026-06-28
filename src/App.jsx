@@ -2338,7 +2338,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
   const isHeroTurn = current && current.side === "H" && !current.auto && !current.isSummon;
   const activeHero = isHeroTurn ? state.heroes.find((h) => h.uid === current.uid) : null;
   const canUlt = activeHero && activeHero.energyMax && activeHero.energy >= activeHero.energyMax && (activeHero.id !== "kaiba" || aliveDragons(state, activeHero.uid).length >= 3);
-  const stageEl = current ? ELEMENTS[current.element] : ELEMENTS.Holy;
+  const stageEl = (current ? ELEMENTS[current.element] : null) || ELEMENTS.Holy;
 
   return (
     <div style={{ minHeight: "calc(100vh - 56px)", display: "flex", flexDirection: "column" }}>
@@ -2475,7 +2475,7 @@ function abilityHint(h) {
   if (sk.shield || sk.ultShield) parts.push("concede escudo");
   if (sk.skillBuff || sk.ultBuff) parts.push("fortalece o time");
   if (sk.skillDebuff || sk.ultDebuff) parts.push("enfraquece inimigos");
-  if (sk.skillDot) parts.push(DOT_INFO[sk.skillDot.type]?.n.toLowerCase());
+  if (sk.skillDot) parts.push(DOT_INFO[sk.skillDot.type]?.n?.toLowerCase());
   if (sk.aoe || sk.ultAoe) parts.push("dano em área");
   return parts.length ? "Esta unidade " + parts.join(", ") + "." : "Concentre o Ultimate para o golpe decisivo.";
 }
