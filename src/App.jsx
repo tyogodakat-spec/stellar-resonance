@@ -2598,6 +2598,146 @@ function RelicsScreen({ relicInv }) {
 /* ==========================================================================
    ADMIN (fotos do Imgur)
    ========================================================================== */
+function AdminPlayersTab() {
+  const images = useImg();
+  const [players, setPlayers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState(null);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const accounts = await loadAccounts();
+      const entries = await Promise.all(
+        Object.entries(accounts).map(async ([em, acc]) => {
+          let save = null;
+          try { save = await loadSave(saveKeyFor(em)); } catch {}
+          return {
+            email: em,
+            lastSeen: acc.lastSeen || acc.created || 0,
+            playerName: save?.playerName || em.split("@")[0],
+            owned: (save?.owned || []).filter((o) => CHAR_MAP[o.id]),
+            team: save?.team || [],
+            jade: save?.jade || 0,
+            chronicles: save?.chronicles || 0,
+            towerCleared: save?.towerCleared || 0,
+            charTickets: save?.charTickets || 0,
+          };
+        })
+      );
+      entries.sort((a, b) => b.lastSeen - a.lastSeen);
+      setPlayers(entries);
+    } catch {}
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []); // eslint-disable-line
+
+  const online = (ts) => ts && Date.now() - ts < 10 * 60 * 1000;
+  const fmtTime = (ts) => {
+    if (!ts) return "nunca";
+    const d = Date.now() - ts;
+    if (d < 60000) return "agora mesmo";
+    if (d < 3600000) return `${Math.floor(d / 60000)} min atrás`;
+    if (d < 86400000) return `${Math.floor(d / 3600000)}h atrás`;
+    return `${Math.floor(d / 86400000)}d atrás`;
+  };
+
+  const onlineCount = players.filter((p) => online(p.lastSeen)).length;
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <div style={{ fontSize: 13, color: C.mute }}>
+          <span style={{ color: C.good, fontWeight: 700 }}>{onlineCount} online</span>
+          {" · "}{players.length} conta(s) registrada(s)
+        </div>
+        <Btn kind="ghost" style={{ padding: "4px 12px", fontSize: 12 }} onClick={load}>🔄 Atualizar</Btn>
+      </div>
+
+      {loading && (
+        <div style={{ color: C.mute, textAlign: "center", padding: 32, fontSize: 14 }}>
+          Carregando dados dos jogadores…
+        </div>
+      )}
+
+      {!loading && players.length === 0 && (
+        <div style={{ color: C.mute, textAlign: "center", padding: 32 }}>Nenhuma conta encontrada.</div>
+      )}
+
+      {!loading && players.map((p) => {
+        const isOnline = online(p.lastSeen);
+        const isOpen = expanded === p.email;
+        const fiveStars = p.owned.filter((o) => CHAR_MAP[o.id]?.rarity === 5);
+
+        return (
+          <Panel key={p.email} style={{ padding: 12, border: `1px solid ${isOnline ? C.good + "44" : C.line}`, cursor: "pointer" }}>
+            {/* Cabeçalho clicável */}
+            <div className="flex items-center justify-between" onClick={() => setExpanded(isOpen ? null : p.email)}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="flex items-center gap-2">
+                  <span style={{
+                    width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
+                    background: isOnline ? C.good : C.dim,
+                    boxShadow: isOnline ? `0 0 8px ${C.good}` : "none",
+                    display: "inline-block"
+                  }} />
+                  <span style={{ fontWeight: 800, color: C.text, fontSize: 15 }}>{p.playerName}</span>
+                  {p.email === ADMIN_EMAIL && <Glow color={C.gold}>👑</Glow>}
+                  <span style={{
+                    fontSize: 10, padding: "1px 7px", borderRadius: 99, fontWeight: 700,
+                    background: isOnline ? "rgba(0,255,136,0.15)" : "rgba(255,255,255,0.05)",
+                    color: isOnline ? C.good : C.mute,
+                  }}>{isOnline ? "ONLINE" : "Offline"}</span>
+                </div>
+                <div style={{ fontSize: 11, color: C.dim, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {p.email} · visto {fmtTime(p.lastSeen)}
+                </div>
+                <div style={{ fontSize: 11, color: C.mute, marginTop: 2 }}>
+                  💎 {p.jade} · 📜 {p.chronicles} · 🎴 {p.charTickets} · 🗼 {p.towerCleared}/{TOWER_FLOORS} · {p.owned.length} personagens ({fiveStars.length} ★5)
+                </div>
+              </div>
+              <span style={{ color: C.mute, fontSize: 14, marginLeft: 8, flexShrink: 0 }}>{isOpen ? "▲" : "▼"}</span>
+            </div>
+
+            {/* Elenco expandido */}
+            {isOpen && (
+              <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid ${C.line}` }}>
+                {p.owned.length === 0 && <div style={{ color: C.dim, fontSize: 12 }}>Sem personagens ainda.</div>}
+                <div className="flex flex-wrap gap-2">
+                  {p.owned.map((o) => {
+                    const def = CHAR_MAP[o.id];
+                    if (!def) return null;
+                    const inTeam = p.team.includes(o.id);
+                    const el = ELEMENTS[def.element] || { color: C.line };
+                    return (
+                      <div key={o.id} style={{ textAlign: "center", width: 60 }}>
+                        <div style={{ position: "relative", display: "inline-block" }}>
+                          <Avatar ch={def} size={48} ring={inTeam ? C.gold : undefined} />
+                          {inTeam && (
+                            <span style={{
+                              position: "absolute", top: -3, right: -5, fontSize: 8,
+                              background: C.gold, color: "#1a1200",
+                              borderRadius: 99, padding: "1px 4px", fontWeight: 800
+                            }}>EQ</span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: 9, color: C.mute, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{def.name}</div>
+                        <div style={{ fontSize: 9, color: def.rarity === 5 ? C.gold : "#B98BFF", fontWeight: 700 }}>
+                          Nv{o.level}{o.eidolon ? ` E${o.eidolon}` : ""}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </Panel>
+        );
+      })}
+    </div>
+  );
+}
 function Admin({ images, setImages, flash }) {
   const [tab, setTab] = useState("chars");
   const setImg = (id, url) => setImages((m) => { const next = { ...m, [id]: url }; cloudSet("meta", "images", { map: next }); _ls.set("sr_shared_images", JSON.stringify(next)); return next; });
@@ -2608,7 +2748,7 @@ function Admin({ images, setImages, flash }) {
         <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>🛠️ Painel Admin</div>
         <p style={{ fontSize: 13, color: C.mute, marginTop: 6 }}>Cole o link direto da imagem (Imgur) de cada personagem e arma. Use o link que termina em <b>.jpg</b>/<b>.png</b> (ex: <span style={{ color: C.text }}>https://i.imgur.com/XXXX.png</span>). A imagem aparece no jogo inteiro na hora.</p>
       </Panel>
-      <div className="flex gap-2" style={{ flexWrap: "wrap" }}><TabBtn active={tab === "chars"} onClick={() => setTab("chars")}>Personagens</TabBtn><TabBtn active={tab === "weapons"} onClick={() => setTab("weapons")}>Armas</TabBtn><TabBtn active={tab === "summons"} onClick={() => setTab("summons")}>Invocações</TabBtn><TabBtn active={tab === "items"} onClick={() => setTab("items")}>🎒 Itens</TabBtn></div>
+      <div className="flex gap-2" style={{ flexWrap: "wrap" }}><TabBtn active={tab === "chars"} onClick={() => setTab("chars")}>Personagens</TabBtn><TabBtn active={tab === "weapons"} onClick={() => setTab("weapons")}>Armas</TabBtn><TabBtn active={tab === "summons"} onClick={() => setTab("summons")}>Invocações</TabBtn><TabBtn active={tab === "items"} onClick={() => setTab("items")}>🎒 Itens</TabBtn><TabBtn active={tab === "players"} onClick={() => setTab("players")}>👥 Players</TabBtn></div>
       {tab === "chars" && <div className="flex flex-col gap-2">{ROSTER.map((c) => <AdminRow key={c.id} id={c.id} name={`${c.name} · ${c.element} · ${ROLES[c.role].label}`} rarity={c.rarity} fallback={c.avatar} element={c.element} url={images[c.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "weapons" && <div className="flex flex-col gap-2">{WEAPONS.map((w) => <AdminRow key={w.id} id={w.id} name={`${w.name} · ${ROLES[w.role].label}`} rarity={w.rarity} fallback="🗡️" weapon url={images[w.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "summons" && <div className="flex flex-col gap-2">
@@ -2620,6 +2760,7 @@ function Admin({ images, setImages, flash }) {
         <Panel style={{ padding: 10 }}><p style={{ fontSize: 12, color: C.mute }}>Cole links de imagem (Imgur .png/.jpg) para cada item. As fotos aparecem no inventário e nas telas do jogo.</p></Panel>
         {GAME_ITEMS.map((it) => <AdminItemRow key={it.id} id={it.id} name={it.name} icon={it.icon} url={images[it.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}
       </div>}
+      {tab === "players" && <AdminPlayersTab />}
     </div>
   );
 }
