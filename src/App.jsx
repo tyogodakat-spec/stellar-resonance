@@ -938,7 +938,7 @@ function Game({ email, isAdmin, onLogout }) {
 
   if (!loaded) return <div style={{ minHeight: "100vh", background: C.bg0, color: C.mute, display: "flex", alignItems: "center", justifyContent: "center" }}>Sincronizando ressonância…</div>;
 
-  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
+  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["social", "Social", "🤝"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
 
   return (
     <ImgCtx.Provider value={images}>
@@ -971,6 +971,7 @@ function Game({ email, isAdmin, onLogout }) {
           ) : (
             <>
               {screen === "home" && <Home email={email} isAdmin={isAdmin} playerName={playerName} setPlayerName={setPlayerName} owned={owned} setScreen={setScreen} setJade={setJade} setCharTickets={setCharTickets} setStandardTickets={setStandardTickets} setWeaponTickets={setWeaponTickets} flash={flash} towerCleared={towerCleared} />}
+              {screen === "social" && <Social email={email} flash={flash} />}
               {screen === "gacha" && <Gacha doPull={doPull} pity={pity} jade={jade} charTickets={charTickets} weaponTickets={weaponTickets} standardTickets={standardTickets} featuredChar={featuredChar} setFeaturedChar={setFeaturedChar} featuredWeapon={featuredWeapon} setFeaturedWeapon={setFeaturedWeapon} pullHistory={pullHistory} owned={owned} ownedWeapons={ownedWeapons} />}
               {screen === "roster" && <Roster owned={owned} ownedWeapons={ownedWeapons} relicInv={relicInv} setOwnedField={setOwnedField} levelUp={levelUp} ascendChar={ascendChar} ascMats={ascMats} jade={jade} isAdmin={isAdmin} expItems={expItems} bossMats={bossMats} traceLevelUp={traceLevelUp} unlockTraceNode={unlockTraceNode} unlockSpecialTrace={unlockSpecialTrace} publish={async (o) => { await publishChar(playerName, o); flash("Publicado no Co-op global", C.good); }} onUpgradeRelic={onUpgradeRelic} weaponLevelUp={weaponLevelUp} weaponMats={weaponMats} skillMats={skillMats} tagMats={tagMats} />}
               {screen === "team" && <TeamScreen owned={owned} team={team} setTeam={setTeam} startTest={startTest} flash={flash} />}
@@ -1011,6 +1012,90 @@ function Res({ icon, v, color }) {
 /* ==========================================================================
    HOME
    ========================================================================== */
+function formatCountdown(ms) {
+  const total = Math.floor(ms / 1000);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+}
+function NickEditor({ playerName, setPlayerName, flash }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [blocked, setBlocked] = useState(null);
+  useEffect(() => {
+    const ts = localStorage.getItem("sr_nick_last_change");
+    if (ts) {
+      const diff = Date.now() - parseInt(ts, 10);
+      const seven = 7 * 24 * 60 * 60 * 1000;
+      if (diff < seven) setBlocked(Math.ceil((seven - diff) / (24 * 60 * 60 * 1000)));
+    }
+  }, []);
+  const startEdit = () => {
+    if (blocked) { flash(`Bloqueado: aguarde ${blocked} dia(s) para alterar o nick.`, C.bad); return; }
+    setDraft(playerName); setEditing(true);
+  };
+  const save = () => {
+    const n = draft.trim();
+    if (!n) { flash("Nick não pode estar vazio.", C.bad); return; }
+    if (n.length > 20) { flash("Nick muito longo (máx 20 caracteres).", C.bad); return; }
+    setPlayerName(n);
+    localStorage.setItem("sr_nick_last_change", String(Date.now()));
+    setBlocked(7); setEditing(false);
+    flash("Nickname atualizado! Próxima troca liberada em 7 dias.", C.good);
+  };
+  if (editing) return (
+    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+      <input value={draft} onChange={(e) => setDraft(e.target.value)} autoFocus maxLength={20}
+        style={{ background: C.panelHi, border: `1px solid ${C.gold}`, borderRadius: 10, padding: "6px 10px", color: C.text, outline: "none", ...ORB, fontSize: 22, fontWeight: 800, flex: 1, minWidth: 0 }}
+        onKeyDown={(e) => { if (e.key === "Enter") save(); if (e.key === "Escape") setEditing(false); }} />
+      <Btn style={{ padding: "6px 12px" }} onClick={save}>Salvar</Btn>
+      <Btn kind="ghost" style={{ padding: "6px 10px" }} onClick={() => setEditing(false)}>✕</Btn>
+    </div>
+  );
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ ...ORB, fontSize: 24, fontWeight: 800 }}>{playerName}</div>
+      <button onClick={startEdit} title={blocked ? `Bloqueado por ${blocked} dia(s)` : "Editar nickname"}
+        style={{ background: "none", border: `1px solid ${blocked ? C.line : C.gold}`, borderRadius: 8, color: blocked ? C.mute : C.gold, padding: "3px 9px", cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
+        {blocked ? `🔒 ${blocked}d` : "✎"}
+      </button>
+    </div>
+  );
+}
+function ContentTabs() {
+  const [tab, setTab] = useState("historia");
+  const historiaMs = useBannerTimer("content_historia", 3 * 24 * 60 * 60 * 1000);
+  const endgameMs  = useBannerTimer("content_endgame",  7 * 24 * 60 * 60 * 1000);
+  return (
+    <Panel>
+      <b>Cronogramas</b>
+      <div className="flex gap-2 mt-3" style={{ flexWrap: "wrap" }}>
+        <TabBtn active={tab === "historia"} onClick={() => setTab("historia")}>📖 História</TabBtn>
+        <TabBtn active={tab === "eventos"}  onClick={() => setTab("eventos")}>🎉 Eventos</TabBtn>
+        <TabBtn active={tab === "endgame"}  onClick={() => setTab("endgame")}>⚡ End Game</TabBtn>
+      </div>
+      {tab === "historia" && <div style={{ marginTop: 12 }}>
+        <div style={{ fontWeight: 700, marginBottom: 4 }}>Próximo Capítulo da Campanha</div>
+        <div style={{ fontSize: 13, color: C.mute, marginBottom: 8 }}>Aguarde a liberação dos novos servidores da história principal:</div>
+        <div style={{ fontFamily: "monospace", fontWeight: 800, fontSize: 22, color: "#ffcc00", textAlign: "center", letterSpacing: 2, padding: "10px 0" }}>{formatCountdown(historiaMs)}</div>
+      </div>}
+      {tab === "eventos" && <div style={{ marginTop: 12 }}>
+        <div style={{ fontWeight: 700, marginBottom: 8 }}>Eventos Ativos</div>
+        <div style={{ textAlign: "center", padding: "16px 0", background: C.panelHi, borderRadius: 10 }}>
+          <div style={{ color: C.mute, fontWeight: 700, fontSize: 13, letterSpacing: 1, textTransform: "uppercase" }}>Eventos Indefinidos</div>
+          <div style={{ color: C.dim, fontSize: 12, marginTop: 4 }}>Fique atento às notas de atualização futuras.</div>
+        </div>
+      </div>}
+      {tab === "endgame" && <div style={{ marginTop: 12 }}>
+        <div style={{ fontWeight: 700, marginBottom: 4 }}>Invasão de Boss Semanal</div>
+        <div style={{ fontSize: 13, color: C.mute, marginBottom: 8 }}>Liberação do conteúdo de nível máximo e masmorras:</div>
+        <div style={{ fontFamily: "monospace", fontWeight: 800, fontSize: 22, color: "#ffcc00", textAlign: "center", letterSpacing: 2, padding: "10px 0" }}>{formatCountdown(endgameMs)}</div>
+      </div>}
+    </Panel>
+  );
+}
 function Home({ email, isAdmin, playerName, setPlayerName, owned, setScreen, setJade, setCharTickets, setStandardTickets, setWeaponTickets, flash, towerCleared }) {
   const fives = owned.filter((o) => CHAR_MAP[o.id]?.rarity === 5).length;
   return (
@@ -1020,7 +1105,7 @@ function Home({ email, isAdmin, playerName, setPlayerName, owned, setScreen, set
         <div className="flex items-center justify-between" style={{ position: "relative" }}>
           <div>
             <div style={{ fontSize: 12, color: C.mute, letterSpacing: 2 }}>BEM-VINDO,</div>
-            <input value={playerName} onChange={(e) => setPlayerName(e.target.value)} style={{ background: "transparent", border: "none", color: C.text, ...ORB, fontSize: 24, fontWeight: 800, outline: "none", width: "100%" }} />
+            <NickEditor playerName={playerName} setPlayerName={setPlayerName} flash={flash} />
             <div style={{ color: C.mute, fontSize: 13 }}>Personagens: {owned.length} · 5★: {fives} · Torre: andar {towerCleared}/{TOWER_FLOORS}</div>
             <div style={{ color: C.dim, fontSize: 12, marginTop: 2 }}>conta: {email}{isAdmin && <Glow color={C.gold}> · 👑 admin</Glow>}</div>
           </div>
@@ -1034,6 +1119,7 @@ function Home({ email, isAdmin, playerName, setPlayerName, owned, setScreen, set
         <Tile t="Boss Semanal" s="Núcleos p/ Rastros Especiais" e="👹" onClick={() => setScreen("weekly")} />
       </div>
       {isAdmin && <Panel glow={C.gold}><div className="flex items-center gap-2"><span style={{ fontSize: 22 }}>👑</span><div><b>Modo Administrador</b><div style={{ color: C.mute, fontSize: 12 }}>Gemas infinitas ativas. Invocações e melhorias não consomem 💎.</div></div></div></Panel>}
+      <ContentTabs />
       <Panel>
         <b>Como o suporte muda a batalha</b>
         <p style={{ color: C.mute, fontSize: 13, lineHeight: 1.65, marginTop: 6 }}>
@@ -1113,12 +1199,12 @@ function WeeklyBoss({ start, stamina, bossMats, lastWeeklyBoss, startAscension, 
 /* ==========================================================================
    GACHA + CINEMATIC
    ========================================================================== */
-function useBannerTimer(key) {
+function useBannerTimer(key, durationMs = 5 * 24 * 60 * 60 * 1000) {
   const storageKey = "sr_banner_end_" + key;
   const getEnd = () => {
     const stored = localStorage.getItem(storageKey);
     if (stored) return parseInt(stored, 10);
-    const end = Date.now() + 5 * 24 * 60 * 60 * 1000;
+    const end = Date.now() + durationMs;
     localStorage.setItem(storageKey, String(end));
     return end;
   };
@@ -1127,7 +1213,7 @@ function useBannerTimer(key) {
     const tick = () => {
       let end = parseInt(localStorage.getItem(storageKey) || "0", 10);
       if (!end || Date.now() >= end) {
-        end = Date.now() + 5 * 24 * 60 * 60 * 1000;
+        end = Date.now() + durationMs;
         localStorage.setItem(storageKey, String(end));
       }
       setRemaining(Math.max(0, end - Date.now()));
@@ -2533,6 +2619,62 @@ function AdminRow({ id, name, rarity, fallback, element, weapon, url, setImg, cl
   );
 }
 
+
+function Social({ email, flash }) {
+  const [players, setPlayers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    loadAccounts().then((accounts) => {
+      const list = Object.entries(accounts).map(([em, data]) => ({
+        email: em,
+        lastSeen: data.lastSeen || data.created || 0,
+      })).sort((a, b) => b.lastSeen - a.lastSeen);
+      setPlayers(list);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
+  const isOnline = (ts) => ts && Date.now() - ts < 10 * 60 * 1000;
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel glow="#007aff">
+        <div style={{ ...ORB, fontWeight: 800, fontSize: 18 }}>🤝 Social</div>
+        <div style={{ color: C.mute, fontSize: 13, marginTop: 4 }}>Jogadores registrados. Online = ativo nos últimos 10 min.</div>
+      </Panel>
+      <Panel>
+        <b>Jogadores</b>
+        {loading && <div style={{ color: C.mute, fontSize: 13, marginTop: 8 }}>Carregando…</div>}
+        <div className="flex flex-col" style={{ marginTop: 8 }}>
+          {!loading && players.length === 0 && <div style={{ color: C.mute, fontSize: 13 }}>Nenhum jogador encontrado.</div>}
+          {players.map((p) => {
+            const online = isOnline(p.lastSeen);
+            const isMe = p.email === email;
+            const nick = p.email.split("@")[0];
+            return (
+              <div key={p.email} className="flex items-center justify-between" style={{ padding: "10px 0", borderBottom: `1px solid ${C.line}` }}>
+                <div>
+                  <div style={{ fontWeight: 700, color: C.text }}>
+                    {nick}
+                    {isMe && <span style={{ color: C.mute, fontSize: 11 }}> · você</span>}
+                    {p.email === ADMIN_EMAIL && <Glow color={C.gold}> 👑</Glow>}
+                  </div>
+                  <span style={{ fontSize: 11, marginTop: 3, display: "inline-block", background: online ? "rgba(0,255,136,0.15)" : "rgba(255,255,255,0.05)", color: online ? C.good : C.mute, padding: "1px 8px", borderRadius: 20, fontWeight: 700 }}>
+                    {online ? "ONLINE" : "Offline"}
+                  </span>
+                </div>
+                {!isMe && (
+                  <button onClick={() => flash(`Solicitação enviada para ${nick}! 🤝`, C.good)}
+                    style={{ background: "#007aff", color: "#fff", border: "none", padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                    Adicionar
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
+    </div>
+  );
+}
 /* ==========================================================================
    LOGIN (local, por email) + PORTÃO DE AUTENTICAÇÃO
    ========================================================================== */
@@ -2555,13 +2697,15 @@ function Login({ onLogin }) {
       const accounts = await loadAccounts();
       if (mode === "register") {
         if (accounts[e]) { setErr("Já existe uma conta com esse email. Faça login."); setBusy(false); return; }
-        accounts[e] = { hash: hashPass(pass), created: Date.now() };
+        accounts[e] = { hash: hashPass(pass), created: Date.now(), lastSeen: Date.now() };
         await saveAccounts(accounts);
         await onLogin(e);
       } else {
         const acc = accounts[e];
         if (!acc) { setErr("Conta não encontrada. Crie uma conta."); setBusy(false); return; }
         if (acc.hash !== hashPass(pass)) { setErr("Senha incorreta."); setBusy(false); return; }
+        accounts[e] = { ...acc, lastSeen: Date.now() };
+        await saveAccounts(accounts);
         await onLogin(e);
       }
     } catch {
