@@ -104,6 +104,23 @@ const RELIC_SETS = {
   "Benção Sagrada":    { color: "#FFE08A", p2: { hp: 20 }, flag4: "setHoly4", d2: "+20% de HP máx", d4: "+15% de cura e, ao curar, aplica escudo de 2% do HP máx do alvo" },
 };
 const RELIC_SET_NAMES = Object.keys(RELIC_SETS);
+const GAME_ITEMS = [
+  { id: "item_jade",        name: "Jade Estelar",           icon: "💎" },
+  { id: "item_chronicles",  name: "Crônicas",               icon: "📜" },
+  { id: "item_ticket_char", name: "Bilhete de Personagem",  icon: "🎴" },
+  { id: "item_ticket_wpn",  name: "Bilhete de Arma",        icon: "🔧" },
+  { id: "item_ticket_std",  name: "Bilhete Permanente",     icon: "🪙" },
+  { id: "item_exp",         name: "Lágrimas de XP",         icon: "📘" },
+  { id: "item_boss_mat",    name: "Núcleo de Vestígio",     icon: "🔮" },
+  { id: "item_asc_mat",     name: "Núcleo de Ascensão",     icon: "🔶" },
+  { id: "item_wpn_mat",     name: "Engrenagem de Arma",     icon: "⚙️" },
+  { id: "item_skill_mat",   name: "Cristal de Habilidade",  icon: "💠" },
+  { id: "item_relic_eletro","name": "Relíquia · Tempestade Eletro", icon: "⚡" },
+  { id: "item_relic_glacial","name":"Relíquia · Sopro Glacial",     icon: "❄️" },
+  { id: "item_relic_fire",  name: "Relíquia · Núcleo Ardente",      icon: "🔥" },
+  { id: "item_relic_viral", name: "Relíquia · Praga Viral",         icon: "🧬" },
+  { id: "item_relic_holy",  name: "Relíquia · Benção Sagrada",      icon: "✨" },
+];
 const STAT_LABEL = { hp: "HP", atk: "ATK", def: "DEF", spd: "VEL", critRate: "CRIT", critDmg: "CRIT DMG", dmgBonus: "DANO", energyRegen: "REGEN ENERGIA", healBonus: "CURA", energyMax: "EN", vuln: "VULN", defPen: "PERFURAÇÃO", elemDmg: "DANO ELEM.", dotDmg: "DANO DE DoT", atkP: "ATK", hpP: "HP", defP: "DEF", atkFlat: "ATK", hpFlat: "HP", defFlat: "DEF" };
 const PCT = { hp: 1, atk: 1, def: 1 };
 // Quais chaves são exibidas com "%": tudo menos VEL e os *Flat
@@ -646,6 +663,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [battle, setBattle] = useState(null);
 
   const [jade, setJade] = useState(12000);
+  const [chronicles, setChronicles] = useState(0);
   const [charTickets, setCharTickets] = useState(15);
   const [weaponTickets, setWeaponTickets] = useState(8);
   const [standardTickets, setStandardTickets] = useState(10);
@@ -692,7 +710,7 @@ function Game({ email, isAdmin, onLogout }) {
       if (s.team) setTeam(s.team); setStamina(s.stamina ?? 240); setLastStamina(s.lastStamina ?? Date.now());
       setPlayerName(s.playerName ?? "Pioneiro");
       setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []);
-      setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0);
+      setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0);
     }
     // Carrega fotos do localStorage imediatamente (sem depender do Firebase)
     try { const li = _ls.get("sr_shared_images"); if (li) { const parsed = JSON.parse(li); if (parsed && typeof parsed === "object") setImages(parsed); } } catch {}
@@ -721,8 +739,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss });
-  }, [loaded, SAVE_KEY, jade, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -820,7 +838,7 @@ function Game({ email, isAdmin, onLogout }) {
     const pool4 = isWeapon ? WEAPONS.filter((w) => w.rarity === 4) : ROSTER.filter((c) => c.rarity === 4);
     let curPity = isChar ? pity.char : isStd ? pity.standard : pity.weapon;
     let guar = pity.guaranteeChar;
-    let jadeGain = 0;
+    let chroniclesGain = 0;
     const results = [];
     const fives = [];
     const ownedRef = new Set(owned.map((o) => o.id));
@@ -853,8 +871,8 @@ function Game({ email, isAdmin, onLogout }) {
         if (isWeapon) { setOwnedWeapons((p) => [...p, it.id]); results.push({ rarity: 4, kind, id: it.id, name: it.name, weapon: true }); }
         else { const dup = grantChar(it.id, ownedRef); results.push({ rarity: 4, kind, id: it.id, name: it.name, dup }); }
       } else {
-        curPity += 1; jadeGain += 20;
-        results.push({ rarity: 3, kind, id: "shard", name: "Estilhaço Estelar (+20💎)" });
+        curPity += 1; chroniclesGain += 1;
+        results.push({ rarity: 3, kind, id: "shard", name: "Crônica (+1📜)" });
       }
     }
     if (isChar) setPity((p) => ({ ...p, char: curPity, guaranteeChar: guar }));
@@ -862,7 +880,7 @@ function Game({ email, isAdmin, onLogout }) {
     else setPity((p) => ({ ...p, weapon: curPity }));
     if (isChar) setCharTickets((t) => t - useTickets); else if (isStd) setStandardTickets((t) => t - useTickets); else setWeaponTickets((t) => t - useTickets);
     if (jadeSpent && !isAdmin) setJade((j) => j - jadeSpent);
-    if (jadeGain) setJade((j) => j + jadeGain);
+    if (chroniclesGain) setChronicles((c) => c + chroniclesGain);
     if (fives.length) setPullHistory((h) => [...fives.map((f) => ({ ...f, t: Date.now() })), ...h].slice(0, 30));
     setPullResults({ kind, results });
   }
@@ -950,6 +968,7 @@ function Game({ email, isAdmin, onLogout }) {
             <span style={{ ...ORB, fontWeight: 800, letterSpacing: 2, fontSize: 17 }}><Glow color={C.gold}>STELLAR</Glow> RESONANCE</span>
             <div className="flex items-center gap-2 text-sm" style={{ flexWrap: "wrap" }}>
               <Res icon="💎" v={isAdmin ? "∞" : jade} color="#86d8ff" />
+              <Res icon="📜" v={chronicles} color="#e8c97a" />
               <Res icon="📘" v={expItems} color="#9be7a0" />
               <Res icon="🔶" v={ascMats} color="#ffb86b" />
               <Res icon="🔮" v={bossMats} color={C.gold} />
@@ -972,7 +991,7 @@ function Game({ email, isAdmin, onLogout }) {
             <>
               {screen === "home" && <Home email={email} isAdmin={isAdmin} playerName={playerName} setPlayerName={setPlayerName} owned={owned} setScreen={setScreen} setJade={setJade} setCharTickets={setCharTickets} setStandardTickets={setStandardTickets} setWeaponTickets={setWeaponTickets} flash={flash} towerCleared={towerCleared} />}
               {screen === "social" && <Social email={email} flash={flash} />}
-              {screen === "gacha" && <Gacha doPull={doPull} pity={pity} jade={jade} charTickets={charTickets} weaponTickets={weaponTickets} standardTickets={standardTickets} featuredChar={featuredChar} setFeaturedChar={setFeaturedChar} featuredWeapon={featuredWeapon} setFeaturedWeapon={setFeaturedWeapon} pullHistory={pullHistory} owned={owned} ownedWeapons={ownedWeapons} />}
+              {screen === "gacha" && <Gacha doPull={doPull} pity={pity} jade={jade} chronicles={chronicles} charTickets={charTickets} weaponTickets={weaponTickets} standardTickets={standardTickets} featuredChar={featuredChar} setFeaturedChar={setFeaturedChar} featuredWeapon={featuredWeapon} setFeaturedWeapon={setFeaturedWeapon} pullHistory={pullHistory} owned={owned} ownedWeapons={ownedWeapons} />}
               {screen === "roster" && <Roster owned={owned} ownedWeapons={ownedWeapons} relicInv={relicInv} setOwnedField={setOwnedField} levelUp={levelUp} ascendChar={ascendChar} ascMats={ascMats} jade={jade} isAdmin={isAdmin} expItems={expItems} bossMats={bossMats} traceLevelUp={traceLevelUp} unlockTraceNode={unlockTraceNode} unlockSpecialTrace={unlockSpecialTrace} publish={async (o) => { await publishChar(playerName, o); flash("Publicado no Co-op global", C.good); }} onUpgradeRelic={onUpgradeRelic} weaponLevelUp={weaponLevelUp} weaponMats={weaponMats} skillMats={skillMats} tagMats={tagMats} />}
               {screen === "team" && <TeamScreen owned={owned} team={team} setTeam={setTeam} startTest={startTest} flash={flash} />}
               {screen === "farm" && <Farm stamina={stamina} start={startFarm} expItems={expItems} startTagDungeon={startTagDungeon} tagMats={tagMats} weaponMats={weaponMats} skillMats={skillMats} />}
@@ -1242,7 +1261,7 @@ function BannerTimer({ ms, color }) {
     </div>
   );
 }
-function Gacha({ doPull, pity, jade, charTickets, weaponTickets, standardTickets, featuredChar, setFeaturedChar, featuredWeapon, setFeaturedWeapon, pullHistory, owned, ownedWeapons }) {
+function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, setFeaturedChar, featuredWeapon, setFeaturedWeapon, pullHistory, owned, ownedWeapons }) {
   const [tab, setTab] = useState("char");
   const ownedSet = new Set((owned || []).map((o) => o.id));
   const isChar = tab === "char", isStd = tab === "standard", isWeapon = tab === "weapon";
@@ -1315,7 +1334,7 @@ function Gacha({ doPull, pity, jade, charTickets, weaponTickets, standardTickets
             <Btn onClick={() => doPull(tab, 1)}>Invocar x1</Btn>
             <Btn kind="soft" onClick={() => doPull(tab, 10)}>Invocar x10</Btn>
           </div>
-          <div style={{ fontSize: 11, color: C.mute, marginTop: 8 }}>Bilhete {ticketIcon} ou 160💎 por puxada · você tem <b style={{ color: C.text }}>{ticketCount}</b> {ticketIcon} e <b style={{ color: C.text }}>{jade}</b>💎</div>
+          <div style={{ fontSize: 11, color: C.mute, marginTop: 8 }}>Bilhete {ticketIcon} ou 160💎 por puxada · você tem <b style={{ color: C.text }}>{ticketCount}</b> {ticketIcon}, <b style={{ color: C.text }}>{jade}</b>💎 e <b style={{ color: C.text }}>{chronicles}</b>📜</div>
         </div>
       </Panel>
 
@@ -1324,7 +1343,7 @@ function Gacha({ doPull, pity, jade, charTickets, weaponTickets, standardTickets
       <Panel>
         <b>Taxas</b>
         <div style={{ fontSize: 13, color: C.mute, marginTop: 6, lineHeight: 1.7 }}>
-          5★: 0,6% (sobe a partir da 74ª, garantido na 90ª) · 4★: 5,1% · resto vira Estilhaços (+20💎).
+          5★: 0,6% (sobe a partir da 74ª, garantido na 90ª) · 4★: 5,1% · resto vira Crônicas (+1📜).
           {isChar ? " Evento: 50/50 com garantia — perdeu, o próximo 5★ é o destaque. Use ‹ › para escolher qual limitado fica em destaque." : isStd ? " Permanente: sem 50/50, sai do pool padrão." : " Armas: sem 50/50. Use ‹ › para escolher a arma em destaque."}
         </div>
       </Panel>
@@ -1400,7 +1419,7 @@ function PullModal({ data, onClose }) {
                   {r.rarity === 5 && <div style={{ position: "absolute", inset: -40, background: `repeating-conic-gradient(${color}33 0deg 12deg, transparent 12deg 24deg)`, animation: "srRay 8s linear infinite" }} />}
                   <div style={{ position: "relative" }}>
                     <div style={{ height: 34, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {isShard ? <span style={{ fontSize: 26 }}>💎</span> : isWeapon ? <WeaponIcon w={WEAPON_MAP[r.id]} size={30} /> : <Avatar ch={CHAR_MAP[r.id]} size={30} />}
+                      {isShard ? <span style={{ fontSize: 26 }}>📜</span> : isWeapon ? <WeaponIcon w={WEAPON_MAP[r.id]} size={30} /> : <Avatar ch={CHAR_MAP[r.id]} size={30} />}
                     </div>
                     <div style={{ fontSize: 11, fontWeight: 700, color }}>{r.rarity >= 4 ? "★".repeat(r.rarity) : "✦"}{r.dup ? " E+1" : ""}</div>
                     <div style={{ fontSize: 9, color: C.mute, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</div>
@@ -2589,7 +2608,7 @@ function Admin({ images, setImages, flash }) {
         <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>🛠️ Painel Admin</div>
         <p style={{ fontSize: 13, color: C.mute, marginTop: 6 }}>Cole o link direto da imagem (Imgur) de cada personagem e arma. Use o link que termina em <b>.jpg</b>/<b>.png</b> (ex: <span style={{ color: C.text }}>https://i.imgur.com/XXXX.png</span>). A imagem aparece no jogo inteiro na hora.</p>
       </Panel>
-      <div className="flex gap-2" style={{ flexWrap: "wrap" }}><TabBtn active={tab === "chars"} onClick={() => setTab("chars")}>Personagens</TabBtn><TabBtn active={tab === "weapons"} onClick={() => setTab("weapons")}>Armas</TabBtn><TabBtn active={tab === "summons"} onClick={() => setTab("summons")}>Invocações</TabBtn></div>
+      <div className="flex gap-2" style={{ flexWrap: "wrap" }}><TabBtn active={tab === "chars"} onClick={() => setTab("chars")}>Personagens</TabBtn><TabBtn active={tab === "weapons"} onClick={() => setTab("weapons")}>Armas</TabBtn><TabBtn active={tab === "summons"} onClick={() => setTab("summons")}>Invocações</TabBtn><TabBtn active={tab === "items"} onClick={() => setTab("items")}>🎒 Itens</TabBtn></div>
       {tab === "chars" && <div className="flex flex-col gap-2">{ROSTER.map((c) => <AdminRow key={c.id} id={c.id} name={`${c.name} · ${c.element} · ${ROLES[c.role].label}`} rarity={c.rarity} fallback={c.avatar} element={c.element} url={images[c.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "weapons" && <div className="flex flex-col gap-2">{WEAPONS.map((w) => <AdminRow key={w.id} id={w.id} name={`${w.name} · ${ROLES[w.role].label}`} rarity={w.rarity} fallback="🗡️" weapon url={images[w.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "summons" && <div className="flex flex-col gap-2">
@@ -2597,7 +2616,32 @@ function Admin({ images, setImages, flash }) {
         {[["dragon", "Blue-Eyes White Dragon", "Eletro", "🐉"], ["obelisk", "Obelisco, o Atormentador", "Holy", "🗿"], ["ultimate", "Blue-Eyes Ultimate Dragon", "Eletro", "🐲"]].map(([id, nm, elv, fb]) =>
           <AdminRow key={id} id={id} name={nm} rarity={5} fallback={fb} element={elv} url={images[id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}
       </div>}
+      {tab === "items" && <div className="flex flex-col gap-2">
+        <Panel style={{ padding: 10 }}><p style={{ fontSize: 12, color: C.mute }}>Cole links de imagem (Imgur .png/.jpg) para cada item. As fotos aparecem no inventário e nas telas do jogo.</p></Panel>
+        {GAME_ITEMS.map((it) => <AdminItemRow key={it.id} id={it.id} name={it.name} icon={it.icon} url={images[it.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}
+      </div>}
     </div>
+  );
+}
+function AdminItemRow({ id, name, icon, url, setImg, clearImg, flash }) {
+  const images = useImg();
+  const imgUrl = url || images[id] || "";
+  const [val, setVal] = useState(imgUrl);
+  useEffect(() => setVal(imgUrl), [imgUrl]);
+  return (
+    <Panel style={{ padding: 12 }}>
+      <div className="flex items-center gap-3">
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0, overflow: "hidden" }}>
+          {imgUrl ? <img src={imgUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={(e) => { e.target.style.display = "none"; }} /> : icon}
+        </div>
+        <div style={{ flex: 1, overflow: "hidden" }}><div style={{ fontWeight: 700, fontSize: 13 }}>{name}</div><div style={{ fontSize: 11, color: C.mute }}>{id}</div></div>
+      </div>
+      <div className="flex gap-2 mt-2">
+        <input value={val} onChange={(e) => setVal(e.target.value)} placeholder="https://i.imgur.com/...png" style={{ flex: 1, background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: "8px 10px", color: C.text, outline: "none", fontSize: 13 }} />
+        <Btn style={{ padding: "6px 12px" }} onClick={() => { const v = val.trim(); if (v && !/^https?:\/\//.test(v)) { flash("Link precisa começar com http", C.bad); return; } setImg(id, v); flash("Foto salva", C.good); }}>Salvar</Btn>
+        {imgUrl && <Btn kind="danger" style={{ padding: "6px 12px" }} onClick={() => { clearImg(id); setVal(""); }}>Limpar</Btn>}
+      </div>
+    </Panel>
   );
 }
 function AdminRow({ id, name, rarity, fallback, element, weapon, url, setImg, clearImg, flash }) {
