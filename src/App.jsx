@@ -968,13 +968,13 @@ function Game({ email, isAdmin, onLogout }) {
           <div className="px-4 py-3 flex items-center justify-between" style={{ maxWidth: 1000, margin: "0 auto", gap: 8, flexWrap: "wrap" }}>
             <span style={{ ...ORB, fontWeight: 800, letterSpacing: 2, fontSize: 17 }}><Glow color={C.gold}>STELLAR</Glow> RESONANCE</span>
             <div className="flex items-center gap-2 text-sm" style={{ flexWrap: "wrap" }}>
-              <Res icon="💎" v={isAdmin ? "∞" : jade} color="#86d8ff" />
-              <Res icon="📜" v={chronicles} color="#e8c97a" />
-              <Res icon="📘" v={expItems} color="#9be7a0" />
-              <Res icon="🔶" v={ascMats} color="#ffb86b" />
-              <Res icon="🔮" v={bossMats} color={C.gold} />
-              <Res icon="🎴" v={charTickets} color={C.gold} />
-              <Res icon="🔧" v={weaponTickets} color="#B98BFF" />
+              <Res icon="💎" v={isAdmin ? "∞" : jade} color="#86d8ff" itemId="item_jade" />
+              <Res icon="📜" v={chronicles} color="#e8c97a" itemId="item_chronicles" />
+              <Res icon="📘" v={expItems} color="#9be7a0" itemId="item_exp" />
+              <Res icon="🔶" v={ascMats} color="#ffb86b" itemId="item_asc_mat" />
+              <Res icon="🔮" v={bossMats} color={C.gold} itemId="item_boss_mat" />
+              <Res icon="🎴" v={charTickets} color={C.gold} itemId="item_ticket_char" />
+              <Res icon="🔧" v={weaponTickets} color="#B98BFF" itemId="item_ticket_wpn" />
               <Res icon="⚡" v={`${stamina}`} color={C.good} />
               <button onClick={onLogout} title={email} className="flex items-center gap-1" style={{ background: C.panelHi, padding: "4px 10px", borderRadius: 99, border: `1px solid ${C.line}`, color: C.mute, fontWeight: 700, fontSize: 13 }}>
                 {isAdmin && <span style={{ color: C.gold }}>👑</span>}⎋ Sair
@@ -1025,8 +1025,16 @@ function Game({ email, isAdmin, onLogout }) {
   );
 }
 
-function Res({ icon, v, color }) {
-  return <span className="flex items-center gap-1" style={{ background: C.panelHi, padding: "4px 10px", borderRadius: 99, border: `1px solid ${C.line}` }}><span>{icon}</span><b style={{ color }}>{v}</b></span>;
+function ItemIcon({ id, emoji, size = 18 }) {
+  const images = useImg();
+  const url = id ? images[id] : null;
+  const [err, setErr] = useState(false);
+  useEffect(() => { setErr(false); }, [url]);
+  if (url && !err) return <img src={url} alt="" onError={() => setErr(true)} style={{ width: size, height: size, objectFit: "cover", borderRadius: 3, flexShrink: 0, display: "block" }} />;
+  return <span>{emoji}</span>;
+}
+function Res({ icon, v, color, itemId }) {
+  return <span className="flex items-center gap-1" style={{ background: C.panelHi, padding: "4px 10px", borderRadius: 99, border: `1px solid ${C.line}` }}><ItemIcon id={itemId} emoji={icon} size={18} /><b style={{ color }}>{v}</b></span>;
 }
 
 /* ==========================================================================
@@ -1160,7 +1168,7 @@ function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, 
       <div className="flex items-center justify-between" style={{ gap: 10 }}>
         <div><div style={{ ...ORB, fontWeight: 800, fontSize: 18 }}>🌱 Domínios de Crescimento</div>
           <div style={{ color: C.mute, fontSize: 13, marginTop: 2 }}>Enfrente mini-dungeons e colete 📘 Lácrimas de XP para subir o nível dos personagens.</div></div>
-        <Res icon="📘" v={expItems} color="#9be7a0" />
+        <Res icon="📘" v={expItems} color="#9be7a0" itemId="item_exp" />
       </div>
     </Panel>
     {FARM_STAGES.map((st) => <Panel key={st.id}>
@@ -1194,7 +1202,7 @@ function WeeklyBoss({ start, stamina, bossMats, lastWeeklyBoss, startAscension, 
         <div style={{ ...ORB, fontWeight: 800, fontSize: 20 }}>Tirano do Vazio</div>
         <div style={{ color: C.mute, fontSize: 13, marginTop: 4 }}>Um chefe poderoso que escala com a força da sua equipe. Derrote-o para coletar 🔮 Núcleos de Vestígio, usados para desbloquear os 3 Rastros Especiais de cada personagem.</div>
         <div className="flex items-center gap-3" style={{ marginTop: 10, flexWrap: "wrap" }}>
-          <Res icon="🔮" v={bossMats} color={C.gold} />
+          <Res icon="🔮" v={bossMats} color={C.gold} itemId="item_boss_mat" />
           <span style={{ fontSize: 12, color: ready ? C.good : C.mute }}>{ready ? "✅ Bônus semanal disponível (+3)" : `Bônus semanal em ${days} dia(s) · clears extras dão +1`}</span>
         </div>
         <Btn kind={stamina < 50 ? "soft" : "primary"} disabled={stamina < 50} style={{ marginTop: 12 }} onClick={start}>Desafiar o boss — 50⚡</Btn>
@@ -1207,7 +1215,7 @@ function WeeklyBoss({ start, stamina, bossMats, lastWeeklyBoss, startAscension, 
         <div style={{ ...ORB, fontWeight: 800, fontSize: 20 }}>Guardião da Ascensão</div>
         <div style={{ color: C.mute, fontSize: 13, marginTop: 4 }}>Boss único e blindado. Derrote-o para coletar 🔶 Núcleos de Ascensão, necessários para romper os limites de nível dos personagens nos níveis 20, 40, 60 e 80 (custos 3 · 7 · 15 · 30).</div>
         <div className="flex items-center gap-3" style={{ marginTop: 10, flexWrap: "wrap" }}>
-          <Res icon="🔶" v={ascMats} color="#ffb86b" />
+          <Res icon="🔶" v={ascMats} color="#ffb86b" itemId="item_asc_mat" />
         </div>
         <Btn kind={stamina < 40 ? "soft" : "primary"} disabled={stamina < 40} style={{ marginTop: 12 }} onClick={startAscension}>Desafiar o Guardião — 40⚡</Btn>
       </div>
@@ -1420,7 +1428,7 @@ function PullModal({ data, onClose }) {
                   {r.rarity === 5 && <div style={{ position: "absolute", inset: -40, background: `repeating-conic-gradient(${color}33 0deg 12deg, transparent 12deg 24deg)`, animation: "srRay 8s linear infinite" }} />}
                   <div style={{ position: "relative" }}>
                     <div style={{ height: 34, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {isShard ? <span style={{ fontSize: 26 }}>📜</span> : isWeapon ? <WeaponIcon w={WEAPON_MAP[r.id]} size={30} /> : <Avatar ch={CHAR_MAP[r.id]} size={30} />}
+                      {isShard ? <ItemIcon id="item_chronicles" emoji="📜" size={26} /> : isWeapon ? <WeaponIcon w={WEAPON_MAP[r.id]} size={30} /> : <Avatar ch={CHAR_MAP[r.id]} size={30} />}
                     </div>
                     <div style={{ fontSize: 11, fontWeight: 700, color }}>{r.rarity >= 4 ? "★".repeat(r.rarity) : "✦"}{r.dup ? " E+1" : ""}</div>
                     <div style={{ fontSize: 9, color: C.mute, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</div>
