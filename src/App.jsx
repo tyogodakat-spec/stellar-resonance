@@ -818,8 +818,10 @@ function Game({ email, isAdmin, onLogout }) {
     const o = normChar(ownedMap[id] || { id }); const lvl = o.traces[which] || 1;
     if (lvl >= TRACE_MAX) { flash("Rastro no máximo", C.gold); return; }
     const needSkill = 1 + Math.floor(lvl / 3);
+    const needBoss = lvl >= 5 ? 1 : 0; // a partir do nível 5, exige 1 Núcleo de Vestígio
     if (!isAdmin && skillMats < needSkill) { flash(`Faltam Cristais de Habilidade (precisa ${needSkill})`, C.bad); return; }
-    if (!isAdmin) setSkillMats((v) => v - needSkill);
+    if (!isAdmin && needBoss > 0 && bossMats < needBoss) { flash("Falta 1 Núcleo de Vestígio (obrigatório a partir do nível 5)", C.bad); return; }
+    if (!isAdmin) { setSkillMats((v) => v - needSkill); if (needBoss > 0) setBossMats((v) => v - needBoss); }
     setOwnedField(id, { traces: { ...o.traces, [which]: lvl + 1 } });
     flash(`${which === "basic" ? "Básico" : which === "skill" ? "Habilidade" : "Ultimate"} → Nv ${lvl + 1}`, C.good);
   }
@@ -922,7 +924,8 @@ function Game({ email, isAdmin, onLogout }) {
     if (stamina < 30) { flash("Stamina insuficiente (precisa 30)", C.bad); return; }
     setStamina((v) => v - 30);
     const lv = Math.round(team.reduce((a, id) => a + (ownedMap[id]?.level || 1), 0) / Math.max(1, team.length)) + 6;
-    setBattle({ context: "tagdungeon", tag, encounter: { level: lv, count: 3, waves: 6, boss: true, tag, bossName: `Guardião da Tag · ${tag}`, bossKind: "guardian", teamPower: teamPower() }, ally: null });
+    // tagDungeon=true → HP fixo baseado no nível, não escala com poder do time (estilo HSR)
+    setBattle({ context: "tagdungeon", tag, encounter: { level: lv, count: 3, waves: 6, boss: true, tag, bossName: `Guardião da Tag · ${tag}`, bossKind: "guardian", teamPower: teamPower(), tagDungeon: true }, ally: null });
   }
   function startWeekly() {
     if (stamina < 50) { flash("Stamina insuficiente (precisa 50)", C.bad); return; }
@@ -953,7 +956,7 @@ function Game({ email, isAdmin, onLogout }) {
       if (result.win) { setExpItems((v) => v + (b.reward || 8)); flash(`Dungeon limpa! +${b.reward || 8} Lácrimas de XP`, C.good); }
       else flash("Derrota na dungeon", C.bad);
     } else if (b.context === "tagdungeon") {
-      if (result.win) { const t = b.tag; setTagMats((m) => ({ ...m, [t]: (m[t] || 0) + 4 })); setWeaponMats((v) => v + 5); setSkillMats((v) => v + 5); setBossMats((v) => v + 1); flash(`Dungeon de ${t} concluída! +4 material “${t}”, +5 ⚙️ Arma, +5 💠 Habilidade, +1 🔮`, C.gold); }
+      if (result.win) { const t = b.tag; const drop = Math.floor(Math.random() * 2) + 1; setTagMats((m) => ({ ...m, [t]: (m[t] || 0) + drop })); setWeaponMats((v) => v + 5); setSkillMats((v) => v + 5); setBossMats((v) => v + 1); flash(`Dungeon de ${t} concluída! +${drop} material "${t}", +5 ⚙️ Arma, +5 💠 Habilidade, +1 🔮`, C.gold); }
       else flash("A dungeon resistiu…", C.bad);
     } else if (b.context === "weekly") {
       if (result.win) {
@@ -1515,7 +1518,7 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
             : <Btn kind="soft" style={{ padding: "6px 12px" }} onClick={() => levelUp(o.id)}>Subir nível {isAdmin ? "(admin)" : <span className="flex items-center gap-1">(<ItemIcon id="item_exp" emoji="📘" size={13} />{needExp})</span>}</Btn>}
           <Btn kind="ghost" style={{ padding: "6px 12px", marginLeft: "auto" }} onClick={() => publish(o)}>Publicar p/ Co-op</Btn>
         </div>
-        {atCap && <div style={{ fontSize: 11, color: "#ffb86b", marginTop: 6 }}>Limite de nível atingido — derrote o Guardião da Ascensão (aba Boss) para conseguir 🔶 Núcleos de Ascensão. Você tem {ascMats}.</div>}
+        {atCap && <div className="flex items-center gap-1 flex-wrap" style={{ fontSize: 11, color: "#ffb86b", marginTop: 6 }}>Limite de nível atingido — derrote o Guardião da Ascensão (aba Boss) para conseguir <ItemIcon id="item_asc_mat" emoji="🔶" size={11} /> Núcleos de Ascensão. Você tem {ascMats}.</div>}
       </Panel>
       <div className="flex gap-2" style={{ flexWrap: "wrap" }}>
         <TabBtn active={tab === "status"} onClick={() => setTab("status")}>Status</TabBtn>
@@ -1540,7 +1543,7 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
           {[["basic", "Ataque Básico", skillNamesOf(def.id)[0]], ["skill", "Habilidade", skillNamesOf(def.id)[1]], ["ult", "Ultimate", skillNamesOf(def.id)[2]]].map(([key, lbl, nm]) => { const lvl = oc.traces[key] || 1; const max = lvl >= TRACE_MAX; return (
             <div key={key} className="flex items-center justify-between" style={{ background: C.panelHi, borderRadius: 10, padding: "8px 10px" }}>
               <div><div style={{ fontWeight: 700, fontSize: 13 }}>{lbl} <span style={{ color: C.mute, fontWeight: 400 }}>· {nm}</span></div><div style={{ fontSize: 11, color: C.mute }}>Nv {lvl}/{TRACE_MAX} · dano +{Math.round((traceMul(lvl) - 1) * 100)}%</div></div>
-              <Btn kind={max ? "ghost" : "soft"} disabled={max} style={{ padding: "5px 10px" }} onClick={() => traceLevelUp(o.id, key)}>{max ? "MÁX" : isAdmin ? "Subir" : <span className="flex items-center gap-1"><ItemIcon id="item_skill_mat" emoji="💠" size={13} />{1 + Math.floor(lvl / 3)}</span>}</Btn>
+              <Btn kind={max ? "ghost" : "soft"} disabled={max} style={{ padding: "5px 10px" }} onClick={() => traceLevelUp(o.id, key)}>{max ? "MÁX" : isAdmin ? "Subir" : (<span className="flex items-center gap-1 flex-wrap" style={{ justifyContent: "center" }}><span className="flex items-center gap-1"><ItemIcon id="item_skill_mat" emoji="💠" size={13} />{1 + Math.floor(lvl / 3)}</span>{lvl >= 5 && <span className="flex items-center gap-1">+<ItemIcon id="item_boss_mat" emoji="🔮" size={13} />1</span>}</span>)}</Btn>
             </div>); })}
         </div>
         <b style={{ fontSize: 13, display: "block", marginTop: 12 }}>Nós de Atributo</b>
@@ -1836,10 +1839,18 @@ function refreshKaibaBuffs(s) {
 }
 function makeEnemy(idx, enc) {
   const lvl = enc.level, boss = enc.boss && idx === 0, finalBoss = enc.finalBoss && idx === 0, weekly = enc.weekly && idx === 0, ascend = enc.ascend && idx === 0;
-  // HP atrelado ao PODER da equipe (invariante de escala) — mantém a luta justa mesmo após o rebalanceamento HSR
   const power = enc.teamPower || 2500;
-  let baseHp = power * 2.4 + lvl * 50 + idx * 150;
-  if (boss) baseHp *= finalBoss ? 7.2 : weekly ? 8.5 : ascend ? 7.8 : 4.6;
+  let baseHp;
+  if (enc.tagDungeon) {
+    // HP fixo baseado no nível — não escala com poder do time (estilo HSR)
+    // Ondas regulares têm HP substancialmente maior que dungeons de farm
+    baseHp = 280 * Math.pow(lvl, 1.28) + idx * 500;
+    if (boss) baseHp *= 5.5; // Guardião da Tag é bem mais resistente
+  } else {
+    // HP atrelado ao PODER da equipe (invariante de escala) — mantém a luta justa mesmo após o rebalanceamento HSR
+    baseHp = power * 2.4 + lvl * 50 + idx * 150;
+    if (boss) baseHp *= finalBoss ? 7.2 : weekly ? 8.5 : ascend ? 7.8 : 4.6;
+  }
   const hp = Math.round(baseHp);
   const atk = Math.round((power * 0.06 + lvl * 4 + 80) * (boss ? 1.35 : 1));
   const def = Math.round(power * 0.035 + lvl * 3 + (boss ? power * 0.03 : 0));
@@ -2736,9 +2747,7 @@ function AdminPlayersTab() {
                 <div style={{ fontSize: 11, color: C.dim, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {p.email} · visto {fmtTime(p.lastSeen)}
                 </div>
-                <div style={{ fontSize: 11, color: C.mute, marginTop: 2 }}>
-                  💎 {p.jade} · 📜 {p.chronicles} · 🎴 {p.charTickets} · 🗼 {p.towerCleared}/{TOWER_FLOORS} · {p.owned.length} personagens ({fiveStars.length} ★5)
-                </div>
+                <div className="flex items-center gap-1 flex-wrap" style={{ fontSize: 11, color: C.mute, marginTop: 2 }}><ItemIcon id="item_jade" emoji="💎" size={11} /> {p.jade} · <ItemIcon id="item_chronicles" emoji="📜" size={11} /> {p.chronicles} · <ItemIcon id="item_ticket_char" emoji="🎴" size={11} /> {p.charTickets} · 🗼 {p.towerCleared}/{TOWER_FLOORS} · {p.owned.length} personagens ({fiveStars.length} ★5)</div>
               </div>
               <span style={{ color: C.mute, fontSize: 14, marginLeft: 8, flexShrink: 0 }}>{isOpen ? "▲" : "▼"}</span>
             </div>
