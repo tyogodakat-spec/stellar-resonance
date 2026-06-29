@@ -1208,27 +1208,6 @@ function BossPhotoBtn({ boss, images, setImages }) {
     </React.Fragment>
   );
 }
-function BossPhotoBtn({ boss, images, setImages }) {
-  const fileRef = React.useRef();
-  function handleImg(e) {
-    const file = e.target.files && e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      const b64 = ev.target.result;
-      const newImgs = Object.assign({}, images || {}, { [boss.imgKey]: b64 });
-      setImages(newImgs);
-      try { _ls.set("sr_shared_images", JSON.stringify(newImgs)); } catch(x) {}
-      cloudReady.then(function(){ return cloudSet("meta", "images", { map: newImgs }); }).catch(function(){});
-    };
-    reader.readAsDataURL(file);
-  }
-  return (
-    <React.Fragment>
-      <button onClick={function(){fileRef.current && fileRef.current.click();}} style={{ position: "absolute", bottom: 8, right: 8, background: "#221C47", border: "1px solid #F6C95B", color: "#F6C95B", borderRadius: 8, padding: "3px 8px", fontSize: 11, fontWeight: 700, zIndex: 2 }}>📷 Foto</button>
-      <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleImg} />
-    </React.Fragment>
-  );
-}
 function BossRushLeaderboard({ bossId }) {
   const [scores, setScores] = useState(null);
   const [open, setOpen] = useState(false);
