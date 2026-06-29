@@ -763,6 +763,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [skillMats, setSkillMats] = useState(15);
   const [tagMats, setTagMats] = useState({});
   const [lastWeeklyBoss, setLastWeeklyBoss] = useState(0);
+  const [bossRushCleared, setBossRushCleared] = useState([]);
 
   const ownedMap = useMemo(() => Object.fromEntries(owned.map((o) => [o.id, o])), [owned]);
   const flash = (msg, color) => { setToast({ msg, color: color || C.gold }); setTimeout(() => setToast(null), 2200); };
@@ -781,7 +782,7 @@ function Game({ email, isAdmin, onLogout }) {
       if (s.team) setTeam(s.team); setStamina(s.stamina ?? 240); setLastStamina(s.lastStamina ?? Date.now());
       setPlayerName(s.playerName ?? "Pioneiro");
       setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []);
-      setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0);
+      setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0); setBossRushCleared(Array.isArray(s.bossRushCleared) ? s.bossRushCleared : []);
     }
     // Carrega fotos do localStorage imediatamente (sem depender do Firebase)
     try { const li = _ls.get("sr_shared_images"); if (li) { const parsed = JSON.parse(li); if (parsed && typeof parsed === "object") setImages(parsed); } } catch {}
@@ -810,8 +811,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -994,6 +995,7 @@ function Game({ email, isAdmin, onLogout }) {
     setStamina((v) => v - 40);
     setBattle({ context: "ascend", encounter: { level: 50, count: 1, boss: true, ascend: true, bossName: "Guardião da Ascensão", bossKind: "stone", teamPower: teamPower() }, ally: null });
   }
+  function startBossRush(bossId) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===bossId;}); if (!bd) return; setBattle({ context: "bossrush", bossId: bossId, encounter: { bossRush: true, bossId: bossId, level: bd.level, count: 1, boss: true, bossName: bd.name, bossElement: bd.element, bossKind: bd.kind, bossImgId: bd.imgKey, teamPower: teamPower() }, ally: null }); }
   function onBattleEnd(result) {
     const b = battle; setBattle(null);
     if (!b || result.abort) return;
@@ -1025,6 +1027,8 @@ function Game({ email, isAdmin, onLogout }) {
       else flash("O Guardião da Ascensão te derrotou…", C.bad);
     } else if (b.context === "coop") {
       if (b.onResolve) b.onResolve(result);
+    } else if (b.context === "bossrush") {
+      if (result.win && !bossRushCleared.includes(b.bossId)) { setBossRushCleared(function(prev){return [...prev, b.bossId];}); setJade(function(j){return j + 400;}); flash("Boss Rush concluido! +400", C.gold); } else if (result.win) { flash("Boss ja foi derrotado — sem recompensa extra.", C.mute); } else { flash("Voce foi derrotado no Boss Rush...", C.bad); }
     }
   }
 
@@ -1165,7 +1169,28 @@ function NickEditor({ playerName, setPlayerName, flash }) {
     </div>
   );
 }
-function ContentTabs() {
+function BossPhotoBtn({ boss, images, setImages }) {
+  const fileRef = React.useRef();
+  function handleImg(e) {
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const b64 = ev.target.result;
+      const newImgs = Object.assign({}, images || {}, { [boss.imgKey]: b64 });
+      setImages(newImgs);
+      try { _ls.set("sr_shared_images", JSON.stringify(newImgs)); } catch(x) {}
+      cloudReady.then(function(){ return cloudSet("meta", "images", { map: newImgs }); }).catch(function(){});
+    };
+    reader.readAsDataURL(file);
+  }
+  return (
+    <React.Fragment>
+      <button onClick={function(){fileRef.current && fileRef.current.click();}} style={{ position: "absolute", bottom: 8, right: 8, background: "#221C47", border: "1px solid #F6C95B", color: "#F6C95B", borderRadius: 8, padding: "3px 8px", fontSize: 11, fontWeight: 700, zIndex: 2 }}>📷 Foto</button>
+      <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleImg} />
+    </React.Fragment>
+  );
+}
+function ContentTabs({ bossRushCleared, startBossRush, isAdmin, images, setImages }) {
   const [tab, setTab] = useState("historia");
   const historiaMs = useBannerTimer("content_historia", 3 * 24 * 60 * 60 * 1000);
   const endgameMs  = useBannerTimer("content_endgame",  7 * 24 * 60 * 60 * 1000);
@@ -1190,9 +1215,45 @@ function ContentTabs() {
         </div>
       </div>}
       {tab === "endgame" && <div style={{ marginTop: 12 }}>
-        <div style={{ fontWeight: 700, marginBottom: 4 }}>Invasão de Boss Semanal</div>
-        <div style={{ fontSize: 13, color: C.mute, marginBottom: 8 }}>Liberação do conteúdo de nível máximo e masmorras:</div>
-        <div style={{ fontFamily: "monospace", fontWeight: 800, fontSize: 22, color: "#ffcc00", textAlign: "center", letterSpacing: 2, padding: "10px 0" }}>{formatCountdown(endgameMs)}</div>
+        <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>Boss Rush</div>
+        <div style={{ fontSize: 13, color: C.mute, marginBottom: 12 }}>Enfrente chefes poderosos. Cada boss da 400 na primeira vitoria e nao pode ser repetido.</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {BOSS_RUSH_BOSSES.map(function(boss) {
+            const cleared = bossRushCleared && bossRushCleared.includes(boss.id);
+            const el = ELEMENTS[boss.element] || ELEMENTS.Holy;
+            const imgUrl = images && images[boss.imgKey];
+            return (
+              <div key={boss.id} style={{ background: C.panel, borderRadius: 14, border: "2px solid " + el.color + "55", overflow: "hidden" }}>
+                <div style={{ position: "relative", height: 140, background: el.soft, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                  {imgUrl ? <img src={imgUrl} alt={boss.name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+                    : <span style={{ fontSize: 64 }}>{boss.avatar}</span>}
+                  {cleared && <div style={{ position: "absolute", inset: 0, background: "#000b", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ color: C.good, fontWeight: 900, fontSize: 22, letterSpacing: 3 }}>DERRUBADO</span>
+                  </div>}
+                  {isAdmin && <BossPhotoBtn boss={boss} images={images} setImages={setImages} />}
+                  <div style={{ position: "absolute", top: 8, left: 8, background: el.color + "33", border: "1px solid " + el.color + "88", borderRadius: 8, padding: "2px 8px", fontSize: 11, color: el.color, fontWeight: 700 }}>{el.glyph} {boss.element}</div>
+                  <div style={{ position: "absolute", top: 8, right: 8, background: "#00000088", borderRadius: 8, padding: "2px 8px", fontSize: 11, color: C.gold, fontWeight: 700 }}>+400</div>
+                </div>
+                <div style={{ padding: "12px 14px" }}>
+                  <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 2 }}>{boss.name}</div>
+                  <div style={{ fontSize: 11, color: C.mute, marginBottom: 8, lineHeight: 1.4, fontStyle: "italic" }}>{boss.lore}</div>
+                  <div style={{ fontSize: 11, color: "#aaa5d5", marginBottom: 4 }}>HP: <span style={{ color: C.bad }}>{boss.hp.toLocaleString("pt-BR")}</span></div>
+                  <div style={{ fontSize: 11, color: C.mute, marginBottom: 8 }}>
+                    {boss.weak && boss.weak.length > 0 && <span style={{ color: C.good, marginRight: 8 }}>FRACO: {boss.weak.map(function(e){return ELEMENTS[e] ? ELEMENTS[e].glyph : e;}).join(" ")}</span>}
+                    {boss.res && boss.res.length > 0 && <span style={{ color: "#9aa0b5" }}>RES: {boss.res.map(function(e){return ELEMENTS[e] ? ELEMENTS[e].glyph : e;}).join(" ")}</span>}
+                  </div>
+                  {boss.omegaHint && <div style={{ background: "#A6E22E22", border: "1px solid #A6E22E55", borderRadius: 8, padding: "6px 10px", fontSize: 11, color: "#A6E22E", marginBottom: 8, fontWeight: 600 }}>{boss.omegaHint}</div>}
+                  <div style={{ fontSize: 11, color: C.dim, marginBottom: 10 }}>
+                    {boss.mechanics.map(function(m, i){ return <div key={i} style={{ marginBottom: 3 }}>{"• " + m}</div>; })}
+                  </div>
+                  {!cleared
+                    ? <Btn kind="primary" onClick={function(){if(startBossRush) startBossRush(boss.id);}} style={{ width: "100%", justifyContent: "center" }}>Desafiar Boss</Btn>
+                    : <div style={{ textAlign: "center", color: C.good, fontWeight: 700, fontSize: 13 }}>Concluido — sem nova recompensa</div>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>}
     </Panel>
   );
@@ -1220,7 +1281,7 @@ function Home({ email, isAdmin, playerName, setPlayerName, owned, setScreen, set
         <Tile t="Boss Semanal" s="Núcleos p/ Rastros Especiais" e="👹" onClick={() => setScreen("weekly")} />
       </div>
       {isAdmin && <Panel glow={C.gold}><div className="flex items-center gap-2"><span style={{ fontSize: 22 }}>👑</span><div><b>Modo Administrador</b><div style={{ color: C.mute, fontSize: 12 }}>Gemas infinitas ativas. Invocações e melhorias não consomem 💎.</div></div></div></Panel>}
-      <ContentTabs />
+      <ContentTabs bossRushCleared={bossRushCleared} startBossRush={startBossRush} isAdmin={isAdmin} images={images} setImages={setImages} />
       <Panel>
         <b>Como o suporte muda a batalha</b>
         <p style={{ color: C.mute, fontSize: 13, lineHeight: 1.65, marginTop: 6 }}>
@@ -1950,6 +2011,7 @@ function makeEnemy(idx, enc) {
   const atk = Math.round((power * 0.06 + lvl * 4 + 80) * (boss ? 1.35 : 1));
   const def = Math.round(power * 0.035 + lvl * 3 + (boss ? power * 0.03 : 0));
   const spd = 95 + idx * 3 + (boss ? 4 : 0);
+  if (enc.bossRush && idx === 0) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===enc.bossId;}); if (bd) { const atkBr = Math.round(3500 + (enc.level||90) * 12); const defBr = Math.round(2200 + (enc.level||90) * 8); return { uid: "E0", side: "enemy", name: bd.name, bossTitle: bd.lore, bossImgId: bd.imgKey, avatar: bd.avatar, element: bd.element, level: bd.level, roleKey: "dps", bossKind: bd.kind, boss: true, finalBoss: false, weekly: false, ascend: false, elite: false, res: bd.res || [], weak: bd.weak || [], base: { atk: atkBr, def: defBr, spd: 90, critRate: 15, critDmg: 60, dmgBonus: 0 }, hp: bd.hp, maxHp: bd.hp, shield: bd.kind === "sukuna" ? 200000 : 0, av: 10000 / 90, buffs: [], debuffs: [], dots: [], alive: true, actCount: 0 }; } }
   const bossEl = enc.bossElement || pick(ELEMENT_NAMES);
   const name = ascend ? (enc.bossName || "Guardião da Ascensão") : weekly ? (enc.bossName || "Tirano do Vazio") : finalBoss ? "Soberano do Vazio" : boss ? "Guardião do Andar" : "Aberração " + (idx + 1);
   // Alguns chefes têm RESISTÊNCIA (1-3 elementos) e FRAQUEZA (1-2 elementos)
@@ -1982,6 +2044,44 @@ function effStat(u, key) {
 }
 function vulnOf(u) { let v = 0; for (const b of u.debuffs) if (b.stat === "vuln") v += b.value; return v; }
 function defMult(attacker, defenderDef) { const lvl = (attacker && attacker.level) || 50; const d = Math.max(0, defenderDef || 0); return 1 - d / (d + 200 + 10 * lvl); }
+/* ---------- BOSS RUSH BOSSES ---------- */
+const BOSS_RUSH_BOSSES = [
+  {
+    id: "byakuya", name: "Byakuya Kuchiki", avatar: "\uD83C\uDF38", imgKey: "boss_byakuya",
+    hp: 600000, element: "Holy", reward: 400,
+    lore: "Capitao da 6a Divisao da Gotei 13. Petalas de cerejeira feitas de gelo cortam sem piedade.",
+    mechanics: [
+      "A cada 3 acoes usa Senbonzakura Kageyoshi: mil petalas causam dano em area a todos os aliados.",
+      "Abaixo de 50% de HP entra no Bankai completo: cada petala reduz a DEF dos alvos por 2 turnos.",
+      "Aliados com Sangramento recebem +30% de dano das petalas.",
+    ],
+    kind: "byakuya", weak: ["Chaos","Virus"], res: ["Holy"], level: 80,
+  },
+  {
+    id: "sukuna", name: "Ryomen Sukuna", avatar: "\uD83D\uDC79", imgKey: "boss_sukuna",
+    hp: 1200000, element: "Chaos", reward: 400,
+    lore: "O Rei das Maldicoes. Seu Dominio Amaldicoado envolve tudo no caos absoluto.",
+    mechanics: [
+      "A cada 2 acoes usa Cleave: corte frontal que ignora 30% de DEF.",
+      "Ao atingir 70% e 40% de HP expande o Dominio Amaldicoado: -30% DEF e +30% Vuln em todos por 3 turnos.",
+      "Possui escudo de [Tecnica Maldita] com 200.000 HP — apenas unidades de Virus ou portadoras de [Hazard Digital] o rompem com eficacia total.",
+    ],
+    omegaHint: "Dica: Unidades com [Hazard Digital] rompem o escudo amaldicoado com eficacia total.",
+    kind: "sukuna", weak: ["Virus"], res: ["Chaos","Holy"], level: 90,
+  },
+  {
+    id: "frieren", name: "Frieren", avatar: "\uD83E\uDDD9", imgKey: "boss_frieren",
+    hp: 1500000, element: "Glacial", reward: 400,
+    lore: "A Maga do Pos-Alem. Feiticos acumulados por mais de mil anos.",
+    mechanics: [
+      "A cada 4 acoes conjura Graca das Fadas: 7 ondas de magia Glacial em alvos aleatorios.",
+      "Acumula [Contra-Feitco] a cada ataque recebido (max 3) — ao atingir 3 cargas, paralisa o atacante por 1 turno.",
+      "Abaixo de 30% de HP ativa Magia Proibida: Geada em todos os aliados e recupera 5% do HP maximo.",
+    ],
+    kind: "frieren", weak: ["Fogo","Holy"], res: ["Glacial","Eletro"], level: 95,
+  },
+];
+
 const DOT_INFO = { burn: { c: "#FF6B45", n: "Queimadura" }, poison: { c: "#A6E22E", n: "Veneno" }, shock: { c: "#B98BFF", n: "Choque" }, bleed: { c: "#FF5FC4", n: "Sangramento" }, freeze: { c: "#6FE3FF", n: "Geada" }, geada: { c: "#6FE3FF", n: "Geada" }, corrosao: { c: "#7CFFB0", n: "Corrosão" } };
 function dealDamage(attacker, defender, mult, fx, opts) {
   // Aizen mechanic: 40% miss chance before Bankai
@@ -2020,8 +2120,10 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     if (red) dmg = Math.max(1, Math.round(dmg * Math.max(0.1, 1 - red / 100))); // Protocolo de Infecção
     if (defender.id === "omegamon" || (defender.buffs || []).some((b) => b.name === "Protocolo")) defender._omgHit = (defender._omgHit || 0) + 1;
   }
-  if (defender.shield > 0 && !opts?.pierceShield) { const a = Math.min(defender.shield, dmg); defender.shield -= a; dmg -= a; }
+  if (defender.shield > 0 && !opts?.pierceShield) { const shBefore = defender.shield; const a = Math.min(defender.shield, dmg); defender.shield -= a; dmg -= a; if (shBefore > 0 && defender.shield === 0 && defender.id === "omegamon" && defender.stFlags && defender.stFlags.omgContagio && attacker.side !== "H") { attacker.dots = attacker.dots || []; if (!attacker.dots.some(function(d){return d.type==="corrosao";})) attacker.dots.push({ type: "corrosao", dmg: Math.max(1, Math.round(defender.base.atk * 0.35)), turns: 2 }); fx.push({ uid: attacker.uid, txt: "CORROSAO", dot: "corrosao", id: Math.random() }); } }
   defender.hp -= dmg; if (defender.hp <= 0) { defender.hp = 0; defender.alive = false; }
+  if (!defender.alive && defender.id === "omegamon" && defender.stFlags && defender.stFlags.omgC6 && !defender._c6Used) { defender.hp = 1; defender.alive = true; defender._c6Used = true; fx.push({ uid: defender.uid, txt: "FINAL DEFEAT", heal: true, id: Math.random() }); }
+  if (dmg > 0 && defender.weapon && defender.weapon.omgWeapon && defender.alive && !defender.buffs.some(function(b){return b.name==="GlitchBoost";})) { defender.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "GlitchBoost" }); }
   if (defender.side === "H" && !defender.isSummon && defender.energyMax) { const heavy = attacker.boss || mult >= 300; defender.energy = Math.min(defender.energyMax, defender.energy + Math.round((heavy ? 12 : 6) * (1 + (effStat(defender, "energyRegen") || 0) / 100))); }
   if (!defender.alive && attacker.side === "H" && !attacker.isSummon && attacker.energyMax) { attacker.energy = Math.min(attacker.energyMax, attacker.energy + Math.round(6 * (1 + (effStat(attacker, "energyRegen") || 0) / 100))); } // kill: +6 ×ERR
   fx.push({ uid: defender.uid, txt: String(dmg), crit, id: Math.random(), el: opts?.el || attacker.element });
@@ -2192,7 +2294,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
     if (ally) heroes.push(makeAllyUnit(ally, heroes.length));
     { const omg = heroes.find((h) => h && h.id === "omegamon" && h.alive); // Talento: +25% HP máx ao time; arma Glitch: +20% ao portador
       heroes.forEach((h) => { if (!h || h.isSummon) return; let mul = 1; if (h.weapon?.omgWeapon) mul *= 1.2; if (omg) mul *= 1.25; if (mul !== 1) { h.maxHp = Math.round(h.maxHp * mul); h.hp = h.maxHp; } });
-      if (omg) omg.omgCharges = 0; }
+      if (omg) { omg.omgCharges = 0; omg._c6Used = false; } }
     if (heroes.some((h) => h.stFlags?.pTeamEnergy)) heroes.forEach((h) => { if (h.energyMax) h.energy = Math.min(h.energyMax, h.energy + 15); });
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
     const totalWaves = Math.max(1, Math.min(8, encounter.waves || 1));
@@ -2354,7 +2456,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         }
         else if (u.id === "omegamon" && sk.omgSkill) {
           const sMul = u.tSkill * ampS;
-          const red = 20 + (f.omgContagio ? 20 : 0);
+          const red = 50 + (f.omgContagio ? 20 : 0); // 50% redirect + 20% extra resist
           allies.forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Protocolo"); a.buffs.push({ stat: "dmgReduce", value: red, turns: 2, name: "Protocolo" }); if (f.omgC2) a.buffs.push({ stat: "dmgBonus", value: 20, turns: 2, name: "Contágio+" }); });
           const sh = Math.round(u.maxHp * 0.25); u.shield = Math.max(u.shield, sh);
           if (enemy) { const r = dealDamage(u, enemy, (sk.skillMul || 120) * sMul, fx, { el: "Virus" }); msg = `🛡️ ${u.name} ativa Protocolo de Infecção — o time recebe -${red}% de dano por 2 turnos e ele ergue um Escudo de Dados de ${sh}. Atinge ${enemy.name} por ${r.dmg} de Dano de Vírus${r.crit ? " (CRÍTICO!)" : ""}.`; }
@@ -2401,7 +2503,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           }
         } else if (u.id === "omegamon" && sk.omgUlt) {
           u.energy = enGain(5);
-          const cost = Math.round(u.hp * 0.30); u.hp = Math.max(1, u.hp - cost);
+          const cost = Math.round(u.hp * 0.30); u.hp = Math.max(1, u.hp - cost); if (u.weapon && u.weapon.omgWeapon && !u.buffs.some(function(b){return b.name==="GlitchBoost";})) u.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "GlitchBoost" });
           const lostPct = (1 - u.hp / u.maxHp) * 100;
           const satur = f.omgSaturacao ? (1 + 0.008 * lostPct) : 1;
           const c6 = (f.omgC6 && u.hp / u.maxHp < 0.3) ? 2 : 1;
@@ -2579,7 +2681,57 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           let tot2 = 0; allAllies.forEach(h => { tot2 += dealDamage(u, h, 160 * rage, fx, { el: "Eletro" }).dmg; h.debuffs.push({ stat: "atk", value: -20, pct: true, turns: 2, name: "Supressão" }); }); pushLog(s, `⚡ PUNHO DO DESTINO! ${tot2} dano Eletro em área + ATK↓20% por 2 turnos!`); s = checkEnd(s); s.turn = null; return s;
         }
       }
-      if (u.elite && u.actCount === 1) {
+      // BOSS RUSH MECHANICS
+      if (u.alive && u.boss && u.bossKind === "byakuya") {
+        const bankai = u.hp / u.maxHp < 0.5;
+        if (u.actCount % 3 === 0 && u.actCount > 0) {
+          let tot = 0;
+          allAllies.forEach(function(h) {
+            const hasBleed = (h.dots||[]).some(function(d){return d.type==="bleed";});
+            const mul = 200 * rage * (bankai ? 1.35 : 1) * (hasBleed ? 1.3 : 1);
+            tot += dealDamage(u, h, mul, fx, { el: "Holy" }).dmg;
+            if (bankai && h.alive) h.debuffs.push({ stat: "def", value: -20, pct: true, turns: 2, name: "Petala" });
+          });
+          msg = "SENBONZAKURA KAGEYOSHI! " + u.name + " desencadeia mil petalas - " + tot + " de dano total" + (bankai ? " (BANKAI!)" : "") + "!";
+        } else if (!msg) {
+          const t = pickTarget();
+          if (t) { const r = dealDamage(u, t, 110 * rage, fx, { el: "Holy" }); msg = u.name + " ataca " + t.name + " com petalas - " + r.dmg + (r.crit ? " (CRITICO!)" : "") + "."; }
+        }
+      } else if (u.alive && u.boss && u.bossKind === "sukuna") {
+        const hpPctS = u.hp / u.maxHp;
+        if (!u._sukDom70 && hpPctS <= 0.70) { u._sukDom70 = true; allAllies.forEach(function(h){ h.debuffs.push({ stat: "def", value: -30, pct: true, turns: 3, name: "Dominio" }); h.debuffs.push({ stat: "vuln", value: 30, turns: 3, name: "Dominio" }); }); pushLog(s, "SUKUNA expande o DOMINIO AMALDICAO! -30% DEF e +30% Vuln!"); }
+        if (!u._sukDom40 && hpPctS <= 0.40) { u._sukDom40 = true; allAllies.forEach(function(h){ h.debuffs.push({ stat: "def", value: -30, pct: true, turns: 3, name: "Dominio2" }); h.debuffs.push({ stat: "vuln", value: 30, turns: 3, name: "Dominio2" }); }); pushLog(s, "SUKUNA expande o DOMINIO NOVAMENTE! Todos enfraquecidos!"); }
+        if (u.actCount > 0 && u.actCount % 5 === 0 && u.shield === 0) { u.shield = 200000; pushLog(s, "Sukuna reconstroi a [Tecnica Maldita]! Escudo de 200.000 HP! Use Virus/Hazard Digital!"); }
+        if (u.actCount % 2 === 0 && u.actCount > 0) {
+          const t = pickTarget();
+          if (t) { const r = dealDamage(u, t, 180 * rage, fx, { defPen: 30 }); msg = "SUKUNA usa CLEAVE em " + t.name + " - " + r.dmg + " de dano!" + (r.crit ? " CRITICO!" : ""); }
+        } else if (!msg) {
+          const t = pickTarget();
+          if (t) { const r = dealDamage(u, t, 120 * rage, fx); msg = u.name + " ataca " + t.name + " - " + r.dmg + (r.crit ? " (CRITICO!)" : "") + "."; }
+        }
+      } else if (u.alive && u.boss && u.bossKind === "frieren") {
+        if (!u.counterSpell) u.counterSpell = 0;
+        u.counterSpell += 1;
+        if (u.counterSpell >= 3) {
+          u.counterSpell = 0;
+          const t = pickTarget();
+          if (t) { t.debuffs.push({ stat: "spd", value: -9999, pct: false, turns: 1, name: "Paralisia" }); pushLog(s, "CONTRA-FEITCO! " + t.name + " esta paralisado por 1 turno!"); }
+        }
+        if (!u._frierenForbidden && u.hp / u.maxHp < 0.30) {
+          u._frierenForbidden = true;
+          allAllies.forEach(function(h){ if (h.alive) h.dots.push({ type: "freeze", dmg: Math.round(effStat(u,"atk")*0.25), turns: 2 }); });
+          const heal = Math.round(u.maxHp * 0.05); u.hp = Math.min(u.maxHp, u.hp + heal);
+          pushLog(s, "MAGIA PROIBIDA! Frieren recupera " + heal + " HP e congela todos os aliados!");
+        }
+        if (u.actCount % 4 === 0 && u.actCount > 0) {
+          let tot = 0;
+          for (let wi = 0; wi < 7; wi++) { const t = pickTarget(); if (t && t.alive) tot += dealDamage(u, t, 80 * rage, fx, { el: "Glacial" }).dmg; }
+          msg = "GRACA DAS FADAS! Frieren lanca 7 ondas magicas - " + tot + " de Dano Glacial total!";
+        } else if (!msg) {
+          const t = pickTarget();
+          if (t) { const r = dealDamage(u, t, 100 * rage, fx, { el: "Glacial" }); msg = u.name + " conjura feitco em " + t.name + " - " + r.dmg + (r.crit ? " (CRITICO!)" : "") + "."; }
+        }
+      } else if (u.elite && u.actCount === 1) {
         u.buffs.push({ stat: "atk", value: 35, pct: true, turns: 99, name: "Fúria" });
         const t = pickTarget(); const r = t ? dealDamage(u, t, 90 * rage, fx) : { dmg: 0 };
         msg = `${u.name} entra em FÚRIA (ATK↑) e golpeia ${t ? t.name : ""} por ${r.dmg}.`;
