@@ -70,14 +70,18 @@ const ROSTER = [
   // ---- Soi Fon (Limitada) ----
   mk({ id: "soifon", name: "Soi Fon", title: "Capitã da 2ª Divisão", element: "Vento", role: "dps", rarity: 5, avatar: "🦋", hp: 1040, atk: 740, def: 420, spd: 118, energy: 120, cr: 8, cd: 56, tags: ["Vento", "Follow-up", "Sinergia", "Assassina"],
     skill: { basicMul: 100, sfBasic: true, skillMul: 160, sfSkill: true, ultMul: 350, sfUlt: true } }),
+  // ---- Omegamon Zwart D (Limitado) ----
+  mk({ id: "omegamon", name: "Omegamon Zwart D", title: "Digital Hazard · Defeat", element: "Virus", role: "shield", rarity: 5, avatar: "🛡️", hp: 1480, atk: 700, def: 560, spd: 96, energy: 130, cr: 5, cd: 50, er: 15, elemDmg: 0, tags: ["Vírus", "Guardião", "Tanque", "Corrosão"],
+    skill: { basicMul: 100, omgBasic: true, skillMul: 120, omgSkill: true, ultMul: 150, omgUlt: true } }),
 ];
 const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 // Tag primária de um personagem (usada como requisito de nó) e todas as tags únicas do elenco
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
-const LIMITED_5 = ["miyabi", "kaiba", "soifon"];                 // limitados: só via rate-up do banner de evento
+const LIMITED_5 = ["miyabi", "kaiba", "soifon", "omegamon"];     // limitados (pool 50/50): só via rate-up
+const FEATURED_LIMITEDS = ["omegamon", "soifon"]; // banners de evento ATIVOS no carrossel (6 dias)
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
-const DEFAULT_FEATURED_CHAR = "miyabi";
+const DEFAULT_FEATURED_CHAR = "omegamon";
 
 /* ---------- ARMAS ---------- */
 const WEAPONS = [
@@ -94,6 +98,7 @@ const WEAPONS = [
   { id: "healstaff", name: "Bordão Curativo", rarity: 4, role: "healer", atk: 110, energyRegen: 10, ultEnergy: 10, passive: "Ult dá +10 energia ao time." },
   { id: "chaostome", name: "Tomo do Caos", rarity: 4, role: "aoe", atk: 150, dmgBonus: 18, passive: "+18% bônus de dano." },
   { id: "aegis", name: "Égide Brilhante", rarity: 4, role: "shield", atk: 100, def: 80, shieldBonus: 20, passive: "+20% no valor dos escudos." },
+  { id: "glitch_apagamento", name: "Glitch de Apagamento", rarity: 5, role: "shield", atk: 110, def: 90, omgWeapon: true, passive: "Instabilidade Digital: +20% de HP Máximo. Quando o portador perde HP, +25% de Dano de Vírus por 2 turnos. Exclusivo (Omegamon): bônus de [Corrosão] dobrado; ao causar Dano Verdadeiro, +8 de Energia." },
 ];
 const WEAPON_MAP = Object.fromEntries(WEAPONS.map((w) => [w.id, w]));
 const WEAPON_5_IDS = WEAPONS.filter((w) => w.rarity === 5).map((w) => w.id);
@@ -208,18 +213,11 @@ const PASSIVE = {
   yoruichi:  { name: "Deusa Veloz · Shunko", desc: "Talento: a velocidade divina de Yoruichi adianta drasticamente sua barra de ação — ela quase sempre age primeiro na batalha, aplicando Choque e abrindo o combate antes do inimigo reagir. Sua altíssima VEL também significa turnos mais frequentes ao longo da luta.", flag: "pSwift" },
   kiritsugu: { name: "Análise · Caçador de Magos", desc: "Talento: o frio cálculo de Kiritsugu encontra a falha do alvo — toda vulnerabilidade que ele aplica é +12% mais forte. Combinado com o Veneno da Habilidade, ele transforma qualquer inimigo em um alvo que recebe dano amplificado de toda a equipe e ainda derrete ao longo dos turnos.", flag: "pAnalyze" },
   soifon: { name: "Ciclo do Ferrão · Vibração da Morte", desc: "Talento: aliados que causam Dano de Eletro concedem 1 carga de [Vibração de Ferrão] para Soi Fon (máx 3). Com 3 cargas, ela entra em Postura de Ferrão — próximo Ataque Básico causa Dano Verdadeiro (120% ATK, ignora DEF e Escudos). Com [Ferrão da Morte] no alvo e ataques Eletro de aliados, dispara follow-ups instantâneos de Vento (máx 2/turno de aliado).", flag: "sfFollowup" },
+  omegamon: { name: "Digital Hazard", desc: "Talento: enquanto Omegamon Zwart D está em campo, o HP Máximo de todos os aliados aumenta em 25%. Sempre que o portador ou um aliado com [Protocolo de Infecção] é atacado, acumula 1 carga de [Vírus Defeat] (máx 5). Cada carga concede +15% de CRIT DMG e reduz a DEF do atacante em 10%. Ao atingir 5 cargas, o próximo ataque remove todos os buffs do alvo e causa Dano Verdadeiro igual a 20% do HP Máximo do portador.", flag: "omgTalent" },
 };
 // Corrente de Ressonância / Eidolons — 6 nós ÚNICOS por personagem (estilo HSR/WuWa)
 const A_SKILL = { amp: "skill", ampV: 25 }, A_ULT = { amp: "ult", ampV: 50 };
 const CONS = {
-  soifon: [
-    { stat: "critRate", value: 5, label: "CRIT +5%", cost: 700 },
-    { stat: "elemDmg", element: "Vento", value: 10, label: "Dano Vento +10%", cost: 600 },
-    { stat: "energyRegen", value: 6, label: "Reg.Energia +6%", cost: 800 },
-    { stat: "atk", value: 10, label: "ATK +10%", cost: 500 },
-    { stat: "hp", value: 6, label: "HP +6%", cost: 600 },
-    { stat: "critDmg", value: 12, label: "CRIT DMG +12%", cost: 900 },
-  ],
   miyabi: [
     { name: "C1 · Saque Instantâneo", flag: "miC1", desc: "Ao entrar em combate, Miyabi começa imediatamente com 3 PH (máximo) e entra na Postura Iaido de graça. O primeiro corte aprimorado desta postura causa +50% de dano." },
     { name: "C2 · Fio Prorrogado", flag: "miC2", desc: "A Habilidade Lâminas de Gelo não consome mais PH se for usada contra inimigos Congelados. Além disso, cada acerto crítico recupera 5 de Energia para Miyabi." },
@@ -308,6 +306,14 @@ const CONS = {
     { name: "C5 · Assassina do Vento", ...A_SKILL, ampV: 25, desc: "Aumenta o multiplicador da Perícia em +25% e eleva o dano dos follow-ups em +15%." },
     { name: "C6 · Jakuhō Raikōben: Suprema Execução", flag: "sfC6", desc: "A Postura de Ferrão atinge TODOS os inimigos, ignorando 40% da DEF. Ao eliminar um inimigo, Soi Fon recupera 100% de Energia instantaneamente e ganha +50% de Bônus de Dano no próximo turno." },
   ],
+  omegamon: [
+    { name: "C1 · Sobrecarga Viral", flag: "omgC1", desc: "O limite de [Vírus Defeat] sobe para 8. Ao atingir o limite, a Velocidade aumenta em 25 por 2 turnos." },
+    { name: "C2 · Vetor de Contágio", flag: "omgC2", desc: "Aliados sob [Protocolo de Infecção] causam +20% de dano." },
+    { name: "C3 · Núcleo Sobrescrito", ...A_ULT, ampV: 50, desc: "Aumenta o multiplicador da Ultimate em +50% e eleva o nível do Ataque Básico." },
+    { name: "C4 · Lentidão Sistêmica", flag: "omgC4", desc: "Ao usar a Ultimate, todos os inimigos têm a Velocidade reduzida em 15% por 1 turno." },
+    { name: "C5 · Protocolo Aprimorado", ...A_SKILL, ampV: 25, desc: "Aumenta o multiplicador da Perícia em +25% e reforça o Talento." },
+    { name: "C6 · Final Defeat", flag: "omgC6", desc: "Abaixo de 30% de HP, ativa [Final Defeat]: Omegamon não pode morrer por 1 turno e seu Dano de Vírus aumenta em 100%. A cura da Ultimate revive aliados derrotados com 30% de HP." },
+  ],
 };
 const GENERIC_CONS = [
   { name: "S1 · Despertar", stat: "atk", value: 8, desc: "ATK +8%." },
@@ -331,6 +337,7 @@ const SKILL_NAMES = {
   yoruichi: ["Golpe Relâmpago", "Shunko", "Shunko: Raijin"],
   kiritsugu: ["Tiro de Origem", "Bala Calculada", "Time Alter: Triple Accel"],
   soifon: ["Golpe Duplo da Suzumebachi", "Nigeki Kessatsu", "Jakuhō Raikōben"],
+  omegamon: ["Garuru Cannon: Rajada Corrompida", "Grey Sword: Protocolo de Infecção", "All Delete: Recálculo de Vazio"],
 };
 const skillNamesOf = (id) => SKILL_NAMES[id] || ["Ataque Básico", "Habilidade", "Ultimate"];
 
@@ -353,6 +360,14 @@ const TRACE_NODE_SETS = {
     { stat: "elemDmg", element: "Glacial", value: 6.4, label: "Dano Glacial +6.4%", cost: 700 },
     { stat: "spd", value: 5, label: "VEL +5", cost: 1100 },
   ],
+  omegamon: [
+    { stat: "hp", value: 10, label: "HP +10%", cost: 600 },
+    { stat: "def", value: 5, label: "DEF +5%", cost: 500 },
+    { stat: "hp", value: 5, label: "HP +5%", cost: 600 },
+    { stat: "elemDmg", element: "Virus", value: 10, label: "Dano de Vírus +10%", cost: 700 },
+    { stat: "energyRegen", value: 10, label: "Regen de Energia +10%", cost: 700 },
+    { stat: "critDmg", value: 12, label: "CRIT DMG +12%", cost: 900 },
+  ],
 };
 const traceNodesOf = (def) => (def && TRACE_NODE_SETS[def.id]) || TRACE_NODES;
 const TRACE_MAX = 10;
@@ -373,6 +388,11 @@ function specialTraces(def) {
     { name: "Vestígio: Sombra Assassina", desc: "Rastro Especial de combate · ao entrar na Postura de Ferrão (3 cargas de Vibração), Soi Fon ganha +20% de Bônus de Dano de Vento por 1 turno.", combat: "sfSombra", cost: 2 },
     { name: "Vestígio: Precisão Mortal", desc: "Rastro Especial de combate · o dano dos follow-ups é aumentado em +25%. Sempre que Soi Fon realizar um follow-up, ganha +15% de CRIT DMG (acumula até 2 vezes) durante o combate.", combat: "sfPrecisao", cost: 2 },
     { name: "Vestígio: Bankai — Jakuhō Raikōben", desc: "Rastro Especial de combate · ao usar a Ultimate contra alvos com menos de 30% de HP, o ataque é um CRÍTICO GARANTIDO e causa +30% de dano. A Zona de Condução criada dura 2 rodadas em vez de 1.", combat: "sfBankai", cost: 3 },
+  ];
+  if (def.id === "omegamon") return [
+    { name: "Vestígio: Saturação de Vírus", desc: "Rastro Especial de combate · o dano da Ultimate aumenta em 0,8% para cada 1% de HP que o portador tiver perdido.", combat: "omgSaturacao", cost: 2 },
+    { name: "Vestígio: Contágio de Dados", desc: "Rastro Especial de combate · aliados com [Protocolo de Infecção] ganham +20% de resistência a dano. Se o Escudo de Dados for quebrado, o inimigo que o quebrou sofre [Corrosão] imediata.", combat: "omgContagio", cost: 2 },
+    { name: "Vestígio: Reescrita de Sistema", desc: "Rastro Especial de combate · a cura recebida por Omegamon via [Corrosão] inimiga é +25% mais eficaz.", combat: "omgReescrita", cost: 3 },
   ];
   const third = {
     dps: { name: "Vestígio: Predador", desc: "Rastro Especial de combate: contra inimigos sob qualquer DoT OU com a DEF reduzida, este personagem causa +25% de dano. É o gatilho que recompensa equipes que aplicam efeitos contínuos e quebras de armadura antes de liberar o dano.", combat: "dmgVsAfflicted" },
@@ -753,7 +773,7 @@ function Game({ email, isAdmin, onLogout }) {
     if (s) {
       setJade(s.jade ?? 12000); setCharTickets(s.charTickets ?? 15); setWeaponTickets(s.weaponTickets ?? 8);
       setStandardTickets(s.standardTickets ?? 10);
-      setFeaturedChar(LIMITED_5.includes(s.featuredChar) ? s.featuredChar : DEFAULT_FEATURED_CHAR);
+      setFeaturedChar(FEATURED_LIMITEDS.includes(s.featuredChar) ? s.featuredChar : DEFAULT_FEATURED_CHAR);
       setFeaturedWeapon(WEAPON_5_IDS.includes(s.featuredWeapon) ? s.featuredWeapon : DEFAULT_FEATURED_WEAPON);
       setPity({ char: 0, weapon: 0, standard: 0, guaranteeChar: false, ...(s.pity || {}) });
       setPullHistory(s.pullHistory ?? []);
@@ -1332,11 +1352,11 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
   const curPity = isChar ? pity.char : isStd ? pity.standard : pity.weapon;
   const fc = CHAR_MAP[featuredChar] || CHAR_MAP[DEFAULT_FEATURED_CHAR];
   const fw = WEAPON_MAP[featuredWeapon] || WEAPON_MAP[DEFAULT_FEATURED_WEAPON];
-  const cycleChar = (d) => { const i = LIMITED_5.indexOf(featuredChar); setFeaturedChar(LIMITED_5[(i + d + LIMITED_5.length) % LIMITED_5.length]); };
+  const cycleChar = (d) => { const i = FEATURED_LIMITEDS.indexOf(featuredChar); setFeaturedChar(FEATURED_LIMITEDS[(i + d + FEATURED_LIMITEDS.length) % FEATURED_LIMITEDS.length]); };
   const cycleWeapon = (d) => { const i = WEAPON_5_IDS.indexOf(featuredWeapon); setFeaturedWeapon(WEAPON_5_IDS[(i + d + WEAPON_5_IDS.length) % WEAPON_5_IDS.length]); };
   const headColor = isWeapon ? "#B98BFF" : isStd ? C.gold : ELEMENTS[fc.element].color;
   const arrow = { background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 8, color: C.text, width: 28, height: 28, fontWeight: 800 };
-  const charMs = useBannerTimer("char");
+  const charMs = useBannerTimer("char", 6 * 24 * 60 * 60 * 1000); // banner de evento dura 6 dias
   const weaponMs = useBannerTimer("weapon");
   const bannerMs = isChar ? charMs : isWeapon ? weaponMs : null;
 
@@ -1962,7 +1982,7 @@ function effStat(u, key) {
 }
 function vulnOf(u) { let v = 0; for (const b of u.debuffs) if (b.stat === "vuln") v += b.value; return v; }
 function defMult(attacker, defenderDef) { const lvl = (attacker && attacker.level) || 50; const d = Math.max(0, defenderDef || 0); return 1 - d / (d + 200 + 10 * lvl); }
-const DOT_INFO = { burn: { c: "#FF6B45", n: "Queimadura" }, poison: { c: "#A6E22E", n: "Veneno" }, shock: { c: "#B98BFF", n: "Choque" }, bleed: { c: "#FF5FC4", n: "Sangramento" }, freeze: { c: "#6FE3FF", n: "Geada" }, geada: { c: "#6FE3FF", n: "Geada" } };
+const DOT_INFO = { burn: { c: "#FF6B45", n: "Queimadura" }, poison: { c: "#A6E22E", n: "Veneno" }, shock: { c: "#B98BFF", n: "Choque" }, bleed: { c: "#FF5FC4", n: "Sangramento" }, freeze: { c: "#6FE3FF", n: "Geada" }, geada: { c: "#6FE3FF", n: "Geada" }, corrosao: { c: "#7CFFB0", n: "Corrosão" } };
 function dealDamage(attacker, defender, mult, fx, opts) {
   // Aizen mechanic: 40% miss chance before Bankai
   if (defender.bossKind === "aizen" && !defender.aiBankai && attacker.side === "H" && Math.random() < 0.40 && !opts?.pierceShield) {
@@ -1974,6 +1994,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   const crit = Math.random() * 100 < Math.min(100, effStat(attacker, "critRate"));
   if (crit) dmg *= 1 + effStat(attacker, "critDmg") / 100;
   dmg *= 1 + effStat(attacker, "dmgBonus") / 100;
+  if (f.omgC6 && attacker.id === "omegamon" && (attacker.hp / attacker.maxHp) < 0.3) dmg *= 2; // Final Defeat: +100% Dano de Vírus
   const afflicted = (defender.dots && defender.dots.length) || (defender.debuffs && defender.debuffs.some((d) => d.stat === "def" && d.value < 0));
   if ((f.dmgVsAfflicted || f.afflictedDmg) && afflicted) dmg *= 1.25;
   if (f.pShatter && defender.dots && defender.dots.length) dmg *= 1.3;
@@ -1994,6 +2015,11 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   const pen = Math.min(85, (effStat(attacker, "defPen") || 0) + (opts?.defPen || 0));
   dmg *= defMult(attacker, effStat(defender, "def") * (1 - pen / 100));
   dmg = isFinite(dmg) ? Math.max(1, Math.round(dmg)) : 1; // robustez: nunca NaN/Infinity
+  if (defender.side === "H" && attacker.side !== "H") {
+    const red = (defender.buffs || []).filter((b) => b.stat === "dmgReduce").reduce((a, b) => a + (b.value || 0), 0);
+    if (red) dmg = Math.max(1, Math.round(dmg * Math.max(0.1, 1 - red / 100))); // Protocolo de Infecção
+    if (defender.id === "omegamon" || (defender.buffs || []).some((b) => b.name === "Protocolo")) defender._omgHit = (defender._omgHit || 0) + 1;
+  }
   if (defender.shield > 0 && !opts?.pierceShield) { const a = Math.min(defender.shield, dmg); defender.shield -= a; dmg -= a; }
   defender.hp -= dmg; if (defender.hp <= 0) { defender.hp = 0; defender.alive = false; }
   if (defender.side === "H" && !defender.isSummon && defender.energyMax) { const heavy = attacker.boss || mult >= 300; defender.energy = Math.min(defender.energyMax, defender.energy + Math.round((heavy ? 12 : 6) * (1 + (effStat(defender, "energyRegen") || 0) / 100))); }
@@ -2123,10 +2149,12 @@ function miyabiBasicAttack(s, u, enemy, fx, ampB) {
   if (f.miDetonate) { const t = miyabiDetonate(s, u, fx); if (t) msg += ` 💥 Detonação Glacial: ${t} em área + Congelamento.`; }
   return msg;
 }
-function tickDots(u, fx) {
+function tickDots(u, fx, allies) {
   if (!u.dots || !u.dots.length) return;
   let total = 0;
-  u.dots.forEach((d) => { const dmg = Math.max(1, Math.round(d.dmg * (1 + vulnOf(u) / 100))); u.hp -= dmg; total += dmg; d.turns -= 1; fx.push({ uid: u.uid, txt: String(dmg), dot: d.type, id: Math.random() }); });
+  u.dots.forEach((d) => { const dmg = Math.max(1, Math.round(d.dmg * (1 + vulnOf(u) / 100))); u.hp -= dmg; total += dmg; d.turns -= 1; fx.push({ uid: u.uid, txt: String(dmg), dot: d.type, id: Math.random() });
+    if (d.type === "corrosao" && allies && allies.length) { const h = Math.round(dmg * 0.25 * (d.healMul || 1)); allies.forEach((a) => { if (a.alive && !a.isSummon) healUnit(a, h, fx); }); } // Corrosão cura o time
+  });
   u.dots = u.dots.filter((d) => d.turns > 0);
   if (u.hp <= 0) { u.hp = 0; u.alive = false; }
   return total;
@@ -2162,6 +2190,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
   const [state, setState] = useState(() => {
     const heroes = team.map((id, i) => (ownedMap[id] ? makeUnit(ownedMap[id], "H", i) : null)).filter(Boolean);
     if (ally) heroes.push(makeAllyUnit(ally, heroes.length));
+    { const omg = heroes.find((h) => h && h.id === "omegamon" && h.alive); // Talento: +25% HP máx ao time; arma Glitch: +20% ao portador
+      heroes.forEach((h) => { if (!h || h.isSummon) return; let mul = 1; if (h.weapon?.omgWeapon) mul *= 1.2; if (omg) mul *= 1.25; if (mul !== 1) { h.maxHp = Math.round(h.maxHp * mul); h.hp = h.maxHp; } });
+      if (omg) omg.omgCharges = 0; }
     if (heroes.some((h) => h.stFlags?.pTeamEnergy)) heroes.forEach((h) => { if (h.energyMax) h.energy = Math.min(h.energyMax, h.energy + 15); });
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
     const totalWaves = Math.max(1, Math.min(8, encounter.waves || 1));
@@ -2282,6 +2313,14 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         let miyDone = false;
         if (u.id === "miyabi" && (f.miPostura || f.miResidual || f.miDetonate)) { msg = miyabiBasicAttack(s, u, enemy, fx, ampB); miyDone = true; }
         if (!miyDone && u.id === "soifon") { msg = soiFonBasicAttack(s, u, enemy, fx, ampB); miyDone = true; }
+        if (!miyDone && u.id === "omegamon" && enemy) {
+          const r = dealDamage(u, enemy, (sk.basicMul || 100) * u.tBasic * ampB, fx, { el: "Virus" });
+          let extra = "";
+          if ((enemy.dots || []).some((d) => d.type === "corrosao")) { const h = Math.round(u.maxHp * 0.05); healUnit(u, h, fx); extra = ` Recupera ${h} de HP (alvo corroído).`; }
+          if ((u.omgCharges || 0) >= 5 && enemy.alive) { enemy.buffs = []; const td = Math.round(u.maxHp * 0.20); enemy.hp -= td; if (enemy.hp <= 0) { enemy.hp = 0; enemy.alive = false; } fx.push({ uid: enemy.uid, txt: String(td), crit: true, id: Math.random(), el: "Virus" }); if (u.weapon?.omgWeapon) u.energy = Math.min(u.energyMax, u.energy + 8); u.omgCharges = 0; u.buffs = u.buffs.filter((b) => b.name !== "VirusDefeat"); extra += ` ☢️ Vírus Defeat MÁXIMO: remove buffs e causa ${td} de Dano Verdadeiro!`; }
+          msg = `🛡️ ${u.name} dispara Garuru Cannon em ${enemy.name} — ${r.dmg} de Dano de Vírus${r.crit ? " (CRÍTICO!)" : ""}.${extra}`;
+          miyDone = true;
+        }
         if (!miyDone && enemy && sk.basicMul) { const r = dealDamage(u, enemy, sk.basicMul * u.tBasic * ampB, fx); msg = `${u.name} usa Ataque Básico em ${enemy.name} — ${r.dmg} de dano${r.crit ? " (CRÍTICO!)" : ""}.`; }
         if (f.kcAdvance) { const ds = aliveDragons(s, u.uid); ds.forEach((d) => { d.av = Math.max(0.1, d.av * 0.65); }); if (ds.length) msg += ` Os ${ds.length} dragões avançam na linha do tempo!`; }
         s.sp = Math.min(5, s.sp + 1); u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enBasic || 15));
@@ -2312,6 +2351,14 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           if (f.sfC2) { if (!enemy.debuffs.some(d => d.name === "EletroRES↓")) enemy.debuffs.push({ stat: "elemRes", value: -15, turns: 3, name: "EletroRES↓" }); }
           if (u.weapon?.id === "ferrao_borboleta") u.sfWpnCharges = Math.min(5, (u.sfWpnCharges || 0) + 1);
           msg = `🦋 ${u.name} usa Nigeki Kessatsu em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " (CRÍTICO!)" : ""}! [Ferrão da Morte] marcado por 3 turnos — follow-ups de aliados Eletro ativarão golpes de acompanhamento!`;
+        }
+        else if (u.id === "omegamon" && sk.omgSkill) {
+          const sMul = u.tSkill * ampS;
+          const red = 20 + (f.omgContagio ? 20 : 0);
+          allies.forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Protocolo"); a.buffs.push({ stat: "dmgReduce", value: red, turns: 2, name: "Protocolo" }); if (f.omgC2) a.buffs.push({ stat: "dmgBonus", value: 20, turns: 2, name: "Contágio+" }); });
+          const sh = Math.round(u.maxHp * 0.25); u.shield = Math.max(u.shield, sh);
+          if (enemy) { const r = dealDamage(u, enemy, (sk.skillMul || 120) * sMul, fx, { el: "Virus" }); msg = `🛡️ ${u.name} ativa Protocolo de Infecção — o time recebe -${red}% de dano por 2 turnos e ele ergue um Escudo de Dados de ${sh}. Atinge ${enemy.name} por ${r.dmg} de Dano de Vírus${r.crit ? " (CRÍTICO!)" : ""}.`; }
+          else msg = `🛡️ ${u.name} ativa Protocolo de Infecção — -${red}% de dano ao time e Escudo de Dados de ${sh}.`;
         }
         else if (sk.skillMul && enemy) {
           const onSkillHit = (e, r) => {
@@ -2352,6 +2399,24 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
             if (!enemy.alive && f.sfC6) { u.energy = u.energyMax; u.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); }
             msg = `💥🦋 JAKUHŌ RAIKŌBEN! ${u.name} dispara o míssil definitivo em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " CRÍTICO!" : ""}!${fmMarks ? ` (+${fmMarks * 15}% de marcas!)` : ""} Zona de Condução por ${zonaTurns} turno(s)!${f.sfC4 ? " +10% CRIT ao time!" : ""}`;
           }
+        } else if (u.id === "omegamon" && sk.omgUlt) {
+          u.energy = enGain(5);
+          const cost = Math.round(u.hp * 0.30); u.hp = Math.max(1, u.hp - cost);
+          const lostPct = (1 - u.hp / u.maxHp) * 100;
+          const satur = f.omgSaturacao ? (1 + 0.008 * lostPct) : 1;
+          const c6 = (f.omgC6 && u.hp / u.maxHp < 0.3) ? 2 : 1;
+          const dblCorr = u.weapon?.omgWeapon ? 2 : 1;
+          const baseMul = (sk.ultMul || 150) * u.tUlt * ampU * satur * c6;
+          let tot = 0;
+          aliveEnemies(s).forEach((e) => {
+            const r = dealDamage(u, e, baseMul, fx, { el: "Virus" });
+            const extraHp = Math.max(1, Math.round(u.maxHp * 0.15 * (1 + vulnOf(e) / 100)));
+            e.hp -= extraHp; if (e.hp <= 0) { e.hp = 0; e.alive = false; } fx.push({ uid: e.uid, txt: String(extraHp), id: Math.random(), el: "Virus" });
+            tot += r.dmg + extraHp;
+            if (e.alive) { e.dots = (e.dots || []).filter((d) => d.type !== "corrosao"); e.dots.push({ type: "corrosao", dmg: Math.max(1, Math.round(effStat(u, "atk") * 0.30 * dblCorr)), turns: 2, healMul: f.omgReescrita ? 1.25 : 1 }); if (f.omgC4) e.debuffs.push({ stat: "spd", value: -15, pct: true, turns: 1, name: "Lentidão" }); }
+          });
+          if (f.omgC6) { s.heroes.forEach((a) => { if (!a.alive && !a.isSummon) { a.alive = true; a.hp = Math.round(a.maxHp * 0.30); a.shield = 0; a.dots = []; fx.push({ uid: a.uid, txt: "REVIVE", heal: true, id: Math.random() }); } }); }
+          msg = `💥🛡️ ALL DELETE! ${u.name} consome ${cost} do próprio HP e arrasa todos os inimigos — ${tot} de Dano de Vírus em área! Aplica [Corrosão] (dano contínuo que cura o time).${f.omgC4 ? " Inimigos ficam lentos!" : ""}${f.omgC6 ? " Revive aliados caídos!" : ""}`;
         } else {
         u.energy = enGain(5); // reembolso HSR: +5 base ×ERR
         const uMul = u.tUlt * ampU * (f.setFire4 ? 1.2 : 1); // Núcleo Ardente 4pç: +20% dano de Ult
@@ -2469,7 +2534,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
     setState((s0) => {
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
       const u = findUnit(s, current.uid); if (!u || !u.alive) { s.turn = null; return s; }
-      tickDots(u, s.fx);
+      tickDots(u, s.fx, s.heroes.filter((h) => h.alive));
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
       const fx = s.fx; u.actCount++;
       refreshKaibaBuffs(s);
@@ -2537,6 +2602,19 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         const t = pickTarget();
         if (t) { const r = dealDamage(u, t, 100 * rage, fx); msg = `${u.name} ataca ${t.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}.`; }
       }
+      { const omg = s.heroes.find((h) => h.id === "omegamon" && h.alive);
+        if (omg) {
+          let hits = 0; s.heroes.forEach((h) => { if (h._omgHit) { hits += h._omgHit; h._omgHit = 0; } });
+          if (hits > 0) {
+            const cap = omg.stFlags?.omgC1 ? 8 : 5;
+            omg.omgCharges = Math.min(cap, (omg.omgCharges || 0) + hits);
+            omg.buffs = omg.buffs.filter((b) => b.name !== "VirusDefeat");
+            if (omg.omgCharges > 0) omg.buffs.push({ stat: "critDmg", value: 15 * omg.omgCharges, turns: 99, name: "VirusDefeat" });
+            u.debuffs.push({ stat: "def", value: -10 * hits, pct: true, turns: 3, name: "VírusDef" });
+            if (omg.omgCharges >= cap && omg.stFlags?.omgC1) omg.buffs.push({ stat: "spd", value: 25, turns: 2, name: "Sobrecarga" });
+            pushLog(s, `☢️ [Vírus Defeat] x${omg.omgCharges} — +${15 * omg.omgCharges}% CRIT DMG em ${omg.name}; DEF do atacante reduzida.`);
+          }
+        } }
       tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       s.hitFx = { el: u.element, big: u.boss && (u.actCount % 3 === 0 || (enraged && u.actCount % 2 === 0)), enemy: true, id: Math.random() };
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
