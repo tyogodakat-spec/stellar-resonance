@@ -1028,6 +1028,24 @@ function Game({ email, isAdmin, onLogout }) {
     } else if (b.context === "coop") {
       if (b.onResolve) b.onResolve(result);
     } else if (b.context === "bossrush") {
+      if (result.win) {
+        const _brid = b.bossId;
+        const _brTurns = result.turns || 0;
+        const _brPlayer = (playerName || email || "Anon").split("@")[0];
+        const _brEmail = email || "anon";
+        cloudReady.then(async function() {
+          try {
+            const lb = await cloudGet("bossrush_lb", _brid);
+            const scores = (lb && Array.isArray(lb.scores)) ? lb.scores : [];
+            const idx = scores.findIndex(function(x){ return x.email === _brEmail; });
+            const entry = { player: _brPlayer, email: _brEmail, turns: _brTurns, at: Date.now() };
+            if (idx >= 0) { if (_brTurns < scores[idx].turns || scores[idx].turns === 0) scores[idx] = entry; }
+            else scores.push(entry);
+            scores.sort(function(a,b){ return a.turns - b.turns; });
+            await cloudSet("bossrush_lb", _brid, { scores: scores.slice(0, 50) });
+          } catch(e) {}
+        });
+      }
       if (result.win && !bossRushCleared.includes(b.bossId)) { setBossRushCleared(function(prev){return [...prev, b.bossId];}); setJade(function(j){return j + 400;}); flash("Boss Rush concluido! +400", C.gold); } else if (result.win) { flash("Boss ja foi derrotado — sem recompensa extra.", C.mute); } else { flash("Voce foi derrotado no Boss Rush...", C.bad); }
     }
   }
@@ -1190,6 +1208,72 @@ function BossPhotoBtn({ boss, images, setImages }) {
     </React.Fragment>
   );
 }
+function BossPhotoBtn({ boss, images, setImages }) {
+  const fileRef = React.useRef();
+  function handleImg(e) {
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const b64 = ev.target.result;
+      const newImgs = Object.assign({}, images || {}, { [boss.imgKey]: b64 });
+      setImages(newImgs);
+      try { _ls.set("sr_shared_images", JSON.stringify(newImgs)); } catch(x) {}
+      cloudReady.then(function(){ return cloudSet("meta", "images", { map: newImgs }); }).catch(function(){});
+    };
+    reader.readAsDataURL(file);
+  }
+  return (
+    <React.Fragment>
+      <button onClick={function(){fileRef.current && fileRef.current.click();}} style={{ position: "absolute", bottom: 8, right: 8, background: "#221C47", border: "1px solid #F6C95B", color: "#F6C95B", borderRadius: 8, padding: "3px 8px", fontSize: 11, fontWeight: 700, zIndex: 2 }}>📷 Foto</button>
+      <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleImg} />
+    </React.Fragment>
+  );
+}
+function BossRushLeaderboard({ bossId }) {
+  const [scores, setScores] = useState(null);
+  const [open, setOpen] = useState(false);
+  function load() {
+    setScores(null);
+    cloudReady.then(function() { return cloudGet("bossrush_lb", bossId); }).then(function(lb) {
+      const list = (lb && Array.isArray(lb.scores)) ? lb.scores : [];
+      list.sort(function(a,b){ return a.turns - b.turns; });
+      setScores(list);
+    }).catch(function(){ setScores([]); });
+  }
+  const medals = ["🥇","🥈","🥉"];
+  return (
+    <div style={{ marginTop: 8 }}>
+      <button onClick={function(){ if (!open) load(); setOpen(function(o){return !o;}); }}
+        style={{ background: "none", border: `1px solid ${C.line}`, color: C.mute, borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer", width: "100%" }}>
+        {open ? "▲ Ocultar Ranking" : "🏆 Ver Ranking Global"}
+      </button>
+      {open && (
+        <div style={{ marginTop: 8, background: "rgba(255,255,255,0.03)", borderRadius: 10, border: `1px solid ${C.line}`, overflow: "hidden" }}>
+          <div style={{ padding: "8px 14px", background: "rgba(246,201,91,0.08)", borderBottom: `1px solid ${C.line}`, fontWeight: 800, fontSize: 12, letterSpacing: 1, color: C.gold }}>
+            🏆 RANKING — {bossId === "byakuya" ? "Byakuya Kuchiki" : bossId === "sukuna" ? "Ryomen Sukuna" : "Frieren"}
+            <button onClick={load} style={{ float: "right", background: "none", border: "none", color: C.mute, fontSize: 11, cursor: "pointer" }}>↺ Atualizar</button>
+          </div>
+          {scores === null && <div style={{ padding: "12px", color: C.mute, fontSize: 12, textAlign: "center" }}>Carregando…</div>}
+          {scores !== null && scores.length === 0 && <div style={{ padding: "12px", color: C.mute, fontSize: 12, textAlign: "center" }}>Nenhum registro ainda. Seja o primeiro!</div>}
+          {scores !== null && scores.map(function(s, i) {
+            return (
+              <div key={s.email} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: i < scores.length-1 ? `1px solid ${C.line}` : "none", background: i === 0 ? "rgba(246,201,91,0.06)" : "transparent" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 16, minWidth: 24 }}>{medals[i] || `#${i+1}`}</span>
+                  <span style={{ fontWeight: i === 0 ? 800 : 600, color: i === 0 ? C.gold : C.text, fontSize: 13 }}>{s.player || s.email.split("@")[0]}</span>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontWeight: 800, fontSize: 14, color: i === 0 ? C.gold : C.text }}>{s.turns} <span style={{ fontSize: 11, fontWeight: 400, color: C.mute }}>turnos</span></div>
+                  <div style={{ fontSize: 10, color: C.dim }}>{s.at ? new Date(s.at).toLocaleDateString("pt-BR") : ""}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 function ContentTabs({ bossRushCleared, startBossRush, isAdmin, images, setImages }) {
   const [tab, setTab] = useState("historia");
   const historiaMs = useBannerTimer("content_historia", 3 * 24 * 60 * 60 * 1000);
@@ -1231,6 +1315,7 @@ function ContentTabs({ bossRushCleared, startBossRush, isAdmin, images, setImage
                     <span style={{ color: C.good, fontWeight: 900, fontSize: 22, letterSpacing: 3 }}>DERRUBADO</span>
                   </div>}
                   {isAdmin && <BossPhotoBtn boss={boss} images={images} setImages={setImages} />}
+                  <BossRushLeaderboard bossId={boss.id} />
                   <div style={{ position: "absolute", top: 8, left: 8, background: el.color + "33", border: "1px solid " + el.color + "88", borderRadius: 8, padding: "2px 8px", fontSize: 11, color: el.color, fontWeight: 700 }}>{el.glyph} {boss.element}</div>
                   <div style={{ position: "absolute", top: 8, right: 8, background: "#00000088", borderRadius: 8, padding: "2px 8px", fontSize: 11, color: C.gold, fontWeight: 700 }}>+400</div>
                 </div>
@@ -2298,7 +2383,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
     if (heroes.some((h) => h.stFlags?.pTeamEnergy)) heroes.forEach((h) => { if (h.energyMax) h.energy = Math.min(h.energyMax, h.energy + 15); });
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
     const totalWaves = Math.max(1, Math.min(8, encounter.waves || 1));
-    return { heroes, enemies, sp: 3, wave: 1, totalWaves, enc: encounter, log: [totalWaves > 1 ? `⚔️ Dungeon de ${totalWaves} ondas — sobreviva com um só fôlego!` : "⚔️ A batalha começa! A ressonância flui…"], turn: null, over: false, win: false, fx: [], choice: null, summonFx: null };
+    return { heroes, enemies, sp: 3, wave: 1, totalWaves, heroTurns: 0, enc: encounter, log: [totalWaves > 1 ? `⚔️ Dungeon de ${totalWaves} ondas — sobreviva com um só fôlego!` : "⚔️ A batalha começa! A ressonância flui…"], turn: null, over: false, win: false, fx: [], choice: null, summonFx: null };
   });
   const [target, setTarget] = useState(0);
   useEffect(() => { const al = state.enemies.filter((e) => e.alive); if (al.length && target >= al.length) setTarget(0); }, [state.enemies, target]);
@@ -2317,7 +2402,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
     if (current.auto || current.isSummon) { const t = setTimeout(() => autoAct(current.uid), 700); return () => clearTimeout(t); }
   }, [current, state.over]); // eslint-disable-line
   useEffect(() => { if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight; }, [state.log]);
-  useEffect(() => { if (state.over) { const t = setTimeout(() => onEnd({ win: state.win }), 1500); return () => clearTimeout(t); } }, [state.over]); // eslint-disable-line
+  useEffect(() => { if (state.over) { const t = setTimeout(() => onEnd({ win: state.win, turns: state.heroTurns }), 1500); return () => clearTimeout(t); } }, [state.over]); // eslint-disable-line
 
   function advance() {
     setState((s) => {
@@ -2398,6 +2483,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
       const u = findUnit(s, current.uid); if (!u || !u.alive) { s.turn = null; return s; }
       if (kind === "skill" && s.sp <= 0) return s;
+      s.heroTurns = (s.heroTurns || 0) + 1;
       tickDots(u, s.fx);
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
       refreshKaibaBuffs(s);
@@ -2785,7 +2871,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         <div className="flex items-center justify-between">
           <span style={{ ...ORB, fontWeight: 800, fontSize: 14 }}>{context === "tower" ? `🗼 Andar ${encounter.floor}` : context === "coop" ? "🛰️ Domínio Co-op" : context === "tagdungeon" ? `🗝️ ${encounter.tag || "Dungeon"}` : "⚔️ Batalha"}{(state.totalWaves || 1) > 1 && <span style={{ color: C.gold }}> · Onda {state.wave}/{state.totalWaves}</span>}</span>
           {current && <span style={{ fontSize: 12, color: C.mute }}>Vez de <Glow color={stageEl.color}>{current.name}</Glow></span>}
-          {!state.over && <button onClick={() => onEnd({ win: false, abort: true })} style={{ fontSize: 12, color: C.mute, border: `1px solid ${C.line}`, borderRadius: 8, padding: "3px 10px" }}>Recuar</button>}
+          {!state.over && <button onClick={() => onEnd({ win: false, abort: true, turns: state.heroTurns })} style={{ fontSize: 12, color: C.mute, border: `1px solid ${C.line}`, borderRadius: 8, padding: "3px 10px" }}>Recuar</button>}
         </div>
 
         {!state.over && <TurnOrderBar units={[...state.heroes, ...state.enemies]} />}
