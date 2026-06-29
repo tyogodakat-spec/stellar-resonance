@@ -67,12 +67,15 @@ const ROSTER = [
     skill: { basicMul: 110, skillMul: 260, skillBuff: { critRate: 20, spd: 12, all: false, turns: 2 }, skillDot: { type: "shock", mul: 45, turns: 2 }, ultMul: 510 } }),
   mk({ id: "kiritsugu", name: "Kiritsugu", title: "Caçador de Magos", element: "Virus", role: "debuffer", rarity: 5, avatar: "🔫", hp: 1080, atk: 725, def: 450, spd: 108, energy: 120, cr: 8, cd: 56, tags: ["Vírus", "Debuffador", "Veneno"],
     skill: { basicMul: 100, skillMul: 205, skillDebuff: { defDown: 40, vuln: 22, turns: 3 }, skillDot: { type: "poison", mul: 70, turns: 3 }, ultMul: 365, ultDebuff: { vuln: 30, all: true, turns: 3 } } }),
+  // ---- Soi Fon (Limitada) ----
+  mk({ id: "soifon", name: "Soi Fon", title: "Capitã da 2ª Divisão", element: "Vento", role: "dps", rarity: 5, avatar: "🦋", hp: 1040, atk: 740, def: 420, spd: 118, energy: 120, cr: 8, cd: 56, tags: ["Vento", "Follow-up", "Sinergia", "Assassina"],
+    skill: { basicMul: 100, sfBasic: true, skillMul: 160, sfSkill: true, ultMul: 350, sfUlt: true } }),
 ];
 const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 // Tag primária de um personagem (usada como requisito de nó) e todas as tags únicas do elenco
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
-const LIMITED_5 = ["miyabi", "kaiba"];                 // limitados: só via rate-up do banner de evento
+const LIMITED_5 = ["miyabi", "kaiba", "soifon"];                 // limitados: só via rate-up do banner de evento
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
 const DEFAULT_FEATURED_CHAR = "miyabi";
 
@@ -85,6 +88,7 @@ const WEAPONS = [
   { id: "thunderclaws", name: "Garras do Trovão", rarity: 5, role: "dps", atk: 185, critRate: 22, passive: "Após Habilidade: +20% VEL por 2 turnos.", buff: { onSkill: { spd: 20, turns: 2 } } },
   { id: "originpistol", name: "Pistola da Origem", rarity: 5, role: "debuffer", atk: 165, critDmg: 30, extraDefDown: 14, passive: "Debuffs reduzem +14% DEF adicional e +30% CRIT DMG." },
   { id: "starmantle", name: "Manto Estelar", rarity: 5, role: "shield", atk: 110, def: 110, shieldBonus: 26, passive: "+26% no valor dos escudos." },
+  { id: "ferrao_borboleta", name: "Ferrão da Borboleta", rarity: 5, role: "dps", atk: 150, spd: 20, critRate: 18, passive: "VEL +20%. CRIT +18%. Dano de Vento acumula [Carga Elétrica] (máx 5): cada marca +10% dano de follow-up. Ao entrar na Postura de Ferrão, consome todas as marcas e concede +24% de Dano Verdadeiro por marca consumida. Passiva ativa apenas em Soi Fon." },
   { id: "shadowkunai", name: "Kunai Sombria", rarity: 4, role: "dps", atk: 150, passive: "+150 ATK base." },
   { id: "slingshot", name: "Estilingue de Elite", rarity: 4, role: "debuffer", atk: 140, extraDefDown: 12, passive: "Debuffs reduzem +12% DEF adicional." },
   { id: "healstaff", name: "Bordão Curativo", rarity: 4, role: "healer", atk: 110, energyRegen: 10, ultEnergy: 10, passive: "Ult dá +10 energia ao time." },
@@ -203,10 +207,19 @@ const PASSIVE = {
   kirara:    { name: "Baluarte Estelar", desc: "Talento: os escudos de Kirara são 25% mais resistentes. Ela provoca os inimigos para atrair os ataques e converte a própria DEF altíssima em barreiras grossas para todo o time, sustentando a linha de frente contra os golpes mais pesados dos chefes.", flag: "pBulwark" },
   yoruichi:  { name: "Deusa Veloz · Shunko", desc: "Talento: a velocidade divina de Yoruichi adianta drasticamente sua barra de ação — ela quase sempre age primeiro na batalha, aplicando Choque e abrindo o combate antes do inimigo reagir. Sua altíssima VEL também significa turnos mais frequentes ao longo da luta.", flag: "pSwift" },
   kiritsugu: { name: "Análise · Caçador de Magos", desc: "Talento: o frio cálculo de Kiritsugu encontra a falha do alvo — toda vulnerabilidade que ele aplica é +12% mais forte. Combinado com o Veneno da Habilidade, ele transforma qualquer inimigo em um alvo que recebe dano amplificado de toda a equipe e ainda derrete ao longo dos turnos.", flag: "pAnalyze" },
+  soifon: { name: "Ciclo do Ferrão · Vibração da Morte", desc: "Talento: aliados que causam Dano de Eletro concedem 1 carga de [Vibração de Ferrão] para Soi Fon (máx 3). Com 3 cargas, ela entra em Postura de Ferrão — próximo Ataque Básico causa Dano Verdadeiro (120% ATK, ignora DEF e Escudos). Com [Ferrão da Morte] no alvo e ataques Eletro de aliados, dispara follow-ups instantâneos de Vento (máx 2/turno de aliado).", flag: "sfFollowup" },
 };
 // Corrente de Ressonância / Eidolons — 6 nós ÚNICOS por personagem (estilo HSR/WuWa)
 const A_SKILL = { amp: "skill", ampV: 25 }, A_ULT = { amp: "ult", ampV: 50 };
 const CONS = {
+  soifon: [
+    { stat: "critRate", value: 5, label: "CRIT +5%", cost: 700 },
+    { stat: "elemDmg", element: "Vento", value: 10, label: "Dano Vento +10%", cost: 600 },
+    { stat: "energyRegen", value: 6, label: "Reg.Energia +6%", cost: 800 },
+    { stat: "atk", value: 10, label: "ATK +10%", cost: 500 },
+    { stat: "hp", value: 6, label: "HP +6%", cost: 600 },
+    { stat: "critDmg", value: 12, label: "CRIT DMG +12%", cost: 900 },
+  ],
   miyabi: [
     { name: "C1 · Saque Instantâneo", flag: "miC1", desc: "Ao entrar em combate, Miyabi começa imediatamente com 3 PH (máximo) e entra na Postura Iaido de graça. O primeiro corte aprimorado desta postura causa +50% de dano." },
     { name: "C2 · Fio Prorrogado", flag: "miC2", desc: "A Habilidade Lâminas de Gelo não consome mais PH se for usada contra inimigos Congelados. Além disso, cada acerto crítico recupera 5 de Energia para Miyabi." },
@@ -287,6 +300,14 @@ const CONS = {
     { name: "S5 · Time Alter: Triple Accel", ...A_ULT, desc: "Eleva em +50% o dano do Ultimate." },
     { name: "S6 · Origem da Morte", flag: "afflictedDmg", desc: "Mudança de kit: +25% de dano contra inimigos envenenados ou com DEF reduzida — combina com o próprio veneno para um teto de dano altíssimo." },
   ],
+  soifon: [
+    { name: "C1 · Velo de Borboleta", flag: "sfC1", desc: "Ao entrar na Postura de Ferrão, Soi Fon regenera 10 de Energia e ganha +20% de Bônus de Dano para o seu próximo golpe de Dano Verdadeiro." },
+    { name: "C2 · Sincronia Estática", flag: "sfC2", desc: "A marca [Ferrão da Morte] reduz a RES elemental do inimigo em 15%. Quando um aliado Eletro acerta um inimigo marcado, Soi Fon ganha 1 carga extra de Vibração de Ferrão." },
+    { name: "C3 · Maestria da Suzumebachi", ...A_ULT, ampV: 40, desc: "Aumenta o multiplicador da Jakuhō Raikōben em +40% e eleva o nível do Ataque Básico." },
+    { name: "C4 · Aura de Condução", flag: "sfC4", desc: "Enquanto a Zona de Condução estiver ativa, todos os aliados ganham +10% de Taxa Crítica. O dano das explosões da zona aumenta para 70% do ATK de Soi Fon." },
+    { name: "C5 · Assassina do Vento", ...A_SKILL, ampV: 25, desc: "Aumenta o multiplicador da Perícia em +25% e eleva o dano dos follow-ups em +15%." },
+    { name: "C6 · Jakuhō Raikōben: Suprema Execução", flag: "sfC6", desc: "A Postura de Ferrão atinge TODOS os inimigos, ignorando 40% da DEF. Ao eliminar um inimigo, Soi Fon recupera 100% de Energia instantaneamente e ganha +50% de Bônus de Dano no próximo turno." },
+  ],
 };
 const GENERIC_CONS = [
   { name: "S1 · Despertar", stat: "atk", value: 8, desc: "ATK +8%." },
@@ -309,6 +330,7 @@ const SKILL_NAMES = {
   kirara: ["Toque Estelar", "Escudo Cósmico", "Constelação Guardiã"],
   yoruichi: ["Golpe Relâmpago", "Shunko", "Shunko: Raijin"],
   kiritsugu: ["Tiro de Origem", "Bala Calculada", "Time Alter: Triple Accel"],
+  soifon: ["Golpe Duplo da Suzumebachi", "Nigeki Kessatsu", "Jakuhō Raikōben"],
 };
 const skillNamesOf = (id) => SKILL_NAMES[id] || ["Ataque Básico", "Habilidade", "Ultimate"];
 
@@ -346,6 +368,11 @@ function specialTraces(def) {
     { name: "Tecnologia KaibaCorp", desc: "Rastro Especial de combate: quando Kaiba usa o Ataque Básico (Decreto Corporativo), TODOS os Blue-Eyes ativos avançam 35% na linha do tempo de ação — eles atacam muito mais cedo, acelerando o dano e a construção do tabuleiro.", combat: "kcAdvance", cost: 2 },
     { name: "Controle de Ações", desc: "Rastro Especial de combate: enquanto houver pelo menos 2 Blue-Eyes em campo, Kaiba fica IMUNE a debuffs e penalidades de atributo — os inimigos não conseguem reduzir sua DEF nem aplicar vulnerabilidade nele.", combat: "kcImmune", cost: 2 },
     { name: "Orgulho do Monarca", desc: "Rastro Especial de combate: se o Obelisco eliminar o alvo principal, Kaiba recupera 100 de Energia instantaneamente. Se o Dragão Definitivo for invocado, o Dano CRÍTICO de Kaiba aumenta em +40% enquanto a Fusão durar.", combat: "kcMonarch", cost: 3 },
+  ];
+  if (def.id === "soifon") return [
+    { name: "Vestígio: Sombra Assassina", desc: "Rastro Especial de combate · ao entrar na Postura de Ferrão (3 cargas de Vibração), Soi Fon ganha +20% de Bônus de Dano de Vento por 1 turno.", combat: "sfSombra", cost: 2 },
+    { name: "Vestígio: Precisão Mortal", desc: "Rastro Especial de combate · o dano dos follow-ups é aumentado em +25%. Sempre que Soi Fon realizar um follow-up, ganha +15% de CRIT DMG (acumula até 2 vezes) durante o combate.", combat: "sfPrecisao", cost: 2 },
+    { name: "Vestígio: Bankai — Jakuhō Raikōben", desc: "Rastro Especial de combate · ao usar a Ultimate contra alvos com menos de 30% de HP, o ataque é um CRÍTICO GARANTIDO e causa +30% de dano. A Zona de Condução criada dura 2 rodadas em vez de 1.", combat: "sfBankai", cost: 3 },
   ];
   const third = {
     dps: { name: "Vestígio: Predador", desc: "Rastro Especial de combate: contra inimigos sob qualquer DoT OU com a DEF reduzida, este personagem causa +25% de dano. É o gatilho que recompensa equipes que aplicam efeitos contínuos e quebras de armadura antes de liberar o dano.", combat: "dmgVsAfflicted" },
@@ -406,7 +433,7 @@ function computeStats(owned) {
   const baseDef = def.base.def * m + (w?.def || 0) * wm;
   flat.energyRegen += def.base.energyRegen || 0;
   if (def.base.elemDmg) addElem(def.element, def.base.elemDmg);
-  if (w) { ["critRate", "critDmg", "energyRegen", "dmgBonus", "defPen"].forEach((k) => { if (w[k]) flat[k] += w[k]; }); if (w.atkPct) pct.atk += w.atkPct; }
+  if (w) { ["critRate", "critDmg", "energyRegen", "dmgBonus", "defPen", "spd"].forEach((k) => { if (w[k]) flat[k] += w[k]; }); if (w.atkPct) pct.atk += w.atkPct; }
 
   const setCount = {};
   (owned.relics || []).forEach((r) => {
@@ -574,10 +601,19 @@ async function saveAccounts(a) { try { await SS.set(ACCOUNTS_KEY, JSON.stringify
 
 /* ---------- TORRE ---------- */
 const TOWER_FLOORS = 70;
+const TOWER_BOSSES = {
+  50: { name: "Sōsuke Aizen", title: "Shinigami Traidor", element: "Holy", bossKind: "aizen", bossImgId: "boss_tower_50", res: ["Holy", "Virus"], weak: ["Fogo", "Eletro"] },
+  60: { name: "Seto Kaiba · Modo Deus", title: "Portador de Obelisco", element: "Eletro", bossKind: "godkaiba", bossImgId: "boss_tower_60", res: ["Eletro", "Holy"], weak: ["Chaos", "Glacial"] },
+  70: { name: "Ryōmen Sukuna", title: "Rei das Maldições", element: "Chaos", bossKind: "sukuna", bossImgId: "boss_tower_70", res: ["Chaos", "Fogo", "Virus"], weak: ["Holy"] },
+};
 function rewardFor(f) { if (f <= 60) return 300; if (f <= 69) return 500; return 1500; } // soma = 24000
 function towerEncounter(f, power) {
   const boss = f % 10 === 0, finalBoss = f === TOWER_FLOORS;
-  return { level: f, boss, finalBoss, count: boss ? (f >= 40 ? 2 : 1) : (f <= 4 ? 2 : 3), floor: f, teamPower: power || 2500 };
+  const bd = TOWER_BOSSES[f];
+  return {
+    level: f, boss, finalBoss, count: boss ? (f >= 40 ? 2 : 1) : (f <= 4 ? 2 : 3), floor: f, teamPower: power || 2500,
+    ...(bd ? { bossName: bd.name, bossTitle: bd.title, bossElement: bd.element, bossKind: bd.bossKind, bossImgId: bd.bossImgId, bossRes: bd.res, bossWeak: bd.weak } : {}),
+  };
 }
 const FARM_STAGES = [
   { id: "f1", name: "Clareira dos Ecos", level: 12, count: 3, cost: 30, exp: 16 },
@@ -1736,6 +1772,39 @@ function TeamScreen({ owned, team, setTeam, startTest, flash }) {
 /* ==========================================================================
    TORRE (70 andares = 24000)
    ========================================================================== */
+function TowerBossCard({ floorNum, towerCleared, start, team, flash }) {
+  const images = useImg();
+  const bd = TOWER_BOSSES[floorNum];
+  if (!bd) return null;
+  const el = ELEMENTS[bd.element] || { color: C.line, glyph: "✦" };
+  const cleared = floorNum <= towerCleared;
+  const current = floorNum === towerCleared + 1;
+  const locked = floorNum > towerCleared + 1;
+  const imgUrl = images[bd.bossImgId];
+  return (
+    <Panel glow={el.color} style={{ padding: 0, overflow: "hidden", opacity: locked ? 0.6 : 1 }}>
+      <div style={{ position: "relative", minHeight: 100, background: `linear-gradient(135deg, ${el.color}22, #0b0920)` }}>
+        {imgUrl && <img src={imgUrl} alt={bd.name} style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "45%", objectFit: "cover", objectPosition: "center top", maskImage: "linear-gradient(to left, rgba(0,0,0,0.9), transparent)", WebkitMaskImage: "linear-gradient(to left, rgba(0,0,0,0.9), transparent)" }} />}
+        <div style={{ position: "relative", padding: "12px 14px" }}>
+          <div style={{ fontSize: 10, letterSpacing: 2, color: el.color, fontWeight: 700 }}>ANDAR {floorNum} · CHEFE DE TORRE</div>
+          <div style={{ fontSize: 18, fontWeight: 800, marginTop: 2 }}>{bd.name}</div>
+          <div style={{ fontSize: 11, color: C.mute }}>{bd.title}</div>
+          <div className="flex gap-1 flex-wrap" style={{ marginTop: 6, fontSize: 10 }}>
+            <span style={{ color: el.color }}>{el.glyph} {bd.element}</span>
+            {bd.res?.map(r => <span key={r} style={{ color: "#9aa0b5", background: "#ffffff11", borderRadius: 6, padding: "1px 5px" }}>RES {ELEMENTS[r]?.glyph} {r}</span>)}
+            {bd.weak?.map(w => <span key={w} style={{ color: "#7CFFB0", background: "#00ff8811", borderRadius: 6, padding: "1px 5px" }}>FRACO {ELEMENTS[w]?.glyph} {w}</span>)}
+          </div>
+          <div style={{ marginTop: 10 }}>
+            {cleared ? <span style={{ color: C.good, fontWeight: 700, fontSize: 12 }}>✓ Derrotado</span> :
+            <Btn disabled={locked} onClick={() => { if (!team.length) { flash("Monte uma equipe", C.bad); return; } start(floorNum); }} style={{ padding: "5px 16px", fontSize: 12 }}>
+              {locked ? "🔒 Bloqueado" : "⚔️ Desafiar"}
+            </Btn>}
+          </div>
+        </div>
+      </div>
+    </Panel>
+  );
+}
 function Tower({ towerCleared, towerClaimed, start, team, flash }) {
   const earned = towerClaimed.reduce((a, f) => a + rewardFor(f), 0);
   return (
@@ -1749,16 +1818,22 @@ function Tower({ towerCleared, towerClaimed, start, team, flash }) {
           <Bar value={earned} max={24000} color={C.gold} />
         </div>
       </Panel>
+      {/* Boss cards for floors 50, 60, 70 */}
+      <div style={{ fontSize: 12, fontWeight: 700, color: C.mute, letterSpacing: 1 }}>⚠️ CHEFES ESPECIAIS DA TORRE</div>
+      <div className="flex flex-col gap-3">
+        {Object.keys(TOWER_BOSSES).map(f => <TowerBossCard key={f} floorNum={Number(f)} towerCleared={towerCleared} start={start} team={team} flash={flash} />)}
+      </div>
       <Panel>
         <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(58px,1fr))" }}>
           {Array.from({ length: TOWER_FLOORS }, (_, i) => i + 1).map((f) => {
             const cleared = f <= towerCleared, current = f === towerCleared + 1, locked = f > towerCleared + 1, boss = f % 10 === 0;
+            const isTowerBoss = !!TOWER_BOSSES[f];
             const color = cleared ? C.good : current ? C.gold : C.line;
             return <button key={f} disabled={locked || cleared} onClick={() => { if (!team.length) { flash("Monte uma equipe", C.bad); return; } start(f); }}
-              className="active:scale-95 transition" style={{ aspectRatio: "1", borderRadius: 12, border: `2px solid ${color}`, background: boss ? `${color}1f` : C.panelHi, color: locked ? C.dim : C.text, opacity: locked ? 0.5 : cleared ? 0.7 : 1, position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: (locked || cleared) ? "not-allowed" : "pointer" }}>
-              <span style={{ fontSize: boss ? 16 : 13, fontWeight: 800 }}>{boss ? (f === 70 ? "👑" : "☠") : f}</span>
+              className="active:scale-95 transition" style={{ aspectRatio: "1", borderRadius: 12, border: `2px solid ${isTowerBoss && !cleared ? (ELEMENTS[TOWER_BOSSES[f]?.element]?.color || color) : color}`, background: boss ? `${color}1f` : C.panelHi, color: locked ? C.dim : C.text, opacity: locked ? 0.5 : cleared ? 0.7 : 1, position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: (locked || cleared) ? "not-allowed" : "pointer" }}>
+              <span style={{ fontSize: boss ? 16 : 13, fontWeight: 800 }}>{isTowerBoss ? (cleared ? "✓" : "💀") : boss ? "☠" : f}</span>
               {boss && <span style={{ fontSize: 9, color: C.mute }}>{f}</span>}
-              {cleared && <span style={{ position: "absolute", top: 2, right: 4, color: C.good, fontSize: 10 }}>✓</span>}
+              {cleared && !isTowerBoss && <span style={{ position: "absolute", top: 2, right: 4, color: C.good, fontSize: 10 }}>✓</span>}
             </button>;
           })}
         </div>
@@ -1859,17 +1934,19 @@ function makeEnemy(idx, enc) {
   const name = ascend ? (enc.bossName || "Guardião da Ascensão") : weekly ? (enc.bossName || "Tirano do Vazio") : finalBoss ? "Soberano do Vazio" : boss ? "Guardião do Andar" : "Aberração " + (idx + 1);
   // Alguns chefes têm RESISTÊNCIA (1-3 elementos) e FRAQUEZA (1-2 elementos)
   let res = [], weak = [];
-  if (boss && Math.random() < 0.7) {
+  const _tbd = enc.bossKind ? Object.values(TOWER_BOSSES).find(b => b.bossKind === enc.bossKind) : null;
+  if (_tbd) { res = [...(_tbd.res || [])]; weak = [...(_tbd.weak || [])]; }
+  else if (boss && Math.random() < 0.7) {
     const poolE = [...ELEMENT_NAMES]; res.push(bossEl); poolE.splice(poolE.indexOf(bossEl), 1);
-    const nRes = Math.floor(Math.random() * 2); // +0..1 além do elemento do chefe (total 1-2... e às vezes 3)
+    const nRes = Math.floor(Math.random() * 2);
     for (let i = 0; i < nRes && poolE.length; i++) { res.push(poolE.splice(Math.floor(Math.random() * poolE.length), 1)[0]); }
-    if (Math.random() < 0.4 && poolE.length) res.push(poolE.splice(Math.floor(Math.random() * poolE.length), 1)[0]); // chance de 3ª resistência
-    const nWeak = 1 + Math.floor(Math.random() * 2); // 1-2 fraquezas
+    if (Math.random() < 0.4 && poolE.length) res.push(poolE.splice(Math.floor(Math.random() * poolE.length), 1)[0]);
+    const nWeak = 1 + Math.floor(Math.random() * 2);
     for (let i = 0; i < nWeak && poolE.length; i++) { weak.push(poolE.splice(Math.floor(Math.random() * poolE.length), 1)[0]); }
   }
   return {
-    uid: "E" + idx, side: "enemy", name, avatar: ascend ? "🗿" : weekly ? "🦂" : finalBoss ? "🕳️" : boss ? "👑" : ["👾", "👹", "🐲"][idx % 3],
-    element: boss ? bossEl : pick(ELEMENT_NAMES), level: lvl, roleKey: "dps", bossKind: enc.bossKind || (finalBoss ? "void" : weekly ? "venom" : ascend ? "stone" : "guardian"),
+    uid: "E" + idx, side: "enemy", name: enc.bossName && (boss || finalBoss) && idx === 0 ? enc.bossName : name, bossTitle: enc.bossTitle || null, bossImgId: enc.bossImgId || null, avatar: ascend ? "🗿" : weekly ? "🦂" : finalBoss ? "🕳️" : boss ? "👑" : ["👾", "👹", "🐲"][idx % 3],
+    element: (enc.bossElement && (boss || finalBoss) && idx === 0) ? enc.bossElement : (boss ? bossEl : pick(ELEMENT_NAMES)), level: lvl, roleKey: "dps", bossKind: enc.bossKind || (finalBoss ? "void" : weekly ? "venom" : ascend ? "stone" : "guardian"),
     boss: boss || weekly || ascend, finalBoss, weekly, ascend, elite: !boss && lvl >= 18 && idx === 0, res, weak,
     base: { atk, def, spd, critRate: boss ? 12 : 6, critDmg: 55, dmgBonus: 0 },
     hp, maxHp: hp, shield: 0, av: 10000 / Math.max(1, spd), buffs: [], debuffs: [], dots: [], alive: true, actCount: 0,
@@ -1887,6 +1964,11 @@ function vulnOf(u) { let v = 0; for (const b of u.debuffs) if (b.stat === "vuln"
 function defMult(attacker, defenderDef) { const lvl = (attacker && attacker.level) || 50; const d = Math.max(0, defenderDef || 0); return 1 - d / (d + 200 + 10 * lvl); }
 const DOT_INFO = { burn: { c: "#FF6B45", n: "Queimadura" }, poison: { c: "#A6E22E", n: "Veneno" }, shock: { c: "#B98BFF", n: "Choque" }, bleed: { c: "#FF5FC4", n: "Sangramento" }, freeze: { c: "#6FE3FF", n: "Geada" }, geada: { c: "#6FE3FF", n: "Geada" } };
 function dealDamage(attacker, defender, mult, fx, opts) {
+  // Aizen mechanic: 40% miss chance before Bankai
+  if (defender.bossKind === "aizen" && !defender.aiBankai && attacker.side === "H" && Math.random() < 0.40 && !opts?.pierceShield) {
+    fx.push({ uid: defender.uid, txt: "ERROU!", crit: false, id: Math.random(), el: attacker.element || "Holy" });
+    return { dmg: 0, crit: false };
+  }
   const f = attacker.stFlags || {};
   let dmg = effStat(attacker, "atk") * (mult / 100);
   const crit = Math.random() * 100 < Math.min(100, effStat(attacker, "critRate"));
@@ -1933,6 +2015,70 @@ function applyDot(targets, spec, source, fx) {
     t.dots.push({ type: spec.type, dmg, turns: spec.turns });
     if (f.setGlacial4 && glacial) { const cur = t.debuffs.find((d) => d.name === "GlacialSet"); if (cur) cur.value = Math.min(7, cur.value + 2); else t.debuffs.push({ stat: "vuln", value: 2, turns: 3, name: "GlacialSet" }); } // Sopro Glacial 4pç
   });
+}
+// ----- Mecânicas da Soi Fon -----
+function soiFonBasicAttack(s, u, enemy, fx, ampB) {
+  const f = u.stFlags || {}, sk = u.skill || {};
+  let msg = "";
+  if (u.sfPostura) {
+    u.sfPostura = false;
+    const wpnCharges = (u.weapon?.id === "ferrao_borboleta") ? (u.sfWpnCharges || 0) : 0;
+    const wpnBonus = wpnCharges * 0.24;
+    if (wpnCharges > 0) u.sfWpnCharges = 0;
+    const finalMul = 120 * (u.tBasic || 1) * ampB * (1 + wpnBonus);
+    const targets = f.sfC6 ? s.enemies.filter(e => e.alive) : (enemy ? [enemy] : []);
+    let tot = 0;
+    targets.forEach(e => {
+      const r = dealDamage(u, e, finalMul, fx, { el: "Vento", pierceShield: true, defPen: f.sfC6 ? 40 : 100 });
+      tot += r.dmg;
+      if (!e.alive && f.sfC6) { u.energy = u.energyMax; u.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); }
+    });
+    msg = `🦋✨ SOI FON — DANO VERDADEIRO (Postura de Ferrão)! ${tot} de Dano de Vento${f.sfC6 ? " em TODOS" : ""}${wpnBonus ? ` +${Math.round(wpnBonus * 100)}% (${wpnCharges} Cargas)` : ""}, ignora DEF e escudos!`;
+  } else {
+    if (enemy) {
+      const r = dealDamage(u, enemy, (sk.basicMul || 100) * (u.tBasic || 1) * ampB, fx, { el: "Vento" });
+      msg = `🦋 ${u.name} desfere dois golpes velozes em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " (CRÍTICO!)" : ""}.`;
+      const hasEletroDot = enemy.dots?.some(d => d.type === "shock");
+      if (hasEletroDot) { u.energy = Math.min(u.energyMax, u.energy + 10); msg += " Bônus Eletro: +10 energia!"; }
+      if (u.weapon?.id === "ferrao_borboleta") { u.sfWpnCharges = Math.min(5, (u.sfWpnCharges || 0) + 1); msg += ` [Carga Elétrica ${u.sfWpnCharges}/5]`; }
+    }
+  }
+  return msg;
+}
+function checkSoiFonFollowup(s, actor, fx) {
+  if (!actor || actor.element !== "Eletro" || actor.id === "soifon") return;
+  const sf = s.heroes.find(h => h.id === "soifon" && h.alive && !h.isSummon);
+  if (!sf) return;
+  const ae = s.enemies.filter(e => e.alive);
+  if (!ae.length) return;
+  sf.sfCharges = Math.min(3, (sf.sfCharges || 0) + 1);
+  const f2 = sf.stFlags || {};
+  if (f2.sfC2) { const anyMarked = ae.some(e => (e.debuffs || []).some(d => d.name === "Ferrão da Morte")); if (anyMarked) sf.sfCharges = Math.min(3, sf.sfCharges + 1); }
+  let posturaMsg = "";
+  if (sf.sfCharges >= 3) {
+    sf.sfCharges = 0; sf.sfPostura = true;
+    if (f2.sfC1) { sf.energy = Math.min(sf.energyMax, sf.energy + 10); sf.buffs.push({ stat: "dmgBonus", value: 20, turns: 1, name: "VeloBorboleta" }); }
+    if (f2.sfSombra) sf.buffs.push({ stat: "dmgBonus", value: 20, turns: 1, name: "SombraAssassina" });
+    posturaMsg = " 🦋 POSTURA DE FERRÃO ativada!";
+  } else { posturaMsg = ` (Vibração ${sf.sfCharges}/3)`; }
+  const markedEnemies = ae.filter(e => (e.debuffs || []).some(d => d.name === "Ferrão da Morte"));
+  if (!markedEnemies.length) { s.log = [...s.log.slice(-40), `🦋 Soi Fon acumula Vibração${posturaMsg}`]; return; }
+  const maxFU = 2;
+  let fuDone = s.sfFollowThisTurn || 0;
+  const fuMsgs = [];
+  for (const tgt of markedEnemies) {
+    if (fuDone >= maxFU) break; fuDone++;
+    let fuMul = 120 * (sf.tSkill || 1);
+    if (f2.sfPrecisao) fuMul *= 1.25;
+    if (f2.sfC5) fuMul *= 1.15;
+    if (sf.weapon?.id === "ferrao_borboleta") { const wc = sf.sfWpnCharges || 0; if (wc > 0) { fuMul *= (1 + wc * 0.10); sf.sfWpnCharges = Math.min(5, wc + 1); } }
+    const r = dealDamage(sf, tgt, fuMul, fx, { el: "Vento" });
+    if (f2.sfPrecisao) { const cdStacks = sf.buffs.filter(b => b.name === "PrecisaoFU").length; if (cdStacks < 2) sf.buffs.push({ stat: "critDmg", value: 15, turns: 99, name: "PrecisaoFU" }); }
+    fuMsgs.push(`${tgt.name}: ${r.dmg}${r.crit ? " CRÍTICO" : ""}`);
+    if (!tgt.alive && f2.sfC6) { sf.energy = sf.energyMax; sf.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); fuMsgs.push("KILL! Energia máx"); }
+  }
+  s.sfFollowThisTurn = fuDone;
+  if (fuMsgs.length || posturaMsg) s.log = [...s.log.slice(-40), `🦋 SOI FON follow-up Vento [${fuMsgs.join(", ")}]${posturaMsg}`];
 }
 // ----- Mecânicas da Miyabi -----
 function miyabiDetonate(s, u, fx) {
@@ -2004,6 +2150,14 @@ function applyDebuff(targets, spec, extraDef, caster) {
   });
 }
 
+function EnemyAvatar({ e, size = 40 }) {
+  const images = useImg();
+  const imgId = e.bossImgId || e.id;
+  const url = imgId ? images[imgId] : null;
+  const el = ELEMENTS[e.element] || { color: C.line };
+  if (url) return <img src={url} alt={e.name} style={{ width: size, height: size, objectFit: "cover", objectPosition: "top", borderRadius: 8, border: `2px solid ${el.color}88`, flexShrink: 0 }} />;
+  return <span style={{ fontSize: e.boss ? 30 : 26, lineHeight: 1 }}>{e.avatar}</span>;
+}
 function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
   const [state, setState] = useState(() => {
     const heroes = team.map((id, i) => (ownedMap[id] ? makeUnit(ownedMap[id], "H", i) : null)).filter(Boolean);
@@ -2127,6 +2281,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       if (kind === "basic") {
         let miyDone = false;
         if (u.id === "miyabi" && (f.miPostura || f.miResidual || f.miDetonate)) { msg = miyabiBasicAttack(s, u, enemy, fx, ampB); miyDone = true; }
+        if (!miyDone && u.id === "soifon") { msg = soiFonBasicAttack(s, u, enemy, fx, ampB); miyDone = true; }
         if (!miyDone && enemy && sk.basicMul) { const r = dealDamage(u, enemy, sk.basicMul * u.tBasic * ampB, fx); msg = `${u.name} usa Ataque Básico em ${enemy.name} — ${r.dmg} de dano${r.crit ? " (CRÍTICO!)" : ""}.`; }
         if (f.kcAdvance) { const ds = aliveDragons(s, u.uid); ds.forEach((d) => { d.av = Math.max(0.1, d.av * 0.65); }); if (ds.length) msg += ` Os ${ds.length} dragões avançam na linha do tempo!`; }
         s.sp = Math.min(5, s.sp + 1); u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enBasic || 15));
@@ -2148,6 +2303,15 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           if (sk.skillMul) { const wpen = u.weapon?.id === "dragoncannon" ? 30 : 0; let tot = 0; aliveEnemies(s).forEach((e) => { tot += dealDamage(u, e, sk.skillMul * sMul, fx, { el: "Eletro", defPen: wpen }).dmg; }); if (tot) msg += ` Rajada Eletro em área: ${tot}${wpen ? " (perfura DEF)" : ""}.`; }
           if (f.kS2) { const sh = Math.round(effStat(u, "atk") * ampS); u.shield += sh; msg += ` Barreira do Duelista: escudo de ${sh}.`; }
           refreshKaibaBuffs(s);
+        }
+        else if (u.id === "soifon" && sk.sfSkill && enemy) {
+          const sMul = u.tSkill * ampS;
+          const r = dealDamage(u, enemy, (sk.skillMul || 160) * sMul, fx, { el: "Vento" });
+          const markCount = (enemy.debuffs || []).filter(d => d.name === "Ferrão da Morte").length;
+          if (markCount < 3) enemy.debuffs.push({ stat: "mark", value: 0, turns: 3, name: "Ferrão da Morte" });
+          if (f.sfC2) { if (!enemy.debuffs.some(d => d.name === "EletroRES↓")) enemy.debuffs.push({ stat: "elemRes", value: -15, turns: 3, name: "EletroRES↓" }); }
+          if (u.weapon?.id === "ferrao_borboleta") u.sfWpnCharges = Math.min(5, (u.sfWpnCharges || 0) + 1);
+          msg = `🦋 ${u.name} usa Nigeki Kessatsu em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " (CRÍTICO!)" : ""}! [Ferrão da Morte] marcado por 3 turnos — follow-ups de aliados Eletro ativarão golpes de acompanhamento!`;
         }
         else if (sk.skillMul && enemy) {
           const onSkillHit = (e, r) => {
@@ -2171,6 +2335,24 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       } else if (kind === "ult") {
         if (u.energy < u.energyMax) return s;
         if (u.id === "kaiba") { if (aliveDragons(s, u.uid).length >= 3) { s.choice = { uid: u.uid }; return s; } else { return s; } } // Suprema só com 3 dragões
+        if (u.id === "soifon" && sk.sfUlt) {
+          u.energy = enGain(5);
+          if (enemy) {
+            const fmMarks = (enemy.debuffs || []).filter(d => d.name === "Ferrão da Morte").length;
+            enemy.debuffs = (enemy.debuffs || []).filter(d => d.name !== "Ferrão da Morte");
+            const bankaiBuff = (f.sfBankai && enemy.hp / enemy.maxHp < 0.3) ? 1.3 : 1;
+            const totalMul = (sk.ultMul || 350) * (u.tUlt || 1) * ampU * bankaiBuff * (1 + fmMarks * 0.15);
+            let origCR = null;
+            if (f.sfBankai && enemy.hp / enemy.maxHp < 0.3) { origCR = u.base.critRate; u.base = { ...u.base, critRate: 200 }; }
+            const r = dealDamage(u, enemy, totalMul, fx, { el: "Vento" });
+            if (origCR !== null) u.base.critRate = origCR;
+            const zonaTurns = f.sfBankai ? 2 : 1;
+            s.sfZona = { turns: zonaTurns };
+            if (f.sfC4) s.heroes.filter(h => h.alive && !h.isSummon).forEach(h => h.buffs.push({ stat: "critRate", value: 10, pct: false, turns: zonaTurns + 1, name: "AuraCond" }));
+            if (!enemy.alive && f.sfC6) { u.energy = u.energyMax; u.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); }
+            msg = `💥🦋 JAKUHŌ RAIKŌBEN! ${u.name} dispara o míssil definitivo em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " CRÍTICO!" : ""}!${fmMarks ? ` (+${fmMarks * 15}% de marcas!)` : ""} Zona de Condução por ${zonaTurns} turno(s)!${f.sfC4 ? " +10% CRIT ao time!" : ""}`;
+          }
+        } else {
         u.energy = enGain(5); // reembolso HSR: +5 base ×ERR
         const uMul = u.tUlt * ampU * (f.setFire4 ? 1.2 : 1); // Núcleo Ardente 4pç: +20% dano de Ult
         if (sk.ultMul && enemy) { if (sk.ultAoe) { let tot = 0; aliveEnemies(s).forEach((e) => { const r = dealDamage(u, e, sk.ultMul * uMul, fx); tot += r.dmg; if (r.crit && f.miResidual && e.alive && !e.debuffs.some((d) => d.name === "Residual")) e.debuffs.push({ stat: "mark", value: 0, turns: 99, name: "Residual" }); }); msg = `💥 ${u.name} dispara o Ultimate em área — ${tot} de dano total!`; } else { const r = dealDamage(u, enemy, sk.ultMul * uMul, fx); if (r.crit && f.miResidual && enemy.alive && !enemy.debuffs.some((d) => d.name === "Residual")) enemy.debuffs.push({ stat: "mark", value: 0, turns: 99, name: "Residual" }); msg = `💥 ${u.name} desencadeia o Ultimate em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}!`; } }
@@ -2188,10 +2370,14 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         if (f.reviveEnergy) { allies.forEach((a) => { if (a.energyMax) a.energy = Math.min(a.energyMax, a.energy + 20); }); msg += ` (+20 energia à equipe)`; }
         if (f.ultRefund) { u.energy = Math.min(u.energyMax, 40); msg += ` (recupera 40 energia)`; }
         if (u.weapon?.ultEnergy) allies.forEach((a) => { if (a.energyMax) a.energy = Math.min(a.energyMax, a.energy + u.weapon.ultEnergy); });
+        } // end soifon ult else
       }
       tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
-      if (u._avMul != null) { u.av = Math.max(0.01, u.av * u._avMul); u._avMul = null; } // avanço/reset de ação (Postura Iaido / Corte do Fim dos Tempos)
-      if (u.id === "miyabi" && (s.frostZone || 0) > 0) s.frostZone -= 1; // Zona de Geada dura ~rodadas de Miyabi
+      if (u._avMul != null) { u.av = Math.max(0.01, u.av * u._avMul); u._avMul = null; }
+      if (u.id === "miyabi" && (s.frostZone || 0) > 0) s.frostZone -= 1;
+      if (u.id === "soifon" && s.sfZona) { s.sfZona.turns -= 1; if (s.sfZona.turns <= 0) s.sfZona = null; }
+      s.sfFollowThisTurn = 0;
+      checkSoiFonFollowup(s, u, s.fx);
       s.hitFx = { el: u.element, big: kind === "ult" || sk.ultAoe || (kind === "skill" && sk.aoe), support: !fx.some((x) => !x.heal && !x.dot), id: Math.random() };
       pushLog(s, msg || `${u.name} se prepara.`); s = checkEnd(s); s.turn = null; return s;
     });
@@ -2306,6 +2492,28 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         return weakest;                                 // finalizar o mais fraco
       };
 
+      // Tower Boss special mechanics
+      if (u.alive && u.boss && u.bossKind === "aizen") {
+        const hpPct = u.hp / u.maxHp;
+        if (!u.aiBankai && hpPct <= 0.70) { u.aiBankai = true; u.hp = Math.min(u.maxHp, u.hp + Math.round(u.maxHp * 0.15)); u.base = { ...u.base, atk: Math.round(u.base.atk * 1.4), def: Math.round(u.base.def * 1.5) }; pushLog(s, `🌌 AIZEN entra em BANKAI — Kyōka Suigetsu! Restaura 15% HP, ATK×1.4, DEF×1.5. Ataques não têm mais 40% de chance de errar!`); }
+        if (!u.aiTranscend && hpPct <= 0.30) { u.aiTranscend = true; u.res = [...(u.res || []), "Vento", "Glacial"]; u.base.spd = Math.round(u.base.spd * 1.3); pushLog(s, `✨ AIZEN transcende! Resistência total e VEL ×1.3 — ele é invencível!`); }
+      }
+      if (u.alive && u.boss && u.bossKind === "sukuna") {
+        const hpPct = u.hp / u.maxHp;
+        if (!u.suRCT && hpPct <= 0.50) { u.suRCT = true; const heal = Math.round(u.maxHp * 0.20); u.hp = Math.min(u.maxHp, u.hp + heal); pushLog(s, `🩸 SUKUNA ativa Técnica Cursista Reversa — restaura ${heal} HP (20%)!`); }
+        if (!u.su10shadows && hpPct <= 0.25) { u.su10shadows = true; u.base = { ...u.base, atk: Math.round(u.base.atk * 1.6), def: Math.round(u.base.def * 1.3) }; pushLog(s, `👁️ SUKUNA invoca as 10 Sombras! ATK×1.6, DEF×1.3!`); }
+        if (u.actCount % 5 === 0 && u.actCount > 0) {
+          allAllies.forEach(h => { h.debuffs.push({ stat: "vuln", value: 30, turns: 3, name: "Domínio" }); h.debuffs.push({ stat: "def", value: -30, pct: true, turns: 3, name: "Malrep" }); });
+          let tot2 = 0; allAllies.forEach(h => { tot2 += dealDamage(u, h, 220 * rage, fx).dmg; }); pushLog(s, `🔴 SUKUNA expande o DOMÍNIO AMALDIÇOADO! ${tot2} dano em todos + 30% VULN + -30% DEF por 3 turnos!`); s = checkEnd(s); s.turn = null; return s;
+        }
+      }
+      if (u.alive && u.boss && u.bossKind === "godkaiba") {
+        const hpPct = u.hp / u.maxHp;
+        if (!u.gkObelisco && hpPct <= 0.50) { u.gkObelisco = true; u.base = { ...u.base, atk: Math.round(u.base.atk * 1.5), def: Math.round(u.base.def * 1.3) }; u.res = [...(u.res || []), "Holy"]; pushLog(s, `⚡ GOD KAIBA entra na FASE DO OBELISCO! ATK×1.5, DEF×1.3, resiste Holy!`); }
+        if (u.actCount % 3 === 0 && u.actCount > 0) {
+          let tot2 = 0; allAllies.forEach(h => { tot2 += dealDamage(u, h, 160 * rage, fx, { el: "Eletro" }).dmg; h.debuffs.push({ stat: "atk", value: -20, pct: true, turns: 2, name: "Supressão" }); }); pushLog(s, `⚡ PUNHO DO DESTINO! ${tot2} dano Eletro em área + ATK↓20% por 2 turnos!`); s = checkEnd(s); s.turn = null; return s;
+        }
+      }
       if (u.elite && u.actCount === 1) {
         u.buffs.push({ stat: "atk", value: 35, pct: true, turns: 99, name: "Fúria" });
         const t = pickTarget(); const r = t ? dealDamage(u, t, 90 * rage, fx) : { dmg: 0 };
@@ -2362,7 +2570,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
                 <span style={{ fontSize: 9, color: eel.color }}>{eel.glyph} {e.boss ? "CHEFE" : `Nv ${e.level}`}</span>
                 {e.shield > 0 && <span style={{ fontSize: 9, color: "#9fdcff" }}>🛡{Math.round(e.shield)}</span>}
               </div>
-              <div style={{ fontSize: e.boss ? 30 : 26 }}>{e.avatar}</div>
+              <EnemyAvatar e={e} size={e.boss ? 48 : 36} />
               <div style={{ fontSize: 10, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.name}</div>
               <Bar value={e.hp} max={e.maxHp} color={C.bad} />
               <div style={{ fontSize: 9, color: C.mute }}>{Math.round(e.hp)} / {e.maxHp}</div>
@@ -2384,6 +2592,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
 
         {/* heróis */}
         {(state.frostZone || 0) > 0 && <div style={{ textAlign: "center", fontSize: 11, color: "#6FE3FF", fontWeight: 700, padding: "2px 0" }}>❄️ Zona de Geada ativa ({state.frostZone}) — Miyabi em Postura Iaido permanente</div>}
+        {state.sfZona && <div style={{ textAlign: "center", fontSize: 11, color: ELEMENTS["Vento"]?.color || "#7CFFB0", fontWeight: 700, padding: "2px 0" }}>🦋 Zona de Condução ativa ({state.sfZona.turns}) — Follow-ups e CRIT amplificados!</div>}
         <div className="flex gap-2" style={{ flexWrap: "wrap" }}>
           {state.heroes.map((h) => { const active = current && current.uid === h.uid; const el = ELEMENTS[h.element] || { color: C.line }; const full = !h.isSummon && h.energyMax > 0 && h.energy >= h.energyMax; return (
             <div key={h.uid} style={{ flex: 1, minWidth: 112, position: "relative", opacity: h.alive ? 1 : 0.35, border: `2px solid ${active ? C.gold : el.color + "55"}`, borderRadius: 12, padding: 8, background: C.panel, boxShadow: active ? `0 0 16px ${C.gold}55` : "none" }}>
@@ -2395,6 +2604,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
                   {h.isSummon && isFinite(h.life) && <div style={{ fontSize: 9, color: el.color }}>⏳ {h.life} turno(s)</div>}
                   {!h.isSummon && h.energyMax > 0 && <div style={{ fontSize: 9, color: full ? C.gold : "#B98BFF" }}>⚡ {Math.round(h.energy)}/{h.energyMax}{full ? " · PRONTO" : ""}</div>}
                   {h.id === "miyabi" && (h.stFlags?.miPostura) && <div style={{ fontSize: 9, color: "#6FE3FF" }}>{"❄".repeat(Math.min(h.posturePH || 0, h.stFlags?.miC6 ? 4 : 3))}{"·".repeat(Math.max(0, (h.stFlags?.miC6 ? 4 : 3) - (h.posturePH || 0)))} {((h.posturePH || 0) >= (h.stFlags?.miC6 ? 4 : 3)) ? "Postura Iaido!" : "PH"}</div>}
+                  {h.id === "soifon" && <div style={{ fontSize: 9, color: ELEMENTS["Vento"]?.color || "#7CFFB0" }}>{h.sfPostura ? "🦋 POSTURA DE FERRÃO!" : `🦋 Vibração ${h.sfCharges || 0}/3`}</div>}
                 </div>
               </div>
               {h.shield > 0 && <div style={{ fontSize: 10, color: "#9fdcff", marginTop: 3 }}>🛡 {Math.round(h.shield)}</div>}
@@ -2800,7 +3010,7 @@ function Admin({ images, setImages, flash }) {
         <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>🛠️ Painel Admin</div>
         <p style={{ fontSize: 13, color: C.mute, marginTop: 6 }}>Cole o link direto da imagem (Imgur) de cada personagem e arma. Use o link que termina em <b>.jpg</b>/<b>.png</b> (ex: <span style={{ color: C.text }}>https://i.imgur.com/XXXX.png</span>). A imagem aparece no jogo inteiro na hora.</p>
       </Panel>
-      <div className="flex gap-2" style={{ flexWrap: "wrap" }}><TabBtn active={tab === "chars"} onClick={() => setTab("chars")}>Personagens</TabBtn><TabBtn active={tab === "weapons"} onClick={() => setTab("weapons")}>Armas</TabBtn><TabBtn active={tab === "summons"} onClick={() => setTab("summons")}>Invocações</TabBtn><TabBtn active={tab === "items"} onClick={() => setTab("items")}>🎒 Itens</TabBtn><TabBtn active={tab === "players"} onClick={() => setTab("players")}>👥 Players</TabBtn></div>
+      <div className="flex gap-2" style={{ flexWrap: "wrap" }}><TabBtn active={tab === "chars"} onClick={() => setTab("chars")}>Personagens</TabBtn><TabBtn active={tab === "weapons"} onClick={() => setTab("weapons")}>Armas</TabBtn><TabBtn active={tab === "summons"} onClick={() => setTab("summons")}>Invocações</TabBtn><TabBtn active={tab === "items"} onClick={() => setTab("items")}>🎒 Itens</TabBtn><TabBtn active={tab === "bosses"} onClick={() => setTab("bosses")}>💀 Chefes</TabBtn><TabBtn active={tab === "players"} onClick={() => setTab("players")}>👥 Players</TabBtn></div>
       {tab === "chars" && <div className="flex flex-col gap-2">{ROSTER.map((c) => <AdminRow key={c.id} id={c.id} name={`${c.name} · ${c.element} · ${ROLES[c.role].label}`} rarity={c.rarity} fallback={c.avatar} element={c.element} url={images[c.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "weapons" && <div className="flex flex-col gap-2">{WEAPONS.map((w) => <AdminRow key={w.id} id={w.id} name={`${w.name} · ${ROLES[w.role].label}`} rarity={w.rarity} fallback="🗡️" weapon url={images[w.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "summons" && <div className="flex flex-col gap-2">
@@ -2811,6 +3021,13 @@ function Admin({ images, setImages, flash }) {
       {tab === "items" && <div className="flex flex-col gap-2">
         <Panel style={{ padding: 10 }}><p style={{ fontSize: 12, color: C.mute }}>Cole links de imagem (Imgur .png/.jpg) para cada item. As fotos aparecem no inventário e nas telas do jogo.</p></Panel>
         {GAME_ITEMS.map((it) => <AdminItemRow key={it.id} id={it.id} name={it.name} icon={it.icon} url={images[it.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}
+      </div>}
+      {tab === "bosses" && <div className="flex flex-col gap-2">
+        <Panel style={{ padding: 10 }}><p style={{ fontSize: 12, color: C.mute }}>Fotos dos chefes especiais da Torre (andares 50, 60, 70). Cole o link direto da imagem (Imgur .png/.jpg). A foto aparece no painel da Torre e na tela de batalha.</p></Panel>
+        {Object.entries(TOWER_BOSSES).map(([f, bd]) => {
+          const el = ELEMENTS[bd.element] || { color: C.line };
+          return <AdminRow key={bd.bossImgId} id={bd.bossImgId} name={`Andar ${f} · ${bd.name} · ${bd.title}`} rarity={5} fallback="💀" element={bd.element} url={images[bd.bossImgId] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />;
+        })}
       </div>}
       {tab === "players" && <AdminPlayersTab />}
     </div>
