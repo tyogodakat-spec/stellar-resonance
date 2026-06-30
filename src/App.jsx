@@ -732,6 +732,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [toast, setToast] = useState(null);
   const [pullResults, setPullResults] = useState(null);
   const [battle, setBattle] = useState(null);
+  const [pendingBoss, setPendingBoss] = useState(null);
 
   const [jade, setJade] = useState(12000);
   const [chronicles, setChronicles] = useState(0);
@@ -995,7 +996,8 @@ function Game({ email, isAdmin, onLogout }) {
     setStamina((v) => v - 40);
     setBattle({ context: "ascend", encounter: { level: 50, count: 1, boss: true, ascend: true, bossName: "Guardião da Ascensão", bossKind: "stone", teamPower: teamPower() }, ally: null });
   }
-  function startBossRush(bossId) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===bossId;}); if (!bd) return; setBattle({ context: "bossrush", bossId: bossId, encounter: { bossRush: true, bossId: bossId, level: bd.level, count: 1, boss: true, bossName: bd.name, bossElement: bd.element, bossKind: bd.kind, bossImgId: bd.imgKey, teamPower: teamPower() }, ally: null }); }
+  function startBossRush(bossId) { setPendingBoss(bossId); }
+  function launchBossRush(bossId, customTeam) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===bossId;}); if (!bd) return; setPendingBoss(null); setBattle({ context: "bossrush", bossId: bossId, customTeam: customTeam||null, encounter: { bossRush: true, bossId: bossId, level: bd.level, count: 1, boss: true, bossName: bd.name, bossElement: bd.element, bossKind: bd.kind, bossImgId: bd.imgKey, teamPower: teamPower() }, ally: null }); }
   function onBattleEnd(result) {
     const b = battle; setBattle(null);
     if (!b || result.abort) return;
@@ -1081,8 +1083,10 @@ function Game({ email, isAdmin, onLogout }) {
         <div style={{ maxWidth: 1000, margin: "0 auto", padding: battle ? "0" : "16px 14px 110px" }}>
           {battle ? (
             <Battle key={JSON.stringify(battle.encounter) + battle.context + (battle.floor || 0)}
-              team={team} ownedMap={ownedMap} encounter={battle.encounter} ally={battle.ally} context={battle.context}
+              team={battle.customTeam || team} ownedMap={ownedMap} encounter={battle.encounter} ally={battle.ally} context={battle.context}
               onEnd={onBattleEnd} flash={flash} />
+          ) : pendingBoss ? (
+            <BossRushTeamSelect boss={BOSS_RUSH_BOSSES.find(function(b){return b.id===pendingBoss;})} owned={owned} defaultTeam={team} images={images} onCancel={function(){setPendingBoss(null);}} onConfirm={function(t){launchBossRush(pendingBoss,t);}} flash={flash} />
           ) : (
             <>
               {screen === "home" && <Home email={email} isAdmin={isAdmin} playerName={playerName} setPlayerName={setPlayerName} owned={owned} setScreen={setScreen} setJade={setJade} setCharTickets={setCharTickets} setStandardTickets={setStandardTickets} setWeaponTickets={setWeaponTickets} flash={flash} towerCleared={towerCleared} bossRushCleared={bossRushCleared} startBossRush={startBossRush} images={images} setImages={setImages} />}
@@ -1278,41 +1282,63 @@ function ContentTabs({ bossRushCleared, startBossRush, isAdmin, images, setImage
         </div>
       </div>}
       {tab === "endgame" && <div style={{ marginTop: 12 }}>
-        <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>Boss Rush</div>
-        <div style={{ fontSize: 13, color: C.mute, marginBottom: 12 }}>Enfrente chefes poderosos. Cada boss da 400 na primeira vitoria e nao pode ser repetido.</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <style dangerouslySetInnerHTML={{__html: "@keyframes brCardGlow{0%,100%{box-shadow:none}50%{box-shadow:0 0 28px var(--bcol,#fff4),0 0 60px var(--bcol,#fff2)}} @keyframes clearedShine{from{background-position:200% center}to{background-position:-200% center}}" }} />
+        <div style={{ display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:4 }}>
+          <div style={{ fontWeight:900,fontSize:18 }}>⚡ Boss Rush</div>
+          <div style={{ fontSize:11,color:C.mute }}>{(bossRushCleared||[]).length}/{BOSS_RUSH_BOSSES.length} derrotados</div>
+        </div>
+        <div style={{ fontSize:12,color:C.mute,marginBottom:14 }}>Chefes únicos de End Game. Monte seu time antes da batalha — cada boss dá +400💎 na primeira vitória.</div>
+        <div style={{ display:"flex",flexDirection:"column",gap:20 }}>
           {BOSS_RUSH_BOSSES.map(function(boss) {
             const cleared = bossRushCleared && bossRushCleared.includes(boss.id);
             const el = ELEMENTS[boss.element] || ELEMENTS.Holy;
             const imgUrl = images && images[boss.imgKey];
+            const diffLabel = boss.level >= 90 ? {txt:"EXTREMO",c:"#FF4444"} : boss.level >= 85 ? {txt:"DIFÍCIL",c:"#FF8C44"} : {txt:"NORMAL",c:C.good};
             return (
-              <div key={boss.id} style={{ background: C.panel, borderRadius: 14, border: "2px solid " + el.color + "55", overflow: "hidden" }}>
-                <div style={{ position: "relative", height: 140, background: el.soft, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-                  {imgUrl ? <img src={imgUrl} alt={boss.name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
-                    : <span style={{ fontSize: 64 }}>{boss.avatar}</span>}
-                  {cleared && <div style={{ position: "absolute", inset: 0, background: "#000b", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ color: C.good, fontWeight: 900, fontSize: 22, letterSpacing: 3 }}>DERRUBADO</span>
-                  </div>}
-
-                  <BossRushLeaderboard bossId={boss.id} />
-                  <div style={{ position: "absolute", top: 8, left: 8, background: el.color + "33", border: "1px solid " + el.color + "88", borderRadius: 8, padding: "2px 8px", fontSize: 11, color: el.color, fontWeight: 700 }}>{el.glyph} {boss.element}</div>
-                  <div style={{ position: "absolute", top: 8, right: 8, background: "#00000088", borderRadius: 8, padding: "2px 8px", fontSize: 11, color: C.gold, fontWeight: 700 }}>+400</div>
-                </div>
-                <div style={{ padding: "12px 14px" }}>
-                  <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 2 }}>{boss.name}</div>
-                  <div style={{ fontSize: 11, color: C.mute, marginBottom: 8, lineHeight: 1.4, fontStyle: "italic" }}>{boss.lore}</div>
-                  <div style={{ fontSize: 11, color: "#aaa5d5", marginBottom: 4 }}>HP: <span style={{ color: C.bad }}>{boss.hp.toLocaleString("pt-BR")}</span></div>
-                  <div style={{ fontSize: 11, color: C.mute, marginBottom: 8 }}>
-                    {boss.weak && boss.weak.length > 0 && <span style={{ color: C.good, marginRight: 8 }}>FRACO: {boss.weak.map(function(e){return ELEMENTS[e] ? ELEMENTS[e].glyph : e;}).join(" ")}</span>}
-                    {boss.res && boss.res.length > 0 && <span style={{ color: "#9aa0b5" }}>RES: {boss.res.map(function(e){return ELEMENTS[e] ? ELEMENTS[e].glyph : e;}).join(" ")}</span>}
+              <div key={boss.id} style={{ borderRadius:18,overflow:"hidden",border:cleared?"2px solid "+C.good+"66":"2px solid "+el.color+"88","--bcol":el.color,animation:cleared?"none":"brCardGlow 3s ease-in-out infinite",boxShadow:cleared?"none":"0 4px 32px "+el.color+"18",transition:"all .3s" }}>
+                <div style={{ position:"relative",height:170,background:"linear-gradient(135deg,"+el.color+"44 0%,"+((el.soft)||"#0b0920")+" 60%)",display:"flex",alignItems:"center",overflow:"hidden" }}>
+                  {imgUrl
+                    ? <img src={imgUrl} alt={boss.name} style={{ position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"top",maskImage:"linear-gradient(to right,rgba(0,0,0,.95) 30%,rgba(0,0,0,.3))",WebkitMaskImage:"linear-gradient(to right,rgba(0,0,0,.95) 30%,rgba(0,0,0,.3))" }} />
+                    : <div style={{ position:"absolute",right:"5%",fontSize:95,opacity:.5,filter:"drop-shadow(0 0 32px "+el.color+")" }}>{boss.avatar}</div>}
+                  {cleared && (
+                    <div style={{ position:"absolute",inset:0,background:"#000d",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:8 }}>
+                      <span style={{ fontSize:32 }}>🏆</span>
+                      <span style={{ background:"linear-gradient(90deg,"+C.good+",#fff,"+C.good+")",backgroundSize:"200%",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",fontWeight:900,fontSize:22,letterSpacing:4,animation:"clearedShine 2s linear infinite" }}>DERRUBADO</span>
+                      <BossRushLeaderboard bossId={boss.id} />
+                    </div>
+                  )}
+                  {!cleared && <BossRushLeaderboard bossId={boss.id} />}
+                  <div style={{ position:"relative",zIndex:2,padding:"14px 16px",flex:1 }}>
+                    <div style={{ display:"flex",gap:5,marginBottom:5,flexWrap:"wrap" }}>
+                      <span style={{ background:el.color+"33",border:"1px solid "+el.color+"77",borderRadius:8,padding:"2px 8px",fontSize:10,color:el.color,fontWeight:700 }}>{el.glyph} {boss.element}</span>
+                      <span style={{ background:diffLabel.c+"22",border:"1px solid "+diffLabel.c+"66",borderRadius:8,padding:"2px 8px",fontSize:10,color:diffLabel.c,fontWeight:800 }}>{diffLabel.txt}</span>
+                      <span style={{ background:"#00000077",borderRadius:8,padding:"2px 8px",fontSize:10,color:C.gold,fontWeight:700 }}>+400💎</span>
+                    </div>
+                    <div style={{ fontWeight:900,fontSize:20,color:"#fff",textShadow:"0 0 20px "+el.color }}>{boss.name}</div>
+                    <div style={{ fontSize:11,color:"#aaa5d5",marginTop:4,fontStyle:"italic",lineHeight:1.4,maxWidth:220 }}>{boss.lore}</div>
+                    <div style={{ marginTop:7,display:"flex",gap:5,flexWrap:"wrap" }}>
+                      <span style={{ fontSize:11,color:C.bad,fontWeight:700 }}>❤️ {boss.hp.toLocaleString("pt-BR")}</span>
+                      {(boss.weak||[]).map(function(e){ return React.createElement('span',{key:e,style:{background:"#00ff8818",color:"#7CFFB0",border:"1px solid #7CFFB044",borderRadius:6,padding:"1px 6px",fontSize:10,fontWeight:700}},"FRACO "+(ELEMENTS[e]&&ELEMENTS[e].glyph||"")); })}
+                      {(boss.res||[]).map(function(e){ return React.createElement('span',{key:e,style:{background:"#ffffff08",color:"#9aa0b5",border:"1px solid #ffffff18",borderRadius:6,padding:"1px 6px",fontSize:10}},"RES "+(ELEMENTS[e]&&ELEMENTS[e].glyph||"")); })}
+                    </div>
                   </div>
-                  {boss.omegaHint && <div style={{ background: "#A6E22E22", border: "1px solid #A6E22E55", borderRadius: 8, padding: "6px 10px", fontSize: 11, color: "#A6E22E", marginBottom: 8, fontWeight: 600 }}>{boss.omegaHint}</div>}
-                  <div style={{ fontSize: 11, color: C.dim, marginBottom: 10 }}>
-                    {boss.mechanics.map(function(m, i){ return <div key={i} style={{ marginBottom: 3 }}>{"• " + m}</div>; })}
+                </div>
+                <div style={{ padding:"12px 16px",background:"#0b0920ee" }}>
+                  <div style={{ fontSize:10,color:C.mute,fontWeight:700,letterSpacing:1,marginBottom:7,textTransform:"uppercase" }}>Mecânicas de Combate</div>
+                  <div style={{ display:"flex",flexDirection:"column",gap:5,marginBottom:12 }}>
+                    {boss.mechanics.map(function(m,i){ return (
+                      <div key={i} style={{ display:"flex",gap:8,alignItems:"flex-start",background:el.color+"0d",borderRadius:8,padding:"6px 10px",border:"1px solid "+el.color+"1a" }}>
+                        <span style={{ color:el.color,fontWeight:800,flexShrink:0 }}>⚡</span>
+                        <span style={{ fontSize:11,color:"#ccc5e5",lineHeight:1.5 }}>{m}</span>
+                      </div>
+                    ); })}
                   </div>
                   {!cleared
-                    ? <Btn kind="primary" onClick={function(){if(startBossRush) startBossRush(boss.id);}} style={{ width: "100%", justifyContent: "center" }}>Desafiar Boss</Btn>
-                    : <div style={{ textAlign: "center", color: C.good, fontWeight: 700, fontSize: 13 }}>Concluido — sem nova recompensa</div>}
+                    ? <Btn kind="primary" onClick={function(){if(startBossRush) startBossRush(boss.id);}}
+                        style={{ width:"100%",justifyContent:"center",fontWeight:800,fontSize:14,padding:"10px 0",background:"linear-gradient(135deg,"+el.color+"cc,"+el.color+"88)",border:"none",boxShadow:"0 4px 20px "+el.color+"44" }}>
+                        ⚔️ Desafiar — Escolher Time
+                      </Btn>
+                    : <div style={{ textAlign:"center",color:C.good,fontWeight:700,fontSize:13,padding:"8px 0" }}>✓ Derrotado — sem nova recompensa</div>}
                 </div>
               </div>
             );
@@ -1948,6 +1974,103 @@ function TowerBossCard({ floorNum, towerCleared, start, team, flash }) {
         </div>
       </div>
     </Panel>
+  );
+}
+function BossRushTeamSelect({ boss, owned, defaultTeam, images, onCancel, onConfirm, flash }) {
+  const [sel, setSel] = React.useState(defaultTeam || []);
+  const el = (boss && ELEMENTS[boss.element]) || ELEMENTS.Holy;
+  const imgUrl = boss && images && images[boss.imgKey];
+  const toggle = (id) => setSel(function(t){ return t.includes(id) ? t.filter(function(x){return x!==id;}) : t.length < 4 ? [...t, id] : t; });
+  if (!boss) return null;
+  const diffLabel = boss.level >= 90 ? {txt:"EXTREMO",c:"#FF4444"} : boss.level >= 85 ? {txt:"DIFÍCIL",c:"#FF8C44"} : {txt:"NORMAL",c:C.good};
+  return (
+    <div className="flex flex-col gap-4" style={{ paddingBottom: 40 }}>
+      <style dangerouslySetInnerHTML={{__html: "@keyframes brSlideIn{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}} @keyframes brGlow{0%,100%{box-shadow:0 0 18px " + el.color + "44}50%{box-shadow:0 0 40px " + el.color + "99,0 0 80px " + el.color + "22}}" }} />
+      <div style={{ borderRadius: 18, overflow:"hidden", border:"2px solid "+el.color, animation:"brGlow 2.5s ease-in-out infinite", boxShadow:"0 8px 40px "+el.color+"22" }}>
+        <div style={{ position:"relative", height:180, background:"linear-gradient(135deg,"+el.color+"44,#0b0920 60%)", display:"flex", alignItems:"center", overflow:"hidden" }}>
+          {imgUrl
+            ? <img src={imgUrl} alt={boss.name} style={{ position:"absolute",right:0,top:0,width:"55%",height:"100%",objectFit:"cover",objectPosition:"top",maskImage:"linear-gradient(to left,rgba(0,0,0,.9),transparent)",WebkitMaskImage:"linear-gradient(to left,rgba(0,0,0,.9),transparent)" }} />
+            : <div style={{ position:"absolute",right:"8%",fontSize:88,opacity:.55,filter:"drop-shadow(0 0 28px "+el.color+")" }}>{boss.avatar}</div>}
+          <div style={{ position:"relative",zIndex:2,padding:"16px 18px",flex:1 }}>
+            <div style={{ display:"flex",gap:6,marginBottom:6,flexWrap:"wrap" }}>
+              <span style={{ background:el.color+"33",border:"1px solid "+el.color+"88",borderRadius:8,padding:"2px 9px",fontSize:10,color:el.color,fontWeight:700 }}>{el.glyph} {boss.element}</span>
+              <span style={{ background:diffLabel.c+"22",border:"1px solid "+diffLabel.c+"66",borderRadius:8,padding:"2px 9px",fontSize:10,color:diffLabel.c,fontWeight:800 }}>{diffLabel.txt}</span>
+              <span style={{ background:"#00000066",borderRadius:8,padding:"2px 9px",fontSize:10,color:C.gold,fontWeight:700 }}>+400💎 Recompensa</span>
+            </div>
+            <div style={{ fontSize:24,fontWeight:900,color:"#fff",textShadow:"0 0 24px "+el.color }}>{boss.name}</div>
+            <div style={{ fontSize:12,color:"#aaa5d5",marginTop:4,fontStyle:"italic",lineHeight:1.4,maxWidth:220 }}>{boss.lore}</div>
+            <div style={{ marginTop:8,display:"flex",gap:6,flexWrap:"wrap" }}>
+              <span style={{ fontSize:11,color:C.bad,fontWeight:700 }}>❤️ {boss.hp.toLocaleString("pt-BR")}</span>
+              {(boss.weak||[]).map(function(e){ return React.createElement('span',{key:e,style:{background:"#00ff8818",color:"#7CFFB0",border:"1px solid #7CFFB055",borderRadius:6,padding:"1px 7px",fontSize:10,fontWeight:700}},"FRACO "+(ELEMENTS[e]&&ELEMENTS[e].glyph||e)); })}
+              {(boss.res||[]).map(function(e){ return React.createElement('span',{key:e,style:{background:"#ffffff08",color:"#9aa0b5",border:"1px solid #ffffff18",borderRadius:6,padding:"1px 7px",fontSize:10}},"RES "+(ELEMENTS[e]&&ELEMENTS[e].glyph||e)); })}
+            </div>
+          </div>
+        </div>
+        <div style={{ padding:"12px 16px",background:"#0b0920ee" }}>
+          <div style={{ fontSize:10,color:C.mute,fontWeight:700,letterSpacing:1,marginBottom:6 }}>MECÂNICAS</div>
+          <div className="flex flex-col gap-2">
+            {(boss.mechanics||[]).map(function(m,i){ return (
+              <div key={i} style={{ display:"flex",gap:8,alignItems:"flex-start",background:el.color+"0e",borderRadius:8,padding:"6px 10px",border:"1px solid "+el.color+"22" }}>
+                <span style={{ color:el.color,fontWeight:800,flexShrink:0 }}>⚡</span>
+                <span style={{ fontSize:11,color:"#ccc5e5",lineHeight:1.5 }}>{m}</span>
+              </div>
+            ); })}
+          </div>
+        </div>
+      </div>
+
+      <Panel glow={el.color} style={{ padding:16 }}>
+        <div style={{ fontWeight:800,fontSize:15,marginBottom:12 }}>⚔️ Monte seu time ({sel.length}/4)</div>
+        <div style={{ display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:14 }}>
+          {[0,1,2,3].map(function(i){
+            const id=sel[i]; const def=id&&CHAR_MAP[id];
+            return (
+              <div key={i} onClick={function(){ if(def) setSel(function(t){return t.filter(function(x){return x!==id;});}); }}
+                style={{ borderRadius:12,border:"2px "+(def?"solid "+el.color:"dashed "+C.line),minHeight:88,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:8,background:def?el.color+"18":"transparent",cursor:def?"pointer":"default",transition:"all .2s" }}>
+                {def ? (<>
+                  <Avatar ch={def} size={44} />
+                  <div style={{ fontSize:9,color:"#fff",fontWeight:700,textAlign:"center",marginTop:4,maxWidth:60,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{def.name}</div>
+                  <div style={{ fontSize:8,color:el.color,fontWeight:700,marginTop:2 }}>✕ tirar</div>
+                </>) : <span style={{ color:C.dim,fontSize:12,fontWeight:600 }}>Slot {i+1}</span>}
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ display:"flex",gap:8 }}>
+          <Btn kind="ghost" onClick={onCancel} style={{ flex:1 }}>← Voltar</Btn>
+          <Btn onClick={function(){ if(!sel.length){flash("Monte uma equipe!",C.bad);return;} onConfirm(sel); }}
+            style={{ flex:2,justifyContent:"center",fontWeight:800,fontSize:14,background:"linear-gradient(135deg,"+el.color+"cc,"+el.color+"88)",border:"none",boxShadow:"0 4px 20px "+el.color+"44" }}
+            disabled={!sel.length}>
+            ⚔️ Iniciar Batalha
+          </Btn>
+        </div>
+      </Panel>
+
+      <div>
+        <div style={{ fontWeight:700,fontSize:13,color:C.mute,marginBottom:8 }}>Seus Personagens</div>
+        <div className="grid gap-2" style={{ gridTemplateColumns:"repeat(auto-fill,minmax(145px,1fr))" }}>
+          {owned.map(function(o){
+            const def=CHAR_MAP[o.id]; if(!def) return null;
+            const active=sel.includes(o.id);
+            return (
+              <button key={o.id} onClick={function(){toggle(o.id);}} style={{ textAlign:"left",outline:"none",border:"none",background:"none",padding:0,cursor:"pointer" }}>
+                <Panel style={{ padding:10,border:"2px solid "+(active?el.color:C.line),transition:"all .18s",transform:active?"scale(1.04)":"scale(1)" }} glow={active?el.color:null}>
+                  <div className="flex items-center gap-2">
+                    <Avatar ch={def} size={40} ring={active?el.color:null} />
+                    <div style={{ overflow:"hidden" }}>
+                      <div style={{ fontWeight:700,fontSize:12,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:82 }}>{def.name}</div>
+                      <div style={{ fontSize:10,color:ELEMENTS[def.element]&&ELEMENTS[def.element].color }}>{ROLES[def.role]&&ROLES[def.role].label}</div>
+                      <div style={{ fontSize:9,color:C.mute }}>Nv. {o.level}</div>
+                    </div>
+                  </div>
+                  {active && <div style={{ marginTop:5,fontSize:10,color:el.color,fontWeight:800,textAlign:"center" }}>✓ Posição {sel.indexOf(o.id)+1}</div>}
+                </Panel>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }
 function Tower({ towerCleared, towerClaimed, start, team, flash }) {
