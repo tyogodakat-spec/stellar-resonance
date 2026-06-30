@@ -3501,7 +3501,37 @@ function Login({ onLogin }) {
   );
 }
 
-export default function App() {
+/* ==========================================================================
+   ERROR BOUNDARY — captura crashes de render e mostra mensagem amigável
+   ========================================================================== */
+class ErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { error: null }; }
+  static getDerivedStateFromError(err) { return { error: err }; }
+  componentDidCatch(err, info) { console.error('[Stellar Resonance] Erro de render:', err, info); }
+  handleReset() { this.setState({ error: null }); }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ minHeight: '100vh', background: C.bg0, color: C.text, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'ui-sans-serif, system-ui, sans-serif', gap: 16 }}>
+          <div style={{ fontSize: 48 }}>⚠️</div>
+          <div style={{ ...ORB, fontWeight: 800, fontSize: 20, color: C.gold }}>Algo deu errado</div>
+          <div style={{ color: C.mute, fontSize: 14, maxWidth: 420, textAlign: 'center', lineHeight: 1.6 }}>
+            Ocorreu um erro inesperado. Seu progresso está salvo — clique abaixo para tentar novamente.
+          </div>
+          <div style={{ color: C.dim, fontSize: 11, fontFamily: 'monospace', background: C.panel, padding: '8px 14px', borderRadius: 8, maxWidth: 480, wordBreak: 'break-all', textAlign: 'center' }}>
+            {String(this.state.error?.message || this.state.error)}
+          </div>
+          <button onClick={() => this.handleReset()} style={{ marginTop: 8, background: C.gold, color: C.bg0, fontWeight: 800, fontSize: 14, padding: '10px 28px', borderRadius: 99, border: 'none', cursor: 'pointer', letterSpacing: 1 }}>
+            Tentar novamente
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function AppInner() {
   const [ready, setReady] = useState(false);
   const [session, setSession] = useState(null);
 
@@ -3531,4 +3561,7 @@ export default function App() {
   );
   if (!session) return (<><FontInject /><Login onLogin={doLogin} /></>);
   return <Game key={session} email={session} isAdmin={session === ADMIN_EMAIL} onLogout={doLogout} />;
+}
+export default function App() {
+  return <ErrorBoundary><AppInner /></ErrorBoundary>;
 }
