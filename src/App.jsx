@@ -68,7 +68,7 @@ const ROSTER = [
   mk({ id: "kiritsugu", name: "Kiritsugu", title: "Caçador de Magos", element: "Virus", role: "debuffer", rarity: 5, avatar: "🔫", hp: 1080, atk: 725, def: 450, spd: 108, energy: 120, cr: 8, cd: 56, tags: ["Vírus", "Debuffador", "Veneno"],
     skill: { basicMul: 100, skillMul: 205, skillDebuff: { defDown: 40, vuln: 22, turns: 3 }, skillDot: { type: "poison", mul: 70, turns: 3 }, ultMul: 365, ultDebuff: { vuln: 30, all: true, turns: 3 } } }),
   // ---- Soi Fon (Limitada) ----
-  mk({ id: "soifon", name: "Soi Fon", title: "Capitã da 2ª Divisão", element: "Vento", role: "dps", rarity: 5, avatar: "🦋", hp: 1040, atk: 740, def: 420, spd: 118, energy: 120, cr: 8, cd: 56, tags: ["Vento", "Follow-up", "Sinergia", "Assassina"],
+  mk({ id: "soifon", name: "Soi Fon", title: "Capitã da 2ª Divisão", element: "Vento", role: "dps", rarity: 5, avatar: "🦋", hp: 1040, atk: 740, def: 420, spd: 118, energy: 120, cr: 8, cd: 56, tags: ["Vento", "Follow-up", "Sub DPS", "Assassina"],
     skill: { basicMul: 100, sfBasic: true, skillMul: 160, sfSkill: true, ultMul: 350, sfUlt: true } }),
   // ---- Omegamon Zwart D (Limitado) ----
   mk({ id: "omegamon", name: "Omegamon Zwart D", title: "Digital Hazard · Defeat", element: "Virus", role: "shield", rarity: 5, avatar: "🛡️", hp: 1480, atk: 700, def: 560, spd: 96, energy: 130, cr: 5, cd: 50, er: 15, elemDmg: 0, tags: ["Vírus", "Guardião", "Tanque", "Corrosão"],
@@ -1888,6 +1888,46 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
 }
 function St({ k, v }) { return <div className="flex justify-between" style={{ background: C.panelHi, padding: "8px 10px", borderRadius: 10 }}><span style={{ color: C.mute }}>{k}</span><b>{v}</b></div>; }
 function buffText(b) { const p = []; for (const k of ["atk", "def", "spd", "critRate", "critDmg", "dmgBonus"]) if (b[k]) p.push(`+${b[k]}${k === "spd" ? " VEL" : "% " + (STAT_LABEL[k] || k)}`); return `${p.join(", ")}${b.all ? " (time)" : ""} por ${b.turns}t`; }
+const SKILL_DESC = {
+  soifon: {
+    basic: [
+      "Desfere dois golpes rápidos no inimigo principal — causa <b>100% de ATK</b> em Dano de Vento.",
+      "Se o alvo tiver <b>Choque</b> (DoT Eletro ativo), Soi Fon recupera <b>+10 de Energia</b> instantaneamente.",
+      "Ganha <b>+1 Ponto de Habilidade</b> ao usar o Ataque Básico.",
+      "━━ <b>Arma · Ferrão da Borboleta:</b> acumula <b>1 Carga Elétrica</b> (máx 5) — consumidas ao ativar a Postura de Ferrão. ━━",
+      "── <b>✦ POSTURA DE FERRÃO</b> (ativada ao acumular 3 cargas de Vibração de Ferrão): ──",
+      "Transforma o próximo Ataque Básico em <b>Dano Verdadeiro de Vento: 120% de ATK</b> — ignora completamente DEF e Escudos do alvo.",
+      "<b>[Ferrão da Borboleta]</b> Consome todas as Cargas Elétricas ao disparar — cada carga concede <b>+24% de Dano Verdadeiro</b> adicional.",
+      "<b>[C1 · Velo de Borboleta]</b> Ao entrar na Postura, regenera <b>+10 de Energia</b> e ganha <b>+20% de Dano Bônus</b> no golpe de Dano Verdadeiro.",
+      "<b>[Vestígio: Sombra Assassina]</b> Ao entrar na Postura, ganha <b>+20% de Dano de Vento</b> por 1 turno.",
+      "<b>[C6 · Suprema Execução]</b> Na Postura, o golpe atinge <b>TODOS os inimigos</b> com 40% de penetração de DEF. Eliminar qualquer inimigo recupera <b>100% de Energia</b> e concede <b>+50% de Dano Bônus</b> por 1 turno.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "Executa um ataque preciso — causa <b>160% de ATK</b> em Dano de Vento no inimigo principal.",
+      "Aplica <b>[Ferrão da Morte]</b> no alvo por <b>3 turnos</b> (acumula até <b>3 marcas</b> no mesmo alvo).",
+      "━━ <b>Efeito passivo da marca [Ferrão da Morte]:</b> ━━",
+      "Sempre que um aliado de elemento <b>Eletro</b> atacar um inimigo marcado, Soi Fon dispara automaticamente um <b>follow-up de Vento</b> — máximo de <b>2 follow-ups por turno de aliado</b>.",
+      "Cada <b>[Ferrão da Morte]</b> ativo no alvo durante a Ultimate concede <b>+15% de dano</b> à explosão final (as marcas são consumidas no disparo).",
+      "<b>[Vestígio: Precisão Mortal]</b> Dano dos follow-ups aumentado em <b>+25%</b>. Cada follow-up realizado concede <b>+15% de CRIT DMG</b> à Soi Fon (acumula até 2× durante o combate).",
+      "<b>[C2 · Sincronia Estática]</b> A marca reduz a <b>RES Elemental do alvo em 15%</b> por 3 turnos. Aliados Eletro que acertarem o inimigo marcado concedem <b>+1 carga extra de Vibração</b> a Soi Fon.",
+      "<b>[C5 · Assassina do Vento]</b> Multiplicador da Perícia aumentado em <b>+25%</b>. Dano dos follow-ups <b>+15%</b> adicional.",
+      "<b>[Ferrão da Borboleta]</b> +1 Carga Elétrica (máx 5) ao usar a Perícia.",
+    ],
+    ult: [
+      "Custo: <b>120 de Energia</b>. Retém <b>5 de Energia base</b> após o disparo (multiplicada pela Regen de Energia).",
+      "Dispara o míssil definitivo — causa <b>350% de ATK</b> em Dano de Vento no inimigo principal.",
+      "Consome todas as marcas <b>[Ferrão da Morte]</b> do alvo no momento do disparo — cada marca concede <b>+15% de dano</b> adicional à explosão.",
+      "Cria uma <b>Zona de Condução Eletromagnética</b> por <b>1 turno</b> — enquanto ativa, inimigos sofrem explosões automáticas de Vento a cada ação.",
+      "━━ <b>Vestígios e Constelações:</b> ━━",
+      "<b>[Vestígio: Bankai — Jakuhō Raikōben]</b> Contra alvos com HP abaixo de <b>30%</b>: o disparo é um <b>Crítico Garantido</b> com <b>+30% de dano</b>. A Zona de Condução dura <b>2 turnos</b> em vez de 1.",
+      "<b>[C3 · Maestria da Suzumebachi]</b> Multiplicador da Ultimate aumentado em <b>+40%</b>.",
+      "<b>[C4 · Aura de Condução]</b> Durante a Zona de Condução, o time inteiro ganha <b>+10% de Taxa Crítica</b>. O dano das explosões da zona sobe para <b>70% do ATK</b> de Soi Fon.",
+      "<b>[C6 · Suprema Execução]</b> Eliminar o alvo com a Ultimate recupera <b>100% de Energia</b> e concede <b>+50% de Dano Bônus</b> por 1 turno.",
+    ],
+  },
+};
+
 function SkillList({ def, stats }) {
   const s = def.skill || {}, nm = skillNamesOf(def.id);
   const atk = stats ? Math.round(stats.atk) : null;
@@ -1895,6 +1935,8 @@ function SkillList({ def, stats }) {
   function hl(html) { return html.replace(/<b>(.*?)<\/b>/g, `<b style="color:${gold};font-weight:600">$1</b>`); }
   function buildLines(kind) {
     const L = [];
+    const charDesc = SKILL_DESC[def.id];
+    if (charDesc && charDesc[kind]) return charDesc[kind];
     if (kind === "basic") {
       const mul = s.basicMul || 100;
       L.push(`Dano: <b>${mul}% de ATK</b>`);
