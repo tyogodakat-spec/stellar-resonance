@@ -1293,7 +1293,7 @@ function ContentTabs({ bossRushCleared, startBossRush, isAdmin, images, setImage
                   {cleared && <div style={{ position: "absolute", inset: 0, background: "#000b", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <span style={{ color: C.good, fontWeight: 900, fontSize: 22, letterSpacing: 3 }}>DERRUBADO</span>
                   </div>}
-                  {isAdmin && <BossPhotoBtn boss={boss} images={images} setImages={setImages} />}
+
                   <BossRushLeaderboard bossId={boss.id} />
                   <div style={{ position: "absolute", top: 8, left: 8, background: el.color + "33", border: "1px solid " + el.color + "88", borderRadius: 8, padding: "2px 8px", fontSize: 11, color: el.color, fontWeight: 700 }}>{el.glyph} {boss.element}</div>
                   <div style={{ position: "absolute", top: 8, right: 8, background: "#00000088", borderRadius: 8, padding: "2px 8px", fontSize: 11, color: C.gold, fontWeight: 700 }}>+400</div>
@@ -2128,9 +2128,9 @@ const BOSS_RUSH_BOSSES = [
     mechanics: [
       "A cada 2 acoes usa Cleave: corte frontal que ignora 30% de DEF.",
       "Ao atingir 70% e 40% de HP expande o Dominio Amaldicoado: -30% DEF e +30% Vuln em todos por 3 turnos.",
-      "Possui escudo de [Tecnica Maldita] com 200.000 HP — apenas unidades de Virus ou portadoras de [Hazard Digital] o rompem com eficacia total.",
+
     ],
-    omegaHint: "Dica: Unidades com [Hazard Digital] rompem o escudo amaldicoado com eficacia total.",
+
     kind: "sukuna", weak: ["Virus"], res: ["Chaos","Holy"], level: 90,
   },
   {
@@ -3323,6 +3323,8 @@ function Admin({ images, setImages, flash }) {
           const el = ELEMENTS[bd.element] || { color: C.line };
           return <AdminRow key={bd.bossImgId} id={bd.bossImgId} name={`Andar ${f} · ${bd.name} · ${bd.title}`} rarity={5} fallback="💀" element={bd.element} url={images[bd.bossImgId] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />;
         })}
+        <Panel style={{ padding: 10, marginTop: 8 }}><b style={{ fontSize: 13 }}>⚡ Boss Rush — End Game</b><p style={{ fontSize: 12, color: C.mute, marginTop: 4 }}>Fotos dos chefes do Boss Rush (End Game). Cole o link direto da imagem (Imgur .png/.jpg).</p></Panel>
+        {BOSS_RUSH_BOSSES.map((boss) => <AdminRow key={boss.imgKey} id={boss.imgKey} name={boss.name + " · " + boss.element} rarity={5} fallback={boss.avatar} element={boss.element} url={images[boss.imgKey] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}
       </div>}
       {tab === "players" && <AdminPlayersTab />}
     </div>
