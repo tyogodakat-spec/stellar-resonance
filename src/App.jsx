@@ -111,6 +111,7 @@ const RELIC_SETS = {
   "Núcleo Ardente":    { color: "#FF6B45", flag2: "setFire2", flag4: "setFire4", d2: "dano de DoT de Fogo +10%", d4: "dano da Ultimate +20%; após a Ultimate, +8% de ATK no próximo turno" },
   "Praga Viral":       { color: "#A6E22E", p2: { dmgBonus: 8 }, flag4: "setViral4", d2: "+8% de dano", d4: "com Sangramento OU Veneno no alvo: +12% de dano; com AMBOS: +20% e cura 8% do HP máx" },
   "Benção Sagrada":    { color: "#FFE08A", p2: { hp: 20 }, flag4: "setHoly4", d2: "+20% de HP máx", d4: "+15% de cura e, ao curar, aplica escudo de 2% do HP máx do alvo" },
+  "Protocolo Ômega":  { color: "#00E5CC", el: "Virus", p2: { spd: 5, dmgBonus: 8 }, flag4: "setOmega4", d2: "+5% VEL e +8% Dano", d4: "HP≥75%: +25% ATK e +15% Dano ao time · HP 30–74%: +20% CRIT e +35% CRIT DMG · HP<30% [1x]: +50% ATK, escudo 10% HP ao time, +2 SP" },
 };
 const RELIC_SET_NAMES = Object.keys(RELIC_SETS);
 const RELIC_ITEM_ID = {
@@ -119,6 +120,7 @@ const RELIC_ITEM_ID = {
   "Núcleo Ardente":    "item_relic_fire",
   "Praga Viral":       "item_relic_viral",
   "Benção Sagrada":    "item_relic_holy",
+  "Protocolo Ômega":  "item_relic_omega",
 };
 const RELIC_EMOJI = {
   "Tempestade Eletro": "⚡",
@@ -126,6 +128,7 @@ const RELIC_EMOJI = {
   "Núcleo Ardente":    "🔥",
   "Praga Viral":       "🧬",
   "Benção Sagrada":    "✨",
+  "Protocolo Ômega":  "☢️",
 };
 const GAME_ITEMS = [
   { id: "item_jade",        name: "Jade Estelar",           icon: "💎" },
@@ -143,6 +146,7 @@ const GAME_ITEMS = [
   { id: "item_relic_fire",  name: "Relíquia · Núcleo Ardente",      icon: "🔥" },
   { id: "item_relic_viral", name: "Relíquia · Praga Viral",         icon: "🧬" },
   { id: "item_relic_holy",  name: "Relíquia · Benção Sagrada",      icon: "✨" },
+  { id: "item_relic_omega", name: "Relíquia · Protocolo Ômega",      icon: "☢️" },
 ];
 const STAT_LABEL = { hp: "HP", atk: "ATK", def: "DEF", spd: "VEL", critRate: "CRIT", critDmg: "CRIT DMG", dmgBonus: "DANO", energyRegen: "REGEN ENERGIA", healBonus: "CURA", energyMax: "EN", vuln: "VULN", defPen: "PERFURAÇÃO", elemDmg: "DANO ELEM.", dotDmg: "DANO DE DoT", atkP: "ATK", hpP: "HP", defP: "DEF", atkFlat: "ATK", hpFlat: "HP", defFlat: "DEF" };
 const PCT = { hp: 1, atk: 1, def: 1 };
@@ -998,7 +1002,16 @@ function Game({ email, isAdmin, onLogout }) {
   }
   function startBossRush(bossId) { setPendingBoss(bossId); }
   function launchBossRush(bossId, customTeam) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===bossId;}); if (!bd) return; setPendingBoss(null); setBattle({ context: "bossrush", bossId: bossId, customTeam: customTeam||null, encounter: { bossRush: true, bossId: bossId, level: bd.level, count: 1, boss: true, bossName: bd.name, bossElement: bd.element, bossKind: bd.kind, bossImgId: bd.imgKey, teamPower: teamPower() }, ally: null }); }
-  function onBattleEnd(result) {
+
+  function startRelicDungeon(tier) {
+    const cost = tier === 2 ? 60 : tier === 1 ? 45 : 30;
+    if (stamina < cost) { flash("Stamina insuficiente (precisa " + cost + ")", C.bad); return; }
+    setStamina(function(v){ return v - cost; });
+    const level = tier === 2 ? 85 : tier === 1 ? 65 : 45;
+    const bossNames = ["Núcleo Corrompido", "Servidor Infectado", "Matriz Fantasma"];
+    setBattle({ context: "relicfarm", tier, encounter: { level, count: 2, boss: true, bossName: bossNames[tier] || bossNames[1], bossKind: "guardian", teamPower: teamPower() }, ally: null });
+  }
+    function onBattleEnd(result) {
     const b = battle; setBattle(null);
     if (!b || result.abort) return;
     if (b.context === "tower") {
@@ -1015,6 +1028,17 @@ function Game({ email, isAdmin, onLogout }) {
     } else if (b.context === "farm") {
       if (result.win) { setExpItems((v) => v + (b.reward || 8)); flash(`Dungeon limpa! +${b.reward || 8} Lácrimas de XP`, C.good); }
       else flash("Derrota na dungeon", C.bad);
+    } else if (b.context === "relicfarm") {
+      if (result.win) {
+        const tier = b.tier || 1;
+        const count = tier === 2 ? 2 : 1;
+        const newRelics = Array.from({ length: count }, function() {
+          const slot = Math.floor(Math.random() * 6);
+          return makeRelic(slot, "Protocolo Ômega");
+        });
+        setRelicInv(function(inv){ return [...inv, ...newRelics]; });
+        flash("Rede Corrompida vencida! +" + count + " Relíquia(s) Protocolo Ômega ☢️ (Elenco → Relíquias)", "#00E5CC");
+      } else { flash("A Rede Corrompida resistiu…", C.bad); }
     } else if (b.context === "tagdungeon") {
       if (result.win) { const t = b.tag; const drop = Math.floor(Math.random() * 2) + 1; setTagMats((m) => ({ ...m, [t]: (m[t] || 0) + drop })); setWeaponMats((v) => v + 5); setSkillMats((v) => v + 5); setBossMats((v) => v + 1); flash(`Dungeon de ${t} concluída! +${drop} material "${t}", +5 ⚙️ Arma, +5 💠 Habilidade, +1 🔮`, C.gold); }
       else flash("A dungeon resistiu…", C.bad);
@@ -1094,7 +1118,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "gacha" && <Gacha doPull={doPull} pity={pity} jade={jade} chronicles={chronicles} charTickets={charTickets} weaponTickets={weaponTickets} standardTickets={standardTickets} featuredChar={featuredChar} setFeaturedChar={setFeaturedChar} featuredWeapon={featuredWeapon} setFeaturedWeapon={setFeaturedWeapon} pullHistory={pullHistory} owned={owned} ownedWeapons={ownedWeapons} />}
               {screen === "roster" && <Roster owned={owned} ownedWeapons={ownedWeapons} relicInv={relicInv} setOwnedField={setOwnedField} levelUp={levelUp} ascendChar={ascendChar} ascMats={ascMats} jade={jade} isAdmin={isAdmin} expItems={expItems} bossMats={bossMats} traceLevelUp={traceLevelUp} unlockTraceNode={unlockTraceNode} unlockSpecialTrace={unlockSpecialTrace} publish={async (o) => { await publishChar(playerName, o); flash("Publicado no Co-op global", C.good); }} onUpgradeRelic={onUpgradeRelic} weaponLevelUp={weaponLevelUp} weaponMats={weaponMats} skillMats={skillMats} tagMats={tagMats} />}
               {screen === "team" && <TeamScreen owned={owned} team={team} setTeam={setTeam} startTest={startTest} flash={flash} />}
-              {screen === "farm" && <Farm stamina={stamina} start={startFarm} expItems={expItems} startTagDungeon={startTagDungeon} tagMats={tagMats} weaponMats={weaponMats} skillMats={skillMats} />}
+              {screen === "farm" && <Farm stamina={stamina} start={startFarm} expItems={expItems} startTagDungeon={startTagDungeon} tagMats={tagMats} weaponMats={weaponMats} skillMats={skillMats} startRelicDungeon={startRelicDungeon} />}
               {screen === "tower" && <Tower towerCleared={towerCleared} towerClaimed={towerClaimed} start={startTower} team={team} flash={flash} />}
               {screen === "weekly" && <WeeklyBoss start={startWeekly} stamina={stamina} bossMats={bossMats} lastWeeklyBoss={lastWeeklyBoss} startAscension={startAscension} ascMats={ascMats} />}
               {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} flash={flash} setBattle={setBattle} />}
@@ -1386,7 +1410,7 @@ function Home({ email, isAdmin, playerName, setPlayerName, owned, setScreen, set
 function Tile({ t, s, e, onClick }) {
   return <button onClick={onClick} className="text-left active:scale-95 transition"><Panel style={{ height: "100%" }}><div style={{ fontSize: 28 }}>{e}</div><div style={{ fontWeight: 800, marginTop: 6 }}>{t}</div><div style={{ color: C.mute, fontSize: 12 }}>{s}</div></Panel></button>;
 }
-function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, skillMats }) {
+function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, skillMats, startRelicDungeon }) {
   return <div className="flex flex-col gap-4">
     <Panel glow="#9be7a0">
       <div className="flex items-center justify-between" style={{ gap: 10 }}>
@@ -1401,6 +1425,53 @@ function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, 
         <Btn kind={stamina < st.cost ? "soft" : "primary"} disabled={stamina < st.cost} onClick={() => start(st)}>{st.cost}⚡ Entrar</Btn>
       </div>
     </Panel>)}
+
+    <Panel glow="#00E5CC" style={{ position:"relative", overflow:"hidden" }}>
+      <style dangerouslySetInnerHTML={{__html:"@keyframes omgPulse{0%,100%{opacity:.55}50%{opacity:1}} @keyframes omgGrid{from{background-position:0 0}to{background-position:40px 40px}}"}} />
+      <div style={{ position:"absolute",inset:0,backgroundImage:"linear-gradient(#00E5CC09 1px,transparent 1px),linear-gradient(90deg,#00E5CC09 1px,transparent 1px)",backgroundSize:"40px 40px",animation:"omgGrid 5s linear infinite",pointerEvents:"none" }} />
+      <div style={{ position:"relative" }}>
+        <div style={{ display:"flex",alignItems:"center",gap:10,marginBottom:8 }}>
+          <span style={{ fontSize:30,animation:"omgPulse 2.2s ease-in-out infinite" }}>☢️</span>
+          <div>
+            <div style={{ ...ORB,fontWeight:800,fontSize:18,color:"#00E5CC" }}>Rede Corrompida</div>
+            <div style={{ fontSize:11,color:"#00E5CC88",fontStyle:"italic" }}>Domínio de Relíquias — Protocolo Ômega</div>
+          </div>
+        </div>
+        <div style={{ fontSize:12,color:C.mute,marginBottom:10,lineHeight:1.5 }}>
+          Servidores digitais corrompidos do multiverso. Derrote os guardiões para obter relíquias do set <b style={{color:"#00E5CC"}}>Protocolo Ômega</b> — mecânica única de 3 fases de HP em batalha.
+        </div>
+        <div style={{ background:"#00E5CC0d",border:"1px solid #00E5CC33",borderRadius:10,padding:"10px 14px",marginBottom:12 }}>
+          <div style={{ fontWeight:700,color:"#00E5CC",marginBottom:5,fontSize:12 }}>✦ Bônus — Protocolo Ômega</div>
+          <div style={{ fontSize:11,color:C.mute,lineHeight:1.7 }}>
+            <span style={{color:"#9be7a0",fontWeight:600}}>2pç:</span> +5% Velocidade e +8% Dano global<br/>
+            <span style={{color:"#00E5CC",fontWeight:700}}>4pç — Sistema de Failsafe Digital:</span><br/>
+            <span style={{color:"#7CFFB0"}}>  ■ HP ≥ 75% (Supremacia)</span> — +25% ATK, time recebe +15% Dano por 2t<br/>
+            <span style={{color:"#FF8C44"}}>  ■ HP 30–74% (Delta)</span> — +20% CRIT Rate, +35% CRIT DMG por 2t<br/>
+            <span style={{color:"#FF4444",fontWeight:700}}>  ■ HP &lt; 30% [1× por batalha] (Último Protocolo)</span><br/>
+            <span style={{color:"#FF6666",marginLeft:8}}>→ +50% ATK por 3t · Escudo 10% HP ao time · +2 SP</span>
+          </div>
+        </div>
+        <div style={{ display:"flex",flexDirection:"column",gap:8 }}>
+          {[{tier:0,cost:30,name:"Rede α — Iniciante",desc:"Servidores básicos. Ideal para iniciar.",badge:"NORMAL",badgeC:"#7CFFB0",drop:"1 relíquia"},{tier:1,cost:45,name:"Rede β — Avançada",desc:"Núcleos corrompidos de alta tensão.",badge:"DIFÍCIL",badgeC:"#FF8C44",drop:"1 relíquia"},{tier:2,cost:60,name:"Rede Ω — Suprema",desc:"Matriz Fantasma. Drop duplo garantido!",badge:"EXTREMO",badgeC:"#FF4444",drop:"2 relíquias"}].map(function(rt){
+            const ok = stamina >= rt.cost;
+            return (
+              <div key={rt.tier} style={{ display:"flex",alignItems:"center",gap:10,background:"#00E5CC08",border:"1px solid #00E5CC22",borderRadius:10,padding:"10px 14px" }}>
+                <div style={{ flex:1 }}>
+                  <div style={{ display:"flex",alignItems:"center",gap:6,marginBottom:2,flexWrap:"wrap" }}>
+                    <span style={{ fontWeight:700,fontSize:13 }}>{rt.name}</span>
+                    <span style={{ background:rt.badgeC+"22",color:rt.badgeC,border:"1px solid "+rt.badgeC+"55",borderRadius:6,padding:"1px 7px",fontSize:10,fontWeight:700 }}>{rt.badge}</span>
+                    <span style={{ fontSize:10,color:"#00E5CC88" }}>→ {rt.drop}</span>
+                  </div>
+                  <div style={{ fontSize:11,color:C.mute }}>{rt.desc}</div>
+                </div>
+                <Btn kind={ok?"primary":"soft"} disabled={!ok} style={{ padding:"6px 16px",fontSize:12,flexShrink:0,background:ok?"linear-gradient(135deg,#00C8B4,#007A6E)":"",border:"none",whiteSpace:"nowrap" }} onClick={function(){ if(startRelicDungeon) startRelicDungeon(rt.tier); }}>{rt.cost}⚡</Btn>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </Panel>
+
     <Panel glow="#B98BFF">
       <div style={{ ...ORB, fontWeight: 800, fontSize: 18 }}>🗝️ Dungeons de Tag</div>
       <div style={{ color: C.mute, fontSize: 12, marginTop: 2 }}>Uma dungeon por tag do elenco (tags repetidas não geram dungeon extra). 6 ondas. Dropam: <b>⚙️ Engrenagens de Arma</b> (subir armas), <b>💠 Cristais de Habilidade</b> (subir Básico/Habilidade/Ultimate) e o <b>material da tag</b> (necessário, junto de 1 🔮 Núcleo, para destravar Nós de Atributo).</div>
@@ -2591,6 +2662,28 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       refreshKaibaBuffs(s);
       const fx = s.fx, sk = u.skill, allies = s.heroes.filter((h) => h.alive), enemy = targetEnemy(s);
       const f = u.stFlags || {};
+      // ── Protocolo Ômega 4pç: 3 Fases de HP ──────────────────────────────
+      if (f.setOmega4 && !u.isSummon) {
+        const hpRatio = u.hp / Math.max(1, u.maxHp);
+        u.buffs = u.buffs.filter(function(b){ return !b.name.startsWith("Ω·"); });
+        allies.forEach(function(a){ a.buffs = a.buffs.filter(function(b){ return b.name !== "Ω·Rede"; }); });
+        if (hpRatio >= 0.75) {
+          u.buffs.push({ stat: "atk", value: 25, pct: true, turns: 2, name: "Ω·Supremacia" });
+          allies.forEach(function(a){ a.buffs.push({ stat: "dmgBonus", value: 15, turns: 2, name: "Ω·Rede" }); });
+          if (u._omgPhase !== "sup") { u._omgPhase = "sup"; pushLog(s, "☢️ " + u.name + " — PROTOCOLO SUPREMACIA: +25% ATK, time +15% Dano por 2t."); }
+        } else if (hpRatio >= 0.30) {
+          u.buffs.push({ stat: "critRate", value: 20, turns: 2, name: "Ω·Delta" });
+          u.buffs.push({ stat: "critDmg", value: 35, turns: 2, name: "Ω·Delta" });
+          if (u._omgPhase !== "dlt") { u._omgPhase = "dlt"; pushLog(s, "☢️ " + u.name + " — PROTOCOLO DELTA: +20% CRIT, +35% CRIT DMG por 2t."); }
+        } else if (!u.omegaEmergency) {
+          u.omegaEmergency = true; u._omgPhase = "emg";
+          u.buffs.push({ stat: "atk", value: 50, pct: true, turns: 3, name: "Ω·Emergência" });
+          allies.forEach(function(a){ a.shield = (a.shield || 0) + Math.round(u.maxHp * 0.10); });
+          s.sp = Math.min(5, s.sp + 2);
+          pushLog(s, "☢️ " + u.name + " — ÚLTIMO PROTOCOLO ATIVADO! +50% ATK, escudo 10% HP ao time, +2 SP!");
+        }
+      }
+      // ────────────────────────────────────────────────────────────────────
       const ampS = u.ampSkill || 1, ampU = u.ampUlt || 1, ampB = u.ampBasic || 1;
       const hb = 1 + (u.base.healBonus || 0) / 100;
       const healMul = (f.healPlus ? 1.3 : 1) * (f.pRegen ? 1.25 : 1);
@@ -3259,7 +3352,7 @@ function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, flash, setBatt
    RELÍQUIAS
    ========================================================================== */
 function RelicsScreen({ relicInv }) {
-  if (!relicInv.length) return <Empty msg="Sem relíquias. Vá ao Co-op farmar conjuntos." />;
+  if (!relicInv.length) return <Empty msg="Sem relíquias. Vá ao Farm → Rede Corrompida ☢️ para farmar o set Protocolo Ômega, ou ao Co-op para outros sets." />;
   const bySet = {}; relicInv.forEach((r) => (bySet[r.set] = bySet[r.set] || []).push(r));
   return <div className="flex flex-col gap-4">{Object.entries(bySet).map(([set, list]) => (
     <Panel key={set} glow={RELIC_SETS[set]?.color}>
