@@ -2487,7 +2487,6 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   const crit = Math.random() * 100 < Math.min(100, effStat(attacker, "critRate"));
   if (crit) dmg *= 1 + effStat(attacker, "critDmg") / 100;
   dmg *= 1 + effStat(attacker, "dmgBonus") / 100;
-  dmg *= 1 + (attacker.base.elemBonus || 0) / 100;
   if (f.omgC6 && attacker.id === "omegamon" && (attacker.hp / attacker.maxHp) < 0.3) dmg *= 2; // Final Defeat: +100% Dano de Vírus
   const afflicted = (defender.dots && defender.dots.length) || (defender.debuffs && defender.debuffs.some((d) => d.stat === "def" && d.value < 0));
   if ((f.dmgVsAfflicted || f.afflictedDmg) && afflicted) dmg *= 1.25;
@@ -2496,10 +2495,18 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   if (f.lowHpDmg && hpPct < 0.5) dmg *= 1.25;
   if (f.pExecute && hpPct < 0.4) dmg *= 1.25;
   dmg *= 1 + vulnOf(defender) / 100;
-  // Resistência / Fraqueza elemental do alvo (alguns chefes)
+  // Resistência / Fraqueza elemental — fraqueza amplifica o bônus elemental do atacante
   const el = opts?.el || attacker.element;
-  if (defender.res && defender.res.includes(el)) dmg *= 0.6;
-  else if (defender.weak && defender.weak.includes(el)) dmg *= 1.5;
+  const baseElemBonus = attacker.base.elemBonus || 0;
+  if (defender.res && defender.res.includes(el)) {
+    dmg *= 0.6;
+    dmg *= 1 + baseElemBonus / 100; // bônus elemental reduzido pela resistência
+  } else if (defender.weak && defender.weak.includes(el)) {
+    dmg *= 1.5; // bônus base de fraqueza
+    dmg *= 1 + (baseElemBonus * 1.5) / 100; // +50% de eficiência elemental na fraqueza
+  } else {
+    dmg *= 1 + baseElemBonus / 100;
+  }
   // 4pç Praga Viral: bônus conforme Sangramento/Veneno no alvo
   if (f.setViral4 && defender.dots) {
     const hasBleed = defender.dots.some((d) => d.type === "bleed"); const hasPoison = defender.dots.some((d) => d.type === "poison");
