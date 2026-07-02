@@ -796,7 +796,7 @@ function Game({ email, isAdmin, onLogout }) {
       setFeaturedWeapon(WEAPON_5_IDS.includes(s.featuredWeapon) ? s.featuredWeapon : DEFAULT_FEATURED_WEAPON);
       setPity({ char: 0, weapon: 0, standard: 0, guaranteeChar: false, ...(s.pity || {}) });
       setPullHistory(s.pullHistory ?? []);
-      if (s.owned) setOwned(s.owned.map(normChar).filter((o) => CHAR_MAP[o.id])); setOwnedWeapons((Array.isArray(s.ownedWeapons) ? s.ownedWeapons : []).filter((id) => WEAPON_MAP[id])); setRelicInv((Array.isArray(s.relicInv) ? s.relicInv : []).filter(isValidRelic));
+      if (s.owned) setOwned(s.owned.map(normChar).filter((o) => CHAR_MAP[o.id])); setOwnedWeapons((Array.isArray(s.ownedWeapons) ? s.ownedWeapons : []).map((x) => typeof x === "string" ? { id: x, lv: 1 } : x).filter((x) => x && WEAPON_MAP[x.id])); setRelicInv((Array.isArray(s.relicInv) ? s.relicInv : []).filter(isValidRelic));
       if (s.team) setTeam(s.team); setStamina(s.stamina ?? 240); setLastStamina(s.lastStamina ?? Date.now());
       setPlayerName(s.playerName ?? "Pioneiro");
       setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []);
@@ -885,8 +885,10 @@ function Game({ email, isAdmin, onLogout }) {
     const c = weaponCost(lv);
     if (!isAdmin && weaponMats < c.wmat) { flash(`Faltam Engrenagens de Arma (precisa ${c.wmat})`, C.bad); return; }
     if (!isAdmin) { setWeaponMats((v) => v - c.wmat); }
-    setOwnedField(id, { weaponLv: lv + 1 });
-    flash(`Arma → Nível ${lv + 1}`, C.good);
+    const nextLv = lv + 1;
+    setOwnedField(id, { weaponLv: nextLv });
+    setOwnedWeapons((p) => p.map((w) => w.id === o.weapon ? { ...w, lv: nextLv } : w));
+    flash(`Arma → Nível ${nextLv}`, C.good);
   }
   function traceLevelUp(id, which) {
     const o = normChar(ownedMap[id] || { id }); const lvl = o.traces[which] || 1;
@@ -940,7 +942,7 @@ function Game({ email, isAdmin, onLogout }) {
         curPity = 0;
         if (isWeapon) {
           const id = featuredWeapon; // banner de arma: SEM 50/50, sempre o destaque
-          setOwnedWeapons((p) => [...p, id]);
+          setOwnedWeapons((p) => p.some((w) => w.id === id) ? p : [...p, { id, lv: 1 }]);
           results.push({ rarity: 5, kind, id, name: WEAPON_MAP[id].name, weapon: true });
           fives.push({ id, name: WEAPON_MAP[id].name, banner: "Armas" });
         } else if (isStd) {
@@ -959,7 +961,7 @@ function Game({ email, isAdmin, onLogout }) {
       } else if (rar === 4) {
         curPity += 1;
         const it = pick(pool4);
-        if (isWeapon) { setOwnedWeapons((p) => [...p, it.id]); results.push({ rarity: 4, kind, id: it.id, name: it.name, weapon: true }); }
+        if (isWeapon) { setOwnedWeapons((p) => p.some((w) => w.id === it.id) ? p : [...p, { id: it.id, lv: 1 }]); results.push({ rarity: 4, kind, id: it.id, name: it.name, weapon: true }); }
         else { const dup = grantChar(it.id, ownedRef); results.push({ rarity: 4, kind, id: it.id, name: it.name, dup }); }
       } else {
         curPity += 1; chroniclesGain += 1;
@@ -1780,7 +1782,10 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
   const oc = normChar(o);
   const stats = computeStats(o); const el = ELEMENTS[def.element]; const nodes = constellationNodes(def);
   const pass = passiveOf(def); const sts = specialTraces(def);
-  const invWeapons = [...new Set(ownedWeapons)].map((id) => WEAPON_MAP[id]).filter(Boolean);
+  const invWeapons = ownedWeapons
+    .filter((w, i, arr) => arr.findIndex((x) => x.id === w.id) === i)
+    .map((w) => WEAPON_MAP[w.id] ? { ...WEAPON_MAP[w.id], _storedLv: w.lv || 1 } : null)
+    .filter(Boolean);
   const needExp = expToLevel(o.level);
   const asc = o.asc || 0; const cap = levelCap(asc);
   const atCap = o.level >= cap && asc < ASC_GATES.length;
@@ -1880,7 +1885,7 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
         <div style={{ marginTop: 12, fontSize: 12, color: C.mute }}>Nós ativos: <b style={{ color: C.gold }}>{o.eidolon || 0}/6</b></div>
       </Panel>}
       {tab === "weapon" && <Panel>
-        <div className="flex items-center justify-between mb-2"><b>Arma equipada</b>{o.weapon && <Btn kind="danger" style={{ padding: "4px 10px" }} onClick={() => setOwnedField(o.id, { weapon: null })}>Remover</Btn>}</div>
+        <div className="flex items-center justify-between mb-2"><b>Arma equipada</b>{o.weapon && <Btn kind="danger" style={{ padding: "4px 10px" }} onClick={() => { if (o.weapon) setOwnedWeapons((p) => p.map((w) => w.id === o.weapon ? { ...w, lv: o.weaponLv || 1 } : w)); setOwnedField(o.id, { weapon: null }); }}>Remover</Btn>}</div>
         {o.weapon ? (() => {
           const curLv = o.weaponLv || 1;
           const curTier = Math.min(3, Math.floor((curLv - 1) / 20));
@@ -1921,7 +1926,7 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
         })() : <div style={{ color: C.mute, fontSize: 13 }}>Nenhuma arma equipada.</div>}
         <div style={{ borderTop: `1px solid ${C.line}`, margin: "12px 0", paddingTop: 12 }}>
           <b style={{ fontSize: 13 }}>Inventario {invWeapons.length === 0 && "(vazio — invoque armas)"}</b>
-          <div className="flex flex-col gap-2 mt-2">{invWeapons.map((w) => <button key={w.id} onClick={() => setOwnedField(o.id, { weapon: w.id, weaponLv: o.weapon===w.id?(o.weaponLv||1):1 })} className="text-left active:scale-95"><WeaponRow w={w} match={w.role===def.role} /></button>)}</div>
+          <div className="flex flex-col gap-2 mt-2">{invWeapons.map((w) => <button key={w.id} onClick={() => setOwnedField(o.id, { weapon: w.id, weaponLv: w._storedLv || 1 })} className="text-left active:scale-95"><WeaponRow w={w} active={o.weapon === w.id} match={w.role===def.role} /></button>)}</div>
         </div>
       </Panel>}
       {tab === "relics" && <RelicEquip o={o} setOwnedField={setOwnedField} relicInv={relicInv} onUpgradeRelic={onUpgradeRelic} />}
