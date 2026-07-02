@@ -115,7 +115,7 @@ const RELIC_SETS = {
   "Praga Viral":       { color: "#A6E22E", p2: { dmgBonus: 8 }, flag4: "setViral4", d2: "+8% de dano", d4: "com Sangramento OU Veneno no alvo: +12% de dano; com AMBOS: +20% e cura 8% do HP máx" },
   "Benção Sagrada":    { color: "#FFE08A", p2: { hp: 20 }, flag4: "setHoly4", d2: "+20% de HP máx", d4: "+15% de cura e, ao curar, aplica escudo de 2% do HP máx do alvo" },
   "Protocolo Ômega":  { color: "#00E5CC", el: "Virus", p2: { spd: 5, dmgBonus: 8 }, flag4: "setOmega4", d2: "+5% VEL e +8% Dano", d4: "HP≥75%: +25% ATK e +15% Dano ao time · HP 30–74%: +20% CRIT e +35% CRIT DMG · HP<30% [1x]: +50% ATK, escudo 10% HP ao time, +2 SP" },
-  "Asas de Borboleta": { color: "#FF6EE7", p2: { critRate: 6, critDmg: 20 }, p4: { critRate: 8, dmgBonus: 15 }, flag4: "setButterfly4", d2: "+6% CRIT Rate e +20% CRIT DMG — sinergia com Ataques de Seguimento", d4: "+8% CRIT Rate e +15% Dano Bonus; Ataques de Seguimento aplicam [Fragilidade] no alvo (+20% dano recebido por 1 turno). Ideal para Soi Fon e futuros personagens de follow-up." },
+  "Asas de Borboleta": { color: "#FF6EE7", p2: { critRate: 8, critDmg: 32 }, p4: { critRate: 10, dmgBonus: 22, atkPct: 10 }, flag4: "setButterfly4", d2: "+8% CRIT Rate e +32% CRIT DMG — bônus amplificados em Ataques de Seguimento", d4: "+10% CRIT Rate, +22% Dano Bônus e +10% ATK; Ataques de Seguimento aplicam [Fragilidade] no alvo (+25% dano recebido por 1 turno) e cada follow-up realizado no mesmo turno concede +1% de CRIT Rate empilhável (máx +10% por combate). Ideal para Soi Fon e futuros personagens de follow-up." },
 };
 const RELIC_SET_NAMES = Object.keys(RELIC_SETS);
 const RELIC_ITEM_ID = {
