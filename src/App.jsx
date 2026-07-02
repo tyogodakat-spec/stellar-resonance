@@ -490,8 +490,8 @@ function computeStats(owned) {
   const sts = specialTraces(def);
   (owned.specialTraces || []).forEach((on, i) => { if (on && sts[i] && sts[i].stat) addPctOrFlat(sts[i].stat, sts[i].value); });
 
-  // dano elemental do próprio elemento entra no dmgBonus; de outros elementos fica registrado em elem (uso situacional)
-  flat.dmgBonus += elemMap[def.element] || 0;
+  // elemBonus: bônus elemental do próprio elemento (multiplicativo com dmgBonus genérico)
+  const elemBonus = elemMap[def.element] || 0;
   const r1 = (x) => Math.round(x * 10) / 10;
   return {
     defPen: r1(flat.defPen), dotDmg: r1(flat.dotDmg), elem: elemMap,
@@ -503,6 +503,7 @@ function computeStats(owned) {
     critRate: r1(Math.min(100, def.base.critRate + flat.critRate)),
     critDmg: r1(def.base.critDmg + flat.critDmg),
     dmgBonus: r1(flat.dmgBonus),
+    elemBonus: r1(elemBonus),
     energyRegen: r1(flat.energyRegen),
     healBonus: r1(flat.healBonus),
     energyMax: def.base.energyMax,
@@ -1819,7 +1820,7 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
       {tab === "status" && <Panel>
         <div className="grid grid-cols-2 gap-2" style={{ fontSize: 14 }}>
           <St k="HP" v={Math.round(stats.hp)} /><St k="ATK" v={Math.round(stats.atk)} /><St k="DEF" v={Math.round(stats.def)} /><St k="VEL" v={Math.round(stats.spd)} />
-          <St k="CRIT" v={stats.critRate.toFixed(1) + "%"} /><St k="CRIT DMG" v={stats.critDmg.toFixed(1) + "%"} /><St k="Bônus de Dano" v={stats.dmgBonus.toFixed(1) + "%"} /><St k="Cura/Escudo" v={stats.healBonus.toFixed(1) + "%"} />
+          <St k="CRIT" v={stats.critRate.toFixed(1) + "%"} /><St k="CRIT DMG" v={stats.critDmg.toFixed(1) + "%"} /><St k="Bônus Elemental" v={(stats.elemBonus||0).toFixed(1) + "%"} /><St k="Bônus de Dano" v={stats.dmgBonus.toFixed(1) + "%"} /><St k="Cura/Escudo" v={stats.healBonus.toFixed(1) + "%"} />
           <St k="Regen de Energia" v={(stats.energyRegen || 0).toFixed(1) + "%"} /><St k="Perfuração" v={(stats.defPen || 0).toFixed(1) + "%"} /><St k="Dano de DoT" v={(stats.dotDmg || 0).toFixed(1) + "%"} /><St k="Energia Máx" v={stats.energyMax} />
         </div>
         {Object.entries(stats.elem || {}).some(([, v]) => v > 0) && <div style={{ fontSize: 11, color: C.mute, marginTop: 8 }}>Dano elemental: {Object.entries(stats.elem).filter(([, v]) => v > 0).map(([k, v]) => `${k} +${v.toFixed(1)}%`).join(" · ")}</div>}
@@ -2367,7 +2368,7 @@ function makeSummon(owner, cfg) {
     element: cfg.elements ? cfg.elements[0] : owner.element, elements: cfg.elements || null,
     roleKey: "summon", isSummon: true, auto: true, kind: cfg.kind, mul: cfg.mul, ownerUid: owner.uid, firstHit: cfg.kind === "dragon",
     level: owner.level, life: cfg.life || Infinity, stFlags: {}, tBasic: 1, tSkill: 1, tUlt: 1,
-    base: { atk, def: owner.base.def * 0.5, spd: cfg.spd, critRate: owner.base.critRate, critDmg: owner.base.critDmg, dmgBonus: owner.base.dmgBonus, hp, energyMax: 0 },
+    base: { atk, def: owner.base.def * 0.5, spd: cfg.spd, critRate: owner.base.critRate, critDmg: owner.base.critDmg, dmgBonus: owner.base.dmgBonus, elemBonus: owner.base.elemBonus || 0, hp, energyMax: 0 },
     hp, maxHp: hp, shield: 0, energy: 0, energyMax: 0, av: 10000 / Math.max(1, cfg.spd), buffs: [], debuffs: [], dots: [], alive: true, weapon: null,
   };
 }
@@ -2486,6 +2487,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   const crit = Math.random() * 100 < Math.min(100, effStat(attacker, "critRate"));
   if (crit) dmg *= 1 + effStat(attacker, "critDmg") / 100;
   dmg *= 1 + effStat(attacker, "dmgBonus") / 100;
+  dmg *= 1 + (attacker.base.elemBonus || 0) / 100;
   if (f.omgC6 && attacker.id === "omegamon" && (attacker.hp / attacker.maxHp) < 0.3) dmg *= 2; // Final Defeat: +100% Dano de Vírus
   const afflicted = (defender.dots && defender.dots.length) || (defender.debuffs && defender.debuffs.some((d) => d.stat === "def" && d.value < 0));
   if ((f.dmgVsAfflicted || f.afflictedDmg) && afflicted) dmg *= 1.25;
