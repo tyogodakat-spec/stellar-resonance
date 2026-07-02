@@ -980,8 +980,6 @@ function Game({ email, isAdmin, onLogout }) {
   function startTower(floor) {
     if (floor <= towerCleared) { flash("Andar já concluído — não pode repetir.", C.bad); return; }
     if (floor > towerCleared + 1) { flash("Conclua os andares anteriores primeiro.", C.bad); return; }
-    if (stamina < 5) { flash("Stamina insuficiente (precisa 5)", C.bad); return; }
-    setStamina((v) => v - 5);
     setBattle({ context: "tower", floor, encounter: towerEncounter(floor, teamPower()), ally: null });
   }
   function startTest() {
@@ -1092,9 +1090,12 @@ function Game({ email, isAdmin, onLogout }) {
 
   const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["social", "Social", "🤝"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
 
+  const needsNick = loaded && (!playerName || playerName === "Pioneiro");
+
   return (
     <ImgCtx.Provider value={images}>
       <FontInject />
+      {needsNick && <NicknameModal onSave={(nick) => setPlayerName(nick)} />}
       <div style={{ minHeight: "100vh", background: `radial-gradient(1200px 600px at 75% -12%, ${C.bg1}, ${C.bg0}), radial-gradient(900px 500px at 10% 110%, #160d2e, ${C.bg0})`, color: C.text, fontFamily: "ui-sans-serif, system-ui, 'Segoe UI', sans-serif" }}>
         {/* TOP BAR */}
         <div style={{ position: "sticky", top: 0, zIndex: 30, backdropFilter: "blur(10px)", background: `${C.bg0}d9`, borderBottom: `1px solid ${C.line}` }}>
@@ -3609,7 +3610,7 @@ function AdminPlayersTab() {
                   }}>{isOnline ? "ONLINE" : "Offline"}</span>
                 </div>
                 <div style={{ fontSize: 11, color: C.dim, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {p.email} · visto {fmtTime(p.lastSeen)}
+                  visto {fmtTime(p.lastSeen)}
                 </div>
                 <div className="flex items-center gap-1 flex-wrap" style={{ fontSize: 11, color: C.mute, marginTop: 2 }}><ItemIcon id="item_jade" emoji="💎" size={11} /> {p.jade} · <ItemIcon id="item_chronicles" emoji="📜" size={11} /> {p.chronicles} · <ItemIcon id="item_ticket_char" emoji="🎴" size={11} /> {p.charTickets} · 🗼 {p.towerCleared}/{TOWER_FLOORS} · {p.owned.length} personagens ({fiveStars.length} ★5)</div>
               </div>
@@ -3732,19 +3733,66 @@ function AdminRow({ id, name, rarity, fallback, element, weapon, url, setImg, cl
 }
 
 
+function NicknameModal({ onSave }) {
+  const [value, setValue] = React.useState("");
+  const [err, setErr] = React.useState("");
+  function handleSave() {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed.length < 2) { setErr("Nick precisa ter pelo menos 2 caracteres."); return; }
+    if (trimmed.length > 20) { setErr("Nick não pode passar de 20 caracteres."); return; }
+    onSave(trimmed);
+  }
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.82)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ background: C.panel, border: `1px solid ${C.gold}`, borderRadius: 18, padding: "32px 28px", maxWidth: 360, width: "90%", boxShadow: `0 0 60px ${C.gold}33`, display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ ...ORB, fontWeight: 800, fontSize: 20, textAlign: "center" }}>✨ Escolha seu Nick</div>
+        <div style={{ color: C.mute, fontSize: 13, textAlign: "center", lineHeight: 1.6 }}>
+          Você ainda não tem um apelido. Antes de continuar, escolha um nick que aparecerá para os outros jogadores.
+        </div>
+        <input
+          value={value}
+          onChange={(e) => { setValue(e.target.value); setErr(""); }}
+          onKeyDown={(e) => e.key === "Enter" && handleSave()}
+          placeholder="Seu nick (2–20 caracteres)"
+          maxLength={20}
+          autoFocus
+          style={{ background: C.panelHi, border: `1px solid ${err ? C.bad : C.line}`, borderRadius: 10, padding: "10px 14px", color: C.text, fontSize: 15, outline: "none", width: "100%", boxSizing: "border-box" }}
+        />
+        {err && <div style={{ color: C.bad, fontSize: 12, marginTop: -8 }}>{err}</div>}
+        <button onClick={handleSave} style={{ background: C.gold, color: C.bg0, border: "none", borderRadius: 99, padding: "12px 0", fontWeight: 800, fontSize: 15, cursor: "pointer", width: "100%", letterSpacing: 1 }}>
+          Confirmar Nick
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Social({ email, flash }) {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    loadAccounts().then((accounts) => {
-      const list = Object.entries(accounts).map(([em, data]) => ({
-        email: em,
-        lastSeen: data.lastSeen || data.created || 0,
-      })).sort((a, b) => b.lastSeen - a.lastSeen);
-      setPlayers(list);
+    (async () => {
+      try {
+        const accounts = await loadAccounts();
+        const entries = await Promise.all(
+          Object.entries(accounts).map(async ([em, acc]) => {
+            let nick = null;
+            try { const sv = await loadSave(saveKeyFor(em)); nick = sv?.playerName || null; } catch {}
+            return {
+              id: em,
+              isAdmin: em === ADMIN_EMAIL,
+              isMe: em === email,
+              nick: (nick && nick !== "Pioneiro") ? nick : em.split("@")[0],
+              lastSeen: acc.lastSeen || acc.created || 0,
+            };
+          })
+        );
+        entries.sort((a, b) => b.lastSeen - a.lastSeen);
+        setPlayers(entries);
+      } catch {}
       setLoading(false);
-    }).catch(() => setLoading(false));
-  }, []);
+    })();
+  }, [email]);
   const isOnline = (ts) => ts && Date.now() - ts < 10 * 60 * 1000;
   return (
     <div className="flex flex-col gap-4">
@@ -3759,22 +3807,20 @@ function Social({ email, flash }) {
           {!loading && players.length === 0 && <div style={{ color: C.mute, fontSize: 13 }}>Nenhum jogador encontrado.</div>}
           {players.map((p) => {
             const online = isOnline(p.lastSeen);
-            const isMe = p.email === email;
-            const nick = p.email.split("@")[0];
             return (
-              <div key={p.email} className="flex items-center justify-between" style={{ padding: "10px 0", borderBottom: `1px solid ${C.line}` }}>
+              <div key={p.id} className="flex items-center justify-between" style={{ padding: "10px 0", borderBottom: `1px solid ${C.line}` }}>
                 <div>
                   <div style={{ fontWeight: 700, color: C.text }}>
-                    {nick}
-                    {isMe && <span style={{ color: C.mute, fontSize: 11 }}> · você</span>}
-                    {p.email === ADMIN_EMAIL && <Glow color={C.gold}> 👑</Glow>}
+                    {p.nick}
+                    {p.isMe && <span style={{ color: C.mute, fontSize: 11 }}> · você</span>}
+                    {p.isAdmin && <Glow color={C.gold}> 👑</Glow>}
                   </div>
                   <span style={{ fontSize: 11, marginTop: 3, display: "inline-block", background: online ? "rgba(0,255,136,0.15)" : "rgba(255,255,255,0.05)", color: online ? C.good : C.mute, padding: "1px 8px", borderRadius: 20, fontWeight: 700 }}>
                     {online ? "ONLINE" : "Offline"}
                   </span>
                 </div>
-                {!isMe && (
-                  <button onClick={() => flash(`Solicitação enviada para ${nick}! 🤝`, C.good)}
+                {!p.isMe && (
+                  <button onClick={() => flash(`Solicitação enviada para ${p.nick}! 🤝`, C.good)}
                     style={{ background: "#007aff", color: "#fff", border: "none", padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
                     Adicionar
                   </button>
