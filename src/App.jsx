@@ -84,21 +84,24 @@ const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perd
 const DEFAULT_FEATURED_CHAR = "omegamon";
 
 /* ---------- ARMAS ---------- */
+// Valores de atk e stats secundários = nível MÁXIMO (80). Escalam via weaponLevelMul().
 const WEAPONS = [
-  { id: "starblade", name: "Lâmina Estelar", rarity: 5, role: "dps", atk: 180, critDmg: 28, passive: "Após usar Habilidade: +24% dano por 2 turnos.", buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
-  { id: "radiant", name: "Cetro Radiante", rarity: 5, role: "buffer", atk: 130, energyRegen: 12, passive: "Ao buffar aliados: +12% dano por 2 turnos.", buff: { onBuff: { dmgBonus: 12, turns: 2 } } },
-  { id: "dragoncannon", name: "Disco de Duelo X", rarity: 5, role: "summoner", atk: 120, atkPct: 24, passive: "Visão do Sócio Majoritário: +24% de ATK. Exclusivo (Kaiba): cada Blue-Eyes em campo concede +18% de Dano CRÍTICO (máx +54%); a Habilidade injeta +30% de Perfuração de DEF e a Suprema concede +1 PH ao time." },
-  { id: "hailstorm", name: "Nevasca de Outono", rarity: 5, role: "aoe", atk: 130, atkPct: 10, critRate: 18, critDmg: 30, passive: "Fio do Zero Absoluto: +10% de ATK, +18% CRIT e +36% CRIT DMG. Os DoTs de Geada da portadora ficam mais fortes, amplificando o dano Glacial.", buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
-  { id: "thunderclaws", name: "Garras do Trovão", rarity: 5, role: "dps", atk: 185, critRate: 22, passive: "Após Habilidade: +20% VEL por 2 turnos.", buff: { onSkill: { spd: 20, turns: 2 } } },
-  { id: "originpistol", name: "Pistola da Origem", rarity: 5, role: "debuffer", atk: 165, critDmg: 30, extraDefDown: 14, passive: "Debuffs reduzem +14% DEF adicional e +30% CRIT DMG." },
-  { id: "starmantle", name: "Manto Estelar", rarity: 5, role: "shield", atk: 110, def: 110, shieldBonus: 26, passive: "+26% no valor dos escudos." },
-  { id: "ferrao_borboleta", name: "Ferrão da Borboleta", rarity: 5, role: "dps", atk: 150, spd: 20, critRate: 18, passive: "VEL +20%. CRIT +18%. Dano de Vento acumula [Carga Elétrica] (máx 5): cada marca +10% dano de follow-up. Ao entrar na Postura de Ferrão, consome todas as marcas e concede +24% de Dano Verdadeiro por marca consumida. Passiva ativa apenas em Soi Fon." },
-  { id: "shadowkunai", name: "Kunai Sombria", rarity: 4, role: "dps", atk: 150, passive: "+150 ATK base." },
-  { id: "slingshot", name: "Estilingue de Elite", rarity: 4, role: "debuffer", atk: 140, extraDefDown: 12, passive: "Debuffs reduzem +12% DEF adicional." },
-  { id: "healstaff", name: "Bordão Curativo", rarity: 4, role: "healer", atk: 110, energyRegen: 10, ultEnergy: 10, passive: "Ult dá +10 energia ao time." },
-  { id: "chaostome", name: "Tomo do Caos", rarity: 4, role: "aoe", atk: 150, dmgBonus: 18, passive: "+18% bônus de dano." },
-  { id: "aegis", name: "Égide Brilhante", rarity: 4, role: "shield", atk: 100, def: 80, shieldBonus: 20, passive: "+20% no valor dos escudos." },
-  { id: "glitch_apagamento", name: "Glitch de Apagamento", rarity: 5, role: "shield", atk: 110, def: 90, omgWeapon: true, passive: "Instabilidade Digital: +20% de HP Máximo. Quando o portador perde HP, +25% de Dano de Vírus por 2 turnos. Exclusivo (Omegamon): bônus de [Corrosão] dobrado; ao causar Dano Verdadeiro, +8 de Energia." },
+  // ── ★★★★★ 5-estrelas ────────────────────────────────────────────────────────
+  { id: "starblade",        name: "Lâmina Estelar",       rarity: 5, role: "dps",      atk: 882, critDmg: 52.8,                    passive: "Fio Cortante: após a Habilidade, ganha +24% de Bônus de Dano por 2 turnos.",                                                    buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
+  { id: "radiant",          name: "Cetro Radiante",        rarity: 5, role: "buffer",   atk: 720, energyRegen: 26.4,                passive: "Pulso de Apoio: ao buffar aliados, concede +12% de Bônus de Dano por 2 turnos.",                                                buff: { onBuff: { dmgBonus: 12, turns: 2 } } },
+  { id: "dragoncannon",     name: "Disco de Duelo X",      rarity: 5, role: "summoner", atk: 700, atkPct: 48.0,                     passive: "Socio Majoritario: +48% ATK. Exclusivo (Kaiba): cada Blue-Eyes +18% CRIT DMG (max +54%); Habilidade +30% Perfuracao; Suprema +1 PH ao time." },
+  { id: "hailstorm",        name: "Nevasca de Outono",     rarity: 5, role: "aoe",      atk: 756, critRate: 36.0, critDmg: 64.8,    passive: "Fio do Zero Absoluto: DoTs de Geada amplificados. Apos a Habilidade, +24% Bonus de Dano por 2 turnos.",                         buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
+  { id: "thunderclaws",     name: "Garras do Trovao",      rarity: 5, role: "dps",      atk: 952, critRate: 44.0,                   passive: "Descarga Predatoria: apos a Habilidade, +20% de VEL por 2 turnos.",                                                             buff: { onSkill: { spd: 20, turns: 2 } } },
+  { id: "originpistol",     name: "Pistola da Origem",     rarity: 5, role: "debuffer", atk: 840, critDmg: 58.8, extraDefDown: 14,  passive: "Mira Calculada: debuffs reduzem +14% de DEF adicional do alvo." },
+  { id: "starmantle",       name: "Manto Estelar",         rarity: 5, role: "shield",   atk: 476, def: 476, shieldBonus: 52,        passive: "Barreira Estelar: +52% no valor dos Escudos gerados pelo portador." },
+  { id: "ferrao_borboleta", name: "Ferrao da Borboleta",   rarity: 5, role: "dps",      atk: 840, spd: 36.0, critRate: 36.0,        passive: "Carga Eletrica: acumula 1 carga por golpe de Vento (max 5). Cada carga +10% dano follow-up. Na Postura de Ferrao, consome todas e concede +24% Dano Verdadeiro por carga. Exclusivo: Soi Fon." },
+  { id: "glitch_apagamento",name: "Glitch de Apagamento", rarity: 5, role: "shield",   atk: 476, def: 440, omgWeapon: true,        passive: "Instabilidade Digital: +20% HP Maximo. Ao perder HP, +25% Dano de Virus por 2 turnos. Exclusivo (Omegamon): Corrupcao dobrada; Dano Verdadeiro +8 Energia." },
+  // ── ★★★★ 4-estrelas ────────────────────────────────────────────────────────
+  { id: "shadowkunai", name: "Kunai Sombria",       rarity: 4, role: "dps",      atk: 528, critDmg: 38.4, defPen: 10,       passive: "Sombra Rastreadora: perfura 10% da DEF do inimigo em todos os ataques." },
+  { id: "slingshot",   name: "Estilingue de Elite", rarity: 4, role: "debuffer", atk: 476, critDmg: 28.8, extraDefDown: 12, passive: "Mira de Precisao: debuffs reduzem +12% de DEF adicional." },
+  { id: "healstaff",   name: "Bordao Curativo",     rarity: 4, role: "healer",   atk: 396, energyRegen: 22.0, ultEnergy: 10, passive: "Pulso Vital: a Ultimate concede +10 de Energia a todo o time." },
+  { id: "chaostome",   name: "Tomo do Caos",        rarity: 4, role: "aoe",      atk: 504, dmgBonus: 36.0,               passive: "Entropia Pura: +36% de Bonus de Dano permanente em todos os ataques." },
+  { id: "aegis",       name: "Egide Brilhante",     rarity: 4, role: "shield",   atk: 396, def: 396, shieldBonus: 38,    passive: "Muralha Brilhante: +38% no valor dos Escudos gerados pelo portador." },
 ];
 const WEAPON_MAP = Object.fromEntries(WEAPONS.map((w) => [w.id, w]));
 const WEAPON_5_IDS = WEAPONS.filter((w) => w.rarity === 5).map((w) => w.id);
@@ -112,6 +115,7 @@ const RELIC_SETS = {
   "Praga Viral":       { color: "#A6E22E", p2: { dmgBonus: 8 }, flag4: "setViral4", d2: "+8% de dano", d4: "com Sangramento OU Veneno no alvo: +12% de dano; com AMBOS: +20% e cura 8% do HP máx" },
   "Benção Sagrada":    { color: "#FFE08A", p2: { hp: 20 }, flag4: "setHoly4", d2: "+20% de HP máx", d4: "+15% de cura e, ao curar, aplica escudo de 2% do HP máx do alvo" },
   "Protocolo Ômega":  { color: "#00E5CC", el: "Virus", p2: { spd: 5, dmgBonus: 8 }, flag4: "setOmega4", d2: "+5% VEL e +8% Dano", d4: "HP≥75%: +25% ATK e +15% Dano ao time · HP 30–74%: +20% CRIT e +35% CRIT DMG · HP<30% [1x]: +50% ATK, escudo 10% HP ao time, +2 SP" },
+  "Asas de Borboleta": { color: "#FF6EE7", p2: { critRate: 6, critDmg: 20 }, p4: { critRate: 8, dmgBonus: 15 }, flag4: "setButterfly4", d2: "+6% CRIT Rate e +20% CRIT DMG — sinergia com Ataques de Seguimento", d4: "+8% CRIT Rate e +15% Dano Bonus; Ataques de Seguimento aplicam [Fragilidade] no alvo (+20% dano recebido por 1 turno). Ideal para Soi Fon e futuros personagens de follow-up." },
 };
 const RELIC_SET_NAMES = Object.keys(RELIC_SETS);
 const RELIC_ITEM_ID = {
@@ -121,6 +125,7 @@ const RELIC_ITEM_ID = {
   "Praga Viral":       "item_relic_viral",
   "Benção Sagrada":    "item_relic_holy",
   "Protocolo Ômega":  "item_relic_omega",
+  "Asas de Borboleta": "item_relic_butterfly",
 };
 const RELIC_EMOJI = {
   "Tempestade Eletro": "⚡",
@@ -129,6 +134,7 @@ const RELIC_EMOJI = {
   "Praga Viral":       "🧬",
   "Benção Sagrada":    "✨",
   "Protocolo Ômega":  "☢️",
+  "Asas de Borboleta": "🦋",
 };
 const GAME_ITEMS = [
   { id: "item_jade",        name: "Jade Estelar",           icon: "💎" },
@@ -202,7 +208,10 @@ const setBonusText = (sd) => { if (!sd) return ""; const p2 = sd.d2 || (sd.p2 ? 
 const levelMul = (lv) => 0.45 + 0.55 * (Math.min(Math.max(lv || 1, 1), 90) - 1) / 89; // nv1≈0.45 → nv90=1.0 (escala HSR, sem bloat)
 const WEAPON_MAX_LEVEL = 80;
 const weaponLevelMul = (lv) => 0.15 + 0.85 * (Math.min(Math.max(lv || 1, 1), 80) - 1) / 79; // arma nv1≈0.15 → nv80=1.0 (cresce bastante)
-const weaponCost = (lv) => ({ wmat: 1, exp: 1 + Math.floor(lv / 15) });
+// Custo escalona a cada 20 niveis (HSR-style): Tier1=1 Tier2=2 Tier3=4 Tier4=6 engrenagens
+const WPN_TIER_COST = [1, 2, 4, 6];
+const weaponCost = (lv) => { const t = Math.min(3, Math.floor((lv - 1) / 20)); return { wmat: WPN_TIER_COST[t], exp: 0 }; };
+const weaponTotalCostToMax = (fromLv) => { let tot = 0; for (let lv = fromLv; lv < WEAPON_MAX_LEVEL; lv++) tot += WPN_TIER_COST[Math.min(3, Math.floor((lv - 1) / 20))]; return tot; };
 
 // Passiva de personagem (sempre ativa) — identidade única do kit, descrita em detalhe
 const PASSIVE = {
@@ -457,7 +466,10 @@ function computeStats(owned) {
   const baseDef = def.base.def * m + (w?.def || 0) * wm;
   flat.energyRegen += def.base.energyRegen || 0;
   if (def.base.elemDmg) addElem(def.element, def.base.elemDmg);
-  if (w) { ["critRate", "critDmg", "energyRegen", "dmgBonus", "defPen", "spd"].forEach((k) => { if (w[k]) flat[k] += w[k]; }); if (w.atkPct) pct.atk += w.atkPct; }
+  if (w) {
+    ["critRate", "critDmg", "energyRegen", "dmgBonus", "defPen", "spd"].forEach((k) => { if (w[k]) flat[k] += w[k] * wm; });
+    if (w.atkPct) pct.atk += w.atkPct * wm;
+  }
 
   const setCount = {};
   (owned.relics || []).forEach((r) => {
@@ -635,7 +647,7 @@ function towerEncounter(f, power) {
   const boss = f % 10 === 0, finalBoss = f === TOWER_FLOORS;
   const bd = TOWER_BOSSES[f];
   return {
-    level: f, boss, finalBoss, count: boss ? (f >= 40 ? 2 : 1) : (f <= 4 ? 2 : 3), floor: f, teamPower: power || 2500,
+    level: f, boss, finalBoss, count: boss ? (f >= 40 ? 2 : 1) : (f <= 4 ? 2 : 3), floor: f, isTower: true, teamPower: power || 2500,
     ...(bd ? { bossName: bd.name, bossTitle: bd.title, bossElement: bd.element, bossKind: bd.bossKind, bossImgId: bd.bossImgId, bossRes: bd.res, bossWeak: bd.weak } : {}),
   };
 }
@@ -871,8 +883,7 @@ function Game({ email, isAdmin, onLogout }) {
     if (lv >= WEAPON_MAX_LEVEL) { flash("Arma no nível máximo (80)", C.gold); return; }
     const c = weaponCost(lv);
     if (!isAdmin && weaponMats < c.wmat) { flash(`Faltam Engrenagens de Arma (precisa ${c.wmat})`, C.bad); return; }
-    if (!isAdmin && expItems < c.exp) { flash(`Faltam Lácrimas de XP (precisa ${c.exp})`, C.bad); return; }
-    if (!isAdmin) { setWeaponMats((v) => v - c.wmat); setExpItems((v) => v - c.exp); }
+    if (!isAdmin) { setWeaponMats((v) => v - c.wmat); }
     setOwnedField(id, { weaponLv: lv + 1 });
     flash(`Arma → Nível ${lv + 1}`, C.good);
   }
@@ -1868,18 +1879,47 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
       </Panel>}
       {tab === "weapon" && <Panel>
         <div className="flex items-center justify-between mb-2"><b>Arma equipada</b>{o.weapon && <Btn kind="danger" style={{ padding: "4px 10px" }} onClick={() => setOwnedField(o.id, { weapon: null })}>Remover</Btn>}</div>
-        {o.weapon ? <>
-          <WeaponRow w={WEAPON_MAP[o.weapon]} active />
-          <div className="flex items-center justify-between mt-2" style={{ background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: "8px 10px" }}>
-            <div><div style={{ fontSize: 12, fontWeight: 700 }}>Nível da Arma: <span style={{ color: C.gold }}>{o.weaponLv || 1}/{WEAPON_MAX_LEVEL}</span></div>
-              {(o.weaponLv || 1) < WEAPON_MAX_LEVEL ? <div className="flex items-center gap-1" style={{ fontSize: 10, color: C.mute }}>Custa <ItemIcon id="item_wpn_mat" emoji="⚙️" size={10} />{weaponCost(o.weaponLv || 1).wmat} · <ItemIcon id="item_exp" emoji="📘" size={10} />{weaponCost(o.weaponLv || 1).exp}</div> : <div style={{ fontSize: 10, color: C.gold }}>nível máximo</div>}</div>
-            <Btn kind={(o.weaponLv || 1) >= WEAPON_MAX_LEVEL ? "ghost" : "primary"} disabled={(o.weaponLv || 1) >= WEAPON_MAX_LEVEL} style={{ padding: "5px 12px", whiteSpace: "nowrap" }} onClick={() => weaponLevelUp(o.id)}>{(o.weaponLv || 1) >= WEAPON_MAX_LEVEL ? "MÁX" : isAdmin ? "Subir" : "⬆ Subir"}</Btn>
-          </div>
-          <div className="flex items-center gap-1" style={{ fontSize: 10, color: C.mute, marginTop: 4 }}><ItemIcon id="item_wpn_mat" emoji="⚙️" size={10} /> Engrenagens de Arma: <b style={{ color: C.gold }}>{weaponMats}</b> · ganhe nas Dungeons de Tag.</div>
-        </> : <div style={{ color: C.mute, fontSize: 13 }}>Nenhuma.</div>}
+        {o.weapon ? (() => {
+          const curLv = o.weaponLv || 1;
+          const curTier = Math.min(3, Math.floor((curLv - 1) / 20));
+          const TLBL = ["Nv 1-20","Nv 21-40","Nv 41-60","Nv 61-80"];
+          const TCLR = ["#7CFFB0","#FFD95F","#FF8C44","#FF4466"];
+          const toMax = curLv < WEAPON_MAX_LEVEL ? weaponTotalCostToMax(curLv) : 0;
+          const cost = weaponCost(curLv);
+          return <>
+            <WeaponRow w={WEAPON_MAP[o.weapon]} active lv={curLv} />
+            <div style={{ background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 12, padding: "12px 14px", marginTop: 8 }}>
+              <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700 }}>Aprimorar Arma</div>
+                  <div style={{ fontSize: 10, color: C.mute, marginTop: 2 }}>
+                    <b style={{ color: C.gold }}>{weaponMats}</b> engrenagens disponiveis
+                    {curLv < WEAPON_MAX_LEVEL && <span> · <b style={{ color: toMax > weaponMats ? C.bad : C.good }}>{toMax}</b> para maximizar</span>}
+                  </div>
+                </div>
+                <Btn kind={curLv >= WEAPON_MAX_LEVEL ? "ghost" : "primary"} disabled={curLv >= WEAPON_MAX_LEVEL} style={{ padding: "6px 14px" }} onClick={() => weaponLevelUp(o.id)}>
+                  {curLv >= WEAPON_MAX_LEVEL ? "MAX" : "Up (" + cost.wmat + " engr.)"}
+                </Btn>
+              </div>
+              <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(4,1fr)" }}>
+                {[0,1,2,3].map(t => {
+                  const tS = t*20+1, tE=(t+1)*20, done=curLv>tE, inT=curLv>=tS&&curLv<=tE;
+                  const pct = done?100:inT?((curLv-tS)/19)*100:0;
+                  return <div key={t} style={{ opacity: done||inT?1:0.4 }}>
+                    <div style={{ fontSize:9,color:TCLR[t],fontWeight:700,marginBottom:3 }}>{TLBL[t]}</div>
+                    <div style={{ height:4,background:C.bg1,borderRadius:99,overflow:"hidden" }}>
+                      <div style={{ height:"100%",width:pct+"%",background:TCLR[t],borderRadius:99,transition:"width .4s" }}/>
+                    </div>
+                    <div style={{ fontSize:9,color:C.mute,marginTop:2 }}>{done?<span style={{color:C.good}}>ok</span>:WPN_TIER_COST[t]+" eng./nv"}</div>
+                  </div>;
+                })}
+              </div>
+            </div>
+          </>;
+        })() : <div style={{ color: C.mute, fontSize: 13 }}>Nenhuma arma equipada.</div>}
         <div style={{ borderTop: `1px solid ${C.line}`, margin: "12px 0", paddingTop: 12 }}>
-          <b style={{ fontSize: 13 }}>Inventário {invWeapons.length === 0 && "(vazio — invoque armas)"}</b>
-          <div className="flex flex-col gap-2 mt-2">{invWeapons.map((w) => <button key={w.id} onClick={() => setOwnedField(o.id, { weapon: w.id })} className="text-left active:scale-95"><WeaponRow w={w} match={w.role === def.role} /></button>)}</div>
+          <b style={{ fontSize: 13 }}>Inventario {invWeapons.length === 0 && "(vazio — invoque armas)"}</b>
+          <div className="flex flex-col gap-2 mt-2">{invWeapons.map((w) => <button key={w.id} onClick={() => setOwnedField(o.id, { weapon: w.id, weaponLv: o.weapon===w.id?(o.weaponLv||1):1 })} className="text-left active:scale-95"><WeaponRow w={w} match={w.role===def.role} /></button>)}</div>
         </div>
       </Panel>}
       {tab === "relics" && <RelicEquip o={o} setOwnedField={setOwnedField} relicInv={relicInv} onUpgradeRelic={onUpgradeRelic} />}
@@ -1989,11 +2029,49 @@ function SkillList({ def, stats }) {
     </div>
   );
 }
-function WeaponRow({ w, active, match }) {
-  return <div style={{ background: active ? C.panelHi : C.panel, border: `1px solid ${active ? C.gold : C.line}`, borderRadius: 12, padding: 10 }}>
-    <div className="flex items-center gap-2"><WeaponIcon w={w} size={36} /><div style={{ flex: 1 }}><div className="flex items-center justify-between"><b style={{ fontSize: 14 }}>{w.name}</b><Rarity n={w.rarity} /></div><div style={{ fontSize: 11, color: C.mute }}>{ROLES[w.role]?.label} {match && <Glow color={C.good}>· combina!</Glow>}</div></div></div>
-    <div style={{ fontSize: 12, color: C.mute, marginTop: 6 }}>{w.passive}</div>
-  </div>;
+function WeaponRow({ w, active, match, lv }) {
+  const level = Math.min(Math.max(lv || 1, 1), WEAPON_MAX_LEVEL);
+  const wm = weaponLevelMul(level);
+  const rarColor = w.rarity === 5 ? C.gold : "#B98BFF";
+  const atkVal = Math.round((w.atk || 0) * wm);
+  const sec = [];
+  if (w.critDmg)     sec.push({ k:"CRIT DMG",  v:(w.critDmg*wm).toFixed(1)+"%" });
+  if (w.critRate)    sec.push({ k:"CRIT",       v:(w.critRate*wm).toFixed(1)+"%" });
+  if (w.atkPct)      sec.push({ k:"ATK%",       v:(w.atkPct*wm).toFixed(1)+"%" });
+  if (w.energyRegen) sec.push({ k:"R.ENERGIA",  v:(w.energyRegen*wm).toFixed(1)+"%" });
+  if (w.dmgBonus)    sec.push({ k:"DANO+",      v:(w.dmgBonus*wm).toFixed(1)+"%" });
+  if (w.defPen)      sec.push({ k:"PERFUR.",    v:(w.defPen*wm).toFixed(1)+"%" });
+  if (w.spd)         sec.push({ k:"VEL",        v:(w.spd*wm).toFixed(1) });
+  if (w.def)         sec.push({ k:"DEF",        v:Math.round(w.def*wm) });
+  if (w.shieldBonus) sec.push({ k:"ESCUDO",     v:w.shieldBonus+"%" });
+  return (
+    <div style={{ background: active ? C.panelHi : C.panel, border: `2px solid ${active ? rarColor : C.line}`, borderRadius: 12, padding: 12 }}>
+      <div className="flex items-center gap-3" style={{ marginBottom: 8 }}>
+        <WeaponIcon w={w} size={44} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="flex items-center justify-between gap-1">
+            <b style={{ fontSize: 14, color: rarColor }}>{w.name}</b>
+            <Rarity n={w.rarity} />
+          </div>
+          <div style={{ fontSize: 11, color: C.mute }}>{ROLES[w.role]?.label}{match && <Glow color={C.good}> · combina!</Glow>}</div>
+          {lv != null && <div style={{ fontSize: 10, color: C.mute }}>Nivel <b style={{ color: rarColor }}>{level}</b>/{WEAPON_MAX_LEVEL}</div>}
+        </div>
+      </div>
+      <div className="flex flex-wrap" style={{ background: C.bg1, borderRadius: 8, padding: "7px 10px", marginBottom: 8 }}>
+        <div style={{ textAlign: "center", paddingRight: 12 }}>
+          <div style={{ fontSize: 9, color: C.mute, textTransform: "uppercase", letterSpacing: 0.8 }}>ATK</div>
+          <div style={{ fontSize: 19, fontWeight: 800, color: rarColor, lineHeight: 1.1 }}>{atkVal}</div>
+        </div>
+        {sec.map((s, i) => (
+          <div key={i} style={{ textAlign: "center", padding: "0 12px", borderLeft: `1px solid ${C.line}` }}>
+            <div style={{ fontSize: 9, color: C.mute, textTransform: "uppercase", letterSpacing: 0.8 }}>{s.k}</div>
+            <div style={{ fontSize: 19, fontWeight: 800, color: rarColor, lineHeight: 1.1 }}>{s.v}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: 11, color: C.mute, lineHeight: 1.5 }}><b style={{ color: rarColor }}>Passiva: </b>{w.passive}</div>
+    </div>
+  );
 }
 function RelicEquip({ o, setOwnedField, relicInv, onUpgradeRelic }) {
   const oc = normChar(o);
@@ -2199,6 +2277,19 @@ function Tower({ towerCleared, towerClaimed, start, team, flash }) {
           <Bar value={earned} max={24000} color={C.gold} />
         </div>
       </Panel>
+      {towerCleared > 0 && towerCleared < TOWER_FLOORS && (
+        <button onClick={() => { if (!team.length) { flash("Monte uma equipe antes!", "#FF6464"); return; } start(towerCleared + 1); }}
+          style={{ background: "linear-gradient(135deg," + C.gold + ",#FF8800)", color:"#1a1000", border:"none", borderRadius:14, padding:"14px 20px", fontWeight:800, fontSize:15, cursor:"pointer", boxShadow:"0 0 28px " + C.gold + "66", display:"flex", alignItems:"center", gap:14, width:"100%" }}>
+          <span style={{ fontSize:22 }}>⚔️</span>
+          <span style={{ flex:1, textAlign:"left" }}>Proximo Andar</span>
+          <span style={{ background:"rgba(0,0,0,0.25)", borderRadius:10, padding:"4px 14px", fontSize:22, fontWeight:900 }}>{towerCleared + 1}</span>
+        </button>
+      )}
+      {towerCleared >= TOWER_FLOORS && (
+        <div style={{ background:"linear-gradient(135deg,#FFD700,#FF8C00)", color:"#1a1000", borderRadius:14, padding:"14px 20px", fontWeight:800, fontSize:15, textAlign:"center" }}>
+          Torre Estelar Conquistada! Todos os {TOWER_FLOORS} andares concluidos.
+        </div>
+      )}
       {/* Boss cards for floors 50, 60, 70 */}
       <div style={{ fontSize: 12, fontWeight: 700, color: C.mute, letterSpacing: 1 }}>⚠️ CHEFES ESPECIAIS DA TORRE</div>
       <div className="flex flex-col gap-3">
@@ -2305,7 +2396,8 @@ function makeEnemy(idx, enc) {
   } else {
     // HP atrelado ao PODER da equipe (invariante de escala) — mantém a luta justa mesmo após o rebalanceamento HSR
     baseHp = power * 2.4 + lvl * 50 + idx * 150;
-    if (boss) baseHp *= finalBoss ? 7.2 : weekly ? 8.5 : ascend ? 7.8 : 4.6;
+    // Bosses da Torre com HP reduzido para ritmo mais agil
+    if (boss) baseHp *= (finalBoss ? 7.2 : weekly ? 8.5 : ascend ? 7.8 : 4.6) * (enc.isTower ? 0.5 : 1);
   }
   const hp = Math.round(baseHp);
   const atk = Math.round((power * 0.06 + lvl * 4 + 80) * (boss ? 1.35 : 1));
