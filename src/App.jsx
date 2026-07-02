@@ -60,6 +60,14 @@ const ROSTER = [
     skill: { basicMul: 100, skillMul: 225, ultMul: 405, ultHeal: { mul: 60, flat: 350, all: true } } }),
   mk({ id: "chopper", name: "Chopper", title: "Médico de Bordo", element: "Glacial", role: "healer", rarity: 4, avatar: "🦌", hp: 1250, atk: 500, def: 520, spd: 100, energy: 120, tags: ["Gelo", "Cura", "Suporte"],
     skill: { basicMul: 60, heal: { mul: 120, flat: 250, all: false }, ultHeal: { mul: 90, flat: 460, all: true }, energyGift: 12 } }),
+  mk({ id: "lancer", name: "Lancer", title: "Herói do Caos · Cu Chulainn", element: "Chaos", role: "dps", rarity: 4, avatar: "🏹", hp: 1120, atk: 745, def: 530, spd: 105, energy: 110, tags: ["Caos", "DPS", "Esquiva", "Sobrevivência"],
+    skill: { basicMul: 100, lancerSkill: true, skillMul: 0, ultMul: 420, lancerUlt: true } }),
+  mk({ id: "nanami", name: "Nanami", title: "7:3 de Proporção", element: "Chaos", role: "dps", rarity: 4, avatar: "💼", hp: 1180, atk: 760, def: 490, spd: 101, energy: 115, cd: 62, tags: ["Caos", "DPS", "Crítico", "Hora Extra"],
+    skill: { basicMul: 100, nanamSkill: true, skillMul: 240, ultMul: 310, ultAoe: true, ultDebuff: { defDown: 15, all: true, turns: 2 } } }),
+  mk({ id: "nami", name: "Nami", title: "Navegadora dos Ventos", element: "Vento", role: "aoe", rarity: 4, avatar: "🌊", hp: 1050, atk: 730, def: 440, spd: 104, energy: 120, tags: ["Vento", "DoT", "Área", "Ciclone"],
+    skill: { basicMul: 90, skillMul: 160, aoe: true, skillDot: { type: "cyclone", mul: 50, turns: 2 }, ultMul: 340, ultAoe: true, namiUlt: true } }),
+  mk({ id: "uraraka", name: "Uraraka", title: "Gravidade Zero", element: "Vento", role: "buffer", rarity: 4, avatar: "🎈", hp: 1210, atk: 630, def: 510, spd: 102, energy: 120, tags: ["Vento", "Suporte", "Velocidade", "Controle"],
+    skill: { basicMul: 90, uraBasic: true, uraSkill: true, skillMul: 0, ultMul: 260, ultAoe: true, ultBuff: { atk: 15, all: true, turns: 2 } } }),
   // ---- T5 PADRÃO (saem ao perder o 50/50 e no banner permanente) ----
   mk({ id: "kirara", name: "Kirara", title: "Encontro Estelar", element: "Chaos", role: "shield", rarity: 5, avatar: "💫", hp: 1360, atk: 560, def: 620, spd: 99, energy: 120, tags: ["Caos", "Guardião", "Escudo", "Provocar"],
     skill: { basicMul: 80, shield: { defMul: 90, flat: 320 }, taunt: true, ultShield: { defMul: 130, flat: 480, all: true }, ultBuff: { def: 30, all: true, turns: 2 }, energyGift: 8 } }),
@@ -227,6 +235,10 @@ const PASSIVE = {
   kiritsugu: { name: "Análise · Caçador de Magos", desc: "Talento: o frio cálculo de Kiritsugu encontra a falha do alvo — toda vulnerabilidade que ele aplica é +12% mais forte. Combinado com o Veneno da Habilidade, ele transforma qualquer inimigo em um alvo que recebe dano amplificado de toda a equipe e ainda derrete ao longo dos turnos.", flag: "pAnalyze" },
   soifon: { name: "Ciclo do Ferrão · Vibração da Morte", desc: "Talento: aliados que causam Dano de Eletro concedem 1 carga de [Vibração de Ferrão] para Soi Fon (máx 3). Com 3 cargas, ela entra em Postura de Ferrão — próximo Ataque Básico causa Dano Verdadeiro (120% ATK, ignora DEF e Escudos). Com [Ferrão da Morte] no alvo e ataques Eletro de aliados, dispara follow-ups instantâneos de Vento (máx 2/turno de aliado).", flag: "sfFollowup" },
   omegamon: { name: "Digital Hazard", desc: "Talento: enquanto Omegamon Zwart D está em campo, o HP Máximo de todos os aliados aumenta em 25%. Sempre que o portador ou um aliado com [Protocolo de Infecção] é atacado, acumula 1 carga de [Vírus Defeat] (máx 5). Cada carga concede +15% de CRIT DMG e reduz a DEF do atacante em 10%. Ao atingir 5 cargas, o próximo ataque remove todos os buffs do alvo e causa Dano Verdadeiro igual a 20% do HP Máximo do portador.", flag: "omgTalent" },
+  lancer: { name: "Rune da Imortalidade · Survivance", desc: "Talento: Lancer não pode ser morto por um golpe fatal — a primeira vez por batalha que recebesse dano suficiente para zerar o HP, ele sobrevive com 1 de HP e recupera imediatamente 20% do HP máximo. Esse instinto de sobrevivência o torna o herói mais difícil de abater e combina com a Ultimate de ignição de baixo HP.", flag: "lancerRevive" },
+  nanami: { name: "Postura Profissional · Cálculo 7:3", desc: "Talento: Nanami está sempre dentro do expediente — se a batalha ultrapassar o 5º turno de heróis, ele entra em [Hora Extra], ganhando permanentemente +30% de ATK pelo resto do combate. Combinado com a mecânica 7:3 da Habilidade (que dispara Crítico Garantido em danos terminados em 7 ou 3), cada turno longo o torna exponencialmente mais letal.", flag: "nanamHoraExtra" },
+  nami: { name: "Aliança dos Piratas · Oportunista", desc: "Talento: sempre que qualquer aliado atacar um inimigo que esteja sob efeito de Ciclone (DoT de Vento), Nami dispara automaticamente um ataque coordenado causando 40% de Dano de Vento. Ela transforma os próprios DoTs em amplificadores de dano passivo — cada aliado que age se torna um gatilho da sua tempestade.", flag: "namiFollowup" },
+  uraraka: { name: "Quirk Zero Gravity · Levitação", desc: "Talento: ao usar o Ataque Básico, Uraraka avança sua própria barra de ação em 15%, agindo com mais frequência que a velocidade base indicaria. Além disso, aliados com o buff de Zero Gravity ativo têm a ação dos inimigos que atacam atrasada em 8%, criando uma vantagem de turno cumulativa para a equipe.", flag: "uraAdvance" },
 };
 // Corrente de Ressonância / Eidolons — 6 nós ÚNICOS por personagem (estilo HSR/WuWa)
 const A_SKILL = { amp: "skill", ampV: 25 }, A_ULT = { amp: "ult", ampV: 50 };
@@ -328,6 +340,39 @@ const CONS = {
     { name: "C6 · Final Defeat", flag: "omgC6", desc: "Abaixo de 30% de HP, ativa [Final Defeat]: Omegamon não pode morrer por 1 turno e seu Dano de Vírus aumenta em 100%. A cura da Ultimate revive aliados derrotados com 30% de HP." },
   ],
 };
+  lancer: [
+    { name: "C1 · Proteção do Herói", flag: "lancerC1", desc: "Mudança de kit: Lancer entra em batalha com 1 carga de Esquiva Absoluta gratuita, evitando o primeiro golpe sem custo." },
+    { name: "C2 · Lança Acelerada", stat: "energyMax", value: -15, desc: "Aprimoramento: o custo de Energia da Ultimate cai de 110 para 95, permitindo disparar Gáe Bolg com muito mais frequência." },
+    { name: "C3 · Maestria da Lança", amp: "skill", ampV: 25, desc: "Eleva o nível da Habilidade e do Ataque Básico. Bônus de +25% de dano na Proteção contra Flechas." },
+    { name: "C4 · Contra-Ataque Espiral", flag: "lancerC4", desc: "Mudança de kit: toda vez que uma Esquiva Absoluta for ativada para bloquear um ataque, Lancer contra-ataca instantaneamente causando 80% de ATK em Dano de Caos." },
+    { name: "C5 · Poder da Gáe Bolg", amp: "ult", ampV: 50, desc: "Eleva o nível da Ultimate e do Talento em +50% de dano — a Lança da Morte Perfurante atinge seu pico de lethality." },
+    { name: "C6 · Runa da Perfuração", flag: "lancerC6", desc: "Mudança de kit (capstone): Gáe Bolg passa a ignorar 20% da DEF do alvo, além do Crítico Garantido abaixo de 50% de HP — tornando Lancer o DPS de execução definitivo." },
+  ],
+  nanami: [
+    { name: "C1 · Calculista Preciso", stat: "critDmg", value: 20, desc: "Aprimoramento: Dano CRIT de Nanami aumenta permanentemente em +20%." },
+    { name: "C2 · Desarmadura Profissional", flag: "nanamC2", desc: "Mudança de kit: a redução de DEF da Ultimate Colapso sobe de 15% para 20%." },
+    { name: "C3 · Ritmo do Expediente", amp: "skill", ampV: 25, desc: "Eleva o nível da Habilidade e do Ataque Básico. +25% de dano na Razão 7:3." },
+    { name: "C4 · Limpeza de Hora Extra", flag: "nanamC4", desc: "Mudança de kit: ao entrar em Hora Extra (turno 5+), Nanami limpa instantaneamente todos os seus próprios debuffs." },
+    { name: "C5 · Colapso Total", amp: "ult", ampV: 50, desc: "Eleva o nível da Ultimate e do Talento em +50% de dano — Colapso vira uma extinção em massa." },
+    { name: "C6 · Certeza Matemática", flag: "nanamC6", desc: "Mudança de kit (capstone): a Razão 7:3 sempre causa Crítico Garantido, independentemente do dígito do dano — a proporção torna-se absoluta." },
+  ],
+  nami: [
+    { name: "C1 · Tempestade Prolongada", flag: "namiC1", desc: "Mudança de kit: a duração do DoT Ciclone da Habilidade aumenta para 3 turnos em vez de 2." },
+    { name: "C2 · Vento Cortante", flag: "namiC2", desc: "Mudança de kit: Nami causa +15% de Dano de Vento contra alvos com a VEL reduzida pelo Ciclone." },
+    { name: "C3 · Gust Aprimorado", amp: "skill", ampV: 25, desc: "Eleva o nível da Habilidade e do Ataque Básico. +25% de dano no Gust Sword." },
+    { name: "C4 · Tempestade Energética", flag: "namiC4", desc: "Mudança de kit: ao conjurar Zeus Breeze Tempo, Nami regenera instantaneamente 15 de Energia — reduzindo o ciclo da próxima Ultimate." },
+    { name: "C5 · Raio de Zeus", amp: "ult", ampV: 50, desc: "Eleva o nível da Ultimate e do Talento. +50% de dano no Zeus Breeze Tempo." },
+    { name: "C6 · Explosão Total de DoT", flag: "namiC6", desc: "Mudança de kit (capstone): o multiplicador de detonação dos DoTs na Ultimate sobe de 60% para 100% — cada DoT explode no seu valor integral." },
+  ],
+  uraraka: [
+    { name: "C1 · Gravidade Amplificada", flag: "uraC1", desc: "Mudança de kit: o bônus de ATK da Habilidade Zero Gravity sobe de 20% para 25%." },
+    { name: "C2 · Escudo Orbital", flag: "uraC2", desc: "Mudança de kit: ao ativar a Ultimate, Uraraka gera um escudo para si mesma equivalente a 10% do HP máximo." },
+    { name: "C3 · Zero G Aprimorado", amp: "skill", ampV: 25, desc: "Eleva o nível da Habilidade e do Ataque Básico. +25% de dano no Combate de Gravidade." },
+    { name: "C4 · Gravidade Persistente", flag: "uraC4", desc: "Mudança de kit: a duração do buff de ATK global da Ultimate aumenta para 3 turnos em vez de 2." },
+    { name: "C5 · Chuva Devastadora", amp: "ult", ampV: 50, desc: "Eleva o nível da Ultimate e do Talento. +50% de dano na Chuva de Destroços." },
+    { name: "C6 · Custo Zero", flag: "uraC6", desc: "Mudança de kit (capstone): o aliado com buff de Zero Gravity ativo recebe -10 pontos de custo fixo na própria Ultimate — combinações devastadoras tornam-se muito mais frequentes." },
+  ],
+};
 const GENERIC_CONS = [
   { name: "S1 · Despertar", stat: "atk", value: 8, desc: "ATK +8%." },
   { name: "S2 · Vínculo", stat: "critRate", value: 8, desc: "Taxa de CRIT +8%." },
@@ -351,6 +396,10 @@ const SKILL_NAMES = {
   kiritsugu: ["Tiro de Origem", "Bala Calculada", "Time Alter: Triple Accel"],
   soifon: ["Golpe Duplo da Suzumebachi", "Nigeki Kessatsu", "Jakuhō Raikōben"],
   omegamon: ["Garuru Cannon: Rajada Corrompida", "Grey Sword: Protocolo de Infecção", "All Delete: Recálculo de Vazio"],
+  lancer: ["Estocada Rápida", "Proteção contra Flechas", "Gáe Bolg: A Lança da Morte Perfurante"],
+  nanami: ["Golpe de Cutelo", "Razão 7:3", "Colapso"],
+  nami: ["Golpe com Clima-Tact", "Gust Sword", "Zeus Breeze Tempo"],
+  uraraka: ["Combate de Gravidade", "Zero Gravity", "Chuva de Destroços"],
 };
 const skillNamesOf = (id) => SKILL_NAMES[id] || ["Ataque Básico", "Habilidade", "Ultimate"];
 
@@ -382,6 +431,39 @@ const TRACE_NODE_SETS = {
     { stat: "critDmg", value: 12, label: "CRIT DMG +12%", cost: 900 },
   ],
 };
+  lancer: [
+    { stat: "atk", value: 6, label: "ATK +6%", cost: 500 },
+    { stat: "spd", value: 5, label: "VEL +5", cost: 1100 },
+    { stat: "elemDmg", element: "Chaos", value: 4.8, label: "Dano Chaos +4.8%", cost: 600 },
+    { stat: "elemDmg", element: "Chaos", value: 6.4, label: "Dano Chaos +6.4%", cost: 700 },
+    { stat: "critDmg", value: 12, label: "CRIT DMG +12%", cost: 900 },
+    { stat: "atk", value: 4, label: "ATK +4%", cost: 500 },
+  ],
+  nanami: [
+    { stat: "critDmg", value: 12, label: "CRIT DMG +12%", cost: 900 },
+    { stat: "atk", value: 6, label: "ATK +6%", cost: 500 },
+    { stat: "elemDmg", element: "Chaos", value: 4.8, label: "Dano Chaos +4.8%", cost: 600 },
+    { stat: "elemDmg", element: "Chaos", value: 6.4, label: "Dano Chaos +6.4%", cost: 700 },
+    { stat: "spd", value: 5, label: "VEL +5", cost: 1100 },
+    { stat: "atk", value: 4, label: "ATK +4%", cost: 500 },
+  ],
+  nami: [
+    { stat: "elemDmg", element: "Vento", value: 4.8, label: "Dano Vento +4.8%", cost: 600 },
+    { stat: "elemDmg", element: "Vento", value: 6.4, label: "Dano Vento +6.4%", cost: 700 },
+    { stat: "atk", value: 6, label: "ATK +6%", cost: 500 },
+    { stat: "spd", value: 5, label: "VEL +5", cost: 1100 },
+    { stat: "atk", value: 4, label: "ATK +4%", cost: 500 },
+    { stat: "hp", value: 6, label: "HP +6%", cost: 600 },
+  ],
+  uraraka: [
+    { stat: "spd", value: 5, label: "VEL +5", cost: 1100 },
+    { stat: "hp", value: 8, label: "HP +8%", cost: 600 },
+    { stat: "atk", value: 4, label: "ATK +4%", cost: 500 },
+    { stat: "def", value: 6, label: "DEF +6%", cost: 500 },
+    { stat: "hp", value: 6, label: "HP +6%", cost: 600 },
+    { stat: "spd", value: 3, label: "VEL +3", cost: 1100 },
+  ],
+};
 const traceNodesOf = (def) => (def && TRACE_NODE_SETS[def.id]) || TRACE_NODES;
 const TRACE_MAX = 10;
 const traceMul = (level) => 1 + (Math.max(1, level || 1) - 1) * 0.08; // +8% por nível
@@ -406,6 +488,26 @@ function specialTraces(def) {
     { name: "Vestígio: Saturação de Vírus", desc: "Rastro Especial de combate · o dano da Ultimate aumenta em 0,8% para cada 1% de HP que o portador tiver perdido.", combat: "omgSaturacao", cost: 2 },
     { name: "Vestígio: Contágio de Dados", desc: "Rastro Especial de combate · aliados com [Protocolo de Infecção] ganham +20% de resistência a dano. Se o Escudo de Dados for quebrado, o inimigo que o quebrou sofre [Corrosão] imediata.", combat: "omgContagio", cost: 2 },
     { name: "Vestígio: Reescrita de Sistema", desc: "Rastro Especial de combate · a cura recebida por Omegamon via [Corrosão] inimiga é +25% mais eficaz.", combat: "omgReescrita", cost: 3 },
+  ];
+  if (def.id === "lancer") return [
+    { name: "Vestígio do Poder", desc: "Rastro Especial de atributo: ATK +15%, reforçando o kit ofensivo de Lancer.", stat: "atk", value: 15, cost: 2 },
+    { name: "Vestígio da Lâmina", desc: "Rastro Especial de combate: a Esquiva Absoluta da Habilidade concede ao próximo golpe de Lancer +20% de Dano de Caos adicional — ele desvia e contra-ataca mais forte.", combat: "lancerCounterDmg", cost: 2 },
+    { name: "Vestígio: Tempestade", desc: "Rastro Especial de combate: Ataques Básicos de Lancer aumentam o Bônus de Dano Chaos do próximo golpe em +20%, recompensando agressividade constante.", combat: "lancerTempestade", cost: 3 },
+  ];
+  if (def.id === "nanami") return [
+    { name: "Vestígio do Poder", desc: "Rastro Especial de combate: ao entrar em Hora Extra (turno 5+), Nanami ganha +30% de ATK permanentemente pelo resto do combate — o talento de luta longa começa aqui.", combat: "nanamHoraExtra", cost: 2 },
+    { name: "Vestígio da Lâmina", desc: "Rastro Especial de combate: Acertos Críticos causados pela Razão 7:3 recuperam 10 de Energia, reduzindo o ciclo da Ultimate em combates longos.", combat: "nanamCritEnergy", cost: 2 },
+    { name: "Vestígio: Tempestade", desc: "Rastro Especial de combate: o dano de Nanami contra inimigos com DEF reduzida (efeito da Ultimate) aumenta em +20% — maximizando o combo Colapso → Razão 7:3.", combat: "nanamDefBonus", cost: 3 },
+  ];
+  if (def.id === "nami") return [
+    { name: "Vestígio do Poder", desc: "Rastro Especial de combate: inimigos afetados por Ciclone têm a Velocidade reduzida em 10%, permitindo que a equipe aja com mais frequência em relação a eles.", combat: "namiSlowCyclone", cost: 2 },
+    { name: "Vestígio da Lâmina", desc: "Rastro Especial de combate: quando um aliado ataca um inimigo sob efeito de Ciclone, Nami dispara um ataque coordenado causando 40% de Dano de Vento.", combat: "namiFollowup", cost: 2 },
+    { name: "Vestígio: Tempestade", desc: "Rastro Especial de combate: aumenta a chance base de aplicar Ciclone e outros status negativos em +25%, tornando o kit muito mais consistente.", combat: "namiDotBoost", cost: 3 },
+  ];
+  if (def.id === "uraraka") return [
+    { name: "Vestígio do Poder", desc: "Rastro Especial de combate: ao usar o Ataque Básico, Uraraka avança sua própria barra de ação em 15%, agindo com mais frequência que o previsto pela velocidade.", combat: "uraAdvance", cost: 2 },
+    { name: "Vestígio da Lâmina", desc: "Rastro Especial de combate: Uraraka ganha +15% de DEF enquanto seu HP estiver acima de 50%, tornando-a mais resistente em batalha.", combat: "uraDefBuffer", cost: 2 },
+    { name: "Vestígio: Tempestade", desc: "Rastro Especial de combate: o aliado que estiver com o buff de Zero Gravity ativo atrasa a ação do inimigo que atacar em 8%, criando uma vantagem de turno contínua.", combat: "uraDelayEnemies", cost: 3 },
   ];
   const third = {
     dps: { name: "Vestígio: Predador", desc: "Rastro Especial de combate: contra inimigos sob qualquer DoT OU com a DEF reduzida, este personagem causa +25% de dano. É o gatilho que recompensa equipes que aplicam efeitos contínuos e quebras de armadura antes de liberar o dano.", combat: "dmgVsAfflicted" },
@@ -782,6 +884,10 @@ function Game({ email, isAdmin, onLogout }) {
   const [tagMats, setTagMats] = useState({});
   const [lastWeeklyBoss, setLastWeeklyBoss] = useState(0);
   const [bossRushCleared, setBossRushCleared] = useState([]);
+  const [draftActive, setDraftActive] = useState(false);
+  const [draftRoomCleared, setDraftRoomCleared] = useState(0);
+  const [draftClaimedGems, setDraftClaimedGems] = useState(0);
+  const [draftBoons, setDraftBoons] = useState([]);
 
   const ownedMap = useMemo(() => Object.fromEntries(owned.map((o) => [o.id, o])), [owned]);
   const flash = (msg, color) => { setToast({ msg, color: color || C.gold }); setTimeout(() => setToast(null), 2200); };
@@ -801,9 +907,14 @@ function Game({ email, isAdmin, onLogout }) {
       setPlayerName(s.playerName ?? "Pioneiro");
       setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []);
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0); setBossRushCleared(Array.isArray(s.bossRushCleared) ? s.bossRushCleared : []);
+      setDraftRoomCleared(s.draftRoomCleared ?? 0); setDraftClaimedGems(s.draftClaimedGems ?? 0); setDraftBoons(Array.isArray(s.draftBoons) ? s.draftBoons : []);
     }
     // Carrega fotos do localStorage imediatamente (sem depender do Firebase)
     try { const li = _ls.get("sr_shared_images"); if (li) { const parsed = JSON.parse(li); if (parsed && typeof parsed === "object") setImages(parsed); } } catch {}
+    // Load admin game settings (draft dungeon active, etc.)
+    cloudReady.then(() => cloudGet("meta", "settings")).then((cfg) => {
+      if (cfg && cfg.draftActive !== undefined) setDraftActive(!!cfg.draftActive);
+    }).catch(() => {});
     setLoaded(true);
     // Firebase em background: atualiza se tiver dados mais recentes
     cloudReady.then(() => cloudGet("meta", "images")).then((sharedImgs) => {
@@ -829,8 +940,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1015,6 +1126,18 @@ function Game({ email, isAdmin, onLogout }) {
   function startBossRush(bossId) { setPendingBoss(bossId); }
   function launchBossRush(bossId, customTeam) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===bossId;}); if (!bd) return; setPendingBoss(null); setBattle({ context: "bossrush", bossId: bossId, customTeam: customTeam||null, encounter: { bossRush: true, bossId: bossId, level: bd.level, count: 1, boss: true, bossName: bd.name, bossElement: bd.element, bossKind: bd.kind, bossImgId: bd.imgKey, teamPower: teamPower() }, ally: null }); }
 
+  function startDraftRoom(roomIdx, draftTeamIds) {
+    if (!draftActive) { flash("A Catacumba não está ativa no momento.", C.bad); return; }
+    const lv = 40 + roomIdx * 8;
+    const isBoss = roomIdx === 3 || roomIdx === 6;
+    // Create synthetic owned entries for draft chars (may not be in player's collection)
+    const draftOwnedEntries = draftTeamIds.filter(Boolean).map((id) => {
+      if (ownedMap[id]) return ownedMap[id]; // use player's own version if owned
+      return { id, level: 70, eidolon: 0, weapon: null, relics: EMPTY_RELICS(), traces: { basic: 5, skill: 5, ult: 5 }, traceNodes: new Array(6).fill(false), specialTraces: [false, false, false] };
+    });
+    const draftOwnedMap = Object.fromEntries(draftOwnedEntries.map((o) => [o.id, o]));
+    setBattle({ context: "draft", draftRoom: roomIdx, customTeam: draftTeamIds, draftOwnedMap, encounter: { level: lv, count: isBoss ? 1 : 2, boss: isBoss, teamPower: teamPower(), bossName: isBoss ? (roomIdx === 6 ? "Soberano da Catacumba" : "Guardião da Catacumba") : null, bossKind: isBoss ? "guardian" : null }, ally: null });
+  }
   function startRelicDungeon(tier) {
     const cost = tier === 2 ? 60 : tier === 1 ? 45 : 30;
     if (stamina < cost) { flash("Stamina insuficiente (precisa " + cost + ")", C.bad); return; }
@@ -1063,6 +1186,16 @@ function Game({ email, isAdmin, onLogout }) {
     } else if (b.context === "ascend") {
       if (result.win) { setAscMats((v) => v + 3); flash("Guardião derrotado! +3 Núcleos de Ascensão 🔶", C.gold); }
       else flash("O Guardião da Ascensão te derrotou…", C.bad);
+    } else if (b.context === "draft") {
+      if (result.win) {
+        const roomRewards = [200, 200, 200, 400, 250, 250, 1500];
+        const rw = roomRewards[b.draftRoom] || 0;
+        const newCleared = Math.max(draftRoomCleared, (b.draftRoom || 0) + 1);
+        setDraftRoomCleared(newCleared);
+        setDraftClaimedGems((v) => v + rw);
+        setJade((j) => j + rw);
+        flash(`Sala ${(b.draftRoom || 0) + 1} conquistada! +${rw}💎`, C.good);
+      } else { flash("Derrotado na Catacumba do Rascunho…", C.bad); }
     } else if (b.context === "coop") {
       if (b.onResolve) b.onResolve(result);
     } else if (b.context === "bossrush") {
@@ -1090,7 +1223,7 @@ function Game({ email, isAdmin, onLogout }) {
 
   if (!loaded) return <div style={{ minHeight: "100vh", background: C.bg0, color: C.mute, display: "flex", alignItems: "center", justifyContent: "center" }}>Sincronizando ressonância…</div>;
 
-  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["social", "Social", "🤝"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
+  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
 
   const needsNick = loaded && (!playerName || playerName === "Pioneiro");
 
@@ -1122,7 +1255,7 @@ function Game({ email, isAdmin, onLogout }) {
         <div style={{ maxWidth: 1000, margin: "0 auto", padding: battle ? "0" : "16px 14px 110px" }}>
           {battle ? (
             <Battle key={JSON.stringify(battle.encounter) + battle.context + (battle.floor || 0)}
-              team={battle.customTeam || team} ownedMap={ownedMap} encounter={battle.encounter} ally={battle.ally} context={battle.context}
+              team={battle.customTeam || team} ownedMap={battle.draftOwnedMap || ownedMap} encounter={battle.encounter} ally={battle.ally} context={battle.context}
               onEnd={onBattleEnd} flash={flash} />
           ) : pendingBoss ? (
             <BossRushTeamSelect boss={BOSS_RUSH_BOSSES.find(function(b){return b.id===pendingBoss;})} owned={owned} defaultTeam={team} images={images} onCancel={function(){setPendingBoss(null);}} onConfirm={function(t){launchBossRush(pendingBoss,t);}} flash={flash} />
@@ -1138,7 +1271,9 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "weekly" && <WeeklyBoss start={startWeekly} stamina={stamina} bossMats={bossMats} lastWeeklyBoss={lastWeeklyBoss} startAscension={startAscension} ascMats={ascMats} />}
               {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} flash={flash} setBattle={setBattle} />}
               {screen === "relics" && <RelicsScreen relicInv={relicInv} />}
-              {screen === "admin" && (isAdmin ? <Admin images={images} setImages={setImages} flash={flash} /> : <Empty msg="Acesso restrito ao administrador." />)}
+              {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
+              {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
+              {screen === "admin" && (isAdmin ? <Admin images={images} setImages={setImages} flash={flash} isAdmin={isAdmin} draftActive={draftActive} setDraftActive={setDraftActive} /> : <Empty msg="Acesso restrito ao administrador." />)}
             </>
           )}
         </div>
@@ -1936,6 +2071,309 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
 function St({ k, v }) { return <div className="flex justify-between" style={{ background: C.panelHi, padding: "8px 10px", borderRadius: 10 }}><span style={{ color: C.mute }}>{k}</span><b>{v}</b></div>; }
 function buffText(b) { const p = []; for (const k of ["atk", "def", "spd", "critRate", "critDmg", "dmgBonus"]) if (b[k]) p.push(`+${b[k]}${k === "spd" ? " VEL" : "% " + (STAT_LABEL[k] || k)}`); return `${p.join(", ")}${b.all ? " (time)" : ""} por ${b.turns}t`; }
 const SKILL_DESC = {
+  miyabi: {
+    basic: [
+      "Causa <b>110% de ATK</b> em Dano Glacial no inimigo principal — Corte Gélido.",
+      "Ganha <b>+1 Ponto de Habilidade</b> e acumula <b>+1 PH (Ponto de Hailstorm)</b>. Ao atingir 3 PH, entra na <b>Postura Iaido</b>.",
+      "━━ <b>Postura Iaido ativada (3 PH):</b> ━━",
+      "O próximo Ataque Básico consome os 3 PH para um <b>Corte Iaido</b>: <b>165% de ATK</b> em Dano Glacial, ignorando <b>30% da DEF</b> do alvo. Avança a própria ação em <b>50%</b>.",
+      "<b>[Vestígio: Cortes Residuais]</b> Acertos Críticos com Habilidade/Ultimate deixam o alvo marcado — o próximo Ataque Básico ecoa <b>90% do ATK</b> extra + estende DoTs ativos em +1 turno.",
+      "<b>[Vestígio: Detonação]</b> Ao atacar alvos com DoTs ou DEF reduzida, consome os efeitos para detonar <b>150% de Dano Glacial em área</b> + Congelamento por 1 turno.",
+      "<b>[C1]</b> Começa com 3 PH e Postura Iaido ativa. Primeiro Corte +50% de dano.",
+      "<b>[C4]</b> Zona de Geada por 2 turnos após a Ultimate — Miyabi mantém Postura Iaido sem gastar PH dentro da zona.",
+      "<b>[C6]</b> Limite de PH sobe para 4. Com 4 PH: Corte do Fim dos Tempos — <b>450% em TODOS os inimigos</b>, ignora 50% DEF. Matar qualquer alvo reseta a ação de Miyabi.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "Causa <b>270% de ATK</b> em Dano Glacial a <b>todos os inimigos</b> e aplica <b>Congelamento</b> por 2 turnos (<b>80% ATK/turno</b>).",
+      "Se <b>[Cortes Residuais]</b> estiver desbloqueado e for um acerto crítico, deixa marcas de <b>Residual</b> no alvo.",
+      "<b>[C2]</b> Se usado contra inimigos já Congelados, <b>não consome PH</b>. Cada acerto crítico recupera <b>+5 de Energia</b>.",
+      "<b>[C3]</b> Nível da Habilidade e Básico elevados — +25% de dano.",
+    ],
+    ult: [
+      "Custo: <b>160 de Energia</b>.",
+      "Inverno Eterno: causa <b>540% de ATK</b> em Dano Glacial a <b>todos os inimigos</b> e aplica <b>Congelamento</b> profundo por 2 turnos (<b>110% ATK/turno</b>).",
+      "Críticos com a Ultimate deixam marcas de <b>Residual</b> em todos os alvos se [Vestígio: Cortes Residuais] estiver ativo.",
+      "<b>[C4]</b> Cria Zona de Geada por 2 turnos — Miyabi age em Postura Iaido permanentemente dentro dela sem gastar PH.",
+      "<b>[C5]</b> +50% de dano na Ultimate.",
+      "<b>[C6]</b> Miyabi em Zona de Geada usa Corte do Fim dos Tempos (450%, ignora 50% DEF, AoE), não o Corte Iaido simples.",
+    ],
+  },
+  kaiba: {
+    basic: [
+      "Causa <b>100% de ATK</b> em Dano Eletro no inimigo principal.",
+      "Ganha <b>+1 Ponto de Habilidade</b> e <b>+15 de Energia</b>.",
+      "<b>[Tecnologia KaibaCorp]</b> Todos os Blue-Eyes vivos avançam <b>35%</b> na linha do tempo ao usar o Básico.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "Invoca um <b>Blue-Eyes White Dragon</b> (máx 3 em campo). Dragões agem sozinhos atacando por <b>96% do ATK</b> por turno.",
+      "Causa adicionalmente <b>140% de ATK em Dano Eletro em área</b>.",
+      "Cada dragão ativo concede a Kaiba <b>+20% de ATK</b> e <b>+15% de Regen de Energia</b>.",
+      "<b>[Disco de Duelo X]</b> Cada dragão confere <b>+18% de CRIT DMG</b> (máx +54%). A Habilidade perfura <b>30% da DEF</b>.",
+      "<b>[Controle de Ações]</b> Com 2+ dragões, Kaiba fica imune a debuffs de atributo.",
+      "<b>[C2]</b> Ao usar a Habilidade, Kaiba ergue um escudo equivalente a <b>100% do seu ATK</b>.",
+    ],
+    ult: [
+      "Custo: <b>300 de Energia</b>. Requer <b>3 Blue-Eyes</b> em campo.",
+      "Escolha: invocar <b>Obelisco, o Atormentador</b> OU <b>Dragão Ultimate</b>.",
+      "━━ <b>Obelisco:</b> ━━",
+      "Ataque de área poderoso. Se eliminar o alvo principal, recupera <b>100 de Energia</b>.",
+      "━━ <b>Dragão Ultimate (Fusão):</b> ━━",
+      "Fusão dos 3 Blue-Eyes — ataque massivo em área. Ganha <b>+40% CRIT DMG</b> enquanto durar.",
+      "<b>[C4]</b> Ao usar a Suprema, o time inteiro ganha <b>+35% de CRIT DMG</b> por 3 turnos.",
+      "<b>[C6]</b> Obelisco não sacrifica os dragões. Dragão Ultimate age DUAS vezes ao entrar.",
+    ],
+  },
+  renji: {
+    basic: [
+      "Causa <b>100% de ATK</b> em Dano de Caos no inimigo principal — Golpe de Zabimaru.",
+      "Ganha <b>+1 Ponto de Habilidade</b>.",
+      "✦ <b>Talento — Instinto de Caça:</b> contra inimigos abaixo de <b>40% de HP</b>, todos os ataques causam <b>+25% de dano</b>.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "Causa <b>235% de ATK</b> em Dano de Caos no inimigo principal e aplica <b>Sangramento</b> por 2 turnos (<b>55% ATK/turno</b>).",
+      "<b>[S2]</b> O Sangramento causa <b>+40%</b> a mais de dano por turno.",
+      "<b>[S3]</b> +25% de dano na Habilidade.",
+    ],
+    ult: [
+      "Custo: <b>120 de Energia</b>.",
+      "Hihiō Zabimaru: causa <b>445% de ATK</b> em Dano de Caos no inimigo principal.",
+      "✦ Talento: se o alvo estiver com <b><40% de HP</b>, o dano da Ultimate é acrescido de <b>+25%</b> pelo Instinto de Caça.",
+      "<b>[S6]</b> Contra inimigos sangrando OU com DEF reduzida: <b>+25% de dano</b> adicional em todos os ataques.",
+      "<b>[S5]</b> +50% de dano na Ultimate.",
+    ],
+  },
+  ace: {
+    basic: [
+      "Causa <b>100% de ATK</b> em Dano de Fogo no inimigo principal — Soco Flamejante.",
+      "Ganha <b>+1 Ponto de Habilidade</b>.",
+      "✦ <b>Talento — Brasa Viva:</b> a Queimadura aplicada por Ace causa <b>+30% mais dano</b> e ignora parte da defesa ao longo do tempo.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "Causa <b>150% de ATK</b> em Dano de Fogo a <b>todos os inimigos</b> (área) e aplica <b>Queimadura</b> por 2 turnos (<b>55% ATK/turno</b>).",
+      "A Queimadura de Ace é reforçada pelo Talento: <b>+30% de dano</b> por turno.",
+      "<b>[S2]</b> Queimadura causa +40% a mais de dano.",
+    ],
+    ult: [
+      "Custo: <b>120 de Energia</b>.",
+      "Grande Incêndio: causa <b>330% de ATK</b> em Dano de Fogo a <b>todos os inimigos</b> (área) e aplica <b>Queimadura</b> intensa por 3 turnos (<b>85% ATK/turno</b>).",
+      "<b>[Núcleo Ardente 4pç]</b> Dano da Ultimate +20% e +8% ATK no turno seguinte.",
+      "<b>[S5]</b> +50% de dano na Ultimate.",
+    ],
+  },
+  usopp: {
+    basic: [
+      "Causa <b>90% de ATK</b> em Dano de Vento no inimigo principal — Tiro Certeiro.",
+      "Ganha <b>+1 Ponto de Habilidade</b>.",
+      "✦ <b>Talento — Olho de Águia:</b> os debuffs de Usopp reduzem <b>+12% de DEF adicional</b> do alvo além do valor base.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "Causa <b>130% de ATK</b> em Dano de Vento no inimigo principal e reduz a <b>DEF em 32%</b> e aplica <b>+18% de Vulnerabilidade</b> por 3 turnos.",
+      "O Talento adiciona +12% de DEF extra reduzida → total de <b>44% de DEF reduzida</b>.",
+      "<b>[Vestígio: Erosão]</b> Todos os debuffs de Usopp duram +1 turno e adicionam +12% de vulnerabilidade extra.",
+    ],
+    ult: [
+      "Custo: <b>120 de Energia</b>.",
+      "Pop Green: Impacto — aplica <b>+28% de Vulnerabilidade</b> a <b>todos os inimigos</b> por 2 turnos.",
+      "Alvos vulneráveis recebem muito mais dano de toda a equipe.",
+      "<b>[Vestígio: Erosão]</b> +12% de vulnerabilidade extra em cada debuff → total de <b>+40%</b> nos alvos.",
+      "<b>[S5]</b> +50% de dano na Ultimate.",
+    ],
+  },
+  sakura: {
+    basic: [
+      "Causa <b>100% de ATK</b> em Dano Holy no inimigo principal — Golpe Centena.",
+      "Ganha <b>+1 Ponto de Habilidade</b>.",
+      "✦ <b>Talento — Mãos que Curam:</b> a cura da Ultimate é <b>+25% mais forte</b>.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "Causa <b>225% de ATK</b> em Dano Holy no inimigo principal — Soco Esmagador.",
+      "<b>[Vestígio: Predador]</b> +25% de dano contra alvos com DoT ou DEF reduzida.",
+    ],
+    ult: [
+      "Custo: <b>120 de Energia</b>.",
+      "Punho Sobre-humano: causa <b>405% de ATK</b> em Dano Holy no inimigo principal.",
+      "Cura <b>todos os aliados</b>: <b>60% do ATK + 350 fixo</b>. Com o Talento: a cura é <b>+25% mais forte</b>.",
+      "<b>[Benção Sagrada 4pç]</b> +15% na cura e ao curar aplica escudo de 2% do HP máx do alvo.",
+      "<b>[S5]</b> +50% de dano e cura na Ultimate.",
+    ],
+  },
+  chopper: {
+    basic: [
+      "Causa <b>60% de ATK</b> em Dano Glacial no inimigo principal — Investida.",
+      "Ganha <b>+1 Ponto de Habilidade</b>.",
+      "✦ <b>Talento — Médico Dedicado:</b> todas as curas de Chopper são <b>+25% mais fortes</b>.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "Cuidado Médico: cura o aliado <b>mais ferido</b> em <b>120% do ATK + 250 fixo</b>.",
+      "Com o Talento: a cura é <b>+25% mais forte</b> → efetivamente <b>150% do ATK + 312 fixo</b>.",
+      "Doa <b>+12 de Energia</b> a um aliado aleatório.",
+    ],
+    ult: [
+      "Custo: <b>120 de Energia</b>.",
+      "Operação de Emergência: cura <b>todos os aliados</b> em <b>90% do ATK + 460 fixo</b>.",
+      "Com o Talento: a cura coletiva é <b>+25% mais forte</b> → efetivamente <b>112% do ATK + 575 fixo</b>.",
+      "<b>[Benção Sagrada 4pç]</b> +15% na cura e escudo adicional de 2% do HP máximo por aliado curado.",
+      "<b>[S5]</b> +50% de dano na Ultimate.",
+    ],
+  },
+  kirara: {
+    basic: [
+      "Causa <b>80% de ATK</b> em Dano de Caos no inimigo principal.",
+      "Ganha <b>+1 Ponto de Habilidade</b>.",
+      "✦ <b>Talento — Baluarte Estelar:</b> todos os escudos de Kirara são <b>+25% mais resistentes</b>.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "Gera um <b>Escudo Cósmico</b> para si mesma baseado em <b>90% da DEF + 320 fixo</b>.",
+      "Com o Talento: escudo fica <b>+25% mais forte</b>.",
+      "Provoca os inimigos para atacarem Kirara em vez dos aliados.",
+    ],
+    ult: [
+      "Custo: <b>120 de Energia</b>.",
+      "Constelação Guardiã: gera <b>Escudos para TODOS os aliados</b> baseado em <b>130% da DEF + 480 fixo</b>.",
+      "Concede a todos: <b>+30% de DEF</b> por 2 turnos.",
+      "Com o Talento: todos os escudos criados são <b>+25% mais resistentes</b>.",
+      "<b>[S5]</b> +50% nos escudos e buffs da Ultimate.",
+    ],
+  },
+  yoruichi: {
+    basic: [
+      "Causa <b>110% de ATK</b> em Dano Eletro no inimigo principal — Golpe Relâmpago.",
+      "Ganha <b>+1 Ponto de Habilidade</b>.",
+      "✦ <b>Talento — Shunko:</b> Yoruichi age primeiro em combate e sua altíssima VEL garante turnos frequentes.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "Shunko: causa <b>260% de ATK</b> em Dano Eletro no inimigo principal.",
+      "Aplica <b>Choque</b> no alvo por 2 turnos (<b>45% ATK/turno</b>).",
+      "Confere a si mesma: <b>+20% de Taxa Crítica</b> e <b>+12 de VEL</b> por 2 turnos.",
+    ],
+    ult: [
+      "Custo: <b>120 de Energia</b>.",
+      "Shunko: Raijin — causa <b>510% de ATK</b> em Dano Eletro no inimigo principal.",
+      "<b>[Tempestade Eletro 4pç]</b> Bônus de Dano Eletro acumula até +12% por ações.",
+      "<b>[S5]</b> +50% de dano na Ultimate.",
+    ],
+  },
+  kiritsugu: {
+    basic: [
+      "Causa <b>100% de ATK</b> em Dano de Vírus no inimigo principal — Tiro de Origem.",
+      "Ganha <b>+1 Ponto de Habilidade</b>.",
+      "✦ <b>Talento — Análise:</b> toda vulnerabilidade aplicada por Kiritsugu é <b>+12% mais forte</b>.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "Bala Calculada: causa <b>205% de ATK</b> em Dano de Vírus no alvo e aplica <b>Veneno</b> por 3 turnos (<b>70% ATK/turno</b>).",
+      "Reduz a <b>DEF em 40%</b> e aplica <b>+22% de Vulnerabilidade</b> por 3 turnos.",
+      "Com o Talento: a Vulnerabilidade vira <b>+34%</b> no total.",
+    ],
+    ult: [
+      "Custo: <b>120 de Energia</b>.",
+      "Time Alter: Triple Accel — causa <b>365% de ATK</b> em Dano de Vírus no alvo e aplica <b>+30% de Vulnerabilidade</b> a <b>todos os inimigos</b> por 3 turnos.",
+      "Com o Talento: a Vulnerabilidade total vira <b>+42%</b>.",
+      "<b>[S5]</b> +50% de dano na Ultimate.",
+    ],
+  },
+  lancer: {
+    basic: [
+      "Causa <b>100% de ATK</b> em Dano de Caos no inimigo principal — Estocada Rápida.",
+      "Ganha <b>+1 Ponto de Habilidade</b> e <b>+20 de Energia</b>.",
+      "✦ <b>Talento — Runa da Imortalidade:</b> a primeira vez que Lancer fosse morto, ele sobrevive com 1 HP e recupera <b>20% do HP máximo</b> (1× por batalha).",
+      "<b>[C4]</b> Toda vez que uma Esquiva Absoluta bloquear um ataque, Lancer contra-ataca causando <b>80% de ATK</b> em Dano de Caos.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>. Ganha <b>+30 de Energia</b>.",
+      "Proteção contra Flechas: avança a <b>própria ação em 30%</b> na linha do tempo.",
+      "Ganha <b>2 cargas de Esquiva Absoluta</b> — cada uma evita 100% do dano do próximo ataque recebido.",
+      "<b>[Vestígio: Contra-golpe]</b> Ao usar a Esquiva Absoluta, o próximo golpe de Lancer ganha <b>+20% de Dano de Caos</b>.",
+      "<b>[C1]</b> Entra em batalha com 1 carga de Esquiva Absoluta gratuita.",
+      "<b>[C4]</b> Cada Esquiva Absoluta ativada dispara um contra-ataque de <b>80% de ATK</b>.",
+    ],
+    ult: [
+      "Custo: <b>110 de Energia</b> (95 com C2).",
+      "Gáe Bolg: A Lança da Morte Perfurante — causa <b>420% de ATK</b> em Dano de Caos no inimigo principal.",
+      "━━ <b>Condição Especial:</b> ━━",
+      "Se o alvo estiver com <b>menos de 50% de HP</b>: o ataque tem <b>100% de Taxa Crítica Garantida</b>.",
+      "O ataque <b>ignora completamente escudos</b> — nenhuma barreira bloqueia a Lança da Morte.",
+      "<b>[C6]</b> Gáe Bolg ignora adicionalmente <b>20% da DEF</b> do alvo.",
+    ],
+  },
+  nanami: {
+    basic: [
+      "Causa <b>100% de ATK</b> em Dano de Caos no inimigo principal — Golpe de Cutelo.",
+      "Ganha <b>+1 Ponto de Habilidade</b> e <b>+20 de Energia</b>.",
+      "✦ <b>Talento — Hora Extra:</b> após o 5º turno de heróis, Nanami entra em <b>[Hora Extra]</b> e ganha permanentemente <b>+30% de ATK</b> até o fim da partida.",
+      "<b>[C4]</b> Ao entrar em Hora Extra, limpa todos os debuffs próprios instantaneamente.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>. Ganha <b>+30 de Energia</b>.",
+      "Razão 7:3: causa <b>240% de ATK</b> em Dano de Caos no inimigo principal.",
+      "━━ <b>Mecânica 7:3:</b> ━━",
+      "Se o dano final do golpe terminar no dígito <b>7 ou 3</b>, o ataque automaticamente vira um <b>Acerto Crítico Garantido</b>.",
+      "<b>[Vestígio: Crit Energy]</b> Críticos da Razão 7:3 recuperam <b>+10 de Energia</b>.",
+      "<b>[C6]</b> A Razão 7:3 passa a ter <b>100% de chance de Crítico</b> independente do valor — proporção matemática absoluta.",
+    ],
+    ult: [
+      "Custo: <b>115 de Energia</b>.",
+      "Colapso: causa <b>310% de ATK</b> em Dano de Caos a <b>todos os inimigos</b> (área).",
+      "Reduz a <b>DEF de todos os inimigos em 15%</b> por 2 turnos.",
+      "<b>[Vestígio: Dano vs DEF Reduzida]</b> Nanami causa <b>+20% de dano</b> contra inimigos com DEF reduzida — combo perfeito pós-Ultimate.",
+      "<b>[C2]</b> A redução de DEF sobe de 15% para <b>20%</b>.",
+      "<b>[C5]</b> +50% de dano na Ultimate.",
+    ],
+  },
+  nami: {
+    basic: [
+      "Causa <b>90% de ATK</b> em Dano de Vento no inimigo principal — Golpe com Clima-Tact.",
+      "Ganha <b>+1 Ponto de Habilidade</b> e <b>+20 de Energia</b>.",
+      "✦ <b>Talento — Aliança dos Piratas:</b> quando qualquer aliado atacar um inimigo sob <b>Ciclone</b>, Nami dispara um ataque coordenado causando <b>40% de Dano de Vento</b>.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>. Ganha <b>+30 de Energia</b>.",
+      "Gust Sword: causa <b>160% de ATK</b> em Dano de Vento a <b>todos os inimigos</b> (área).",
+      "Aplica <b>Ciclone</b> (DoT de Vento) em todos por 2 turnos — causa <b>50% ATK/turno</b>.",
+      "<b>[Vestígio: Ciclone Lento]</b> Inimigos com Ciclone têm a <b>VEL reduzida em 10%</b>.",
+      "<b>[C1]</b> Duração do Ciclone aumenta para <b>3 turnos</b>.",
+      "<b>[C3]</b> +25% de dano no Gust Sword.",
+    ],
+    ult: [
+      "Custo: <b>120 de Energia</b>.",
+      "Zeus Breeze Tempo: causa <b>340% de ATK</b> em Dano de Vento a <b>todos os inimigos</b> (área).",
+      "━━ <b>Explosão de DoTs:</b> ━━",
+      "Todos os DoTs ativos na tela <b>explodem imediatamente</b>, causando <b>60% do dano original</b> em cada tick sem consumir os turnos restantes do debuff.",
+      "<b>[C4]</b> Nami regenera <b>+15 de Energia</b> instantaneamente ao conjurar a Ultimate.",
+      "<b>[C6]</b> O multiplicador de explosão dos DoTs sobe de <b>60% para 100%</b> — cada DoT explode no valor integral.",
+    ],
+  },
+  uraraka: {
+    basic: [
+      "Causa <b>90% de ATK</b> em Dano de Vento no inimigo principal — Combate de Gravidade.",
+      "Ganha <b>+1 Ponto de Habilidade</b> e <b>+20 de Energia</b>.",
+      "✦ <b>Talento — Levitação:</b> ao usar o Ataque Básico, Uraraka avança a <b>própria barra de ação em 15%</b>, agindo mais cedo que a velocidade indica.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>. Ganha <b>+30 de Energia</b>.",
+      "Zero Gravity: aumenta o <b>ATK de um aliado em 20%</b> e a <b>VEL em +10</b> por 2 turnos.",
+      "<b>[C1]</b> O bônus de ATK sobe de 20% para <b>25%</b>.",
+      "<b>[Vestígio: Atraso]</b> Quando o aliado buffado atacar, atrasa a ação do inimigo atingido em <b>8%</b>.",
+      "<b>[C6]</b> O aliado com Zero Gravity ativo recebe <b>-10 pontos fixos no custo da própria Ultimate</b>.",
+    ],
+    ult: [
+      "Custo: <b>120 de Energia</b>.",
+      "Chuva de Destroços: causa <b>260% de ATK</b> em Dano de Vento a <b>todos os inimigos</b> (área).",
+      "Aumenta o <b>ATK de todos os aliados em 15%</b> por 2 turnos.",
+      "<b>[C2]</b> Ao usar a Ultimate, Uraraka gera um escudo para si baseado em <b>10% do próprio HP máximo</b>.",
+      "<b>[C4]</b> A duração do buff de ATK global aumenta para <b>3 turnos</b>.",
+      "<b>[C5]</b> +50% de dano na Ultimate.",
+    ],
+  },
   soifon: {
     basic: [
       "Desfere dois golpes rápidos no inimigo principal — causa <b>100% de ATK</b> em Dano de Vento.",
@@ -2481,8 +2919,19 @@ const BOSS_RUSH_BOSSES = [
   },
 ];
 
-const DOT_INFO = { burn: { c: "#FF6B45", n: "Queimadura" }, poison: { c: "#A6E22E", n: "Veneno" }, shock: { c: "#B98BFF", n: "Choque" }, bleed: { c: "#FF5FC4", n: "Sangramento" }, freeze: { c: "#6FE3FF", n: "Geada" }, geada: { c: "#6FE3FF", n: "Geada" }, corrosao: { c: "#7CFFB0", n: "Corrosão" } };
+const DOT_INFO = { burn: { c: "#FF6B45", n: "Queimadura" }, poison: { c: "#A6E22E", n: "Veneno" }, shock: { c: "#B98BFF", n: "Choque" }, bleed: { c: "#FF5FC4", n: "Sangramento" }, freeze: { c: "#6FE3FF", n: "Geada" }, geada: { c: "#6FE3FF", n: "Geada" }, corrosao: { c: "#7CFFB0", n: "Corrosão" }, cyclone: { c: "#74E8A6", n: "Ciclone" } };
 function dealDamage(attacker, defender, mult, fx, opts) {
+  // Lancer Esquiva Absoluta: bloqueia o próximo ataque
+  if (defender.id === "lancer" && (defender.lancerDodges || 0) > 0 && attacker.side !== "H" && !opts?.pierceShield) {
+    defender.lancerDodges -= 1;
+    fx.push({ uid: defender.uid, txt: "ESQUIVOU!", heal: true, id: Math.random(), el: "Chaos" });
+    if (defender.stFlags?.lancerC4) {
+      const cntAtk = Math.round(effStat(defender, "atk") * 0.80);
+      attacker.hp -= cntAtk; if (attacker.hp <= 0) { attacker.hp = 0; attacker.alive = false; }
+      fx.push({ uid: attacker.uid, txt: String(cntAtk), crit: false, id: Math.random(), el: "Chaos" });
+    }
+    return { dmg: 0, crit: false };
+  }
   // Aizen mechanic: 40% miss chance before Bankai
   if (defender.bossKind === "aizen" && !defender.aiBankai && attacker.side === "H" && Math.random() < 0.40 && !opts?.pierceShield) {
     fx.push({ uid: defender.uid, txt: "ERROU!", crit: false, id: Math.random(), el: attacker.element || "Holy" });
@@ -2528,7 +2977,13 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     if (defender.id === "omegamon" || (defender.buffs || []).some((b) => b.name === "Protocolo")) defender._omgHit = (defender._omgHit || 0) + 1;
   }
   if (defender.shield > 0 && !opts?.pierceShield) { const shBefore = defender.shield; const a = Math.min(defender.shield, dmg); defender.shield -= a; dmg -= a; if (shBefore > 0 && defender.shield === 0 && defender.id === "omegamon" && defender.stFlags && defender.stFlags.omgContagio && attacker.side !== "H") { attacker.dots = attacker.dots || []; if (!attacker.dots.some(function(d){return d.type==="corrosao";})) attacker.dots.push({ type: "corrosao", dmg: Math.max(1, Math.round(defender.base.atk * 0.35)), turns: 2 }); fx.push({ uid: attacker.uid, txt: "CORROSAO", dot: "corrosao", id: Math.random() }); } }
-  defender.hp -= dmg; if (defender.hp <= 0) { defender.hp = 0; defender.alive = false; }
+  defender.hp -= dmg;
+  if (defender.hp <= 0) {
+    if (defender.stFlags?.lancerRevive && !defender._lancerRevived && defender.side === "H") {
+      defender._lancerRevived = true; defender.hp = Math.round(defender.maxHp * 0.20); defender.alive = true;
+      fx.push({ uid: defender.uid, txt: "IMORTALIDADE!", heal: true, id: Math.random() });
+    } else { defender.hp = 0; defender.alive = false; }
+  }
   if (!defender.alive && defender.id === "omegamon" && defender.stFlags && defender.stFlags.omgC6 && !defender._c6Used) { defender.hp = 1; defender.alive = true; defender._c6Used = true; fx.push({ uid: defender.uid, txt: "FINAL DEFEAT", heal: true, id: Math.random() }); }
   if (dmg > 0 && defender.weapon && defender.weapon.omgWeapon && defender.alive && !defender.buffs.some(function(b){return b.name==="GlitchBoost";})) { defender.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "GlitchBoost" }); }
   if (defender.side === "H" && !defender.isSummon && defender.energyMax) { const heavy = attacker.boss || mult >= 300; defender.energy = Math.min(defender.energyMax, defender.energy + Math.round((heavy ? 12 : 6) * (1 + (effStat(defender, "energyRegen") || 0) / 100))); }
@@ -2579,6 +3034,16 @@ function soiFonBasicAttack(s, u, enemy, fx, ampB) {
     }
   }
   return msg;
+}
+function checkNamiFollowup(s, actor, fx) {
+  if (!actor || actor.side !== "H" || actor.isSummon) return;
+  const nami = s.heroes.find(h => h.id === "nami" && h.alive && h.stFlags && h.stFlags.namiFollowup && h.uid !== actor.uid);
+  if (!nami) return;
+  const ae = s.enemies.filter(e => e.alive && (e.dots || []).some(d => d.type === "cyclone"));
+  if (!ae.length) return;
+  const tgt = ae[0];
+  const r = dealDamage(nami, tgt, 40 * (nami.tSkill || 1), fx, { el: "Vento" });
+  s.log = [...s.log.slice(-40), `🌊 NAMI — Ataque Coordenado em ${tgt.name}: ${r.dmg} de Dano de Vento!`];
 }
 function checkSoiFonFollowup(s, actor, fx) {
   if (!actor || actor.element !== "Eletro" || actor.id === "soifon") return;
@@ -2806,6 +3271,12 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       const u = findUnit(s, current.uid); if (!u || !u.alive) { s.turn = null; return s; }
       if (kind === "skill" && s.sp <= 0) return s;
       s.heroTurns = (s.heroTurns || 0) + 1;
+      // Nanami Hora Extra
+      if (u.id === "nanami" && !u._horaExtra && s.heroTurns >= 5 && f.nanamHoraExtra) {
+        u._horaExtra = true; u.buffs.push({ stat: "atk", value: 30, pct: true, turns: 99, name: "HoraExtra" });
+        if (f.nanamC4) u.debuffs = []; // limpa debuffs ao entrar em hora extra
+        pushLog(s, "💼 NANAMI entra em HORA EXTRA! +30% ATK permanente!");
+      }
       tickDots(u, s.fx);
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
       refreshKaibaBuffs(s);
@@ -2855,6 +3326,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         }
         if (!miyDone && enemy && sk.basicMul) { const r = dealDamage(u, enemy, sk.basicMul * u.tBasic * ampB, fx); msg = `${u.name} usa Ataque Básico em ${enemy.name} — ${r.dmg} de dano${r.crit ? " (CRÍTICO!)" : ""}.`; }
         if (f.kcAdvance) { const ds = aliveDragons(s, u.uid); ds.forEach((d) => { d.av = Math.max(0.1, d.av * 0.65); }); if (ds.length) msg += ` Os ${ds.length} dragões avançam na linha do tempo!`; }
+        if (f.uraAdvance && u.id === "uraraka") { u.av = Math.max(0.1, u.av * 0.85); msg += " Uraraka avança na linha do tempo (Zero G)!"; }
         s.sp = Math.min(5, s.sp + 1); u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enBasic || 15));
       } else if (kind === "skill") {
         s.sp -= 1; u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enSkill || 22));
@@ -2891,6 +3363,30 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           const sh = Math.round(u.maxHp * 0.25); u.shield = Math.max(u.shield, sh);
           if (enemy) { const r = dealDamage(u, enemy, (sk.skillMul || 120) * sMul, fx, { el: "Virus" }); msg = `🛡️ ${u.name} ativa Protocolo de Infecção — o time recebe -${red}% de dano por 2 turnos e ele ergue um Escudo de Dados de ${sh}. Atinge ${enemy.name} por ${r.dmg} de Dano de Vírus${r.crit ? " (CRÍTICO!)" : ""}.`; }
           else msg = `🛡️ ${u.name} ativa Protocolo de Infecção — -${red}% de dano ao time e Escudo de Dados de ${sh}.`;
+        }
+        else if (u.id === "lancer" && sk.lancerSkill) {
+          u.lancerDodges = (u.lancerDodges || 0) + 2;
+          u.av = Math.max(0.1, u.av * 0.70); // advance action 30%
+          msg = `🏹 ${u.name} usa Proteção contra Flechas — avança na linha do tempo e ganha 2 Esquivas Absolutas! (${u.lancerDodges} cargas)`;
+        }
+        else if (u.id === "nanami" && sk.nanamSkill && enemy) {
+          const sMul = u.tSkill * ampS;
+          const r = dealDamage(u, enemy, (sk.skillMul || 240) * sMul, fx);
+          const is73 = (f.nanamC6 || r.dmg % 10 === 7 || r.dmg % 10 === 3);
+          let extraCrit = false;
+          if (is73 && !r.crit) {
+            const bonus = dealDamage(u, enemy, 0.5 * (sk.skillMul || 240) * sMul, fx); // crit bonus ~50%
+            extraCrit = true;
+          }
+          if ((is73 || f.nanamCritEnergy) && (is73)) u.energy = Math.min(u.energyMax, u.energy + 10);
+          msg = `💼 ${u.name} usa Razão 7:3 em ${enemy.name} — ${r.dmg} de dano${is73 ? " — PROPORÇÃO 7:3: CRÍTICO GARANTIDO!" : r.crit ? " (CRÍTICO!)" : ""}.`;
+        }
+        else if (u.id === "uraraka" && sk.uraSkill) {
+          const buffTarget = allies.filter(a => a.uid !== u.uid && !a.isSummon)[0] || u;
+          const atkPct = f.uraC1 ? 25 : 20;
+          applyBuff([buffTarget], { atk: atkPct, spd: 10, turns: 2 }, "Zero Gravity", fx, u);
+          msg = `🎈 ${u.name} usa Zero Gravity em ${buffTarget.name} — +${atkPct}% ATK e +10 VEL por 2 turnos!`;
+          if (f.uraC2) { u.shield = (u.shield || 0) + Math.round(u.maxHp * 0.10); msg += ` Escudo Orbital: +${Math.round(u.maxHp * 0.10)} de escudo.`; }
         }
         else if (sk.skillMul && enemy) {
           const onSkillHit = (e, r) => {
@@ -2931,6 +3427,29 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
             if (!enemy.alive && f.sfC6) { u.energy = u.energyMax; u.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); }
             msg = `💥🦋 JAKUHŌ RAIKŌBEN! ${u.name} dispara o míssil definitivo em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " CRÍTICO!" : ""}!${fmMarks ? ` (+${fmMarks * 15}% de marcas!)` : ""} Zona de Condução por ${zonaTurns} turno(s)!${f.sfC4 ? " +10% CRIT ao time!" : ""}`;
           }
+        } else if (u.id === "nami" && sk.namiUlt) {
+          u.energy = enGain(5);
+          const explodeMul = f.namiC6 ? 100 : 60;
+          let tot = 0;
+          aliveEnemies(s).forEach((e) => {
+            const r = dealDamage(u, e, (sk.ultMul || 340) * u.tUlt * ampU, fx, { el: "Vento" });
+            tot += r.dmg;
+            // Explode active DoTs
+            let dotDmg = 0;
+            (e.dots || []).forEach((d) => { const xd = Math.max(1, Math.round(d.dmg * explodeMul / 100)); dotDmg += xd; e.hp -= xd; if (e.hp <= 0) { e.hp = 0; e.alive = false; } fx.push({ uid: e.uid, txt: String(xd), dot: d.type, id: Math.random() }); });
+            if (dotDmg) tot += dotDmg;
+          });
+          if (f.namiC4) u.energy = Math.min(u.energyMax, u.energy + 15);
+          msg = `🌊⚡ ZEUS BREEZE TEMPO! ${u.name} — ${tot} de dano total (explosão de DoTs: ${explodeMul}%)!`;
+        } else if (u.id === "lancer" && sk.lancerUlt && enemy) {
+          u.energy = enGain(5);
+          const defPen = f.lancerC6 ? 20 : 0;
+          const forceCrit = enemy.hp / enemy.maxHp < 0.50;
+          let origCR = null;
+          if (forceCrit) { origCR = u.base.critRate; u.base = { ...u.base, critRate: 200 }; }
+          const r = dealDamage(u, enemy, (sk.ultMul || 420) * u.tUlt * ampU, fx, { pierceShield: true, defPen });
+          if (origCR !== null) u.base.critRate = origCR;
+          msg = `🏹💀 GÁE BOLG! ${u.name} perfura ${enemy.name} com A Lança da Morte — ${r.dmg} de Caos${r.crit ? " CRÍTICO!" : ""}!${forceCrit ? " (CRÍTICO GARANTIDO < 50% HP!)" : ""}${defPen ? ` Perfura ${defPen}% DEF!` : ""}`;
         } else if (u.id === "omegamon" && sk.omgUlt) {
           u.energy = enGain(5);
           const cost = Math.round(u.hp * 0.30); u.hp = Math.max(1, u.hp - cost); if (u.weapon && u.weapon.omgWeapon && !u.buffs.some(function(b){return b.name==="GlitchBoost";})) u.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "GlitchBoost" });
@@ -2975,6 +3494,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       if (u.id === "soifon" && s.sfZona) { s.sfZona.turns -= 1; if (s.sfZona.turns <= 0) s.sfZona = null; }
       s.sfFollowThisTurn = 0;
       checkSoiFonFollowup(s, u, s.fx);
+      checkNamiFollowup(s, u, s.fx);
       s.hitFx = { el: u.element, big: kind === "ult" || sk.ultAoe || (kind === "skill" && sk.aoe), support: !fx.some((x) => !x.heal && !x.dot), id: Math.random() };
       pushLog(s, msg || `${u.name} se prepara.`); s = checkEnd(s); s.turn = null; return s;
     });
@@ -3660,7 +4180,7 @@ function AdminPlayersTab() {
     </div>
   );
 }
-function Admin({ images, setImages, flash }) {
+function Admin({ images, setImages, flash, isAdmin, draftActive, setDraftActive }) {
   const [tab, setTab] = useState("chars");
   const setImg = (id, url) => setImages((m) => { const next = { ...m, [id]: url }; cloudSet("meta", "images", { map: next }); _ls.set("sr_shared_images", JSON.stringify(next)); return next; });
   const clearImg = (id) => setImages((m) => { const n = { ...m }; delete n[id]; cloudSet("meta", "images", { map: n }); _ls.set("sr_shared_images", JSON.stringify(n)); return n; });
@@ -3670,7 +4190,7 @@ function Admin({ images, setImages, flash }) {
         <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>🛠️ Painel Admin</div>
         <p style={{ fontSize: 13, color: C.mute, marginTop: 6 }}>Cole o link direto da imagem (Imgur) de cada personagem e arma. Use o link que termina em <b>.jpg</b>/<b>.png</b> (ex: <span style={{ color: C.text }}>https://i.imgur.com/XXXX.png</span>). A imagem aparece no jogo inteiro na hora.</p>
       </Panel>
-      <div className="flex gap-2" style={{ flexWrap: "wrap" }}><TabBtn active={tab === "chars"} onClick={() => setTab("chars")}>Personagens</TabBtn><TabBtn active={tab === "weapons"} onClick={() => setTab("weapons")}>Armas</TabBtn><TabBtn active={tab === "summons"} onClick={() => setTab("summons")}>Invocações</TabBtn><TabBtn active={tab === "items"} onClick={() => setTab("items")}>🎒 Itens</TabBtn><TabBtn active={tab === "bosses"} onClick={() => setTab("bosses")}>💀 Chefes</TabBtn><TabBtn active={tab === "players"} onClick={() => setTab("players")}>👥 Players</TabBtn></div>
+      <div className="flex gap-2" style={{ flexWrap: "wrap" }}><TabBtn active={tab === "chars"} onClick={() => setTab("chars")}>Personagens</TabBtn><TabBtn active={tab === "weapons"} onClick={() => setTab("weapons")}>Armas</TabBtn><TabBtn active={tab === "summons"} onClick={() => setTab("summons")}>Invocações</TabBtn><TabBtn active={tab === "items"} onClick={() => setTab("items")}>🎒 Itens</TabBtn><TabBtn active={tab === "bosses"} onClick={() => setTab("bosses")}>💀 Chefes</TabBtn><TabBtn active={tab === "players"} onClick={() => setTab("players")}>👥 Players</TabBtn><TabBtn active={tab === "evento"} onClick={() => setTab("evento")}>🎲 Evento</TabBtn></div>
       {tab === "chars" && <div className="flex flex-col gap-2">{ROSTER.map((c) => <AdminRow key={c.id} id={c.id} name={`${c.name} · ${c.element} · ${ROLES[c.role].label}`} rarity={c.rarity} fallback={c.avatar} element={c.element} url={images[c.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "weapons" && <div className="flex flex-col gap-2">{WEAPONS.map((w) => <AdminRow key={w.id} id={w.id} name={`${w.name} · ${ROLES[w.role].label}`} rarity={w.rarity} fallback="🗡️" weapon url={images[w.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "summons" && <div className="flex flex-col gap-2">
@@ -3692,6 +4212,25 @@ function Admin({ images, setImages, flash }) {
         {BOSS_RUSH_BOSSES.map((boss) => <AdminRow key={boss.imgKey} id={boss.imgKey} name={boss.name + " · " + boss.element} rarity={5} fallback={boss.avatar} element={boss.element} url={images[boss.imgKey] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}
       </div>}
       {tab === "players" && <AdminPlayersTab />}
+      {tab === "evento" && <div className="flex flex-col gap-4">
+        <Panel glow="#7B5CF6">
+          <div style={{ ...ORB, fontSize: 17, fontWeight: 800 }}>🎲 Catacumba do Rascunho</div>
+          <p style={{ fontSize: 13, color: C.mute, marginTop: 6, lineHeight: 1.6 }}>Ative ou desative o evento temporário de Draft. Quando ativo, todos os jogadores verão a aba "Catacumba" no menu e poderão participar. Recomendado ativar por 7 dias.</p>
+        </Panel>
+        <Panel>
+          <div className="flex items-center justify-between">
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 15 }}>{draftActive ? "🟢 EVENTO ATIVO" : "🔴 EVENTO INATIVO"}</div>
+              <div style={{ fontSize: 12, color: C.mute, marginTop: 4 }}>Status atual da Catacumba do Rascunho para todos os jogadores.</div>
+            </div>
+            <Btn kind={draftActive ? "danger" : "primary"} onClick={() => {
+              const next = !draftActive;
+              setDraftActive(next);
+              cloudSet("meta", "settings", { draftActive: next, draftUpdatedAt: Date.now() });
+            }}>{draftActive ? "Desativar Evento" : "Ativar Evento"}</Btn>
+          </div>
+        </Panel>
+      </div>}
     </div>
   );
 }
@@ -3768,6 +4307,297 @@ function NicknameModal({ onSave }) {
           Confirmar Nick
         </button>
       </div>
+    </div>
+  );
+}
+
+/* ==========================================================================
+   CATACUMBA DO RASCUNHO (Draft Mode)
+   ========================================================================== */
+const DRAFT_ROOMS = [
+  { idx: 0, name: "Entrada das Sombras",   gem: 200, boss: false, desc: "Ondas de guardiões da catacumba bloqueiam a passagem." },
+  { idx: 1, name: "Corredor Crepuscular",  gem: 200, boss: false, desc: "O eco de batalhas antigas ressoa pelas paredes de pedra." },
+  { idx: 2, name: "Câmara das Relíquias",  gem: 200, boss: false, desc: "Artefatos corrompidos ganham vida para defender seus tesouros." },
+  { idx: 3, name: "Guardião da Câmara",    gem: 400, boss: true,  desc: "Um ser ancestral bloqueia o avanço. Derrote-o para prosseguir." },
+  { idx: 4, name: "Labirinto Estelar",     gem: 250, boss: false, desc: "A geometria da dungeon desafia a lógica mortal." },
+  { idx: 5, name: "Trono dos Esquecidos",  gem: 250, boss: false, desc: "Heróis caídos retornam como espectros para uma última batalha." },
+  { idx: 6, name: "Soberano da Catacumba", gem: 1500, boss: true, desc: "O coração da dungeon — a recompensa máxima de 3000💎 aguarda os valentes." },
+];
+const DRAFT_BOONS = [
+  { id: "b_atk",      name: "Fúria do Rascunho",    desc: "+25% de ATK durante este run",        stat: "atk",      value: 25, icon: "⚔️" },
+  { id: "b_crit",     name: "Olho do Destino",       desc: "+20% de Taxa Crítica neste run",       stat: "critRate", value: 20, icon: "👁️" },
+  { id: "b_critdmg",  name: "Fio da Morte",          desc: "+40% de Dano Crítico neste run",       stat: "critDmg",  value: 40, icon: "💀" },
+  { id: "b_dmg",      name: "Amplificação Caótica",  desc: "+30% de Bônus de Dano neste run",      stat: "dmgBonus", value: 30, icon: "💥" },
+  { id: "b_spd",      name: "Relâmpago da Catacumba",desc: "+20 de Velocidade neste run",           stat: "spd",      value: 20, icon: "⚡" },
+  { id: "b_hp",       name: "Vitalidade Ancestral",  desc: "+40% de HP máximo neste run",           stat: "hp",       value: 40, icon: "❤️" },
+  { id: "b_def",      name: "Armadura de Pedra",     desc: "+30% de DEF durante este run",          stat: "def",      value: 30, icon: "🛡️" },
+  { id: "b_energy",   name: "Fluxo de Energia",      desc: "+30% de Regen de Energia neste run",   stat: "energyRegen", value: 30, icon: "🔋" },
+];
+function pick3(arr) {
+  const a = [...arr]; const out = [];
+  for (let i = 0; i < 3 && a.length; i++) { const idx = Math.floor(Math.random() * a.length); out.push(...a.splice(idx, 1)); }
+  return out;
+}
+function DraftDungeon({ draftRoomCleared, draftClaimedGems, draftBoons, setDraftBoons, startRoom, flash, team, ownedMap, owned }) {
+  const [phase, setPhase] = React.useState("rooms"); // "rooms" | "pick_chars" | "pick_boon"
+  const [selectedRoom, setSelectedRoom] = React.useState(null);
+  const [charOffers, setCharOffers] = React.useState([]);
+  const [pickedChars, setPickedChars] = React.useState([]);
+  const [boonOffers, setBoonOffers] = React.useState([]);
+  const [showHow, setShowHow] = React.useState(false);
+
+  const allComplete = draftRoomCleared >= DRAFT_ROOMS.length;
+  const totalGems = DRAFT_ROOMS.reduce((a, r) => a + r.gem, 0);
+
+  function enterRoom(room) {
+    if (room.idx > draftRoomCleared) { flash("Conclua as salas anteriores primeiro.", C.bad); return; }
+    if (room.idx < draftRoomCleared) { flash("Esta sala já foi conquistada.", C.mute); return; }
+    setSelectedRoom(room);
+    // Offer 9 random chars (pick 3 of 3 rounds)
+    const pool = ROSTER.filter(c => c.rarity >= 4);
+    setCharOffers([pick3(pool), pick3(pool), pick3(pool)]);
+    setPickedChars([]);
+    setPhase("pick_chars");
+  }
+  function pickChar(roundIdx, charId) {
+    const newPicked = [...pickedChars];
+    newPicked[roundIdx] = charId;
+    setPickedChars(newPicked);
+    if (newPicked.filter(Boolean).length === 3) {
+      setTimeout(() => {
+        // Create draft ownedMap entries for picked chars
+        const draftTeam = newPicked;
+        // Launch battle
+        startRoom(selectedRoom.idx, draftTeam);
+        setPhase("rooms");
+      }, 300);
+    }
+  }
+  function offerBoons() {
+    const avail = DRAFT_BOONS.filter(b => !draftBoons.find(x => x.id === b.id));
+    setBoonOffers(pick3(avail.length >= 3 ? avail : DRAFT_BOONS));
+    setPhase("pick_boon");
+  }
+  function takeBoon(boon) {
+    setDraftBoons(prev => [...prev.filter(b => b.id !== boon.id), boon]);
+    setPhase("rooms");
+    flash(`Bênção obtida: ${boon.name}!`, C.gold);
+  }
+
+  if (showHow) return (
+    <div className="flex flex-col gap-4">
+      <button onClick={() => setShowHow(false)} style={{ color: C.mute, fontSize: 13, textAlign: "left" }}>‹ voltar</button>
+      <Panel glow="#7B5CF6">
+        <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>❓ Como Funciona a Catacumba?</div>
+        <div className="flex flex-col gap-4" style={{ marginTop: 14 }}>
+          {[
+            { icon: "🎲", title: "Modo Rascunho", body: "Você NÃO usa seu time padrão. A cada sala, você escolhe 3 personagens de ofertas aleatórias do ROSTER completo — incluindo heróis que você nem possui na conta! É uma experiência nova a cada run." },
+            { icon: "⚔️", title: "Monte seu Time", body: "Para cada um dos 3 slots do time, você recebe 3 opções de personagens diferentes e escolhe 1. No total, 3 rodadas de escolha formam sua equipe de 3 para aquela sala." },
+            { icon: "🏆", title: "Recompensas", body: "Cada sala conquistada dá gemas. Salas normais dão 200-250💎, mini-bosses dão 400💎 e o boss final dá 1500💎. Total máximo: 3000💎 por evento!" },
+            { icon: "✨", title: "Bênçãos do Rascunho", body: "Após cada vitória, você pode escolher uma Bênção poderosa (buffs de ATK, CRIT, VEL, etc.) que persiste pelo resto do evento. Monte combinações criativas!" },
+            { icon: "👑", title: "Ativação por Admin", body: "O evento é temporário e ativado pelo administrador. Quando ativo, aparece no menu como 'Catacumba'." },
+          ].map((item, i) => (
+            <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+              <div style={{ fontSize: 28, flexShrink: 0 }}>{item.icon}</div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 14, color: C.gold }}>{item.title}</div>
+                <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.6, marginTop: 4 }}>{item.body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Panel>
+    </div>
+  );
+
+  if (phase === "pick_chars") return (
+    <div className="flex flex-col gap-4">
+      <button onClick={() => setPhase("rooms")} style={{ color: C.mute, fontSize: 13, textAlign: "left" }}>‹ cancelar seleção</button>
+      <Panel glow="#7B5CF6">
+        <div style={{ ...ORB, fontSize: 16, fontWeight: 800 }}>🎲 {selectedRoom?.name}</div>
+        <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>Escolha 1 personagem para cada slot do seu time de rascunho!</div>
+      </Panel>
+      {[0, 1, 2].map(roundIdx => (
+        <Panel key={roundIdx} style={{ border: `1px solid ${pickedChars[roundIdx] ? C.good : C.line}` }}>
+          <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 10 }}>
+            {pickedChars[roundIdx] ? <span style={{ color: C.good }}>✓ Slot {roundIdx + 1}: {CHAR_MAP[pickedChars[roundIdx]]?.name}</span> : <span>Slot {roundIdx + 1}: Escolha um personagem</span>}
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {(charOffers[roundIdx] || []).map((c) => {
+              const el = ELEMENTS[c.element] || { color: C.line };
+              const picked = pickedChars[roundIdx] === c.id;
+              return (
+                <button key={c.id} onClick={() => !pickedChars[roundIdx] && pickChar(roundIdx, c.id)}
+                  className="active:scale-95 transition" disabled={!!pickedChars[roundIdx]}
+                  style={{ background: picked ? `${el.color}33` : C.panelHi, border: `2px solid ${picked ? el.color : C.line}`, borderRadius: 12, padding: 10, textAlign: "center" }}>
+                  <div style={{ fontSize: 28 }}>{c.avatar}</div>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: c.rarity === 5 ? C.gold : "#B98BFF" }}>{c.name}</div>
+                  <div style={{ fontSize: 10, color: el.color }}>{c.element}</div>
+                  <div style={{ fontSize: 10, color: C.mute }}>{ROLES[c.role]?.label}</div>
+                </button>
+              );
+            })}
+          </div>
+        </Panel>
+      ))}
+    </div>
+  );
+
+  if (phase === "pick_boon") return (
+    <div className="flex flex-col gap-4">
+      <Panel glow={C.gold}>
+        <div style={{ ...ORB, fontSize: 16, fontWeight: 800 }}>✨ Escolha uma Bênção</div>
+        <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>Vitória conquistada! Escolha um poder permanente para o resto do evento.</div>
+      </Panel>
+      <div className="flex flex-col gap-3">
+        {boonOffers.map(b => (
+          <button key={b.id} onClick={() => takeBoon(b)} className="text-left active:scale-95">
+            <Panel glow={C.gold} style={{ padding: 16 }}>
+              <div className="flex items-center gap-3">
+                <div style={{ fontSize: 36 }}>{b.icon}</div>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: 15, color: C.gold }}>{b.name}</div>
+                  <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>{b.desc}</div>
+                </div>
+              </div>
+            </Panel>
+          </button>
+        ))}
+        <Btn kind="ghost" onClick={() => setPhase("rooms")}>Pular (sem bênção)</Btn>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel glow="#7B5CF6" style={{ position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(400px 200px at 80% 0%, #7B5CF622, transparent)" }} />
+        <div style={{ position: "relative" }}>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div style={{ ...ORB, fontSize: 19, fontWeight: 800 }}>🎲 Catacumba do Rascunho</div>
+            <button onClick={() => setShowHow(true)} style={{ background: "rgba(123,92,246,0.2)", border: "1px solid #7B5CF688", color: "#B98BFF", borderRadius: 99, padding: "4px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>❓ Como funciona</button>
+          </div>
+          <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>Evento temporário · 7 salas · 3000💎 no total</div>
+          <div className="flex items-center gap-3 mt-3" style={{ fontSize: 13 }}>
+            <span>Progresso: <b style={{ color: "#B98BFF" }}>{draftRoomCleared}/{DRAFT_ROOMS.length}</b></span>
+            <span>Gemas: <b style={{ color: C.gold }}>{draftClaimedGems}/{totalGems}</b></span>
+          </div>
+          <Bar value={draftClaimedGems} max={totalGems} color="#7B5CF6" />
+        </div>
+      </Panel>
+
+      {draftBoons.length > 0 && (
+        <Panel>
+          <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 8 }}>✨ Bênçãos Ativas ({draftBoons.length})</div>
+          <div className="flex flex-wrap gap-2">
+            {draftBoons.map(b => (
+              <div key={b.id} style={{ background: `${C.gold}22`, border: `1px solid ${C.gold}66`, borderRadius: 99, padding: "3px 12px", fontSize: 11, fontWeight: 700, color: C.gold }}>
+                {b.icon} {b.name}
+              </div>
+            ))}
+          </div>
+        </Panel>
+      )}
+
+      {allComplete ? (
+        <Panel style={{ textAlign: "center", padding: 32 }}>
+          <div style={{ fontSize: 48 }}>🏆</div>
+          <div style={{ ...ORB, fontWeight: 800, fontSize: 20, color: C.gold, marginTop: 8 }}>Catacumba Conquistada!</div>
+          <div style={{ color: C.mute, fontSize: 13, marginTop: 8 }}>Você derrotou o Soberano e recolheu as 3000💎. Aguarde o próximo evento!</div>
+        </Panel>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {DRAFT_ROOMS.map((room) => {
+            const cleared = room.idx < draftRoomCleared;
+            const current = room.idx === draftRoomCleared;
+            const locked = room.idx > draftRoomCleared;
+            return (
+              <button key={room.idx} onClick={() => !locked && !cleared && enterRoom(room)}
+                disabled={locked || cleared} className="text-left active:scale-95"
+                style={{ opacity: locked ? 0.45 : 1, cursor: (locked || cleared) ? "not-allowed" : "pointer" }}>
+                <Panel glow={current ? "#7B5CF6" : cleared ? C.good : null}
+                  style={{ border: `2px solid ${cleared ? C.good : current ? "#7B5CF6" : C.line}`, padding: 14 }}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="flex items-center gap-2">
+                        <span style={{ fontSize: 20 }}>{cleared ? "✅" : locked ? "🔒" : room.boss ? "💀" : "🗡️"}</span>
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: 14 }}>Sala {room.idx + 1} {room.boss ? "· CHEFE" : ""} — {room.name}</div>
+                          <div style={{ fontSize: 12, color: C.mute, marginTop: 2 }}>{room.desc}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div style={{ fontWeight: 800, color: cleared ? C.good : C.gold, fontSize: 14 }}>{cleared ? "✓" : `+${room.gem}💎`}</div>
+                      {current && <div style={{ fontSize: 11, color: "#7B5CF6", fontWeight: 700 }}>PRÓXIMA</div>}
+                    </div>
+                  </div>
+                </Panel>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ==========================================================================
+   UPDATE LOG
+   ========================================================================== */
+function UpdateLog({ setScreen, draftActive }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel glow={C.gold}>
+        <div style={{ ...ORB, fontSize: 20, fontWeight: 800 }}>🆕 Novidades</div>
+        <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>Últimas atualizações do Stellar Resonance</div>
+      </Panel>
+
+      {/* Catacumba */}
+      <Panel glow="#7B5CF6">
+        <div className="flex items-center gap-3 mb-3">
+          <div style={{ fontSize: 32 }}>🎲</div>
+          <div>
+            <div style={{ ...ORB, fontWeight: 800, fontSize: 16, color: "#B98BFF" }}>NOVO MODO — Catacumba do Rascunho</div>
+            <div style={{ fontSize: 11, color: C.mute }}>Evento Temporário · 7 Dias</div>
+          </div>
+          {draftActive && <span style={{ background: "#7B5CF622", border: "1px solid #7B5CF688", color: "#B98BFF", borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700, marginLeft: "auto" }}>ATIVO</span>}
+        </div>
+        <div className="flex flex-col gap-2" style={{ fontSize: 13, color: C.mute, lineHeight: 1.6 }}>
+          <p>Um novo modo de jogo temporário chegou ao Stellar Resonance! Em vez de usar seu time, você <b style={{ color: C.text }}>recebe personagens aleatórios</b> — incluindo heróis que você nem possui.</p>
+          <div className="flex flex-col gap-1" style={{ marginTop: 6 }}>
+            {["🎲 A cada sala, 3 personagens aleatórios são oferecidos — escolha 1 por slot", "🏆 7 salas progressivas com recompensas crescentes", "💎 Total de 3.000 Gemas por evento", "✨ Colete Bênçãos poderosas após cada vitória", "💀 2 chefes épicos guardam as maiores recompensas"].map((t, i) => (
+              <div key={i} style={{ display: "flex", gap: 8 }}><span>{t.slice(0, 2)}</span><span>{t.slice(2)}</span></div>
+            ))}
+          </div>
+        </div>
+        {draftActive && <Btn style={{ marginTop: 12 }} onClick={() => setScreen("draft")}>Entrar na Catacumba →</Btn>}
+      </Panel>
+
+      {/* Novos T4 */}
+      <Panel glow="#B98BFF">
+        <div style={{ ...ORB, fontWeight: 800, fontSize: 16, color: "#B98BFF", marginBottom: 12 }}>★★★★ Novos Personagens T4</div>
+        <div className="flex flex-col gap-3">
+          {[
+            { id: "lancer", el: "#FF5FC4", title: "Cu Chulainn · Fate", sub: "DPS Chaos · Sobrevivência Extrema", desc: "Cavaleiro de lança imortal que desafia a morte. Esquiva golpes com cargas de Esquiva Absoluta e perfura escudos com a lendária Gáe Bolg — garantindo Crítico contra alvos enfraquecidos." },
+            { id: "nanami", el: "#FF5FC4", title: "Nanami · Jujutsu Kaisen", sub: "DPS Chaos · Críticos Garantidos", desc: "Feiticeiro profissional que torna números em armas. Usa a proporção 7:3 para garantir Críticos e entra em Hora Extra após o 5º turno, ganhando +30% de ATK permanente." },
+            { id: "nami", el: "#74E8A6", title: "Nami · One Piece", sub: "DPS Área Vento · DoT + Explosão", desc: "Navegadora dos Piratas do Chapéu de Palha. Aplica Ciclones em todos os inimigos e os faz explodir com Zeus Breeze Tempo, detonando todos os DoTs ativos de uma vez." },
+            { id: "uraraka", el: "#74E8A6", title: "Uraraka · My Hero Academia", sub: "Buffer Vento · ATK + Velocidade", desc: "Heroína com o Quirk Gravidade Zero. Buffka aliados com ATK e VEL, age com frequência acima do esperado e atrasa inimigos — controle de turno cirúrgico." },
+          ].map(({ id, el, title, sub, desc }) => {
+            const def = CHAR_MAP[id];
+            return (
+              <div key={id} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: `${el}0d`, border: `1px solid ${el}33`, borderRadius: 12, padding: 12 }}>
+                <div style={{ fontSize: 32, flexShrink: 0 }}>{def?.avatar}</div>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: 14, color: "#B98BFF" }}>{title}</div>
+                  <div style={{ fontSize: 11, color: el, fontWeight: 700, marginTop: 2 }}>{sub}</div>
+                  <div style={{ fontSize: 12, color: C.mute, marginTop: 6, lineHeight: 1.5 }}>{desc}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
     </div>
   );
 }
