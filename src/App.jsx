@@ -2311,7 +2311,7 @@ function Tower({ towerCleared, towerClaimed, start, team, flash }) {
             </button>;
           })}
         </div>
-        <div style={{ fontSize: 11, color: C.mute, marginTop: 10 }}>Toque no andar liberado (dourado) para batalhar. Cada andar custa <b>5⚡</b> e <b>não pode ser repetido</b> após a vitória.</div>
+        <div style={{ fontSize: 11, color: C.mute, marginTop: 10 }}>Toque no andar liberado (dourado) para batalhar. Andares <b>não podem ser repetidos</b> após a vitória.</div>
       </Panel>
     </div>
   );
