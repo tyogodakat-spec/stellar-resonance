@@ -430,7 +430,6 @@ const TRACE_NODE_SETS = {
     { stat: "energyRegen", value: 10, label: "Regen de Energia +10%", cost: 700 },
     { stat: "critDmg", value: 12, label: "CRIT DMG +12%", cost: 900 },
   ],
-};
   lancer: [
     { stat: "atk", value: 6, label: "ATK +6%", cost: 500 },
     { stat: "spd", value: 5, label: "VEL +5", cost: 1100 },
