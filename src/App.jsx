@@ -4630,26 +4630,33 @@ function Loja({ chronicles, setChronicles, expItems, setExpItems, weaponMats, se
   const [charPick, setCharPick] = React.useState(null);
 
   const WEEK = 7 * 24 * 3600 * 1000;
-  const checkReset = () => {
-    if (Date.now() - shopResetAt >= WEEK) {
-      const fresh = {};
-      setShopPurchases(fresh);
-      setShopResetAt(Date.now());
-      return fresh;
-    }
-    return shopPurchases;
-  };
 
-  const rem = (id, limit) => limit - (shopPurchases[id] || 0);
+  // Compute reset-aware purchases for BOTH rendering and logic — runs on every render.
+  // If the week has elapsed, treat the inventory as fully refreshed (empty purchases).
+  const isExpired = Date.now() - shopResetAt >= WEEK;
+  const activePurchases = isExpired ? {} : shopPurchases;
+
+  // Apply the reset to state on mount (or when the screen opens) so save/load stays consistent.
+  React.useEffect(() => {
+    if (isExpired) {
+      setShopPurchases({});
+      setShopResetAt(Date.now());
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const rem = (id, limit) => limit - (activePurchases[id] || 0);
 
   function buy(item) {
-    const cur = checkReset();
-    const bought = cur[item.id] || 0;
-    if (bought >= item.limit) { flash("Estoque esgotado esta semana!", C.bad); return; }
+    const curBought = activePurchases[item.id] || 0;
+    if (curBought >= item.limit) { flash("Estoque esgotado esta semana!", C.bad); return; }
     if (!isAdmin && chronicles < item.cost) { flash("Crônicas insuficientes — 📜 " + item.cost + " necessários", C.bad); return; }
-    if (item.id === "charCopy") { setCharPick({ cur, bought }); return; }
+    if (item.id === "charCopy") { setCharPick({ charCopyBought: curBought }); return; }
     if (!isAdmin) setChronicles((c) => c - item.cost);
-    setShopPurchases((p) => ({ ...cur, [item.id]: bought + 1 }));
+    // Functional update: always read prev to avoid stale closure overwrite
+    setShopPurchases((prev) => {
+      const base = isExpired ? {} : prev;
+      return { ...base, [item.id]: (base[item.id] || 0) + 1 };
+    });
     if (item.id === "exp")      setExpItems((v) => v + item.qty);
     else if (item.id === "wpnMat")   setWeaponMats((v) => v + item.qty);
     else if (item.id === "skillMat") setSkillMats((v) => v + item.qty);
@@ -4663,13 +4670,17 @@ function Loja({ chronicles, setChronicles, expItems, setExpItems, weaponMats, se
 
   function applyCharCopy(charId) {
     if (!charPick) return;
-    const { cur, bought } = charPick;
     const item = SHOP_ITEMS.find((x) => x.id === "charCopy");
+    const curBought = activePurchases.charCopy || 0;
+    if (curBought >= item.limit) { flash("Estoque esgotado esta semana!", C.bad); setCharPick(null); return; }
     const o = owned.find((x) => x.id === charId);
     if (!o) { setCharPick(null); return; }
-    if (o.eidolon >= 6) { flash("Já está em E6 — máximo atingido!", C.bad); setCharPick(null); return; }
+    if ((o.eidolon || 0) >= 6) { flash("Já está em E6 — máximo atingido!", C.bad); setCharPick(null); return; }
     if (!isAdmin) setChronicles((c) => c - item.cost);
-    setShopPurchases((p) => ({ ...cur, charCopy: bought + 1 }));
+    setShopPurchases((prev) => {
+      const base = isExpired ? {} : prev;
+      return { ...base, charCopy: (base.charCopy || 0) + 1 };
+    });
     setOwned((prev) => prev.map((x) => x.id === charId ? { ...x, eidolon: Math.min(6, (x.eidolon || 0) + 1) } : x));
     const def = CHAR_MAP[charId];
     flash((def ? def.name : charId) + " → E" + Math.min(6, (o.eidolon || 0) + 1) + " ✦", C.gold);
@@ -4677,18 +4688,20 @@ function Loja({ chronicles, setChronicles, expItems, setExpItems, weaponMats, se
   }
 
   function buyTagMat(tag) {
-    const cur = checkReset();
     const key = "tag_" + tag;
-    const bought = cur[key] || 0;
-    if (bought >= 3) { flash("Estoque do material " + tag + " esgotado esta semana!", C.bad); return; }
+    const curBought = activePurchases[key] || 0;
+    if (curBought >= 3) { flash("Estoque do material " + tag + " esgotado esta semana!", C.bad); return; }
     if (!isAdmin && chronicles < 60) { flash("Crônicas insuficientes — 📜 60 necessários", C.bad); return; }
     if (!isAdmin) setChronicles((c) => c - 60);
-    setShopPurchases((p) => ({ ...cur, [key]: bought + 1 }));
+    setShopPurchases((prev) => {
+      const base = isExpired ? {} : prev;
+      return { ...base, [key]: (base[key] || 0) + 1 };
+    });
     setTagMats((m) => ({ ...m, [tag]: (m[tag] || 0) + 2 }));
     flash("+2 Material \"" + tag + "\" comprado!", C.good);
   }
 
-  const resetIn = Math.max(0, Math.ceil((shopResetAt + WEEK - Date.now()) / 3600000));
+  const resetIn = isExpired ? 0 : Math.max(0, Math.ceil((shopResetAt + WEEK - Date.now()) / 3600000));
 
   return (
     <div className="flex flex-col gap-4">
@@ -4797,13 +4810,16 @@ const MAIL_PKG = [
 
 function Correio({ mailClaimed, setMailClaimed, setJade, setExpItems, setWeaponMats, setRelicMats, flash }) {
   function claimMail() {
-    if (mailClaimed) { flash("Correio já coletado!", C.bad); return; }
-    setJade((j) => j + 12000);
-    setExpItems((v) => v + 200);
-    setWeaponMats((v) => v + 200);
-    setRelicMats((v) => v + 100);
-    setMailClaimed(true);
-    flash("📬 Recompensas coletadas! +12.000💎 +200📘 +200⚙️ +100🔷", C.gold);
+    // Functional update prevents double-claim race: only grants if prev was false
+    setMailClaimed((prev) => {
+      if (prev) { flash("Correio já coletado!", C.bad); return prev; }
+      setJade((j) => j + 12000);
+      setExpItems((v) => v + 200);
+      setWeaponMats((v) => v + 200);
+      setRelicMats((v) => v + 100);
+      flash("📬 Recompensas coletadas! +12.000💎 +200📘 +200⚙️ +100🔷", C.gold);
+      return true;
+    });
   }
 
   return (
