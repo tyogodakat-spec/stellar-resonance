@@ -1229,7 +1229,7 @@ function Game({ email, isAdmin, onLogout }) {
 
   if (!loaded) return <div style={{ minHeight: "100vh", background: C.bg0, color: C.mute, display: "flex", alignItems: "center", justifyContent: "center" }}>Sincronizando ressonância…</div>;
 
-  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
+  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["roteiro", "Roteiro", "📖"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
 
   const needsNick = loaded && (!playerName || playerName === "Pioneiro");
 
@@ -1282,6 +1282,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} flash={flash} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
+                {screen === "roteiro" && <Roteiro />}
               {screen === "admin" && (isAdmin ? <Admin images={images} setImages={setImages} flash={flash} isAdmin={isAdmin} draftActive={draftActive} setDraftActive={setDraftActive} /> : <Empty msg="Acesso restrito ao administrador." />)}
             </>
           )}
@@ -1458,12 +1459,50 @@ function ContentTabs({ bossRushCleared, startBossRush, isAdmin, images, setImage
         <div style={{ fontFamily: "monospace", fontWeight: 800, fontSize: 22, color: "#ffcc00", textAlign: "center", letterSpacing: 2, padding: "10px 0" }}>{formatCountdown(historiaMs)}</div>
       </div>}
       {tab === "eventos" && <div style={{ marginTop: 12 }}>
-        <div style={{ fontWeight: 700, marginBottom: 8 }}>Eventos Ativos</div>
-        <div style={{ textAlign: "center", padding: "16px 0", background: C.panelHi, borderRadius: 10 }}>
-          <div style={{ color: C.mute, fontWeight: 700, fontSize: 13, letterSpacing: 1, textTransform: "uppercase" }}>Eventos Indefinidos</div>
-          <div style={{ color: C.dim, fontSize: 12, marginTop: 4 }}>Fique atento às notas de atualização futuras.</div>
-        </div>
-      </div>}
+          <div style={{ fontWeight: 700, marginBottom: 10 }}>Eventos Ativos</div>
+          <div className="flex flex-col gap-3">
+            <div style={{ background:"linear-gradient(135deg,#1a0d3a,#0f1a2e)",border:"1px solid #473c80",borderRadius:14,overflow:"hidden" }}>
+              <div style={{ background:"linear-gradient(90deg,#6B3CF699,#0076FF44)",padding:"10px 14px",display:"flex",alignItems:"center",gap:10 }}>
+                <span style={{ fontSize:22 }}>🎴</span>
+                <div><div style={{ fontWeight:800,fontSize:14 }}>Banner de Personagem — Limitado</div><div style={{ fontSize:11,color:C.mute }}>Evento de Invocacao</div></div>
+                <div style={{ marginLeft:"auto",background:"#6B3CF633",border:"1px solid #6B3CF688",color:"#B98BFF",borderRadius:99,padding:"2px 10px",fontSize:11,fontWeight:700 }}>ATIVO</div>
+              </div>
+              <div style={{ padding:"10px 14px" }}>
+                <div style={{ display:"flex",gap:8,marginBottom:8,flexWrap:"wrap" }}>
+                  {[{n:"Omegamon Zwart D",ico:"🛡️",el:"#A6E22E"},{n:"Soi Fon",ico:"🦋",el:"#74E8A6"}].map((c,i)=>(
+                    <div key={i} style={{ display:"flex",alignItems:"center",gap:6,background:c.el+"1a",border:"1px solid "+c.el+"44",borderRadius:10,padding:"5px 10px" }}>
+                      <span style={{ fontSize:18 }}>{c.ico}</span>
+                      <span style={{ fontWeight:700,fontSize:12,color:c.el }}>{c.n}</span>
+                      <span style={{ fontSize:10,color:C.gold,fontWeight:800 }}>5★</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontSize:12,color:C.mute,lineHeight:1.5 }}>Taxa de 5★ garantido ao 90º pull (50/50). Rate-up: 50% de chance de cair o personagem em destaque.</div>
+              </div>
+            </div>
+            <div style={{ background:"linear-gradient(135deg,#1a0d3a,#0d1a0d)",border:"1px solid #7B5CF666",borderRadius:14,overflow:"hidden" }}>
+              <div style={{ background:"linear-gradient(90deg,#7B5CF699,transparent)",padding:"10px 14px",display:"flex",alignItems:"center",gap:10 }}>
+                <span style={{ fontSize:22 }}>🎲</span>
+                <div><div style={{ fontWeight:800,fontSize:14 }}>Catacumba do Rascunho</div><div style={{ fontSize:11,color:C.mute }}>Modo Temporario</div></div>
+                <div style={{ marginLeft:"auto",background:"#7B5CF633",border:"1px solid #7B5CF688",color:"#B98BFF",borderRadius:99,padding:"2px 10px",fontSize:11,fontWeight:700 }}>ATIVO</div>
+              </div>
+              <div style={{ padding:"10px 14px" }}>
+                <div style={{ fontSize:12,color:C.mute,lineHeight:1.5 }}>Receba personagens aleatorios, colete Bencaos e conquiste 3.000 diamantes. 7 salas progressivas.</div>
+                <div style={{ fontFamily:"monospace",fontWeight:800,color:"#B98BFF",fontSize:13,marginTop:6 }}>Encerra em: {formatCountdown(endgameMs)}</div>
+              </div>
+            </div>
+            <div style={{ background:"linear-gradient(135deg,#1a1205,#0f0d1a)",border:"1px solid #F6C95B44",borderRadius:14,overflow:"hidden" }}>
+              <div style={{ background:"linear-gradient(90deg,#F6C95B22,transparent)",padding:"10px 14px",display:"flex",alignItems:"center",gap:10 }}>
+                <span style={{ fontSize:22 }}>📬</span>
+                <div><div style={{ fontWeight:800,fontSize:14 }}>Pacote de Lancamento</div><div style={{ fontSize:11,color:C.mute }}>Recompensa unica de primeiro login</div></div>
+                <div style={{ marginLeft:"auto",background:"#F6C95B22",border:"1px solid #F6C95B77",color:C.gold,borderRadius:99,padding:"2px 10px",fontSize:11,fontWeight:700 }}>CORREIO</div>
+              </div>
+              <div style={{ padding:"10px 14px" }}>
+                <div style={{ fontSize:12,color:C.mute,lineHeight:1.5 }}>12.000 diamantes + 200 Lagrimas de XP + 200 Engrenagens + 100 Materias de Reliquia. Acesse o Correio para coletar.</div>
+              </div>
+            </div>
+          </div>
+        </div>}
       {tab === "endgame" && <div style={{ marginTop: 12 }}>
         <style dangerouslySetInnerHTML={{__html: "@keyframes brCardGlow{0%,100%{box-shadow:none}50%{box-shadow:0 0 28px var(--bcol,#fff4),0 0 60px var(--bcol,#fff2)}} @keyframes clearedShine{from{background-position:200% center}to{background-position:-200% center}}" }} />
         <div style={{ display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:4 }}>
@@ -4870,6 +4909,148 @@ function Correio({ mailClaimed, setMailClaimed, setJade, setExpItems, setWeaponM
 }
 
 /* ==========================================================================
+/* ==========================================================================
+     ROTEIRO — Modo História (acessível a todos os jogadores)
+     ========================================================================== */
+  function Roteiro() {
+    const [chapter, setChapter] = React.useState(0);
+
+    const STORY_ACTS = [
+      {
+        title: "ATO I · A Fissura sobre Nova Eridu",
+        color: "#60c8ff", icon: "🌆",
+        lines: [
+          { t: "scene",  txt: "NOVA ERIDU — DISTRITO CENTRAL · NOITE" },
+          { t: "action", txt: "A cidade pulsa com seu habitual jazz neon. Hologramas flutuantes vendem cápsulas de comida, androides entregam encomendas e o hum constante dos geradores Ether permeia o ar salgado." },
+          { t: "hud",    txt: "[ BGM: Zenless Zone Zero — Hollow Deep ]" },
+          { t: "action", txt: "No 37º andar da Sede da Seção 6, Miyabi encerra o último relatório do dia. A katana de gelo permanece apoiada na janela de vidro — reflexo de seu rosto impassível contra as luzes da cidade." },
+          { t: "char",   ch: "MIYABI",   txt: "Setenta e dois incidentes de Hollow esta semana. Três a mais que a média. Não é aceitável." },
+          { t: "char",   ch: "YANAGI",   txt: "Mais especificamente, 72,4. Mas temos um problema maior: o formulário de dano ambiental do Setor 9 ainda não foi aprovado." },
+          { t: "char",   ch: "HARUMASA", txt: "Espera — é quase 23h. Meu turno acabou às 22h. Na verdade, às 21h57. Eu tenho testemunhas." },
+          { t: "action", txt: "Uma fissura dimensional corta o céu como vidro rachado. Estática vermelho-violeta expande em ondas — prédios tremem, o forno holográfico de uma lanchonete explode, e o céu se parte em três." },
+          { t: "hud",    txt: "[ ALERTA: ANOMALIA DIMENSIONAL — NÍVEL DESCONHECIDO ]" },
+          { t: "char",   ch: "YANAGI",   txt: "Energia Ether fora dos parâmetros. Este tipo de fissura não consta em nenhum arquivo da Comissão." },
+          { t: "char",   ch: "HARUMASA", txt: "Alguém pode pedir lamen antes de a gente ir morrer?" },
+          { t: "char",   ch: "MIYABI",   txt: "Silêncio. [pausa] Movam-se." },
+        ],
+      },
+      {
+        title: "ATO II · Battle Royale — Katana × Cartas",
+        color: "#B98BFF", icon: "⚔️",
+        lines: [
+          { t: "scene",  txt: "PRAÇA CENTRAL · DOIS MINUTOS DEPOIS" },
+          { t: "action", txt: "A Fissura cobre metade do céu, latejando com energia violeta. Miyabi empunha a katana — o chão ao redor de seus pés congela em cristais hexagonais perfeitos." },
+          { t: "hud",    txt: "[ FASE: CONFRONTO DIMENSIONAL — Miyabi vs ??? ]" },
+          { t: "action", txt: "Da Fissura emerge uma figura: alta, sobretudo branco, Duel Disk ativo no braço esquerdo. Seto Kaiba desce ao chão como se a gravidade fosse uma sugestão." },
+          { t: "char",   ch: "KAIBA",    txt: "Que primitivos. Construíram uma cidade inteira sobre ruínas tecnológicas e chamam de progresso. [ajusta o Duel Disk] Ao menos a hostil me é familiar." },
+          { t: "char",   ch: "MIYABI",   txt: "Identifique-se e declare suas intenções." },
+          { t: "char",   ch: "KAIBA",    txt: "Seto Kaiba. Kaiba Corporation. Minhas intenções? [pausa longa] Avaliar a competição." },
+          { t: "char",   ch: "HARUMASA", txt: "Ele está com um Duel Disk? Como no desenho? [sussurra] Yanagi, você está vendo isso?" },
+          { t: "char",   ch: "YANAGI",   txt: "Vejo. E estou calculando os danos estruturais projetados. A estimativa é catastrófica." },
+          { t: "action", txt: "Kaiba ergue o Duel Disk. Miyabi reconhece a ameaça e ataca primeiro — três cortes em arco, cada um deixando uma camada de gelo no ar." },
+          { t: "char",   ch: "KAIBA",    txt: "Invoco — Blue-Eyes White Dragon. DESTRUIÇÃO DO RAIO EXPLOSIVO." },
+          { t: "action", txt: "O dragão branco materializa-se com um rugido que racha janelas por seis quarteirões. Miyabi salta e congela o feixe no meio do ar com um único gesto da katana." },
+          { t: "char",   ch: "MIYABI",   txt: "Impressionante. Mas previsível." },
+          { t: "hud",    txt: "[ STATUS: IMPASSE — Nenhum dos combatentes está disposto a recuar ]" },
+          { t: "char",   ch: "KAIBA",    txt: "[pela primeira vez, um traço de respeito na voz] Você é melhor do que o esperado." },
+        ],
+      },
+      {
+        title: "ATO III · O Terceiro Inimigo",
+        color: "#FF5FC4", icon: "💀",
+        lines: [
+          { t: "scene",  txt: "PRAÇA CENTRAL · O IMPASSE QUEBRA" },
+          { t: "action", txt: "A Fissura no céu colapsa — mas em vez de fechar, expande. Do vazio entre dimensões emerge algo diferente: forma pura e antimatéria, uma ENTIDADE CLASSE OMEGA." },
+          { t: "hud",    txt: "[ NOVA AMEAÇA DETECTADA — CLASSE OMEGA · PROTOCOLO DE EVACUAÇÃO IMEDIATO ]" },
+          { t: "action", txt: "A entidade não fala. Ela pulsa. Cada pulso apaga um fragmento da realidade — hologramas somem, concreto se dissolve." },
+          { t: "char",   ch: "YANAGI",   txt: "Esta entidade consome a própria estrutura da realidade. Os formulários para isso não existem. Terei que criar um novo do zero." },
+          { t: "char",   ch: "HARUMASA", txt: "[pela primeira vez sem reclamar do horário] Ok. Isso é sério. Arco elétrico ativado." },
+          { t: "action", txt: "Miyabi e Kaiba param de brigar. Uma trégua não declarada se forma — zero palavras, zero gestos." },
+          { t: "char",   ch: "KAIBA",    txt: "Eu detesto trabalho em equipe. [pausa] Mas detesto mais perder." },
+          { t: "char",   ch: "MIYABI",   txt: "Proteja a ala sul. Minha equipe cobre o norte." },
+          { t: "hud",    txt: "[ BGM: STELLAR RESONANCE — BOSS THEME · VOLUME MÁXIMO ]" },
+          { t: "action", txt: "No minuto trinta e três, Miyabi e o Blue-Eyes Ultimate Dragon atacam simultaneamente — gelo e relâmpago fundidos em um único ponto de impacto." },
+          { t: "hud",    txt: "[ ENTIDADE CLASSE OMEGA — NEUTRALIZADA ]" },
+        ],
+      },
+      {
+        title: "ATO IV · O Monarca e a Pioneira",
+        color: "#FFD700", icon: "👑",
+        lines: [
+          { t: "scene",  txt: "PRAÇA CENTRAL · PÓS-BATALHA" },
+          { t: "action", txt: "A poeira baixa. A Fissura fecha-se como uma ferida que cicatriza rápido demais. Nova Eridu permanece de pé — danificada, mas de pé." },
+          { t: "char",   ch: "YANAGI",   txt: "Dezoito prédios com dano estrutural parcial, quarenta e dois carros danificados. E o formulário de ocorrência dimensional que terei que criar do zero." },
+          { t: "char",   ch: "HARUMASA", txt: "Ia falar que tô com fome, mas agora só quero dormir. As duas coisas." },
+          { t: "action", txt: "Kaiba afasta os hologramas residuais com um gesto. O sobretudo branco está imaculado — nem uma mancha." },
+          { t: "char",   ch: "KAIBA",    txt: "A cidade tem potencial. A tecnologia Ether é primitiva mas o conceito é sólido. [olha para Miyabi] A força de defesa é... adequada." },
+          { t: "char",   ch: "MIYABI",   txt: "'Adequada.' Que elogio generoso." },
+          { t: "char",   ch: "KAIBA",    txt: "[baixo, definitivo] Eu vim ver o macaco." },
+          { t: "action", txt: "Miyabi não pisca. O gelo ao redor de seus pés expande dois centímetros — involuntário." },
+          { t: "char",   ch: "MIYABI",   txt: "[após uma pausa perfeita] Então você o encontrou." },
+          { t: "hud",    txt: "[ FIM DO ATO IV — STELLAR RESONANCE × CROSSOVER ARC · 完 ]" },
+          { t: "action", txt: "Kaiba sobe de volta ao topo do dragão. A Fissura já fechou. Yanagi já está digitando. Harumasa já está ligando para o lamen. Miyabi olha para o céu vazio." },
+          { t: "scene",  txt: "[ PRÓXIMO ARC: A ORIGEM DA ENTIDADE CLASSE OMEGA ]" },
+        ],
+      },
+    ];
+
+    const CH_COLORS = { MIYABI: "#60c8ff", YANAGI: "#B98BFF", HARUMASA: "#FF8C44", KAIBA: "#FFD700" };
+    const act = STORY_ACTS[chapter];
+
+    const renderLine = (line, i) => {
+      if (line.t === "scene") return (
+        <div key={i} style={{ textAlign:"center",padding:"10px 0",fontFamily:"monospace",fontSize:11,color:C.mute,letterSpacing:2,textTransform:"uppercase",borderTop:"1px solid "+C.line,borderBottom:"1px solid "+C.line,margin:"10px 0" }}>{line.txt}</div>
+      );
+      if (line.t === "hud") return (
+        <div key={i} style={{ background:"#00E5CC0d",border:"1px solid #00E5CC33",borderRadius:8,padding:"8px 14px",fontSize:12,color:"#00E5CC",fontFamily:"monospace",margin:"6px 0" }}>{line.txt}</div>
+      );
+      if (line.t === "action") return (
+        <div key={i} style={{ fontSize:13,color:C.mute,lineHeight:1.75,padding:"6px 0",fontStyle:"italic" }}>{line.txt}</div>
+      );
+      if (line.t === "char") {
+        const col = CH_COLORS[line.ch] || C.gold;
+        return (
+          <div key={i} style={{ margin:"8px 0" }}>
+            <span style={{ fontWeight:800,fontSize:12,color:col,letterSpacing:1,textTransform:"uppercase",marginRight:8 }}>{line.ch}</span>
+            <span style={{ fontSize:13,color:C.text,lineHeight:1.7 }}>{line.txt}</span>
+          </div>
+        );
+      }
+      return null;
+    };
+
+    return (
+      <div className="flex flex-col gap-4">
+        <Panel glow={C.gold}>
+          <div style={{ ...ORB, fontSize:18,fontWeight:800 }}>📖 Roteiro</div>
+          <div style={{ fontSize:13,color:C.mute,marginTop:4 }}>Stellar Resonance × Crossover Arc — Capítulo I</div>
+        </Panel>
+        <Panel>
+          <div className="flex gap-2 flex-wrap">
+            {STORY_ACTS.map((a,i) => (
+              <button key={i} onClick={()=>setChapter(i)} style={{ padding:"7px 14px",borderRadius:99,fontWeight:700,fontSize:12,border:"1px solid "+(chapter===i ? a.color : C.line),background:chapter===i ? a.color+"22" : "transparent",color:chapter===i ? a.color : C.mute,cursor:"pointer",transition:"all .2s" }}>
+                {a.icon} {a.title.split("·")[0].trim()}
+              </button>
+            ))}
+          </div>
+        </Panel>
+        <Panel glow={act.color} style={{ borderLeft:"3px solid "+act.color }}>
+          <div style={{ ...ORB,fontWeight:800,fontSize:16,color:act.color,marginBottom:2 }}>{act.icon} {act.title}</div>
+          <div style={{ width:40,height:2,background:act.color,borderRadius:2,marginBottom:16,opacity:0.6 }} />
+          <div className="flex flex-col">
+            {act.lines.map((line,i) => renderLine(line,i))}
+          </div>
+        </Panel>
+        <div className="flex gap-2">
+          {chapter > 0 && <Btn kind="ghost" style={{ flex:1 }} onClick={()=>setChapter(c=>c-1)}>← Ato Anterior</Btn>}
+          {chapter < STORY_ACTS.length - 1 && <Btn kind="primary" style={{ flex:1 }} onClick={()=>setChapter(c=>c+1)}>Próximo Ato →</Btn>}
+          {chapter === STORY_ACTS.length - 1 && <div style={{ flex:1,textAlign:"center",padding:"10px",color:C.mute,fontSize:13,background:C.panelHi,borderRadius:12 }}>Fim do Arco · Novo capítulo em breve</div>}
+        </div>
+      </div>
+    );
+  }
+
+  
    ADMIN ROTEIRO — Story mode, admin-only
    ========================================================================== */
 function AdminRoteiro() {
