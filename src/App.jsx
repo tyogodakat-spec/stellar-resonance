@@ -340,7 +340,6 @@ const CONS = {
     { name: "C5 · Protocolo Aprimorado", ...A_SKILL, ampV: 25, desc: "Aumenta o multiplicador da Perícia em +25% e reforça o Talento." },
     { name: "C6 · Final Defeat", flag: "omgC6", desc: "Abaixo de 30% de HP, ativa [Final Defeat]: Omegamon não pode morrer por 1 turno e seu Dano de Vírus aumenta em 100%. A cura da Ultimate revive aliados derrotados com 30% de HP." },
   ],
-};
   lancer: [
     { name: "C1 · Proteção do Herói", flag: "lancerC1", desc: "Mudança de kit: Lancer entra em batalha com 1 carga de Esquiva Absoluta gratuita, evitando o primeiro golpe sem custo." },
     { name: "C2 · Lança Acelerada", stat: "energyMax", value: -15, desc: "Aprimoramento: o custo de Energia da Ultimate cai de 110 para 95, permitindo disparar Gáe Bolg com muito mais frequência." },
