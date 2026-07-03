@@ -161,6 +161,7 @@ const GAME_ITEMS = [
   { id: "item_relic_viral", name: "Relíquia · Praga Viral",         icon: "🧬" },
   { id: "item_relic_holy",  name: "Relíquia · Benção Sagrada",      icon: "✨" },
   { id: "item_relic_omega", name: "Relíquia · Protocolo Ômega",      icon: "☢️" },
+  { id: "item_relic_mat",   name: "Matéria de Relíquia",              icon: "🔷" },
 ];
 const STAT_LABEL = { hp: "HP", atk: "ATK", def: "DEF", spd: "VEL", critRate: "CRIT", critDmg: "CRIT DMG", dmgBonus: "DANO", energyRegen: "REGEN ENERGIA", healBonus: "CURA", energyMax: "EN", vuln: "VULN", defPen: "PERFURAÇÃO", elemDmg: "DANO ELEM.", dotDmg: "DANO DE DoT", atkP: "ATK", hpP: "HP", defP: "DEF", atkFlat: "ATK", hpFlat: "HP", defFlat: "DEF" };
 const PCT = { hp: 1, atk: 1, def: 1 };
@@ -870,7 +871,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [ownedWeapons, setOwnedWeapons] = useState([]);
   const [relicInv, setRelicInv] = useState([]);
   const [team, setTeam] = useState(["ace", "chopper", "usopp"]);
-  const [stamina, setStamina] = useState(240);
+  const [stamina, setStamina] = useState(320);
   const [lastStamina, setLastStamina] = useState(Date.now());
   const [playerName, setPlayerName] = useState("Pioneiro");
   const [images, setImages] = useState({});
@@ -888,6 +889,10 @@ function Game({ email, isAdmin, onLogout }) {
   const [draftRoomCleared, setDraftRoomCleared] = useState(0);
   const [draftClaimedGems, setDraftClaimedGems] = useState(0);
   const [draftBoons, setDraftBoons] = useState([]);
+  const [mailClaimed, setMailClaimed] = useState(false);
+  const [relicMats, setRelicMats] = useState(0);
+  const [shopResetAt, setShopResetAt] = useState(0);
+  const [shopPurchases, setShopPurchases] = useState({});
 
   const ownedMap = useMemo(() => Object.fromEntries(owned.map((o) => [o.id, o])), [owned]);
   const flash = (msg, color) => { setToast({ msg, color: color || C.gold }); setTimeout(() => setToast(null), 2200); };
@@ -903,11 +908,12 @@ function Game({ email, isAdmin, onLogout }) {
       setPity({ char: 0, weapon: 0, standard: 0, guaranteeChar: false, ...(s.pity || {}) });
       setPullHistory(s.pullHistory ?? []);
       if (s.owned) setOwned(s.owned.map(normChar).filter((o) => CHAR_MAP[o.id])); setOwnedWeapons((Array.isArray(s.ownedWeapons) ? s.ownedWeapons : []).map((x) => typeof x === "string" ? { id: x, lv: 1 } : x).filter((x) => x && WEAPON_MAP[x.id])); setRelicInv((Array.isArray(s.relicInv) ? s.relicInv : []).filter(isValidRelic));
-      if (s.team) setTeam(s.team); setStamina(s.stamina ?? 240); setLastStamina(s.lastStamina ?? Date.now());
+      if (s.team) setTeam(s.team); setStamina(s.stamina ?? 320); setLastStamina(s.lastStamina ?? Date.now());
       setPlayerName(s.playerName ?? "Pioneiro");
       setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []);
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0); setBossRushCleared(Array.isArray(s.bossRushCleared) ? s.bossRushCleared : []);
       setDraftRoomCleared(s.draftRoomCleared ?? 0); setDraftClaimedGems(s.draftClaimedGems ?? 0); setDraftBoons(Array.isArray(s.draftBoons) ? s.draftBoons : []);
+      setMailClaimed(s.mailClaimed ?? false); setRelicMats(s.relicMats ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
     }
     // Carrega fotos do localStorage imediatamente (sem depender do Firebase)
     try { const li = _ls.get("sr_shared_images"); if (li) { const parsed = JSON.parse(li); if (parsed && typeof parsed === "object") setImages(parsed); } } catch {}
@@ -931,7 +937,7 @@ function Game({ email, isAdmin, onLogout }) {
     if (!loaded) return;
     const tick = () => {
       const gained = Math.floor((Date.now() - lastStaminaRef.current) / (6 * 60 * 1000));
-      if (gained > 0) { setStamina((v) => Math.min(240, v + gained)); setLastStamina(Date.now()); }
+      if (gained > 0) { setStamina((v) => Math.min(320, v + gained)); setLastStamina(Date.now()); }
     };
     tick();
     const iv = setInterval(tick, 60 * 1000); // catch-up ao vivo a cada minuto (estável: deps [loaded], lê ref)
@@ -940,8 +946,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, relicMats, shopResetAt, shopPurchases });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, relicMats, shopResetAt, shopPurchases]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -961,8 +967,8 @@ function Game({ email, isAdmin, onLogout }) {
     const cur = relicInv.find((r) => r.id === relicId);
     if (!cur || cur.level >= 15) return;
     const need = 1 + Math.floor((cur.level || 0) / 4);
-    if (!isAdmin && expItems < need) { flash(`Faltam Lácrimas de XP (precisa ${need})`, C.bad); return; }
-    if (!isAdmin) setExpItems((v) => v - need);
+    if (!isAdmin && relicMats < need) { flash(`Faltam Matérias de Relíquia (precisa ${need}) — compre na Loja 🛒`, C.bad); return; }
+    if (!isAdmin) setRelicMats((v) => v - need);
     const up = upgradeRelic(cur);
     setRelicInv((prev) => prev.map((r) => (r.id === relicId ? up : r)));
     setOwned((prev) => prev.map((o) => ({ ...o, relics: (o.relics || []).map((r) => (r && r.id === relicId ? up : r)) })));
@@ -1223,7 +1229,7 @@ function Game({ email, isAdmin, onLogout }) {
 
   if (!loaded) return <div style={{ minHeight: "100vh", background: C.bg0, color: C.mute, display: "flex", alignItems: "center", justifyContent: "center" }}>Sincronizando ressonância…</div>;
 
-  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
+  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
 
   const needsNick = loaded && (!playerName || playerName === "Pioneiro");
 
@@ -1244,7 +1250,8 @@ function Game({ email, isAdmin, onLogout }) {
               <Res icon="🔮" v={bossMats} color={C.gold} itemId="item_boss_mat" />
               <Res icon="🎴" v={charTickets} color={C.gold} itemId="item_ticket_char" />
               <Res icon="🔧" v={weaponTickets} color="#B98BFF" itemId="item_ticket_wpn" />
-              <Res icon="⚡" v={`${stamina}`} color={C.good} />
+              <Res icon="🔷" v={relicMats} color="#60c8ff" itemId="item_relic_mat" />
+              <Res icon="⚡" v={`${stamina}/320`} color={C.good} />
               <button onClick={onLogout} title={email} className="flex items-center gap-1" style={{ background: C.panelHi, padding: "4px 10px", borderRadius: 99, border: `1px solid ${C.line}`, color: C.mute, fontWeight: 700, fontSize: 13 }}>
                 {isAdmin && <span style={{ color: C.gold }}>👑</span>}⎋ Sair
               </button>
@@ -1271,6 +1278,8 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "weekly" && <WeeklyBoss start={startWeekly} stamina={stamina} bossMats={bossMats} lastWeeklyBoss={lastWeeklyBoss} startAscension={startAscension} ascMats={ascMats} />}
               {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} flash={flash} setBattle={setBattle} />}
               {screen === "relics" && <RelicsScreen relicInv={relicInv} />}
+              {screen === "loja" && <Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} />
+              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} flash={flash} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
               {screen === "admin" && (isAdmin ? <Admin images={images} setImages={setImages} flash={flash} isAdmin={isAdmin} draftActive={draftActive} setDraftActive={setDraftActive} /> : <Empty msg="Acesso restrito ao administrador." />)}
@@ -2541,7 +2550,7 @@ function RelicEquip({ o, setOwnedField, relicInv, onUpgradeRelic }) {
               <div style={{ fontSize: 12, fontWeight: 700, color: relicSetData(r.set).color }}>{r.set} <span style={{ color: C.mute }}>+{r.level || 0}</span></div>
               <div style={{ fontSize: 12 }}>{relicMainText(r)}</div>
               <div style={{ fontSize: 10, color: C.mute, lineHeight: 1.35 }}>{(r.subs || []).map((s) => `${relicSubLabel(s)} +${s.value.toFixed(1)}`).join(" · ")}</div>
-              {onUpgradeRelic && r.level < 15 && <div onClick={(e) => { e.stopPropagation(); onUpgradeRelic(r.id); }} className="flex items-center gap-1" style={{ marginTop: 4, fontSize: 11, color: C.gold, fontWeight: 700 }}>⬆ Subir +3 (<ItemIcon id="item_exp" emoji="📘" size={11} /> Lágrimas)</div>}
+              {onUpgradeRelic && r.level < 15 && <div onClick={(e) => { e.stopPropagation(); onUpgradeRelic(r.id); }} className="flex items-center gap-1" style={{ marginTop: 4, fontSize: 11, color: C.gold, fontWeight: 700 }}>⬆ Subir (<ItemIcon id="item_relic_mat" emoji="🔷" size={11} /> Matéria)</div>}
             </button>)}
           </div>}
       </div>); })()}
@@ -4190,7 +4199,7 @@ function Admin({ images, setImages, flash, isAdmin, draftActive, setDraftActive 
         <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>🛠️ Painel Admin</div>
         <p style={{ fontSize: 13, color: C.mute, marginTop: 6 }}>Cole o link direto da imagem (Imgur) de cada personagem e arma. Use o link que termina em <b>.jpg</b>/<b>.png</b> (ex: <span style={{ color: C.text }}>https://i.imgur.com/XXXX.png</span>). A imagem aparece no jogo inteiro na hora.</p>
       </Panel>
-      <div className="flex gap-2" style={{ flexWrap: "wrap" }}><TabBtn active={tab === "chars"} onClick={() => setTab("chars")}>Personagens</TabBtn><TabBtn active={tab === "weapons"} onClick={() => setTab("weapons")}>Armas</TabBtn><TabBtn active={tab === "summons"} onClick={() => setTab("summons")}>Invocações</TabBtn><TabBtn active={tab === "items"} onClick={() => setTab("items")}>🎒 Itens</TabBtn><TabBtn active={tab === "bosses"} onClick={() => setTab("bosses")}>💀 Chefes</TabBtn><TabBtn active={tab === "players"} onClick={() => setTab("players")}>👥 Players</TabBtn><TabBtn active={tab === "evento"} onClick={() => setTab("evento")}>🎲 Evento</TabBtn></div>
+      <div className="flex gap-2" style={{ flexWrap: "wrap" }}><TabBtn active={tab === "chars"} onClick={() => setTab("chars")}>Personagens</TabBtn><TabBtn active={tab === "weapons"} onClick={() => setTab("weapons")}>Armas</TabBtn><TabBtn active={tab === "summons"} onClick={() => setTab("summons")}>Invocações</TabBtn><TabBtn active={tab === "items"} onClick={() => setTab("items")}>🎒 Itens</TabBtn><TabBtn active={tab === "bosses"} onClick={() => setTab("bosses")}>💀 Chefes</TabBtn><TabBtn active={tab === "players"} onClick={() => setTab("players")}>👥 Players</TabBtn><TabBtn active={tab === "evento"} onClick={() => setTab("evento")}>🎲 Evento</TabBtn><TabBtn active={tab === "roteiro"} onClick={() => setTab("roteiro")}>🎬 Roteiro</TabBtn></div>
       {tab === "chars" && <div className="flex flex-col gap-2">{ROSTER.map((c) => <AdminRow key={c.id} id={c.id} name={`${c.name} · ${c.element} · ${ROLES[c.role].label}`} rarity={c.rarity} fallback={c.avatar} element={c.element} url={images[c.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "weapons" && <div className="flex flex-col gap-2">{WEAPONS.map((w) => <AdminRow key={w.id} id={w.id} name={`${w.name} · ${ROLES[w.role].label}`} rarity={w.rarity} fallback="🗡️" weapon url={images[w.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "summons" && <div className="flex flex-col gap-2">
@@ -4212,6 +4221,7 @@ function Admin({ images, setImages, flash, isAdmin, draftActive, setDraftActive 
         {BOSS_RUSH_BOSSES.map((boss) => <AdminRow key={boss.imgKey} id={boss.imgKey} name={boss.name + " · " + boss.element} rarity={5} fallback={boss.avatar} element={boss.element} url={images[boss.imgKey] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}
       </div>}
       {tab === "players" && <AdminPlayersTab />}
+      {tab === "roteiro" && <AdminRoteiro />}
       {tab === "evento" && <div className="flex flex-col gap-4">
         <Panel glow="#7B5CF6">
           <div style={{ ...ORB, fontSize: 17, fontWeight: 800 }}>🎲 Catacumba do Rascunho</div>
@@ -4597,6 +4607,382 @@ function UpdateLog({ setScreen, draftActive }) {
             );
           })}
         </div>
+      </Panel>
+    </div>
+  );
+}
+
+/* ==========================================================================
+   LOJA (Shop — Wuthering Waves style, weekly stock, chronicles)
+   ========================================================================== */
+const SHOP_ITEMS = [
+  { id: "exp",      label: "📘 Lágrimas de XP",        desc: "×10 por compra · upar personagens",     cost: 30,  limit: 20, qty: 10, cat: "mats" },
+  { id: "wpnMat",   label: "⚙️ Engrenagem de Arma",    desc: "×5 por compra · upar armas",            cost: 30,  limit: 20, qty: 5,  cat: "mats" },
+  { id: "skillMat", label: "💠 Cristal de Habilidade", desc: "×5 por compra · Básico / Skill / Ult",  cost: 30,  limit: 10, qty: 5,  cat: "mats" },
+  { id: "ascMat",   label: "🔶 Núcleo de Ascensão",    desc: "×3 por compra · ascender personagens",  cost: 50,  limit: 5,  qty: 3,  cat: "mats" },
+  { id: "bossMat",  label: "🔮 Núcleo de Vestígio",    desc: "×1 por compra · Rastros Especiais",     cost: 50,  limit: 5,  qty: 1,  cat: "mats" },
+  { id: "relicMat", label: "🔷 Matéria de Relíquia",   desc: "×5 por compra · upar relíquias",        cost: 40,  limit: 10, qty: 5,  cat: "mats" },
+  { id: "energy",   label: "⚡ Recarga de Energia",    desc: "+60 Energia · reposição rápida",         cost: 30,  limit: 5,  qty: 60, cat: "energy" },
+  { id: "charCopy", label: "🎭 Cópia de Personagem",   desc: "Eleva +1 Eidolão num personagem (máx E6)", cost: 600, limit: 2, qty: 1,  cat: "special" },
+];
+
+function Loja({ chronicles, setChronicles, expItems, setExpItems, weaponMats, setWeaponMats, skillMats, setSkillMats, ascMats, setAscMats, bossMats, setBossMats, relicMats, setRelicMats, stamina, setStamina, shopPurchases, setShopPurchases, shopResetAt, setShopResetAt, owned, setOwned, tagMats, setTagMats, flash, isAdmin }) {
+  const [charPick, setCharPick] = React.useState(null);
+
+  const WEEK = 7 * 24 * 3600 * 1000;
+  const checkReset = () => {
+    if (Date.now() - shopResetAt >= WEEK) {
+      const fresh = {};
+      setShopPurchases(fresh);
+      setShopResetAt(Date.now());
+      return fresh;
+    }
+    return shopPurchases;
+  };
+
+  const rem = (id, limit) => limit - (shopPurchases[id] || 0);
+
+  function buy(item) {
+    const cur = checkReset();
+    const bought = cur[item.id] || 0;
+    if (bought >= item.limit) { flash("Estoque esgotado esta semana!", C.bad); return; }
+    if (!isAdmin && chronicles < item.cost) { flash("Crônicas insuficientes — 📜 " + item.cost + " necessários", C.bad); return; }
+    if (item.id === "charCopy") { setCharPick({ cur, bought }); return; }
+    if (!isAdmin) setChronicles((c) => c - item.cost);
+    setShopPurchases((p) => ({ ...cur, [item.id]: bought + 1 }));
+    if (item.id === "exp")      setExpItems((v) => v + item.qty);
+    else if (item.id === "wpnMat")   setWeaponMats((v) => v + item.qty);
+    else if (item.id === "skillMat") setSkillMats((v) => v + item.qty);
+    else if (item.id === "ascMat")   setAscMats((v) => v + item.qty);
+    else if (item.id === "bossMat")  setBossMats((v) => v + item.qty);
+    else if (item.id === "relicMat") setRelicMats((v) => v + item.qty);
+    else if (item.id === "energy")   setStamina((v) => Math.min(320, v + item.qty));
+    const name = item.label.split(" ").slice(1).join(" ");
+    flash("Comprado! +" + (item.qty > 1 ? item.qty + " " : "") + name, C.good);
+  }
+
+  function applyCharCopy(charId) {
+    if (!charPick) return;
+    const { cur, bought } = charPick;
+    const item = SHOP_ITEMS.find((x) => x.id === "charCopy");
+    const o = owned.find((x) => x.id === charId);
+    if (!o) { setCharPick(null); return; }
+    if (o.eidolon >= 6) { flash("Já está em E6 — máximo atingido!", C.bad); setCharPick(null); return; }
+    if (!isAdmin) setChronicles((c) => c - item.cost);
+    setShopPurchases((p) => ({ ...cur, charCopy: bought + 1 }));
+    setOwned((prev) => prev.map((x) => x.id === charId ? { ...x, eidolon: Math.min(6, (x.eidolon || 0) + 1) } : x));
+    const def = CHAR_MAP[charId];
+    flash((def ? def.name : charId) + " → E" + Math.min(6, (o.eidolon || 0) + 1) + " ✦", C.gold);
+    setCharPick(null);
+  }
+
+  function buyTagMat(tag) {
+    const cur = checkReset();
+    const key = "tag_" + tag;
+    const bought = cur[key] || 0;
+    if (bought >= 3) { flash("Estoque do material " + tag + " esgotado esta semana!", C.bad); return; }
+    if (!isAdmin && chronicles < 60) { flash("Crônicas insuficientes — 📜 60 necessários", C.bad); return; }
+    if (!isAdmin) setChronicles((c) => c - 60);
+    setShopPurchases((p) => ({ ...cur, [key]: bought + 1 }));
+    setTagMats((m) => ({ ...m, [tag]: (m[tag] || 0) + 2 }));
+    flash("+2 Material \"" + tag + "\" comprado!", C.good);
+  }
+
+  const resetIn = Math.max(0, Math.ceil((shopResetAt + WEEK - Date.now()) / 3600000));
+
+  return (
+    <div className="flex flex-col gap-4">
+      {charPick && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 80, background: "#000b", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setCharPick(null)}>
+          <div style={{ background: C.panel, border: "1px solid " + C.gold, borderRadius: 20, padding: 24, maxWidth: 360, width: "92%", maxHeight: "78vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ ...ORB, fontWeight: 800, fontSize: 16, marginBottom: 4 }}>🎭 Escolha o Personagem</div>
+            <div style={{ fontSize: 12, color: C.mute, marginBottom: 14 }}>Selecione para receber +1 Eidolão. Custo: 600 📜</div>
+            <div className="flex flex-col gap-2">
+              {owned.filter((o) => (o.eidolon || 0) < 6).map((o) => {
+                const def = CHAR_MAP[o.id]; if (!def) return null;
+                return (
+                  <div key={o.id} style={{ display: "flex", alignItems: "center", gap: 10, background: C.panelHi, border: "1px solid " + C.line, borderRadius: 12, padding: "10px 14px", cursor: "pointer" }} onClick={() => applyCharCopy(o.id)}>
+                    <span style={{ fontSize: 24 }}>{def.avatar}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 700 }}>{def.name}</div>
+                      <div style={{ fontSize: 11, color: C.mute }}>E{o.eidolon || 0} → E{Math.min(6, (o.eidolon || 0) + 1)}</div>
+                    </div>
+                    <Btn style={{ padding: "4px 12px", fontSize: 12 }}>Escolher</Btn>
+                  </div>
+                );
+              })}
+              {owned.filter((o) => (o.eidolon || 0) < 6).length === 0 && <div style={{ color: C.mute, textAlign: "center", padding: 20 }}>Todos os personagens estão em E6!</div>}
+            </div>
+            <Btn kind="soft" style={{ marginTop: 14, width: "100%" }} onClick={() => setCharPick(null)}>Cancelar</Btn>
+          </div>
+        </div>
+      )}
+
+      <Panel glow={C.gold}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+          <div>
+            <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>🛒 Loja Estelar</div>
+            <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>Gaste 📜 Crônicas em itens exclusivos · Saldo: <b style={{ color: "#e8c97a" }}>{isAdmin ? "∞" : chronicles}</b> 📜</div>
+          </div>
+          <div style={{ textAlign: "center", background: C.panelHi, border: "1px solid " + C.line, borderRadius: 12, padding: "8px 14px" }}>
+            <div style={{ fontSize: 11, color: C.mute }}>Estoque reseta em</div>
+            <div style={{ fontWeight: 800, color: C.gold, fontSize: 15 }}>{resetIn > 0 ? resetIn + "h" : "Hoje"}</div>
+          </div>
+        </div>
+      </Panel>
+
+      <Panel glow="#e8c97a">
+        <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 12 }}>✦ Itens Semanais</div>
+        <div className="flex flex-col gap-3">
+          {SHOP_ITEMS.map((item) => {
+            const left = rem(item.id, item.limit);
+            const canBuy = left > 0 && (isAdmin || chronicles >= item.cost);
+            const isSpec = item.cat === "special";
+            return (
+              <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 12, background: isSpec ? "#e8c97a08" : C.panelHi, border: "1px solid " + (isSpec ? "#e8c97a33" : C.line), borderRadius: 12, padding: "12px 14px" }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>{item.label}</div>
+                  <div style={{ fontSize: 11, color: C.mute, marginTop: 2 }}>{item.desc}</div>
+                  <div style={{ fontSize: 11, marginTop: 4 }}>
+                    <span style={{ color: left > 0 ? C.good : C.bad, fontWeight: 700 }}>Estoque: {left}/{item.limit}</span>
+                  </div>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <div style={{ fontSize: 12, color: "#e8c97a", fontWeight: 700, marginBottom: 6 }}>{item.cost} 📜</div>
+                  <Btn kind={canBuy ? "primary" : "soft"} disabled={!canBuy} style={{ padding: "6px 14px", fontSize: 12 }} onClick={() => buy(item)}>
+                    {left <= 0 ? "Esgotado" : "Comprar"}
+                  </Btn>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
+
+      <Panel glow="#B98BFF">
+        <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🗝️ Materiais de Dungeon de Tag</div>
+        <div style={{ fontSize: 12, color: C.mute, marginBottom: 12 }}>Limite 3×/semana por tag · 60 📜 cada · +2 materiais por compra</div>
+        <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(155px, 1fr))" }}>
+          {ALL_TAGS.map((tag) => {
+            const key = "tag_" + tag;
+            const left = 3 - (shopPurchases[key] || 0);
+            const canBuy = left > 0 && (isAdmin || chronicles >= 60);
+            return (
+              <div key={tag} style={{ background: C.panelHi, border: "1px solid " + C.line, borderRadius: 12, padding: 12 }}>
+                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 2 }}>{tag}</div>
+                <div style={{ fontSize: 10, color: C.mute, marginBottom: 6 }}>
+                  Estoque: <b style={{ color: left > 0 ? C.good : C.bad }}>{left}/3</b> · Você tem: <b style={{ color: C.gold }}>{(tagMats && tagMats[tag]) || 0}</b>
+                </div>
+                <Btn kind={canBuy ? "primary" : "soft"} disabled={!canBuy} style={{ padding: "5px 10px", width: "100%", fontSize: 12 }} onClick={() => buyTagMat(tag)}>
+                  {left <= 0 ? "Esgotado" : "60 📜 · ×2"}
+                </Btn>
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+/* ==========================================================================
+   CORREIO (Mail — one-time claim, no live player list)
+   ========================================================================== */
+const MAIL_PKG = [
+  { icon: "💎", label: "Jade Estelar",             value: "12.000" },
+  { icon: "📘", label: "Lágrimas de XP (Personagem)", value: "200" },
+  { icon: "⚙️", label: "Engrenagens de Arma",      value: "200" },
+  { icon: "🔷", label: "Matéria de Relíquia",       value: "100" },
+];
+
+function Correio({ mailClaimed, setMailClaimed, setJade, setExpItems, setWeaponMats, setRelicMats, flash }) {
+  function claimMail() {
+    if (mailClaimed) { flash("Correio já coletado!", C.bad); return; }
+    setJade((j) => j + 12000);
+    setExpItems((v) => v + 200);
+    setWeaponMats((v) => v + 200);
+    setRelicMats((v) => v + 100);
+    setMailClaimed(true);
+    flash("📬 Recompensas coletadas! +12.000💎 +200📘 +200⚙️ +100🔷", C.gold);
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel glow={C.gold}>
+        <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>📬 Correio</div>
+        <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>Mensagens e recompensas enviadas pelo sistema.</div>
+      </Panel>
+
+      <Panel glow={mailClaimed ? C.mute : "#7B5CF6"}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+          <div style={{ fontSize: 38 }}>{mailClaimed ? "✉️" : "📮"}</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+              <div style={{ ...ORB, fontWeight: 800, fontSize: 15 }}>🎉 Pacote de Boas-vindas</div>
+              {mailClaimed && <span style={{ background: C.panelHi, color: C.mute, border: "1px solid " + C.line, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>COLETADO</span>}
+            </div>
+            <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
+              Obrigado por jogar <b style={{ color: C.text }}>Stellar Resonance</b>! Aqui está o pacote de lançamento para você começar sua jornada com tudo que precisa. Boas lutas, Pioneiro ✦
+            </div>
+            <div style={{ background: C.panelHi, border: "1px solid " + C.line, borderRadius: 14, padding: 14, marginBottom: 14 }}>
+              <div style={{ fontWeight: 700, fontSize: 12, marginBottom: 10, color: C.gold }}>📦 Conteúdo do pacote:</div>
+              <div className="flex flex-col gap-3">
+                {MAIL_PKG.map((r, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <span style={{ fontSize: 24, width: 32, textAlign: "center" }}>{r.icon}</span>
+                    <div style={{ flex: 1, fontWeight: 600 }}>{r.label}</div>
+                    <span style={{ fontWeight: 800, color: C.gold, fontSize: 16 }}>×{r.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <Btn disabled={mailClaimed} kind={mailClaimed ? "soft" : "primary"} style={{ width: "100%", padding: "13px 0", fontSize: 15, fontWeight: 800, letterSpacing: 1 }} onClick={claimMail}>
+              {mailClaimed ? "✓ Recompensas já coletadas" : "📦 Coletar Recompensas"}
+            </Btn>
+          </div>
+        </div>
+      </Panel>
+
+      <Panel>
+        <div style={{ textAlign: "center", padding: "24px 0" }}>
+          <div style={{ fontSize: 34, marginBottom: 8 }}>📭</div>
+          <div style={{ color: C.mute, fontSize: 13 }}>Nenhuma outra mensagem por enquanto.<br/>Fique atento a eventos e atualizações futuras!</div>
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+/* ==========================================================================
+   ADMIN ROTEIRO — Story mode, admin-only
+   ========================================================================== */
+function AdminRoteiro() {
+  const [chapter, setChapter] = React.useState(0);
+
+  const ACTS = [
+    {
+      title: "ATO I · A Fissura sobre Nova Eridu",
+      color: "#60c8ff", icon: "🌆",
+      lines: [
+        { t: "scene",  txt: "NOVA ERIDU — DISTRITO CENTRAL · NOITE" },
+        { t: "action", txt: "A cidade pulsa com seu habitual jazz neon. Hologramas flutuantes vendem cápsulas de comida, androides entregam encomendas e o hum constante dos geradores Ether permeia o ar salgado." },
+        { t: "hud",    txt: "[ BGM: Zenless Zone Zero — Hollow Deep ]" },
+        { t: "action", txt: "No 37º andar da Sede da Seção 6, Miyabi encerra o último relatório do dia. A katana de gelo permanece apoiada na janela de vidro — reflexo de seu rosto impassível contra as luzes da cidade." },
+        { t: "char",   ch: "MIYABI",   txt: "Setenta e dois incidentes de Hollow esta semana. Três a mais que a média. Não é aceitável." },
+        { t: "char",   ch: "YANAGI",   txt: "Mais especificamente, 72,4. Mas temos um problema maior: o formulário de dano ambiental do Setor 9 ainda não foi aprovado. Se não assinarmos até meia-noite, perdemos o reembolso municipal." },
+        { t: "char",   ch: "HARUMASA", txt: "Espera — é quase 23h. Meu turno acabou às 22h. Na verdade, às 21h57. Eu tenho testemunhas." },
+        { t: "action", txt: "Uma fissura dimensional corta o céu como vidro rachado. Estática vermelho-violeta expande em ondas — prédios tremem, o forno holográfico de uma lanchonete explode, e o céu se parte em três." },
+        { t: "hud",    txt: "[ ALERTA: ANOMALIA DIMENSIONAL — NÍVEL DESCONHECIDO ]" },
+        { t: "char",   ch: "YANAGI",   txt: "Energia Ether fora dos parâmetros. Este tipo de fissura não consta em nenhum arquivo da Comissão. Vou precisar criar um formulário de ocorrência inédita — levará semanas." },
+        { t: "char",   ch: "HARUMASA", txt: "Semanas? Eu tenho fome agora. Alguém pode pedir lamen antes de a gente ir morrer?" },
+        { t: "char",   ch: "MIYABI",   txt: "Silêncio. [pausa] Movam-se." },
+      ],
+    },
+    {
+      title: "ATO II · Battle Royale — Katana × Cartas",
+      color: "#B98BFF", icon: "⚔️",
+      lines: [
+        { t: "scene",  txt: "PRAÇA CENTRAL · DOIS MINUTOS DEPOIS" },
+        { t: "action", txt: "A Seção 6 chega à praça. A Fissura cobre metade do céu, latejando com energia violeta. Miyabi empunha a katana — o chão ao redor de seus pés congela, formando cristais hexagonais perfeitos." },
+        { t: "hud",    txt: "[ FASE: CONFRONTO DIMENSIONAL — Miyabi vs ??? ]" },
+        { t: "action", txt: "Da Fissura emerge uma figura: alta, sobretudo branco de golas pontiagudas, Duel Disk ativo no braço esquerdo. Seto Kaiba desce ao chão como se a gravidade fosse uma sugestão." },
+        { t: "char",   ch: "KAIBA",    txt: "Que primitivos. Construíram uma cidade inteira sobre ruínas tecnológicas e chamam de progresso. [ajusta o Duel Disk] Ao menos a hostil me é familiar." },
+        { t: "char",   ch: "MIYABI",   txt: "Identifique-se e declare suas intenções." },
+        { t: "char",   ch: "KAIBA",    txt: "Seto Kaiba. Kaiba Corporation. Dono de aproximadamente 34% do mercado global de tecnologia holográfica — incluindo, presumo, os brinquedos que vocês chamam de sistema de defesa. Minhas intenções? [pausa longa] Avaliar a competição." },
+        { t: "char",   ch: "HARUMASA", txt: "Ele está com um Duel Disk? Como no desenho? [sussurra] Yanagi, você está vendo isso?" },
+        { t: "char",   ch: "YANAGI",   txt: "[ajustando óculos, já com prancheta nas mãos] Vejo. E estou calculando os danos estruturais projetados se aquele dispositivo for ativado em área urbana. A estimativa é catastrófica." },
+        { t: "action", txt: "Kaiba ergue o Duel Disk. Cinco cartas materializam-se no campo — energia sólida, hologramas com peso físico real. Miyabi reconhece a ameaça e ataca primeiro." },
+        { t: "hud",    txt: "[ BATALHA: MIYABI · Estilo Kamakura Ativo · Partículas de Gelo: MÁXIMO ]" },
+        { t: "action", txt: "Ela avança em linha reta — três cortes em arco, cada um deixando uma camada de gelo no ar. Kaiba deflecte com o próprio Duel Disk, usando-o como escudo." },
+        { t: "char",   ch: "KAIBA",    txt: "Invoco — Blue-Eyes White Dragon. DESTRUIÇÃO DO RAIO EXPLOSIVO." },
+        { t: "action", txt: "O dragão branco materializa-se com um rugido que racha janelas por seis quarteirões. Miyabi salta, congela o feixe de energia no meio do ar com um único gesto da katana." },
+        { t: "char",   ch: "MIYABI",   txt: "Impressionante. Mas previsível." },
+        { t: "action", txt: "A batalha dura quatro minutos e dezessete segundos. Miyabi é veloz demais para as invocações de Kaiba; Kaiba é imune ao gelo — o sobretudo é feito de fibra cerâmica resistente a variações de temperatura." },
+        { t: "hud",    txt: "[ STATUS: IMPASSE — Nenhum dos combatentes está disposto a recuar ]" },
+        { t: "char",   ch: "KAIBA",    txt: "[pela primeira vez, um traço de respeito na voz] Você é melhor do que o esperado." },
+        { t: "char",   ch: "MIYABI",   txt: "E você é uma ameaça que não consta em nenhum protocolo." },
+      ],
+    },
+    {
+      title: "ATO III · O Terceiro Inimigo",
+      color: "#FF5FC4", icon: "💀",
+      lines: [
+        { t: "scene",  txt: "PRAÇA CENTRAL · O IMPASSE QUEBRA" },
+        { t: "action", txt: "A Fissura no céu colapsa — mas em vez de fechar, expande. Do vazio entre dimensões emerge algo diferente: não hologramas, não Ether. Forma pura e antimatéria, um ser sem rosto classificado depois como ENTIDADE CLASSE OMEGA." },
+        { t: "hud",    txt: "[ NOVA AMEAÇA DETECTADA — CLASSE OMEGA · PROTOCOLO DE EVACUAÇÃO IMEDIATO ]" },
+        { t: "action", txt: "A entidade não fala. Ela pulsa. Cada pulso apaga um fragmento da realidade — hologramas somem, concreto se dissolve, e o ar adquire o sabor metálico de algo errado em nível fundamental." },
+        { t: "char",   ch: "YANAGI",   txt: "Esta entidade não emite Ether. Ela consome a própria estrutura da realidade. Os formulários para isso não existem. Terei que criar um novo formulário do zero." },
+        { t: "char",   ch: "HARUMASA", txt: "[pela primeira vez sem reclamar do horário] Ok. Isso é sério. Arco elétrico ativado. Vou pedir desculpa pelo lamen depois." },
+        { t: "action", txt: "Miyabi e Kaiba param de brigar. Uma trégua não declarada se forma no olhar que trocam — zero palavras, zero gestos. A linguagem universal dos que reconhecem um inimigo maior." },
+        { t: "char",   ch: "KAIBA",    txt: "Eu detesto trabalho em equipe. [pausa] Mas detesto mais perder." },
+        { t: "char",   ch: "MIYABI",   txt: "Proteja a ala sul. Minha equipe cobre o norte." },
+        { t: "char",   ch: "KAIBA",    txt: "[sem olhar para ela] Eu sei o que fazer." },
+        { t: "action", txt: "A batalha começa de verdade. Miyabi em uma frente, Kaiba com os três Blue-Eyes em outra, Harumasa cobrindo ângulos com flechas de relâmpago, Yanagi dirigindo evacuação e calculando vetores em tempo real." },
+        { t: "hud",    txt: "[ BGM: STELLAR RESONANCE — BOSS THEME · VOLUME MÁXIMO ]" },
+        { t: "action", txt: "No minuto trinta e três, Miyabi e o Blue-Eyes Ultimate Dragon atacam simultaneamente — gelo e relâmpago fundidos em um único ponto de impacto." },
+        { t: "hud",    txt: "[ ENTIDADE CLASSE OMEGA — NEUTRALIZADA · DANO AMBIENTAL: EXTENSIVO ]" },
+      ],
+    },
+    {
+      title: "ATO IV · O Monarca e a Pioneira",
+      color: "#FFD700", icon: "👑",
+      lines: [
+        { t: "scene",  txt: "PRAÇA CENTRAL · PÓS-BATALHA" },
+        { t: "action", txt: "A poeira baixa. A Fissura fecha-se como uma ferida que cicatriza rápido demais. Nova Eridu permanece de pé — danificada, mas de pé." },
+        { t: "char",   ch: "YANAGI",   txt: "Dezoito prédios com dano estrutural parcial, quarenta e dois carros danificados, um gerador de Ether fora de operação. E o formulário de ocorrência dimensional que eu terei que criar do zero. Três dias de papelada, no mínimo." },
+        { t: "char",   ch: "HARUMASA", txt: "Ia falar que tô com fome, mas agora só quero dormir. [pausa] As duas coisas." },
+        { t: "action", txt: "Kaiba afasta os hologramas residuais com um gesto. O sobretudo branco está imaculado — nem uma mancha. Ele observa a cidade com a expressão de alguém inventariando uma aquisição corporativa." },
+        { t: "char",   ch: "KAIBA",    txt: "A cidade tem potencial. A tecnologia Ether é primitiva mas o conceito é sólido. [olha para Miyabi] A força de defesa é... adequada." },
+        { t: "char",   ch: "MIYABI",   txt: "'Adequada.' Que elogio generoso." },
+        { t: "char",   ch: "KAIBA",    txt: "Não é um elogio. É uma avaliação técnica." },
+        { t: "action", txt: "Uma pausa. O vento passa entre eles carregando cinzas e o cheiro de ozônio. Kaiba vira-se para Miyabi — olha diretamente nos seus olhos, com toda a arrogância corporativa e toda a frieza calculista que o definem." },
+        { t: "char",   ch: "KAIBA",    txt: "[baixo, definitivo] Eu vim ver o macaco." },
+        { t: "action", txt: "Miyabi não pisca. O gelo ao redor de seus pés expande dois centímetros — involuntário. O único sinal de que a frase a atingiu." },
+        { t: "char",   ch: "MIYABI",   txt: "[após uma pausa perfeita] Então você o encontrou." },
+        { t: "hud",    txt: "[ FIM DO ATO IV — STELLAR RESONANCE × CROSSOVER ARC · 完 ]" },
+        { t: "action", txt: "Kaiba sobe de volta ao topo do dragão. A Fissura já fechou. O Blue-Eyes alça voo em direção ao horizonte sem olhar para trás. Yanagi já está digitando. Harumasa já está ligando para o lamen. Miyabi olha para o céu vazio." },
+        { t: "scene",  txt: "[ PRÓXIMO ARC: A ORIGEM DA ENTIDADE CLASSE OMEGA ]" },
+      ],
+    },
+  ];
+
+  const CH_COLORS = { MIYABI: "#60c8ff", YANAGI: "#B98BFF", HARUMASA: "#FF8C44", KAIBA: "#FFD700" };
+  const act = ACTS[chapter];
+
+  const renderLine = (line, i) => {
+    if (line.t === "scene") return (
+      <div key={i} style={{ textAlign: "center", padding: "10px 0", fontFamily: "monospace", fontSize: 11, color: C.mute, letterSpacing: 2, textTransform: "uppercase", borderTop: "1px solid " + C.line, borderBottom: "1px solid " + C.line, margin: "10px 0" }}>{line.txt}</div>
+    );
+    if (line.t === "hud") return (
+      <div key={i} style={{ background: "#00E5CC0d", border: "1px solid #00E5CC33", borderRadius: 8, padding: "8px 14px", fontSize: 12, color: "#00E5CC", fontFamily: "monospace", margin: "6px 0" }}>{line.txt}</div>
+    );
+    if (line.t === "action") return (
+      <div key={i} style={{ fontSize: 13, color: C.mute, lineHeight: 1.75, fontStyle: "italic", padding: "4px 0" }}>{line.txt}</div>
+    );
+    if (line.t === "char") {
+      const color = CH_COLORS[line.ch] || C.text;
+      return (
+        <div key={i} style={{ margin: "10px 0" }}>
+          <div style={{ fontWeight: 800, fontSize: 11, color, letterSpacing: 2, marginBottom: 3, textTransform: "uppercase" }}>{line.ch}</div>
+          <div style={{ fontSize: 14, color: C.text, lineHeight: 1.65, paddingLeft: 14, borderLeft: "3px solid " + color + "44" }}>{line.txt}</div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel glow={C.gold}>
+        <div style={{ ...ORB, fontSize: 16, fontWeight: 800 }}>🎬 Roteiro · Stellar Resonance × Crossover Arc</div>
+        <p style={{ fontSize: 13, color: C.mute, marginTop: 6, lineHeight: 1.6 }}>Conteúdo exclusivo do Admin. Roteiro completo do Arco de Crossover: Seção 6 × Seto Kaiba × Entidade Classe Omega.</p>
+      </Panel>
+      <div className="flex gap-2" style={{ flexWrap: "wrap" }}>
+        {ACTS.map((a, i) => <TabBtn key={i} active={chapter === i} onClick={() => setChapter(i)}>{a.icon} Ato {i + 1}</TabBtn>)}
+      </div>
+      <Panel glow={act.color}>
+        <div style={{ ...ORB, fontWeight: 800, fontSize: 16, color: act.color, marginBottom: 18 }}>{act.title}</div>
+        <div className="flex flex-col">{act.lines.map(renderLine)}</div>
       </Panel>
     </div>
   );
