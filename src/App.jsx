@@ -1148,7 +1148,7 @@ function Game({ email, isAdmin, onLogout }) {
     setStamina(function(v){ return v - cost; });
     const level = tier === 2 ? 85 : tier === 1 ? 65 : 45;
     const bossNames = ["Núcleo Corrompido", "Servidor Infectado", "Matriz Fantasma"];
-    setBattle({ context: "relicfarm", tier, encounter: { level, count: 2, boss: true, bossName: bossNames[tier] || bossNames[1], bossKind: "guardian", teamPower: teamPower() }, ally: null });
+    setBattle({ context: "relicfarm", tier, encounter: { level, count: 2, boss: true, bossName: bossNames[tier] || bossNames[1], bossKind: "guardian", teamPower: teamPower(), relicFarm: true }, ally: null });
   }
     function onBattleEnd(result) {
     const b = battle; setBattle(null);
@@ -2887,8 +2887,9 @@ function makeEnemy(idx, enc) {
   } else {
     // HP atrelado ao PODER da equipe (invariante de escala) — mantém a luta justa mesmo após o rebalanceamento HSR
     baseHp = power * 2.4 + lvl * 50 + idx * 150;
+    if (enc.relicFarm) baseHp *= 0.45; // Dungeon de relíquias: inimigos mais rápidos de derrotar
     // Bosses da Torre com HP reduzido para ritmo mais agil
-    if (boss) baseHp *= (finalBoss ? 7.2 : weekly ? 8.5 : ascend ? 7.8 : 4.6) * (enc.isTower ? 0.5 : 1);
+    if (boss) baseHp *= (finalBoss ? 7.2 : weekly ? 8.5 : ascend ? 7.8 : enc.relicFarm ? 1.6 : 4.6) * (enc.isTower ? 0.5 : 1);
   }
   const hp = Math.round(baseHp);
   const atk = Math.round((power * 0.06 + lvl * 4 + 80) * (boss ? 1.35 : 1));
