@@ -3903,7 +3903,6 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
     </div>
   );
 }
-}
 function abilityHint(h) {
   const sk = h.skill || {};
   if (h.id === "kaiba") return "Habilidade invoca Blue-Eyes (até 3). Com 3 em campo, o Ultimate libera Obelisco ou o Dragão Definitivo.";
