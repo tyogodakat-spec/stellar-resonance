@@ -5049,7 +5049,7 @@ function Correio({ mailClaimed, setMailClaimed, setJade, setExpItems, setWeaponM
   }
 
   
-   ADMIN ROTEIRO — Story mode, admin-only
+/* ADMIN ROTEIRO — Story mode, admin-only
    ========================================================================== */
 function AdminRoteiro() {
   const [chapter, setChapter] = React.useState(0);
