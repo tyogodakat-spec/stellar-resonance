@@ -4907,149 +4907,148 @@ function Correio({ mailClaimed, setMailClaimed, setJade, setExpItems, setWeaponM
 }
 
 /* ==========================================================================
-/* ==========================================================================
-     ROTEIRO — Modo História (acessível a todos os jogadores)
+     ROTEIRO - Modo Historia (acessível a todos os jogadores)
      ========================================================================== */
-  function Roteiro() {
-    const [chapter, setChapter] = React.useState(0);
+function Roteiro() {
+  const [chapter, setChapter] = React.useState(0);
 
-    const STORY_ACTS = [
-      {
-        title: "ATO I · A Fissura sobre Nova Eridu",
-        color: "#60c8ff", icon: "🌆",
-        lines: [
-          { t: "scene",  txt: "NOVA ERIDU — DISTRITO CENTRAL · NOITE" },
-          { t: "action", txt: "A cidade pulsa com seu habitual jazz neon. Hologramas flutuantes vendem cápsulas de comida, androides entregam encomendas e o hum constante dos geradores Ether permeia o ar salgado." },
-          { t: "hud",    txt: "[ BGM: Zenless Zone Zero — Hollow Deep ]" },
-          { t: "action", txt: "No 37º andar da Sede da Seção 6, Miyabi encerra o último relatório do dia. A katana de gelo permanece apoiada na janela de vidro — reflexo de seu rosto impassível contra as luzes da cidade." },
-          { t: "char",   ch: "MIYABI",   txt: "Setenta e dois incidentes de Hollow esta semana. Três a mais que a média. Não é aceitável." },
-          { t: "char",   ch: "YANAGI",   txt: "Mais especificamente, 72,4. Mas temos um problema maior: o formulário de dano ambiental do Setor 9 ainda não foi aprovado." },
-          { t: "char",   ch: "HARUMASA", txt: "Espera — é quase 23h. Meu turno acabou às 22h. Na verdade, às 21h57. Eu tenho testemunhas." },
-          { t: "action", txt: "Uma fissura dimensional corta o céu como vidro rachado. Estática vermelho-violeta expande em ondas — prédios tremem, o forno holográfico de uma lanchonete explode, e o céu se parte em três." },
-          { t: "hud",    txt: "[ ALERTA: ANOMALIA DIMENSIONAL — NÍVEL DESCONHECIDO ]" },
-          { t: "char",   ch: "YANAGI",   txt: "Energia Ether fora dos parâmetros. Este tipo de fissura não consta em nenhum arquivo da Comissão." },
-          { t: "char",   ch: "HARUMASA", txt: "Alguém pode pedir lamen antes de a gente ir morrer?" },
-          { t: "char",   ch: "MIYABI",   txt: "Silêncio. [pausa] Movam-se." },
-        ],
-      },
-      {
-        title: "ATO II · Battle Royale — Katana × Cartas",
-        color: "#B98BFF", icon: "⚔️",
-        lines: [
-          { t: "scene",  txt: "PRAÇA CENTRAL · DOIS MINUTOS DEPOIS" },
-          { t: "action", txt: "A Fissura cobre metade do céu, latejando com energia violeta. Miyabi empunha a katana — o chão ao redor de seus pés congela em cristais hexagonais perfeitos." },
-          { t: "hud",    txt: "[ FASE: CONFRONTO DIMENSIONAL — Miyabi vs ??? ]" },
-          { t: "action", txt: "Da Fissura emerge uma figura: alta, sobretudo branco, Duel Disk ativo no braço esquerdo. Seto Kaiba desce ao chão como se a gravidade fosse uma sugestão." },
-          { t: "char",   ch: "KAIBA",    txt: "Que primitivos. Construíram uma cidade inteira sobre ruínas tecnológicas e chamam de progresso. [ajusta o Duel Disk] Ao menos a hostil me é familiar." },
-          { t: "char",   ch: "MIYABI",   txt: "Identifique-se e declare suas intenções." },
-          { t: "char",   ch: "KAIBA",    txt: "Seto Kaiba. Kaiba Corporation. Minhas intenções? [pausa longa] Avaliar a competição." },
-          { t: "char",   ch: "HARUMASA", txt: "Ele está com um Duel Disk? Como no desenho? [sussurra] Yanagi, você está vendo isso?" },
-          { t: "char",   ch: "YANAGI",   txt: "Vejo. E estou calculando os danos estruturais projetados. A estimativa é catastrófica." },
-          { t: "action", txt: "Kaiba ergue o Duel Disk. Miyabi reconhece a ameaça e ataca primeiro — três cortes em arco, cada um deixando uma camada de gelo no ar." },
-          { t: "char",   ch: "KAIBA",    txt: "Invoco — Blue-Eyes White Dragon. DESTRUIÇÃO DO RAIO EXPLOSIVO." },
-          { t: "action", txt: "O dragão branco materializa-se com um rugido que racha janelas por seis quarteirões. Miyabi salta e congela o feixe no meio do ar com um único gesto da katana." },
-          { t: "char",   ch: "MIYABI",   txt: "Impressionante. Mas previsível." },
-          { t: "hud",    txt: "[ STATUS: IMPASSE — Nenhum dos combatentes está disposto a recuar ]" },
-          { t: "char",   ch: "KAIBA",    txt: "[pela primeira vez, um traço de respeito na voz] Você é melhor do que o esperado." },
-        ],
-      },
-      {
-        title: "ATO III · O Terceiro Inimigo",
-        color: "#FF5FC4", icon: "💀",
-        lines: [
-          { t: "scene",  txt: "PRAÇA CENTRAL · O IMPASSE QUEBRA" },
-          { t: "action", txt: "A Fissura no céu colapsa — mas em vez de fechar, expande. Do vazio entre dimensões emerge algo diferente: forma pura e antimatéria, uma ENTIDADE CLASSE OMEGA." },
-          { t: "hud",    txt: "[ NOVA AMEAÇA DETECTADA — CLASSE OMEGA · PROTOCOLO DE EVACUAÇÃO IMEDIATO ]" },
-          { t: "action", txt: "A entidade não fala. Ela pulsa. Cada pulso apaga um fragmento da realidade — hologramas somem, concreto se dissolve." },
-          { t: "char",   ch: "YANAGI",   txt: "Esta entidade consome a própria estrutura da realidade. Os formulários para isso não existem. Terei que criar um novo do zero." },
-          { t: "char",   ch: "HARUMASA", txt: "[pela primeira vez sem reclamar do horário] Ok. Isso é sério. Arco elétrico ativado." },
-          { t: "action", txt: "Miyabi e Kaiba param de brigar. Uma trégua não declarada se forma — zero palavras, zero gestos." },
-          { t: "char",   ch: "KAIBA",    txt: "Eu detesto trabalho em equipe. [pausa] Mas detesto mais perder." },
-          { t: "char",   ch: "MIYABI",   txt: "Proteja a ala sul. Minha equipe cobre o norte." },
-          { t: "hud",    txt: "[ BGM: STELLAR RESONANCE — BOSS THEME · VOLUME MÁXIMO ]" },
-          { t: "action", txt: "No minuto trinta e três, Miyabi e o Blue-Eyes Ultimate Dragon atacam simultaneamente — gelo e relâmpago fundidos em um único ponto de impacto." },
-          { t: "hud",    txt: "[ ENTIDADE CLASSE OMEGA — NEUTRALIZADA ]" },
-        ],
-      },
-      {
-        title: "ATO IV · O Monarca e a Pioneira",
-        color: "#FFD700", icon: "👑",
-        lines: [
-          { t: "scene",  txt: "PRAÇA CENTRAL · PÓS-BATALHA" },
-          { t: "action", txt: "A poeira baixa. A Fissura fecha-se como uma ferida que cicatriza rápido demais. Nova Eridu permanece de pé — danificada, mas de pé." },
-          { t: "char",   ch: "YANAGI",   txt: "Dezoito prédios com dano estrutural parcial, quarenta e dois carros danificados. E o formulário de ocorrência dimensional que terei que criar do zero." },
-          { t: "char",   ch: "HARUMASA", txt: "Ia falar que tô com fome, mas agora só quero dormir. As duas coisas." },
-          { t: "action", txt: "Kaiba afasta os hologramas residuais com um gesto. O sobretudo branco está imaculado — nem uma mancha." },
-          { t: "char",   ch: "KAIBA",    txt: "A cidade tem potencial. A tecnologia Ether é primitiva mas o conceito é sólido. [olha para Miyabi] A força de defesa é... adequada." },
-          { t: "char",   ch: "MIYABI",   txt: "'Adequada.' Que elogio generoso." },
-          { t: "char",   ch: "KAIBA",    txt: "[baixo, definitivo] Eu vim ver o macaco." },
-          { t: "action", txt: "Miyabi não pisca. O gelo ao redor de seus pés expande dois centímetros — involuntário." },
-          { t: "char",   ch: "MIYABI",   txt: "[após uma pausa perfeita] Então você o encontrou." },
-          { t: "hud",    txt: "[ FIM DO ATO IV — STELLAR RESONANCE × CROSSOVER ARC · 完 ]" },
-          { t: "action", txt: "Kaiba sobe de volta ao topo do dragão. A Fissura já fechou. Yanagi já está digitando. Harumasa já está ligando para o lamen. Miyabi olha para o céu vazio." },
-          { t: "scene",  txt: "[ PRÓXIMO ARC: A ORIGEM DA ENTIDADE CLASSE OMEGA ]" },
-        ],
-      },
-    ];
+  const STORY_ACTS = [
+    {
+      title: "ATO I · A Fissura sobre Nova Eridu",
+      color: "#60c8ff", icon: "🌆",
+      lines: [
+        { t: "scene",  txt: "NOVA ERIDU — DISTRITO CENTRAL · NOITE" },
+        { t: "action", txt: "A cidade pulsa com seu habitual jazz neon. Hologramas flutuantes vendem cápsulas de comida, androides entregam encomendas e o hum constante dos geradores Ether permeia o ar salgado." },
+        { t: "hud",    txt: "[ BGM: Zenless Zone Zero — Hollow Deep ]" },
+        { t: "action", txt: "No 37º andar da Sede da Seção 6, Miyabi encerra o último relatório do dia. A katana de gelo permanece apoiada na janela de vidro — reflexo de seu rosto impassível contra as luzes da cidade." },
+        { t: "char",   ch: "MIYABI",   txt: "Setenta e dois incidentes de Hollow esta semana. Três a mais que a média. Não é aceitável." },
+        { t: "char",   ch: "YANAGI",   txt: "Mais especificamente, 72,4. Mas temos um problema maior: o formulário de dano ambiental do Setor 9 ainda não foi aprovado." },
+        { t: "char",   ch: "HARUMASA", txt: "Espera — é quase 23h. Meu turno acabou às 22h. Na verdade, às 21h57. Eu tenho testemunhas." },
+        { t: "action", txt: "Uma fissura dimensional corta o céu como vidro rachado. Estática vermelho-violeta expande em ondas — prédios tremem, o forno holográfico de uma lanchonete explode, e o céu se parte em três." },
+        { t: "hud",    txt: "[ ALERTA: ANOMALIA DIMENSIONAL — NÍVEL DESCONHECIDO ]" },
+        { t: "char",   ch: "YANAGI",   txt: "Energia Ether fora dos parâmetros. Este tipo de fissura não consta em nenhum arquivo da Comissão." },
+        { t: "char",   ch: "HARUMASA", txt: "Alguém pode pedir lamen antes de a gente ir morrer?" },
+        { t: "char",   ch: "MIYABI",   txt: "Silêncio. [pausa] Movam-se." },
+      ],
+    },
+    {
+      title: "ATO II · Battle Royale — Katana × Cartas",
+      color: "#B98BFF", icon: "⚔️",
+      lines: [
+        { t: "scene",  txt: "PRAÇA CENTRAL · DOIS MINUTOS DEPOIS" },
+        { t: "action", txt: "A Fissura cobre metade do céu, latejando com energia violeta. Miyabi empunha a katana — o chão ao redor de seus pés congela em cristais hexagonais perfeitos." },
+        { t: "hud",    txt: "[ FASE: CONFRONTO DIMENSIONAL — Miyabi vs ??? ]" },
+        { t: "action", txt: "Da Fissura emerge uma figura: alta, sobretudo branco, Duel Disk ativo no braço esquerdo. Seto Kaiba desce ao chão como se a gravidade fosse uma sugestão." },
+        { t: "char",   ch: "KAIBA",    txt: "Que primitivos. Construíram uma cidade inteira sobre ruínas tecnológicas e chamam de progresso. [ajusta o Duel Disk] Ao menos a hostil me é familiar." },
+        { t: "char",   ch: "MIYABI",   txt: "Identifique-se e declare suas intenções." },
+        { t: "char",   ch: "KAIBA",    txt: "Seto Kaiba. Kaiba Corporation. Minhas intenções? [pausa longa] Avaliar a competição." },
+        { t: "char",   ch: "HARUMASA", txt: "Ele está com um Duel Disk? Como no desenho? [sussurra] Yanagi, você está vendo isso?" },
+        { t: "char",   ch: "YANAGI",   txt: "Vejo. E estou calculando os danos estruturais projetados. A estimativa é catastrófica." },
+        { t: "action", txt: "Kaiba ergue o Duel Disk. Miyabi reconhece a ameaça e ataca primeiro — três cortes em arco, cada um deixando uma camada de gelo no ar." },
+        { t: "char",   ch: "KAIBA",    txt: "Invoco — Blue-Eyes White Dragon. DESTRUIÇÃO DO RAIO EXPLOSIVO." },
+        { t: "action", txt: "O dragão branco materializa-se com um rugido que racha janelas por seis quarteirões. Miyabi salta e congela o feixe no meio do ar com um único gesto da katana." },
+        { t: "char",   ch: "MIYABI",   txt: "Impressionante. Mas previsível." },
+        { t: "hud",    txt: "[ STATUS: IMPASSE — Nenhum dos combatentes está disposto a recuar ]" },
+        { t: "char",   ch: "KAIBA",    txt: "[pela primeira vez, um traço de respeito na voz] Você é melhor do que o esperado." },
+      ],
+    },
+    {
+      title: "ATO III · O Terceiro Inimigo",
+      color: "#FF5FC4", icon: "💀",
+      lines: [
+        { t: "scene",  txt: "PRAÇA CENTRAL · O IMPASSE QUEBRA" },
+        { t: "action", txt: "A Fissura no céu colapsa — mas em vez de fechar, expande. Do vazio entre dimensões emerge algo diferente: forma pura e antimatéria, uma ENTIDADE CLASSE OMEGA." },
+        { t: "hud",    txt: "[ NOVA AMEAÇA DETECTADA — CLASSE OMEGA · PROTOCOLO DE EVACUAÇÃO IMEDIATO ]" },
+        { t: "action", txt: "A entidade não fala. Ela pulsa. Cada pulso apaga um fragmento da realidade — hologramas somem, concreto se dissolve." },
+        { t: "char",   ch: "YANAGI",   txt: "Esta entidade consome a própria estrutura da realidade. Os formulários para isso não existem. Terei que criar um novo do zero." },
+        { t: "char",   ch: "HARUMASA", txt: "[pela primeira vez sem reclamar do horário] Ok. Isso é sério. Arco elétrico ativado." },
+        { t: "action", txt: "Miyabi e Kaiba param de brigar. Uma trégua não declarada se forma — zero palavras, zero gestos." },
+        { t: "char",   ch: "KAIBA",    txt: "Eu detesto trabalho em equipe. [pausa] Mas detesto mais perder." },
+        { t: "char",   ch: "MIYABI",   txt: "Proteja a ala sul. Minha equipe cobre o norte." },
+        { t: "hud",    txt: "[ BGM: STELLAR RESONANCE — BOSS THEME · VOLUME MÁXIMO ]" },
+        { t: "action", txt: "No minuto trinta e três, Miyabi e o Blue-Eyes Ultimate Dragon atacam simultaneamente — gelo e relâmpago fundidos em um único ponto de impacto." },
+        { t: "hud",    txt: "[ ENTIDADE CLASSE OMEGA — NEUTRALIZADA ]" },
+      ],
+    },
+    {
+      title: "ATO IV · O Monarca e a Pioneira",
+      color: "#FFD700", icon: "👑",
+      lines: [
+        { t: "scene",  txt: "PRAÇA CENTRAL · PÓS-BATALHA" },
+        { t: "action", txt: "A poeira baixa. A Fissura fecha-se como uma ferida que cicatriza rápido demais. Nova Eridu permanece de pé — danificada, mas de pé." },
+        { t: "char",   ch: "YANAGI",   txt: "Dezoito prédios com dano estrutural parcial, quarenta e dois carros danificados. E o formulário de ocorrência dimensional que terei que criar do zero." },
+        { t: "char",   ch: "HARUMASA", txt: "Ia falar que tô com fome, mas agora só quero dormir. As duas coisas." },
+        { t: "action", txt: "Kaiba afasta os hologramas residuais com um gesto. O sobretudo branco está imaculado — nem uma mancha." },
+        { t: "char",   ch: "KAIBA",    txt: "A cidade tem potencial. A tecnologia Ether é primitiva mas o conceito é sólido. [olha para Miyabi] A força de defesa é... adequada." },
+        { t: "char",   ch: "MIYABI",   txt: "'Adequada.' Que elogio generoso." },
+        { t: "char",   ch: "KAIBA",    txt: "[baixo, definitivo] Eu vim ver o macaco." },
+        { t: "action", txt: "Miyabi não pisca. O gelo ao redor de seus pés expande dois centímetros — involuntário." },
+        { t: "char",   ch: "MIYABI",   txt: "[após uma pausa perfeita] Então você o encontrou." },
+        { t: "hud",    txt: "[ FIM DO ATO IV — STELLAR RESONANCE × CROSSOVER ARC · 完 ]" },
+        { t: "action", txt: "Kaiba sobe de volta ao topo do dragão. A Fissura já fechou. Yanagi já está digitando. Harumasa já está ligando para o lamen. Miyabi olha para o céu vazio." },
+        { t: "scene",  txt: "[ PRÓXIMO ARC: A ORIGEM DA ENTIDADE CLASSE OMEGA ]" },
+      ],
+    },
+  ];
 
-    const CH_COLORS = { MIYABI: "#60c8ff", YANAGI: "#B98BFF", HARUMASA: "#FF8C44", KAIBA: "#FFD700" };
-    const act = STORY_ACTS[chapter];
+  const CH_COLORS = { MIYABI: "#60c8ff", YANAGI: "#B98BFF", HARUMASA: "#FF8C44", KAIBA: "#FFD700" };
+  const act = STORY_ACTS[chapter];
 
-    const renderLine = (line, i) => {
-      if (line.t === "scene") return (
-        <div key={i} style={{ textAlign:"center",padding:"10px 0",fontFamily:"monospace",fontSize:11,color:C.mute,letterSpacing:2,textTransform:"uppercase",borderTop:"1px solid "+C.line,borderBottom:"1px solid "+C.line,margin:"10px 0" }}>{line.txt}</div>
-      );
-      if (line.t === "hud") return (
-        <div key={i} style={{ background:"#00E5CC0d",border:"1px solid #00E5CC33",borderRadius:8,padding:"8px 14px",fontSize:12,color:"#00E5CC",fontFamily:"monospace",margin:"6px 0" }}>{line.txt}</div>
-      );
-      if (line.t === "action") return (
-        <div key={i} style={{ fontSize:13,color:C.mute,lineHeight:1.75,padding:"6px 0",fontStyle:"italic" }}>{line.txt}</div>
-      );
-      if (line.t === "char") {
-        const col = CH_COLORS[line.ch] || C.gold;
-        return (
-          <div key={i} style={{ margin:"8px 0" }}>
-            <span style={{ fontWeight:800,fontSize:12,color:col,letterSpacing:1,textTransform:"uppercase",marginRight:8 }}>{line.ch}</span>
-            <span style={{ fontSize:13,color:C.text,lineHeight:1.7 }}>{line.txt}</span>
-          </div>
-        );
-      }
-      return null;
-    };
-
-    return (
-      <div className="flex flex-col gap-4">
-        <Panel glow={C.gold}>
-          <div style={{ ...ORB, fontSize:18,fontWeight:800 }}>📖 Roteiro</div>
-          <div style={{ fontSize:13,color:C.mute,marginTop:4 }}>Stellar Resonance × Crossover Arc — Capítulo I</div>
-        </Panel>
-        <Panel>
-          <div className="flex gap-2 flex-wrap">
-            {STORY_ACTS.map((a,i) => (
-              <button key={i} onClick={()=>setChapter(i)} style={{ padding:"7px 14px",borderRadius:99,fontWeight:700,fontSize:12,border:"1px solid "+(chapter===i ? a.color : C.line),background:chapter===i ? a.color+"22" : "transparent",color:chapter===i ? a.color : C.mute,cursor:"pointer",transition:"all .2s" }}>
-                {a.icon} {a.title.split("·")[0].trim()}
-              </button>
-            ))}
-          </div>
-        </Panel>
-        <Panel glow={act.color} style={{ borderLeft:"3px solid "+act.color }}>
-          <div style={{ ...ORB,fontWeight:800,fontSize:16,color:act.color,marginBottom:2 }}>{act.icon} {act.title}</div>
-          <div style={{ width:40,height:2,background:act.color,borderRadius:2,marginBottom:16,opacity:0.6 }} />
-          <div className="flex flex-col">
-            {act.lines.map((line,i) => renderLine(line,i))}
-          </div>
-        </Panel>
-        <div className="flex gap-2">
-          {chapter > 0 && <Btn kind="ghost" style={{ flex:1 }} onClick={()=>setChapter(c=>c-1)}>← Ato Anterior</Btn>}
-          {chapter < STORY_ACTS.length - 1 && <Btn kind="primary" style={{ flex:1 }} onClick={()=>setChapter(c=>c+1)}>Próximo Ato →</Btn>}
-          {chapter === STORY_ACTS.length - 1 && <div style={{ flex:1,textAlign:"center",padding:"10px",color:C.mute,fontSize:13,background:C.panelHi,borderRadius:12 }}>Fim do Arco · Novo capítulo em breve</div>}
-        </div>
-      </div>
+  const renderLine = (line, i) => {
+    if (line.t === "scene") return (
+      <div key={i} style={{ textAlign:"center",padding:"10px 0",fontFamily:"monospace",fontSize:11,color:C.mute,letterSpacing:2,textTransform:"uppercase",borderTop:"1px solid "+C.line,borderBottom:"1px solid "+C.line,margin:"10px 0" }}>{line.txt}</div>
     );
-  }
+    if (line.t === "hud") return (
+      <div key={i} style={{ background:"#00E5CC0d",border:"1px solid #00E5CC33",borderRadius:8,padding:"8px 14px",fontSize:12,color:"#00E5CC",fontFamily:"monospace",margin:"6px 0" }}>{line.txt}</div>
+    );
+    if (line.t === "action") return (
+      <div key={i} style={{ fontSize:13,color:C.mute,lineHeight:1.75,padding:"6px 0",fontStyle:"italic" }}>{line.txt}</div>
+    );
+    if (line.t === "char") {
+      const col = CH_COLORS[line.ch] || C.gold;
+      return (
+        <div key={i} style={{ margin:"8px 0" }}>
+          <span style={{ fontWeight:800,fontSize:12,color:col,letterSpacing:1,textTransform:"uppercase",marginRight:8 }}>{line.ch}</span>
+          <span style={{ fontSize:13,color:C.text,lineHeight:1.7 }}>{line.txt}</span>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel glow={C.gold}>
+        <div style={{ ...ORB, fontSize:18,fontWeight:800 }}>📖 Roteiro</div>
+        <div style={{ fontSize:13,color:C.mute,marginTop:4 }}>Stellar Resonance × Crossover Arc — Capítulo I</div>
+      </Panel>
+      <Panel>
+        <div className="flex gap-2 flex-wrap">
+          {STORY_ACTS.map((a,i) => (
+            <button key={i} onClick={()=>setChapter(i)} style={{ padding:"7px 14px",borderRadius:99,fontWeight:700,fontSize:12,border:"1px solid "+(chapter===i ? a.color : C.line),background:chapter===i ? a.color+"22" : "transparent",color:chapter===i ? a.color : C.mute,cursor:"pointer",transition:"all .2s" }}>
+              {a.icon} {a.title.split("·")[0].trim()}
+            </button>
+          ))}
+        </div>
+      </Panel>
+      <Panel glow={act.color} style={{ borderLeft:"3px solid "+act.color }}>
+        <div style={{ ...ORB,fontWeight:800,fontSize:16,color:act.color,marginBottom:2 }}>{act.icon} {act.title}</div>
+        <div style={{ width:40,height:2,background:act.color,borderRadius:2,marginBottom:16,opacity:0.6 }} />
+        <div className="flex flex-col">
+          {act.lines.map((line,i) => renderLine(line,i))}
+        </div>
+      </Panel>
+      <div className="flex gap-2">
+        {chapter > 0 && <Btn kind="ghost" style={{ flex:1 }} onClick={()=>setChapter(c=>c-1)}>← Ato Anterior</Btn>}
+        {chapter < STORY_ACTS.length - 1 && <Btn kind="primary" style={{ flex:1 }} onClick={()=>setChapter(c=>c+1)}>Próximo Ato →</Btn>}
+        {chapter === STORY_ACTS.length - 1 && <div style={{ flex:1,textAlign:"center",padding:"10px",color:C.mute,fontSize:13,background:C.panelHi,borderRadius:12 }}>Fim do Arco · Novo capítulo em breve</div>}
+      </div>
+    </div>
+  );
+}
 
   
-/* ADMIN ROTEIRO — Story mode, admin-only
+/* ADMIN ROTEIRO - Story mode, admin-only
    ========================================================================== */
 function AdminRoteiro() {
   const [chapter, setChapter] = React.useState(0);
