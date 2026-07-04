@@ -75,6 +75,12 @@ const ROSTER = [
     skill: { basicMul: 110, skillMul: 260, skillBuff: { critRate: 20, spd: 12, all: false, turns: 2 }, skillDot: { type: "shock", mul: 45, turns: 2 }, ultMul: 510 } }),
   mk({ id: "kiritsugu", name: "Kiritsugu", title: "Caçador de Magos", element: "Virus", role: "debuffer", rarity: 5, avatar: "🔫", hp: 1080, atk: 725, def: 450, spd: 108, energy: 120, cr: 8, cd: 56, tags: ["Vírus", "Debuffador", "Veneno"],
     skill: { basicMul: 100, skillMul: 205, skillDebuff: { defDown: 40, vuln: 22, turns: 3 }, skillDot: { type: "poison", mul: 70, turns: 3 }, ultMul: 365, ultDebuff: { vuln: 30, all: true, turns: 3 } } }),
+  // ---- Ryoshu (Limitada) ----
+  mk({ id: "ryoshu", name: "Ryoshu", title: "Lamina da Casa das Aranhas", element: "Virus", role: "dps", rarity: 5, avatar: "🕸", hp: 1150, atk: 910, def: 480, spd: 110, energy: 120, cr: 15, cd: 62, elemDmg: 11.2, tags: ["Virus", "DPS", "Dreno de HP", "Execucao", "Dano Verdadeiro"],
+    skill: { basicMul: 100, ryoBasic: true, skillMul: 220, ryoSkill: true, aoe: true, ultMul: 450, ultAoe: true, ryoUlt: true } }),
+  // ---- Frieren (Limitada) ----
+  mk({ id: "frieren", name: "Frieren", title: "Alem do Fim das Jornadas", element: "Holy", role: "aoe", rarity: 5, avatar: "🧝", hp: 1080, atk: 880, def: 430, spd: 103, energy: 110, cr: 8, cd: 58, elemDmg: 8.0, tags: ["Holy", "Maga", "AoE", "Elementalista", "Suporte"],
+    skill: { basicMul: 90, frBasic: true, skillMul: 180, frSkill: true, ultMul: 500, frUlt: true } }),
   // ---- Soi Fon (Limitada) ----
   mk({ id: "soifon", name: "Soi Fon", title: "Capitã da 2ª Divisão", element: "Vento", role: "dps", rarity: 5, avatar: "🦋", hp: 1040, atk: 740, def: 420, spd: 118, energy: 120, cr: 8, cd: 56, tags: ["Vento", "Follow-up", "Sub DPS", "Assassina"],
     skill: { basicMul: 100, sfBasic: true, skillMul: 160, sfSkill: true, ultMul: 350, sfUlt: true } }),
@@ -86,10 +92,10 @@ const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 // Tag primária de um personagem (usada como requisito de nó) e todas as tags únicas do elenco
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
-const LIMITED_5 = ["miyabi", "kaiba", "soifon", "omegamon"];     // limitados (pool 50/50): só via rate-up
-const FEATURED_LIMITEDS = ["omegamon", "soifon"]; // banners de evento ATIVOS no carrossel (6 dias)
+const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon"];     // limitados (pool 50/50): só via rate-up
+const FEATURED_LIMITEDS = ["ryoshu", "frieren", "soifon", "omegamon"]; // banners: Ryoshu+Frieren (Jul 5) -> Soi Fon -> Omegamon
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
-const DEFAULT_FEATURED_CHAR = "omegamon";
+const DEFAULT_FEATURED_CHAR = "ryoshu";
 
 /* ---------- ARMAS ---------- */
 // Valores de atk e stats secundários = nível MÁXIMO (80). Escalam via weaponLevelMul().
@@ -104,6 +110,8 @@ const WEAPONS = [
   { id: "starmantle",       name: "Manto Estelar",         rarity: 5, role: "shield",   atk: 476, def: 476, shieldBonus: 52,        passive: "Barreira Estelar: +52% no valor dos Escudos gerados pelo portador." },
   { id: "ferrao_borboleta", name: "Ferrao da Borboleta",   rarity: 5, role: "dps",      atk: 840, spd: 36.0, critRate: 36.0,        passive: "Carga Eletrica: acumula 1 carga por golpe de Vento (max 5). Cada carga +10% dano follow-up. Na Postura de Ferrao, consome todas e concede +24% Dano Verdadeiro por carga. Exclusivo: Soi Fon." },
   { id: "glitch_apagamento",name: "Glitch de Apagamento", rarity: 5, role: "shield",   atk: 476, def: 440, omgWeapon: true,        passive: "Instabilidade Digital: +20% HP Maximo. Ao perder HP, +25% Dano de Virus por 2 turnos. Exclusivo (Omegamon): Corrupcao dobrada; Dano Verdadeiro +8 Energia." },
+  { id: "lamina_matriarca",  name: "Lamina da Matriarca",    rarity: 5, role: "dps",    atk: 635, hp: 1085, def: 398, critRate: 12.0, passive: "Fio Condutor de Agonia: +12% CRIT Rate permanente. Exclusivo (Ryoshu): ao drenar HP dos aliados, acumula Gotas de Tinta (+15% Dano Fixo por gota, max 3, dura 2 turnos). No inicio de cada turno, cura todos os aliados em 6% do HP Max.", buff: { ryoInkDrops: true, allyHealPct: 6 } },
+  { id: "cajado_fim_era",     name: "Cajado do Fim da Era",   rarity: 5, role: "aoe",   atk: 720, critDmg: 52.0, passive: "Heranca de Flamme: +24% de Dano Holy. Ao gerar Pontos de Elemento, recupera 10 de Energia. Apos usar magia com pontos, o proximo ataque do time causa dano extra (+15% ATK de Frieren).", buff: { frElemEnergy: 10, frTeamBonus: true } },
   // ── ★★★★ 4-estrelas ────────────────────────────────────────────────────────
   { id: "shadowkunai", name: "Kunai Sombria",       rarity: 4, role: "dps",      atk: 528, critDmg: 38.4, defPen: 10,       passive: "Sombra Rastreadora: perfura 10% da DEF do inimigo em todos os ataques." },
   { id: "slingshot",   name: "Estilingue de Elite", rarity: 4, role: "debuffer", atk: 476, critDmg: 28.8, extraDefDown: 12, passive: "Mira de Precisao: debuffs reduzem +12% de DEF adicional." },
@@ -240,6 +248,8 @@ const PASSIVE = {
   nanami: { name: "Postura Profissional · Cálculo 7:3", desc: "Talento: Nanami está sempre dentro do expediente — se a batalha ultrapassar o 5º turno de heróis, ele entra em [Hora Extra], ganhando permanentemente +30% de ATK pelo resto do combate. Combinado com a mecânica 7:3 da Habilidade (que dispara Crítico Garantido em danos terminados em 7 ou 3), cada turno longo o torna exponencialmente mais letal.", flag: "nanamHoraExtra" },
   nami: { name: "Aliança dos Piratas · Oportunista", desc: "Talento: sempre que qualquer aliado atacar um inimigo que esteja sob efeito de Ciclone (DoT de Vento), Nami dispara automaticamente um ataque coordenado causando 40% de Dano de Vento. Ela transforma os próprios DoTs em amplificadores de dano passivo — cada aliado que age se torna um gatilho da sua tempestade.", flag: "namiFollowup" },
   uraraka: { name: "Quirk Zero Gravity · Levitação", desc: "Talento: ao usar o Ataque Básico, Uraraka avança sua própria barra de ação em 15%, agindo com mais frequência que a velocidade base indicaria. Além disso, aliados com o buff de Zero Gravity ativo têm a ação dos inimigos que atacam atrasada em 8%, criando uma vantagem de turno cumulativa para a equipe.", flag: "uraAdvance" },
+  ryoshu:  { name: "Marionetes de Sangue · Fios da Agonia", desc: "Talento (P.I.P.): o dreno de Ryoshu ignora Escudos aliados, retirando o valor direto da barra vital. Se o aliado drenado possuía Escudo, Ryoshu absorve 30% do valor como ATK temporário. Os aliados não podem morrer pelo dreno (param em 1 HP). Para cada 1% de HP faltando nos aliados após o dreno, Ryoshu ignora 0,5% da DEF dos inimigos (máx 45%).", flag: "ryoTalent" },
+  frieren: { name: "Percepção de Milênios · Grimório Oculto", desc: "Talento: Frieren é imune a qualquer debuff de lentidão ou atraso de turno. No início da batalha, ela esconde sua verdadeira força: o Aggro dela é reduzido a quase zero enquanto tiver menos de 50% de energia da Ultimate carregada. Além disso, começa a batalha com 2 Pontos de Elemento aleatórios já acumulados.", flag: "frTalent" },
 };
 // Corrente de Ressonância / Eidolons — 6 nós ÚNICOS por personagem (estilo HSR/WuWa)
 const A_SKILL = { amp: "skill", ampV: 25 }, A_ULT = { amp: "ult", ampV: 50 };
@@ -364,6 +374,22 @@ const CONS = {
     { name: "C5 · Raio de Zeus", amp: "ult", ampV: 50, desc: "Eleva o nível da Ultimate e do Talento. +50% de dano no Zeus Breeze Tempo." },
     { name: "C6 · Explosão Total de DoT", flag: "namiC6", desc: "Mudança de kit (capstone): o multiplicador de detonação dos DoTs na Ultimate sobe de 60% para 100% — cada DoT explode no seu valor integral." },
   ],
+  ryoshu: [
+    { name: "C1 · A Primeira Teia", flag: "ryoC1", desc: "Ryoshu entra em batalha com 3 PH. O dreno da Habilidade custa apenas 10% do HP dos aliados, mas os multiplicadores são calculados como 15%." },
+    { name: "C2 · Fios Farpados", flag: "ryoC2", desc: "Ao consumir HP de um aliado, ele recebe Fio Guia: dano recebido -30% e 10% do dano mitigado é refletido como Dano Vírus." },
+    { name: "C3 · Mestre da Casa das Aranhas", amp: "skill", ampV: 25, desc: "Nível da Habilidade +2 / Nível do Básico +1. +25% de dano em Marionetes de Sangue." },
+    { name: "C4 · Estética da Agonia", flag: "ryoC4", desc: "Ryoshu recupera 5 de Energia extra para cada aliado drenado enquanto estiver com buff positivo ativo." },
+    { name: "C5 · Arte em Vermelho Escuro", amp: "ult", ampV: 50, desc: "Nível da Ultimate +2 / Nível do Talento +2. +50% de dano em A Tela da Aranha." },
+    { name: "C6 · A Oitava Arte: Fio do Destino Cortado", flag: "ryoC6", desc: "O Dano Verdadeiro de Chefes salta de 300% para 600% do HP drenado. Se a Ultimate for usada com todos os aliados abaixo de 50% HP, não consome PH e Ryoshu age novamente." },
+  ],
+  frieren: [
+    { name: "C1 · Despertar da Preguiça", flag: "frC1", desc: "Frieren entra na batalha já com 2 Pontos de Elemento gerados aleatoriamente, permitindo usar opções avançadas do Supremo no primeiro turno." },
+    { name: "C2 · Zoltraak Aprimorado (Dispersão)", flag: "frC2", desc: "Quando Frieren escolhe Zoltraak no Supremo, o feixe atravessa o alvo principal e atinge inimigos adjacentes causando 50% do dano." },
+    { name: "C3 · Grimório Antigo", amp: "skill", ampV: 25, desc: "Nível da Habilidade +2 / Nível do Básico +1. +25% de dano no Grimório do Colecionador." },
+    { name: "C4 · Aura Oculta Repressora", flag: "frC4", desc: "Enquanto Frieren estiver em campo com energia da Suprema cheia (100%), a DEF de todos os inimigos é reduzida passivamente em 15%." },
+    { name: "C5 · Compressão de Mana Milenar", amp: "ult", ampV: 50, desc: "Nível do Supremo +2 / Nível do Talento +2. +50% de dano em Descompressão de Mana." },
+    { name: "C6 · A Maga Que Derrotou o Rei Demônio", flag: "frC6", desc: "Zoltraak causa Morte Instantânea em inimigos comuns/elites com menos de 30% HP. Contra Chefes, ignora 100% da DEF e reduz resistência Holy a zero até o fim da batalha." },
+  ],
   uraraka: [
     { name: "C1 · Gravidade Amplificada", flag: "uraC1", desc: "Mudança de kit: o bônus de ATK da Habilidade Zero Gravity sobe de 20% para 25%." },
     { name: "C2 · Escudo Orbital", flag: "uraC2", desc: "Mudança de kit: ao ativar a Ultimate, Uraraka gera um escudo para si mesma equivalente a 10% do HP máximo." },
@@ -394,6 +420,8 @@ const SKILL_NAMES = {
   kirara: ["Toque Estelar", "Escudo Cósmico", "Constelação Guardiã"],
   yoruichi: ["Golpe Relâmpago", "Shunko", "Shunko: Raijin"],
   kiritsugu: ["Tiro de Origem", "Bala Calculada", "Time Alter: Triple Accel"],
+  ryoshu: ["F.P. [Fio Peçonhento]", "M.D.S. [Marionetes de Sangue]", "A.T.D.A. [A Tela da Aranha]"],
+  frieren: ["Magia Comum", "Grimório do Colecionador", "Descompressão de Mana"],
   soifon: ["Golpe Duplo da Suzumebachi", "Nigeki Kessatsu", "Jakuhō Raikōben"],
   omegamon: ["Garuru Cannon: Rajada Corrompida", "Grey Sword: Protocolo de Infecção", "All Delete: Recálculo de Vazio"],
   lancer: ["Estocada Rápida", "Proteção contra Flechas", "Gáe Bolg: A Lança da Morte Perfurante"],
@@ -421,6 +449,22 @@ const TRACE_NODE_SETS = {
     { stat: "elemDmg", element: "Glacial", value: 4.8, label: "Dano Glacial +4.8%", cost: 600 },
     { stat: "elemDmg", element: "Glacial", value: 6.4, label: "Dano Glacial +6.4%", cost: 700 },
     { stat: "spd", value: 5, label: "VEL +5", cost: 1100 },
+  ],
+  ryoshu: [
+    { stat: "critRate", value: 5, label: "CRIT +5%", cost: 700 },
+    { stat: "critRate", value: 5, label: "CRIT +5%", cost: 700 },
+    { stat: "critDmg", value: 12, label: "CRIT DMG +12%", cost: 900 },
+    { stat: "elemDmg", element: "Virus", value: 4.8, label: "Dano Vírus +4.8%", cost: 600 },
+    { stat: "elemDmg", element: "Virus", value: 6.4, label: "Dano Vírus +6.4%", cost: 700 },
+    { stat: "spd", value: 5, label: "VEL +5", cost: 1100 },
+  ],
+  frieren: [
+    { stat: "critRate", value: 5, label: "CRIT +5%", cost: 700 },
+    { stat: "critDmg", value: 12, label: "CRIT DMG +12%", cost: 900 },
+    { stat: "elemDmg", element: "Holy", value: 4.8, label: "Dano Holy +4.8%", cost: 600 },
+    { stat: "elemDmg", element: "Holy", value: 6.4, label: "Dano Holy +6.4%", cost: 700 },
+    { stat: "spd", value: 5, label: "VEL +5", cost: 1100 },
+    { stat: "atk", value: 6, label: "ATK +6%", cost: 500 },
   ],
   omegamon: [
     { stat: "hp", value: 10, label: "HP +10%", cost: 600 },
@@ -487,6 +531,16 @@ function specialTraces(def) {
     { name: "Vestígio: Saturação de Vírus", desc: "Rastro Especial de combate · o dano da Ultimate aumenta em 0,8% para cada 1% de HP que o portador tiver perdido.", combat: "omgSaturacao", cost: 2 },
     { name: "Vestígio: Contágio de Dados", desc: "Rastro Especial de combate · aliados com [Protocolo de Infecção] ganham +20% de resistência a dano. Se o Escudo de Dados for quebrado, o inimigo que o quebrou sofre [Corrosão] imediata.", combat: "omgContagio", cost: 2 },
     { name: "Vestígio: Reescrita de Sistema", desc: "Rastro Especial de combate · a cura recebida por Omegamon via [Corrosão] inimiga é +25% mais eficaz.", combat: "omgReescrita", cost: 3 },
+  ];
+  if (def.id === "ryoshu") return [
+    { name: "Vestígio do Poder (P.I.P.)", desc: "O dreno de Ryoshu ignora Escudos aliados. Se o aliado drenado possuía Escudo, Ryoshu absorve 30% do valor como ATK temporário por 2 turnos. Sinergia com suportes de barreira.", combat: "ryoPIP", cost: 2 },
+    { name: "Vestígio da Lâmina (S.E.T.)", desc: "O Dano Fixo gerado pelo HP consumido na Habilidade e Ultimate pode causar Acertos Críticos, respeitando CRIT Rate e CRIT DMG de Ryoshu.", combat: "ryoSET", cost: 2 },
+    { name: "Vestígio: Tempestade (A.A.M.)", desc: "Os aliados não podem morrer pelo dreno de Ryoshu (param em 1 HP). Para cada 1% de HP faltando nos aliados após o dreno, Ryoshu ignora 0,5% da DEF dos inimigos (máx 45% de penetração de DEF).", combat: "ryoAAM", cost: 3 },
+  ];
+  if (def.id === "frieren") return [
+    { name: "Vestígio do Poder (Grimório Secreto)", desc: "O Ataque Básico Magia Comum também gera 1 Ponto de Elemento aleatório ao acertar, acelerando o acúmulo para o Supremo.", combat: "frGrimoire", cost: 2 },
+    { name: "Vestígio da Lâmina (Zoltraak Silencioso)", desc: "Se Zoltraak for usado contra inimigos do elemento Chaos ou Vírus, o dano CRIT é garantido e o ataque ignora 100% dos Escudos do alvo.", combat: "frZoltraak", cost: 2 },
+    { name: "Vestígio: Tempestade (Campo de Flores Eterno)", desc: "A opção Magia de Flores do Supremo também cura 15% do HP Máximo de cada aliado e aplica +10% de bônus de dano ao time por 2 turnos.", combat: "frFlowers", cost: 3 },
   ];
   if (def.id === "lancer") return [
     { name: "Vestígio do Poder", desc: "Rastro Especial de atributo: ATK +15%, reforçando o kit ofensivo de Lancer.", stat: "atk", value: 15, cost: 2 },
@@ -738,13 +792,15 @@ async function loadAccounts() {
 async function saveAccounts(a) { try { await SS.set(ACCOUNTS_KEY, JSON.stringify(a)); } catch {} cloudSet("meta", "accounts", { list: a }); }
 
 /* ---------- TORRE ---------- */
-const TOWER_FLOORS = 70;
+const TOWER_FLOORS = 90;
 const TOWER_BOSSES = {
   50: { name: "Sōsuke Aizen", title: "Shinigami Traidor", element: "Holy", bossKind: "aizen", bossImgId: "boss_tower_50", res: ["Holy", "Virus"], weak: ["Fogo", "Eletro"] },
   60: { name: "Seto Kaiba · Modo Deus", title: "Portador de Obelisco", element: "Eletro", bossKind: "godkaiba", bossImgId: "boss_tower_60", res: ["Eletro", "Holy"], weak: ["Chaos", "Glacial"] },
   70: { name: "Ryōmen Sukuna", title: "Rei das Maldições", element: "Chaos", bossKind: "sukuna", bossImgId: "boss_tower_70", res: ["Chaos", "Fogo", "Virus"], weak: ["Holy"] },
+  80: { name: "Ryoshu · Matriarca Final", title: "A Aranha que Devora Estrelas", element: "Virus", bossKind: "ryoshu_boss", bossImgId: "boss_tower_80", res: ["Virus", "Chaos"], weak: ["Holy", "Glacial"] },
+  90: { name: "Frieren · Além do Fim", title: "A Maga do Milênio Absoluto", element: "Holy", bossKind: "frieren_boss", bossImgId: "boss_tower_90", res: ["Holy", "Glacial", "Vento"], weak: ["Chaos", "Virus"] },
 };
-function rewardFor(f) { if (f <= 60) return 300; if (f <= 69) return 500; return 1500; } // soma = 24000
+function rewardFor(f) { if (f <= 60) return 300; if (f <= 69) return 500; if (f <= 79) return 1500; if (f <= 89) return 2000; return 3000; }
 function towerEncounter(f, power) {
   const boss = f % 10 === 0, finalBoss = f === TOWER_FLOORS;
   const bd = TOWER_BOSSES[f];
@@ -3325,9 +3381,18 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         if (f.nanamC4) u.debuffs = []; // limpa debuffs ao entrar em hora extra
         pushLog(s, "💼 NANAMI entra em HORA EXTRA! +30% ATK permanente!");
       }
+      // Lamina da Matriarca: heals allies 6% max HP at start of Ryoshu's turn
+      if (u.id === "ryoshu" && u.weapon?.id === "lamina_matriarca" && u.weapon.buff?.allyHealPct) {
+        const hp6 = u.weapon.buff.allyHealPct;
+        s.heroes.filter(h => h.alive && !h.isSummon).forEach(a => { const h = Math.round(a.maxHp * hp6 / 100); healUnit(a, h, s.fx); });
+      }
       tickDots(u, s.fx);
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
       refreshKaibaBuffs(s);
+      // Frieren C4: DEF -15% on all enemies when ult energy is full
+      if (u.id === "frieren" && u.stFlags?.frC4 && u.energy >= u.energyMax) {
+        aliveEnemies(s).forEach(e => { if (!e.debuffs.some(d => d.name === "AuraOculta")) e.debuffs.push({ stat: "def", value: -15, turns: 2, name: "AuraOculta" }); });
+      }
       const fx = s.fx, sk = u.skill, allies = s.heroes.filter((h) => h.alive), enemy = targetEnemy(s);
       const f = u.stFlags || {};
       // ── Protocolo Ômega 4pç: 3 Fases de HP ──────────────────────────────
@@ -3364,6 +3429,20 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         let miyDone = false;
         if (u.id === "miyabi" && (f.miPostura || f.miResidual || f.miDetonate)) { msg = miyabiBasicAttack(s, u, enemy, fx, ampB); miyDone = true; }
         if (!miyDone && u.id === "soifon") { msg = soiFonBasicAttack(s, u, enemy, fx, ampB); miyDone = true; }
+        // Ryoshu basic
+        if (!miyDone && u.id === "ryoshu" && enemy) {
+          const r = dealDamage(u, enemy, (sk.basicMul || 100) * u.tBasic * ampB, fx, { el: "Virus" });
+          if (!enemy.debuffs.some(d => d.name === "Teia")) enemy.debuffs.push({ stat: "spd", value: -5, pct: true, turns: 2, name: "Teia" });
+          msg = u.name + " usa F.P. em " + enemy.name + " — " + r.dmg + " de Dano Vírus" + (r.crit ? " (CRÍTICO!)" : "") + "! Teia: VEL -5%.";
+          miyDone = true;
+        }
+        // Frieren basic
+        if (!miyDone && u.id === "frieren" && enemy) {
+          const r = dealDamage(u, enemy, (sk.basicMul || 90) * u.tBasic * ampB, fx, { el: "Holy" });
+          if (f.frGrimoire) { u._frPoints = Math.min(4, (u._frPoints || 0) + 1); }
+          msg = u.name + " conjura Magia Comum em " + enemy.name + " — " + r.dmg + " de Dano Holy" + (r.crit ? " (CRÍTICO!)" : "") + (f.frGrimoire ? (" [" + (u._frPoints||0) + "/4 pts]") : "") + ".";
+          miyDone = true;
+        }
         if (!miyDone && u.id === "omegamon" && enemy) {
           const r = dealDamage(u, enemy, (sk.basicMul || 100) * u.tBasic * ampB, fx, { el: "Virus" });
           let extra = "";
@@ -3394,6 +3473,45 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           if (sk.skillMul) { const wpen = u.weapon?.id === "dragoncannon" ? 30 : 0; let tot = 0; aliveEnemies(s).forEach((e) => { tot += dealDamage(u, e, sk.skillMul * sMul, fx, { el: "Eletro", defPen: wpen }).dmg; }); if (tot) msg += ` Rajada Eletro em área: ${tot}${wpen ? " (perfura DEF)" : ""}.`; }
           if (f.kS2) { const sh = Math.round(effStat(u, "atk") * ampS); u.shield += sh; msg += ` Barreira do Duelista: escudo de ${sh}.`; }
           refreshKaibaBuffs(s);
+        }
+        else if (u.id === "ryoshu" && sk.ryoSkill) {
+          const sMul = u.tSkill * ampS;
+          const drainable = allies.filter(a => a.uid !== u.uid && !a.isSummon && a.alive);
+          let totalDrained = 0; let tensao = 0;
+          drainable.forEach(a => {
+            const pct = f.ryoC1 ? 0.10 : 0.15;
+            const drained = Math.max(1, Math.round(a.maxHp * pct));
+            a.hp = Math.max(1, a.hp - drained);
+            totalDrained += drained;
+            if (drained > 1000) tensao = Math.min(3, tensao + 1);
+            fx.push({ uid: a.uid, txt: "-" + drained, dot: "drain", id: Math.random() });
+            if (f.ryoC2) { a.buffs = a.buffs.filter(b => b.name !== "FioGuia"); a.buffs.push({ stat: "dmgReduce", value: 30, turns: 1, name: "FioGuia" }); }
+            if (f.ryoPIP && a.shield > 0) { const ab = Math.round(a.shield * 0.30); u.buffs = u.buffs.filter(b => b.name !== "ShieldATK"); u.buffs.push({ stat: "atk", value: ab, pct: false, turns: 2, name: "ShieldATK" }); }
+            if (f.ryoC4 && a.buffs.length > 0) u.energy = Math.min(u.energyMax, u.energy + 5);
+          });
+          u._ryoTensao = tensao;
+          if (u.weapon?.id === "lamina_matriarca") u._inkDrops = Math.min(3, (u._inkDrops || 0) + 1);
+          const inkMul = u.weapon?.id === "lamina_matriarca" ? (1 + (u._inkDrops || 0) * 0.15) : 1;
+          const flatBase = Math.round(totalDrained * 1.50 * (1 + tensao * 0.10) * inkMul);
+          let tot = 0;
+          aliveEnemies(s).forEach(e => {
+            const r = dealDamage(u, e, (sk.skillMul || 220) * sMul, fx, { el: "Virus" });
+            tot += r.dmg;
+            const critM = (f.ryoSET && Math.random() < (u.base.critRate / 100)) ? (1 + (effStat(u,"critDmg")||50)/100) : 1;
+            const fd = Math.round(flatBase * critM);
+            e.hp -= fd; if (e.hp <= 0) { e.hp = 0; e.alive = false; }
+            fx.push({ uid: e.uid, txt: String(fd), crit: critM > 1, id: Math.random(), el: "Virus" });
+            tot += fd;
+          });
+          msg = u.name + " usa Marionetes de Sangue! Drena " + totalDrained + " HP" + (tensao ? " [Tensão x" + tensao + "]" : "") + " e causa " + tot + " de dano (" + Math.round(flatBase) + " Dano Fixo" + (inkMul > 1 ? " [Gotas de Tinta]" : "") + ")." + (f.ryoC2 ? " [Fio Guia] ao time!" : "");
+        }
+        else if (u.id === "frieren" && sk.frSkill) {
+          const sMul = u.tSkill * ampS;
+          const r = enemy ? dealDamage(u, enemy, (sk.skillMul || 180) * sMul, fx, { el: "Holy" }) : { dmg: 0, crit: false };
+          u._frPoints = Math.min(4, (u._frPoints || 0) + 2);
+          u._frPointTypes = (u._frPointTypes || []).concat(["Vento","Fogo","Gelo","Eletro"][Math.floor(Math.random()*4)], ["Vento","Fogo","Gelo","Eletro"][Math.floor(Math.random()*4)]).slice(-4);
+          if (u.weapon?.id === "cajado_fim_era") u.energy = Math.min(u.energyMax, u.energy + (u.weapon.buff?.frElemEnergy || 10) * 2);
+          msg = u.name + " usa Grimório do Colecionador em " + (enemy ? enemy.name : "inimigos") + " — " + r.dmg + " de Dano Holy" + (r.crit ? " (CRÍTICO!)" : "") + "! +2 Pts de Elemento (" + (u._frPoints||0) + "/4).";
         }
         else if (u.id === "soifon" && sk.sfSkill && enemy) {
           const sMul = u.tSkill * ampS;
@@ -3474,6 +3592,78 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
             if (f.sfC4) s.heroes.filter(h => h.alive && !h.isSummon).forEach(h => h.buffs.push({ stat: "critRate", value: 10, pct: false, turns: zonaTurns + 1, name: "AuraCond" }));
             if (!enemy.alive && f.sfC6) { u.energy = u.energyMax; u.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); }
             msg = `💥🦋 JAKUHŌ RAIKŌBEN! ${u.name} dispara o míssil definitivo em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " CRÍTICO!" : ""}!${fmMarks ? ` (+${fmMarks * 15}% de marcas!)` : ""} Zona de Condução por ${zonaTurns} turno(s)!${f.sfC4 ? " +10% CRIT ao time!" : ""}`;
+          }
+        } else if (u.id === "ryoshu" && sk.ryoUlt) {
+          u.energy = enGain(5);
+          const sMul = u.tUlt * ampU;
+          const drainable = allies.filter(a => a.uid !== u.uid && !a.isSummon && a.alive);
+          let totalDrained = 0;
+          drainable.forEach(a => {
+            const drained = Math.max(1, Math.round(a.maxHp * 0.25));
+            a.hp = Math.max(1, a.hp - drained);
+            totalDrained += drained;
+            fx.push({ uid: a.uid, txt: "-" + drained, dot: "drain", id: Math.random() });
+            if (f.ryoC2) { a.buffs = a.buffs.filter(b => b.name !== "FioGuia"); a.buffs.push({ stat: "dmgReduce", value: 30, turns: 1, name: "FioGuia" }); }
+            if (f.ryoC4 && a.buffs.length > 0) u.energy = Math.min(u.energyMax, u.energy + 5);
+          });
+          if (u.weapon?.id === "lamina_matriarca") u._inkDrops = Math.min(3, (u._inkDrops || 0) + 1);
+          const inkMul2 = u.weapon?.id === "lamina_matriarca" ? (1 + (u._inkDrops || 0) * 0.15) : 1;
+          let defPenBonus = 0;
+          if (f.ryoAAM) { let mp = 0; drainable.forEach(a => { mp += (1 - a.hp / a.maxHp) * 100; }); defPenBonus = Math.min(45, mp * 0.5); }
+          const flatBase2 = Math.round(totalDrained * 2.50 * inkMul2);
+          let tot2 = 0;
+          aliveEnemies(s).forEach(e => {
+            const isBoss = e.boss || e.elite;
+            const r = dealDamage(u, e, (sk.ultMul || 450) * sMul, fx, { el: "Virus", defPen: defPenBonus });
+            tot2 += r.dmg;
+            const critM2 = (f.ryoSET && Math.random() < (u.base.critRate/100)) ? (1+(effStat(u,"critDmg")||50)/100) : 1;
+            const fd2 = Math.round(flatBase2 * critM2);
+            if (!isBoss) { e.hp -= fd2; if (e.hp <= 0) { e.hp = 0; e.alive = false; } }
+            else { e.hp = Math.max(1, e.hp - fd2); }
+            fx.push({ uid: e.uid, txt: String(fd2), crit: critM2 > 1, id: Math.random(), el: "Virus" });
+            tot2 += fd2;
+            // Execute non-boss
+            if (!isBoss && e.alive && e.hp < totalDrained) { e.hp = 0; e.alive = false; fx.push({ uid: e.uid, txt: "DELETADO!", crit: true, id: Math.random(), el: "Virus" }); }
+            // Boss true damage burst
+            if (isBoss) { const tdMul = f.ryoC6 ? 6.0 : 3.0; const td = Math.round(totalDrained * tdMul); e.hp = Math.max(1, e.hp - td); fx.push({ uid: e.uid, txt: td + "!", crit: true, id: Math.random(), el: "Virus" }); tot2 += td; }
+          });
+          const allLow = drainable.every(a => a.hp / a.maxHp < 0.5);
+          if (f.ryoC6 && allLow) { u.av = 0.01; }
+          msg = "A TELA DA ARANHA! " + u.name + " sacrifica " + totalDrained + " HP do time — " + tot2 + " de dano total!" + (defPenBonus > 0 ? " (perfura " + defPenBonus.toFixed(0) + "% DEF!)" : "") + (f.ryoC6 && allLow ? " [C6] Ryoshu age NOVAMENTE!" : "");
+        } else if (u.id === "frieren" && sk.frUlt) {
+          u.energy = enGain(5);
+          const sMul = u.tUlt * ampU;
+          const pts = u._frPoints || 0;
+          const enems = aliveEnemies(s);
+          const mainT = targetEnemy(s);
+          const teamNeedsHeal = allies.some(a => a.hp / a.maxHp < 0.40);
+          let ultChoice = "zoltraak";
+          if (teamNeedsHeal && pts >= 2) ultChoice = "flowers";
+          else if (pts >= 2 && enems.length > 1) ultChoice = "reaction";
+          if (ultChoice === "zoltraak" && mainT) {
+            const isChaosVirus = mainT.element === "Chaos" || mainT.element === "Virus";
+            let origCR = null;
+            if (isChaosVirus || f.frZoltraak) { origCR = u.base.critRate; u.base = { ...u.base, critRate: 200 }; }
+            const defP = (isChaosVirus && f.frZoltraak) ? 100 : (f.frC6 ? 100 : 0);
+            const rz = dealDamage(u, mainT, (sk.ultMul || 500) * sMul, fx, { el: "Holy", pierceShield: isChaosVirus, defPen: defP });
+            if (origCR !== null) u.base.critRate = origCR;
+            if (f.frC2 && enems.length > 1) enems.filter(e => e.uid !== mainT.uid && e.alive).forEach(e => dealDamage(u, e, (sk.ultMul || 500) * sMul * 0.5, fx, { el: "Holy" }));
+            if (!mainT.boss && f.frC6 && mainT.hp / mainT.maxHp < 0.30) { mainT.hp = 0; mainT.alive = false; fx.push({ uid: mainT.uid, txt: "APAGADO!", crit: true, id: Math.random() }); }
+            if (f.frC4) enems.forEach(e => { if (!e.debuffs.some(d => d.name === "AuraOculta")) e.debuffs.push({ stat: "def", value: -15, turns: 3, name: "AuraOculta" }); });
+            msg = "ZOLTRAAK! " + u.name + " dispara o feixe colossal em " + mainT.name + " — " + rz.dmg + " de Dano Holy" + (rz.crit ? " CRÍTICO!" : "") + "!" + (isChaosVirus ? " Crit Garantido + ignora Escudos!" : "") + (f.frC2 ? " Refração em adjacentes!" : "");
+          } else if (ultChoice === "reaction") {
+            const dmgMul = 1 + pts * 0.3;
+            u._frPoints = 0; u._frPointTypes = [];
+            let tot3 = 0;
+            enems.forEach(e => { const r = dealDamage(u, e, (sk.ultMul || 500) * sMul * dmgMul * 0.6, fx, { el: "Holy" }); tot3 += r.dmg; if (pts >= 3) e.debuffs.push({ stat: "spd", value: -15, pct: true, turns: 2, name: "Nevasca" }); });
+            if (u.weapon?.buff?.frTeamBonus) allies.forEach(a => a.buffs.push({ stat: "dmgBonus", value: 15, turns: 1, name: "CajadoReacao" }));
+            msg = "REAÇÃO DE CAMPO! " + u.name + " libera " + pts + " pontos de elemento — " + tot3 + " de dano em área (×" + dmgMul.toFixed(1) + ")!" + (pts >= 3 ? " Inimigos ficam lentos!" : "");
+          } else {
+            u._frPoints = Math.max(0, pts - 2);
+            const healAmt = Math.round(0.20 * u.maxHp);
+            allies.forEach(a => { healUnit(a, healAmt, fx); a.debuffs = []; a.buffs.push({ stat: "dmgReduce", value: 15, turns: 3, name: "CampoFlores" }); });
+            if (f.frFlowers) allies.forEach(a => { a.hp = Math.min(a.maxHp, a.hp + Math.round(a.maxHp * 0.15)); a.buffs.push({ stat: "dmgBonus", value: 10, turns: 2, name: "FloraEterna" }); });
+            msg = "MAGIA DE FLORES! " + u.name + " faz nascer flores — o time é curado em " + healAmt + ", debuffs removidos e +15% resistência por 3 turnos!" + (f.frFlowers ? " +15% HP e +10% dano ao time!" : "");
           }
         } else if (u.id === "nami" && sk.namiUlt) {
           u.energy = enGain(5);
