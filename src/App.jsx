@@ -888,6 +888,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [draftClaimedGems, setDraftClaimedGems] = useState(0);
   const [draftBoons, setDraftBoons] = useState([]);
   const [mailClaimed, setMailClaimed] = useState(false);
+  const [mail2Claimed, setMail2Claimed] = useState(false);
   const [relicMats, setRelicMats] = useState(0);
   const [shopResetAt, setShopResetAt] = useState(0);
   const [shopPurchases, setShopPurchases] = useState({});
@@ -911,7 +912,7 @@ function Game({ email, isAdmin, onLogout }) {
       setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []);
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0); setBossRushCleared(Array.isArray(s.bossRushCleared) ? s.bossRushCleared : []);
       setDraftRoomCleared(s.draftRoomCleared ?? 0); setDraftClaimedGems(s.draftClaimedGems ?? 0); setDraftBoons(Array.isArray(s.draftBoons) ? s.draftBoons : []);
-      setMailClaimed(s.mailClaimed ?? false); setRelicMats(s.relicMats ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
+      setMailClaimed(s.mailClaimed ?? false); setMail2Claimed(s.mail2Claimed ?? false); setRelicMats(s.relicMats ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
     }
     // Carrega fotos do localStorage imediatamente (sem depender do Firebase)
     try { const li = _ls.get("sr_shared_images"); if (li) { const parsed = JSON.parse(li); if (parsed && typeof parsed === "object") setImages(parsed); } } catch {}
@@ -944,8 +945,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, relicMats, shopResetAt, shopPurchases });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, relicMats, shopResetAt, shopPurchases]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1277,7 +1278,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} flash={flash} setBattle={setBattle} />}
               {screen === "relics" && <RelicsScreen relicInv={relicInv} />}
               {screen === "loja" && <Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} />}
-              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} flash={flash} />}
+              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mail2Claimed={mail2Claimed} setMail2Claimed={setMail2Claimed} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} flash={flash} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
                 {screen === "roteiro" && <Roteiro />}
@@ -4846,9 +4847,23 @@ const MAIL_PKG = [
   { icon: "🔷", label: "Matéria de Relíquia",       value: "100" },
 ];
 
-function Correio({ mailClaimed, setMailClaimed, setJade, setExpItems, setWeaponMats, setRelicMats, flash }) {
+function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, setJade, setExpItems, setWeaponMats, setRelicMats, flash }) {
+  const MAIL2_UNLOCK = new Date("2026-07-07T00:00:00Z").getTime(); // delay: libera 07/Jul
+  const [now, setNow] = React.useState(Date.now());
+  React.useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+  const mail2Remaining = Math.max(0, MAIL2_UNLOCK - now);
+  const mail2Unlocked = mail2Remaining === 0;
+
+  function fmtCountdown(ms) {
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    if (h > 0) return h + "h " + String(m).padStart(2,"0") + "m " + String(sec).padStart(2,"0") + "s";
+    return String(m).padStart(2,"0") + "m " + String(sec).padStart(2,"0") + "s";
+  }
+
   function claimMail() {
-    // Functional update prevents double-claim race: only grants if prev was false
     setMailClaimed((prev) => {
       if (prev) { flash("Correio já coletado!", C.bad); return prev; }
       setJade((j) => j + 12000);
@@ -4856,6 +4871,16 @@ function Correio({ mailClaimed, setMailClaimed, setJade, setExpItems, setWeaponM
       setWeaponMats((v) => v + 200);
       setRelicMats((v) => v + 100);
       flash("📬 Recompensas coletadas! +12.000💎 +200📘 +200⚙️ +100🔷", C.gold);
+      return true;
+    });
+  }
+
+  function claimMail2() {
+    if (!mail2Unlocked) { flash("Carta ainda não liberada!", C.bad); return; }
+    setMail2Claimed((prev) => {
+      if (prev) { flash("Correio já coletado!", C.bad); return prev; }
+      setJade((j) => j + 7000);
+      flash("💎 +7.000 Jade Estelar coletados!", C.gold);
       return true;
     });
   }
@@ -4892,6 +4917,39 @@ function Correio({ mailClaimed, setMailClaimed, setJade, setExpItems, setWeaponM
             </div>
             <Btn disabled={mailClaimed} kind={mailClaimed ? "soft" : "primary"} style={{ width: "100%", padding: "13px 0", fontSize: 15, fontWeight: 800, letterSpacing: 1 }} onClick={claimMail}>
               {mailClaimed ? "✓ Recompensas já coletadas" : "📦 Coletar Recompensas"}
+            </Btn>
+          </div>
+        </div>
+      </Panel>
+
+      <Panel glow={mail2Claimed ? C.mute : mail2Unlocked ? C.gold : "#334"}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+          <div style={{ fontSize: 38 }}>{mail2Claimed ? "✉️" : mail2Unlocked ? "💌" : "🔒"}</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+              <div style={{ ...ORB, fontWeight: 800, fontSize: 15 }}>💎 Bônus de Atualização</div>
+              {mail2Claimed && <span style={{ background: C.panelHi, color: C.mute, border: "1px solid " + C.line, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>COLETADO</span>}
+              {!mail2Claimed && !mail2Unlocked && <span style={{ background: "#1a1040", color: "#aaa", border: "1px solid #334", borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>EM BREVE</span>}
+              {!mail2Claimed && mail2Unlocked && <span style={{ background: "#2a1a00", color: C.gold, border: "1px solid " + C.gold, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>DISPONÍVEL</span>}
+            </div>
+            <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
+              Recompensa especial do servidor pelos novos conteúdos. Obrigado pelo apoio, Pioneiro ✦
+            </div>
+            <div style={{ background: C.panelHi, border: "1px solid " + C.line, borderRadius: 14, padding: 14, marginBottom: 14 }}>
+              <div style={{ fontWeight: 700, fontSize: 12, marginBottom: 10, color: C.gold }}>📦 Conteúdo:</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ fontSize: 24, width: 32, textAlign: "center" }}>💎</span>
+                <div style={{ flex: 1, fontWeight: 600 }}>Jade Estelar</div>
+                <span style={{ fontWeight: 800, color: C.gold, fontSize: 16 }}>×7.000</span>
+              </div>
+            </div>
+            {!mail2Claimed && !mail2Unlocked && (
+              <div style={{ background: "#0d0920", border: "1px solid #334", borderRadius: 12, padding: "10px 14px", textAlign: "center", fontSize: 13, color: "#888", marginBottom: 8 }}>
+                ⏳ Disponível em: <b style={{ color: "#b0a0ff" }}>{fmtCountdown(mail2Remaining)}</b>
+              </div>
+            )}
+            <Btn disabled={mail2Claimed || !mail2Unlocked} kind={mail2Claimed ? "soft" : mail2Unlocked ? "primary" : "soft"} style={{ width: "100%", padding: "13px 0", fontSize: 15, fontWeight: 800, letterSpacing: 1 }} onClick={claimMail2}>
+              {mail2Claimed ? "✓ Recompensas já coletadas" : mail2Unlocked ? "💎 Coletar 7.000 Jade" : "🔒 Bloqueado"}
             </Btn>
           </div>
         </div>
