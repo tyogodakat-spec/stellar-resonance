@@ -132,6 +132,12 @@ const RELIC_SETS = {
   "Benção Sagrada":    { color: "#FFE08A", p2: { hp: 20 }, flag4: "setHoly4", d2: "+20% de HP máx", d4: "+15% de cura e, ao curar, aplica escudo de 2% do HP máx do alvo" },
   "Protocolo Ômega":  { color: "#00E5CC", el: "Virus", p2: { spd: 5, dmgBonus: 8 }, flag4: "setOmega4", d2: "+5% VEL e +8% Dano", d4: "HP≥75%: +25% ATK e +15% Dano ao time · HP 30–74%: +20% CRIT e +35% CRIT DMG · HP<30% [1x]: +50% ATK, escudo 10% HP ao time, +2 SP" },
   "Asas de Borboleta": { color: "#FF6EE7", p2: { critRate: 8, critDmg: 32 }, p4: { critRate: 10, dmgBonus: 22, atkPct: 10 }, flag4: "setButterfly4", d2: "+8% CRIT Rate e +32% CRIT DMG — bônus amplificados em Ataques de Seguimento", d4: "+10% CRIT Rate, +22% Dano Bônus e +10% ATK; Ataques de Seguimento aplicam [Fragilidade] no alvo (+25% dano recebido por 1 turno) e cada follow-up realizado no mesmo turno concede +1% de CRIT Rate empilhável (máx +10% por combate). Ideal para Soi Fon e futuros personagens de follow-up." },
+  "Teia da Agonia": { color: "#8B1A1A", el: "Virus", p2: { hp: 20 }, flag2: "setTeia2", flag4: "setTeia4",
+    d2: "+20% de HP Máx — quanto mais HP o portador tiver, maior o Dano Fixo gerado pelos drenos",
+    d4: "Dano Fixo causado por dreno de HP de aliados +30%. Além disso, para cada 10% de HP faltando nos aliados após o dreno, o portador ganha +3% de penetração de DEF (máx +30%). Ideal para Ryoshu e futuros personagens de sacrifício de HP." },
+  "Além do Horizonte": { color: "#C8E6C9", el: "Holy", p2: { elemDmg: 20 }, flag4: "setHorizonte4",
+    d2: "+20% de Dano Holy",
+    d4: "Ao conjurar a Ultimate, concede ao time +15% de Dano Bônus e +12% de CRIT DMG por 2 turnos. Se o portador possuir Pontos de Elemento acumulados, cada ponto gera +5% de Dano Bônus adicional ao time (máx +20% extra). Ideal para Frieren e futuros personagens de acumulação de elemento." },
 };
 const RELIC_SET_NAMES = Object.keys(RELIC_SETS);
 const RELIC_ITEM_ID = {
@@ -141,7 +147,9 @@ const RELIC_ITEM_ID = {
   "Praga Viral":       "item_relic_viral",
   "Benção Sagrada":    "item_relic_holy",
   "Protocolo Ômega":  "item_relic_omega",
-  "Asas de Borboleta": "item_relic_butterfly",
+  "Asas de Borboleta": "item_relic_butterfly", "item_relic_teia", "item_relic_horizonte",
+  "Teia da Agonia": "item_relic_teia",
+  "Além do Horizonte": "item_relic_horizonte",
 };
 const RELIC_EMOJI = {
   "Tempestade Eletro": "⚡",
@@ -151,6 +159,8 @@ const RELIC_EMOJI = {
   "Benção Sagrada":    "✨",
   "Protocolo Ômega":  "☢️",
   "Asas de Borboleta": "🦋",
+  "Teia da Agonia": "🕸️",
+  "Além do Horizonte": "🌿",
 };
 const GAME_ITEMS = [
   { id: "item_jade",        name: "Jade Estelar",           icon: "💎" },
@@ -170,6 +180,8 @@ const GAME_ITEMS = [
   { id: "item_relic_holy",  name: "Relíquia · Benção Sagrada",      icon: "✨" },
   { id: "item_relic_omega", name: "Relíquia · Protocolo Ômega",      icon: "☢️" },
   { id: "item_relic_mat",   name: "Matéria de Relíquia",              icon: "🔷" },
+  { id: "item_relic_teia",     name: "Relíquia · Teia da Agonia",          icon: "🕸️" },
+  { id: "item_relic_horizonte",name: "Relíquia · Além do Horizonte",  icon: "🌿" },
 ];
 const STAT_LABEL = { hp: "HP", atk: "ATK", def: "DEF", spd: "VEL", critRate: "CRIT", critDmg: "CRIT DMG", dmgBonus: "DANO", energyRegen: "REGEN ENERGIA", healBonus: "CURA", energyMax: "EN", vuln: "VULN", defPen: "PERFURAÇÃO", elemDmg: "DANO ELEM.", dotDmg: "DANO DE DoT", atkP: "ATK", hpP: "HP", defP: "DEF", atkFlat: "ATK", hpFlat: "HP", defFlat: "DEF" };
 const PCT = { hp: 1, atk: 1, def: 1 };
@@ -3492,10 +3504,12 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           u._ryoTensao = tensao;
           if (u.weapon?.id === "lamina_matriarca") u._inkDrops = Math.min(3, (u._inkDrops || 0) + 1);
           const inkMul = u.weapon?.id === "lamina_matriarca" ? (1 + (u._inkDrops || 0) * 0.15) : 1;
-          const flatBase = Math.round(totalDrained * 1.50 * (1 + tensao * 0.10) * inkMul);
+          const flatBase = Math.round(totalDrained * 1.50 * (1 + tensao * 0.10) * inkMul * (f.setTeia4 ? 1.30 : 1));
+          // Teia 4pc: +3% DEF pen per 10% missing HP on allies (max 30%)
+          if (f.setTeia4) { let mp = 0; drainable.forEach(a => { mp += (1 - a.hp/a.maxHp)*100; }); u._teiaDefPen = Math.min(30, Math.round(mp/10)*3); } else u._teiaDefPen = 0;
           let tot = 0;
           aliveEnemies(s).forEach(e => {
-            const r = dealDamage(u, e, (sk.skillMul || 220) * sMul, fx, { el: "Virus" });
+            const r = dealDamage(u, e, (sk.skillMul || 220) * sMul, fx, { el: "Virus", defPen: u._teiaDefPen || 0 });
             tot += r.dmg;
             const critM = (f.ryoSET && Math.random() < (u.base.critRate / 100)) ? (1 + (effStat(u,"critDmg")||50)/100) : 1;
             const fd = Math.round(flatBase * critM);
@@ -3610,7 +3624,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           const inkMul2 = u.weapon?.id === "lamina_matriarca" ? (1 + (u._inkDrops || 0) * 0.15) : 1;
           let defPenBonus = 0;
           if (f.ryoAAM) { let mp = 0; drainable.forEach(a => { mp += (1 - a.hp / a.maxHp) * 100; }); defPenBonus = Math.min(45, mp * 0.5); }
-          const flatBase2 = Math.round(totalDrained * 2.50 * inkMul2);
+          const flatBase2 = Math.round(totalDrained * 2.50 * inkMul2 * (f.setTeia4 ? 1.30 : 1));
+          if (f.setTeia4) { let mp2 = 0; drainable.forEach(a => { mp2 += (1-a.hp/a.maxHp)*100; }); defPenBonus = Math.max(defPenBonus, Math.min(30, Math.round(mp2/10)*3)); }
           let tot2 = 0;
           aliveEnemies(s).forEach(e => {
             const isBoss = e.boss || e.elite;
@@ -3664,6 +3679,15 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
             allies.forEach(a => { healUnit(a, healAmt, fx); a.debuffs = []; a.buffs.push({ stat: "dmgReduce", value: 15, turns: 3, name: "CampoFlores" }); });
             if (f.frFlowers) allies.forEach(a => { a.hp = Math.min(a.maxHp, a.hp + Math.round(a.maxHp * 0.15)); a.buffs.push({ stat: "dmgBonus", value: 10, turns: 2, name: "FloraEterna" }); });
             msg = "MAGIA DE FLORES! " + u.name + " faz nascer flores — o time é curado em " + healAmt + ", debuffs removidos e +15% resistência por 3 turnos!" + (f.frFlowers ? " +15% HP e +10% dano ao time!" : "");
+          }
+          // Alem do Horizonte 4pc: team buff after Frieren ult
+          if (u.id === "frieren" && f.setHorizonte4) {
+            const extraBonus = Math.min(20, (u._frPoints || 0) * 5);
+            allies.forEach(a => {
+              a.buffs.push({ stat: "dmgBonus", value: 15 + extraBonus, turns: 2, name: "HorizonteUlt" });
+              a.buffs.push({ stat: "critDmg",  value: 12,              turns: 2, name: "HorizonteCrit" });
+            });
+            msg += (extraBonus > 0 ? " [Além do Horizonte] +15%+" + extraBonus + "% Dano Bônus e +12% CRIT DMG ao time!" : " [Além do Horizonte] +15% Dano Bônus e +12% CRIT DMG ao time!");
           }
         } else if (u.id === "nami" && sk.namiUlt) {
           u.energy = enGain(5);
