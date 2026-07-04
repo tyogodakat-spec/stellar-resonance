@@ -4848,7 +4848,7 @@ const MAIL_PKG = [
 ];
 
 function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, setJade, setExpItems, setWeaponMats, setRelicMats, flash }) {
-  const MAIL2_UNLOCK = new Date("2026-07-07T00:00:00Z").getTime(); // delay: libera 07/Jul
+  const MAIL2_UNLOCK = new Date("2026-07-04T00:00:00Z").getTime(); // delay: liberado hoje 04/Jul
   const [now, setNow] = React.useState(Date.now());
   React.useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
   const mail2Remaining = Math.max(0, MAIL2_UNLOCK - now);
