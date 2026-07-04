@@ -887,8 +887,8 @@ function Game({ email, isAdmin, onLogout }) {
   const [draftRoomCleared, setDraftRoomCleared] = useState(0);
   const [draftClaimedGems, setDraftClaimedGems] = useState(0);
   const [draftBoons, setDraftBoons] = useState([]);
-  const [mailClaimed, setMailClaimed] = useState(false);
-  const [mail2Claimed, setMail2Claimed] = useState(false);
+  const [mailClaimed, setMailClaimed] = useState(() => { try { return localStorage.getItem('sr_mail1_claimed_v1') === '1'; } catch { return false; } });
+  const [mail2Claimed, setMail2Claimed] = useState(() => { try { return localStorage.getItem('sr_mail2_claimed_v1') === '1'; } catch { return false; } });
   const [relicMats, setRelicMats] = useState(0);
   const [shopResetAt, setShopResetAt] = useState(0);
   const [shopPurchases, setShopPurchases] = useState({});
@@ -912,7 +912,7 @@ function Game({ email, isAdmin, onLogout }) {
       setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []);
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0); setBossRushCleared(Array.isArray(s.bossRushCleared) ? s.bossRushCleared : []);
       setDraftRoomCleared(s.draftRoomCleared ?? 0); setDraftClaimedGems(s.draftClaimedGems ?? 0); setDraftBoons(Array.isArray(s.draftBoons) ? s.draftBoons : []);
-      setMailClaimed(s.mailClaimed ?? false); setMail2Claimed(s.mail2Claimed ?? false); setRelicMats(s.relicMats ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
+      setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setMail2Claimed(prev => prev || (s.mail2Claimed ?? false)); setRelicMats(s.relicMats ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
     }
     // Carrega fotos do localStorage imediatamente (sem depender do Firebase)
     try { const li = _ls.get("sr_shared_images"); if (li) { const parsed = JSON.parse(li); if (parsed && typeof parsed === "object") setImages(parsed); } } catch {}
@@ -4848,7 +4848,7 @@ const MAIL_PKG = [
 ];
 
 function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, setJade, setExpItems, setWeaponMats, setRelicMats, flash }) {
-  const MAIL2_UNLOCK = new Date("2026-07-04T00:00:00Z").getTime(); // delay: liberado hoje 04/Jul
+  const MAIL2_UNLOCK = new Date("2026-07-03T00:00:00Z").getTime(); // liberado desde 03/Jul
   const [now, setNow] = React.useState(Date.now());
   React.useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
   const mail2Remaining = Math.max(0, MAIL2_UNLOCK - now);
@@ -4866,6 +4866,7 @@ function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, s
   function claimMail() {
     setMailClaimed((prev) => {
       if (prev) { flash("Correio já coletado!", C.bad); return prev; }
+      try { localStorage.setItem('sr_mail1_claimed_v1', '1'); } catch {}
       setJade((j) => j + 12000);
       setExpItems((v) => v + 200);
       setWeaponMats((v) => v + 200);
@@ -4879,6 +4880,7 @@ function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, s
     if (!mail2Unlocked) { flash("Carta ainda não liberada!", C.bad); return; }
     setMail2Claimed((prev) => {
       if (prev) { flash("Correio já coletado!", C.bad); return prev; }
+      try { localStorage.setItem('sr_mail2_claimed_v1', '1'); } catch {}
       setJade((j) => j + 7000);
       flash("💎 +7.000 Jade Estelar coletados!", C.gold);
       return true;
