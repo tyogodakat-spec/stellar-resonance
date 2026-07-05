@@ -102,4 +102,15 @@ const RELIC_SETS = {
   "Chama Eterna": "item_relic_flame",
 };
 
-// ... resto do arquivo permanece igual ...
+function App() {
+  return (
+    <ImgProvider>
+      <div style={{ backgroundColor: C.bg, color: C.text, minHeight: "100vh" }}>
+        <h1>Stellar Resonance</h1>
+        {/* Seu conteúdo aqui */}
+      </div>
+    </ImgProvider>
+  );
+}
+
+export default App;
