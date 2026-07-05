@@ -46,7 +46,7 @@ function mk(o) {
 const ROSTER = [
   // ---- T5 ----
   mk({ id: "miyabi", name: "Miyabi", title: "Caçadora do Vazio", element: "Glacial", role: "aoe", rarity: 5, avatar: "🌸", hp: 1060, atk: 790, def: 420, spd: 103, energy: 160, cr: 8, cd: 60, tags: ["Gelo", "DPS", "Área", "Anomalia"],
-    skill: { basicMul: 110, skillMul: 270, aoe: true, skillDot: { type: "freeze", mul: 80, turns: 2 }, ultMul: 540, ultAoe: true, ultDot: { type: "freeze", mul: 110, turns: 2 } } }),
+    skill: { basicMul: 80, skillMul: 195, aoe: true, skillDot: { type: "freeze", mul: 60, turns: 2 }, ultMul: 390, ultAoe: true, ultDot: { type: "freeze", mul: 82, turns: 2 } } }),
   mk({ id: "kaiba", name: "Seto Kaiba", title: "Mestre dos Dragões", element: "Eletro", role: "summoner", rarity: 5, avatar: "🃏", hp: 1180, atk: 720, def: 480, spd: 101, energy: 300, cr: 5, cd: 50, er: 30, elemDmg: 5, tags: ["Eletro", "Invocador", "Deus Egípcio", "Único"],
     skill: { basicMul: 100, enBasic: 15, enSkill: 22, skillMul: 140, aoe: true, kaibaUlt: true, summon: { name: "Blue-Eyes White Dragon", avatar: "🐉", hpMul: 0.7, atkMul: 1.0, mul: 96, spd: 115 } } }),
   // ---- T4 ----
@@ -820,15 +820,36 @@ async function loadAccounts() {
 async function saveAccounts(a) { try { await SS.set(ACCOUNTS_KEY, JSON.stringify(a)); } catch {} cloudSet("meta", "accounts", { list: a }); }
 
 /* ---------- TORRE ---------- */
-const TOWER_FLOORS = 90;
+const TOWER_FLOORS = 200;
 const TOWER_BOSSES = {
   50: { name: "Sōsuke Aizen", title: "Shinigami Traidor", element: "Holy", bossKind: "aizen", bossImgId: "boss_tower_50", res: ["Holy", "Virus"], weak: ["Fogo", "Eletro"] },
   60: { name: "Seto Kaiba · Modo Deus", title: "Portador de Obelisco", element: "Eletro", bossKind: "godkaiba", bossImgId: "boss_tower_60", res: ["Eletro", "Holy"], weak: ["Chaos", "Glacial"] },
   70: { name: "Ryōmen Sukuna", title: "Rei das Maldições", element: "Chaos", bossKind: "sukuna", bossImgId: "boss_tower_70", res: ["Chaos", "Fogo", "Virus"], weak: ["Holy"] },
   80: { name: "Ryoshu · Matriarca Final", title: "A Aranha que Devora Estrelas", element: "Virus", bossKind: "ryoshu_boss", bossImgId: "boss_tower_80", res: ["Virus", "Chaos"], weak: ["Holy", "Glacial"] },
   90: { name: "Frieren · Além do Fim", title: "A Maga do Milênio Absoluto", element: "Holy", bossKind: "frieren_boss", bossImgId: "boss_tower_90", res: ["Holy", "Glacial", "Vento"], weak: ["Chaos", "Virus"] },
+  100: { name: "Aizen · Transcendência", title: "Além da Ilusão Perfeita", element: "Holy", bossKind: "aizen", bossImgId: "boss_tower_100", res: ["Holy", "Vento", "Eletro"], weak: ["Chaos", "Fogo"] },
+  110: { name: "Sukuna · Rei Absoluto", title: "Domínio Infinito", element: "Chaos", bossKind: "sukuna", bossImgId: "boss_tower_110", res: ["Chaos", "Fogo", "Holy"], weak: ["Glacial"] },
+  120: { name: "Kaiba · Deus dos Deuses", title: "Obelisco Desperto", element: "Eletro", bossKind: "godkaiba", bossImgId: "boss_tower_120", res: ["Eletro", "Glacial", "Holy"], weak: ["Virus", "Chaos"] },
+  130: { name: "Ryoshu · Tecelã do Destino", title: "Teia que Consome Estrelas", element: "Virus", bossKind: "ryoshu_boss", bossImgId: "boss_tower_130", res: ["Virus", "Holy", "Chaos"], weak: ["Fogo", "Eletro"] },
+  140: { name: "Frieren · Forma Primordial", title: "Milênios de Mana Descomprimida", element: "Holy", bossKind: "frieren_boss", bossImgId: "boss_tower_140", res: ["Holy", "Glacial", "Vento", "Eletro"], weak: ["Chaos", "Virus", "Fogo"] },
+  150: { name: "Soberano do Vazio · Fase I", title: "Primeiro Despertar do Vazio", element: "Chaos", bossKind: "void_sovereign", bossImgId: "boss_tower_150", res: ["Chaos", "Virus"], weak: ["Holy"] },
+  160: { name: "Soberano do Vazio · Fase II", title: "Dimensão Fraturada", element: "Virus", bossKind: "void_sovereign", bossImgId: "boss_tower_160", res: ["Virus", "Chaos", "Fogo"], weak: ["Glacial", "Holy"] },
+  170: { name: "Omegamon · Modo Negativo", title: "Protocolo de Extinção", element: "Virus", bossKind: "omegamon_boss", bossImgId: "boss_tower_170", res: ["Virus", "Chaos"], weak: ["Holy", "Fogo"] },
+  180: { name: "Trindade das Sombras", title: "Aizen · Sukuna · Ryoshu Unidos", element: "Chaos", bossKind: "void_sovereign", bossImgId: "boss_tower_180", res: ["Chaos", "Virus", "Holy", "Eletro"], weak: ["Glacial"] },
+  190: { name: "Frieren · A Derradeira", title: "O Fim Além do Fim", element: "Holy", bossKind: "frieren_boss", bossImgId: "boss_tower_190", res: ["Holy", "Glacial", "Vento", "Fogo"], weak: ["Chaos"] },
+  200: { name: "Soberano do Vazio · Forma Final", title: "O Abismo que Devora a Realidade", element: "Chaos", bossKind: "void_final", bossImgId: "boss_tower_200", res: ["Chaos", "Virus", "Holy"], weak: ["Glacial"] },
 };
-function rewardFor(f) { if (f <= 60) return 300; if (f <= 69) return 500; if (f <= 79) return 1500; if (f <= 89) return 2000; return 3000; }
+// Floors 90–200 somam exatamente 21.000💎 (90:3000 + 91-199 não-boss:100 + bosses 100-190:500 + 200:3100)
+function rewardFor(f) {
+  if (f <= 60) return 300;
+  if (f <= 69) return 500;
+  if (f <= 79) return 1500;
+  if (f <= 89) return 2000;
+  if (f === 90) return 3000;
+  if (f === 200) return 3100;
+  if (f % 10 === 0) return 500;
+  return 100;
+}
 function towerEncounter(f, power) {
   const boss = f % 10 === 0, finalBoss = f === TOWER_FLOORS;
   const bd = TOWER_BOSSES[f];
@@ -1246,7 +1267,19 @@ function Game({ email, isAdmin, onLogout }) {
         const f = b.floor;
         if (f === towerCleared + 1 && !towerClaimed.includes(f)) {
           const rw = rewardFor(f); setJade((j) => j + rw); setTowerCleared(f); setTowerClaimed((p) => [...p, f]);
-          flash(`Andar ${f} conquistado! +${rw}💎`, C.good);
+          // Andares 100+: dropar materiais de arma e relíquia (recompensa dos rastros)
+          let extraMsg = "";
+          if (f >= 100) {
+            const wpnDrop = Math.floor(Math.random() * 3) + 2;
+            const relicDrop = f % 10 === 0 ? Math.floor(Math.random() * 2) + 2 : 1;
+            setWeaponMats(v => v + wpnDrop);
+            setRelicMats(v => v + relicDrop);
+            extraMsg = ` +${wpnDrop}⚙️ +${relicDrop}🔷`;
+          }
+          flash(`Andar ${f} conquistado! +${rw}💎${extraMsg}`, C.good);
+          // Salvar progresso na tower no Firebase para o ranking global
+          const _pName = (playerName || email || "Anon").split("@")[0];
+          cloudReady.then(() => cloudSet("tower_lb", _pName, { name: _pName, floor: f, updatedAt: Date.now() }));
         } else { setExpItems((v) => v + 4); flash("Andar repetido — sem gemas, +4 Lácrimas de XP", C.mute); } // anti-exploit: replays não dão gemas
       } else flash("Você caiu na torre…", C.bad);
     } else if (b.context === "test") {
@@ -1674,7 +1707,7 @@ function Home({ email, isAdmin, playerName, setPlayerName, owned, setScreen, set
       </Panel>
       <div className="grid grid-cols-2 gap-3">
         <Tile t="Invocar" s="Banner de personagem e armas" e="🎴" onClick={() => setScreen("gacha")} />
-        <Tile t="Torre Estelar" s="70 andares · 24.000💎 totais" e="🗼" onClick={() => setScreen("tower")} />
+        <Tile t="Torre Estelar" s="200 andares · 78.500💎 totais" e="🗼" onClick={() => setScreen("tower")} />
         <Tile t="Farm de XP" s="Mini-dungeons · Lácrimas de XP" e="🌱" onClick={() => setScreen("farm")} />
         <Tile t="Boss Semanal" s="Núcleos p/ Rastros Especiais" e="👹" onClick={() => setScreen("weekly")} />
       </div>
@@ -2508,6 +2541,89 @@ const SKILL_DESC = {
       "<b>[C5]</b> +50% de dano na Ultimate.",
     ],
   },
+  frieren: {
+    basic: [
+      "Conjura <b>Magia Comum</b> que atinge <b>TODOS os inimigos</b> em área — <b>90% de ATK</b> em Dano Holy.",
+      "Ganha <b>+1 Ponto de Habilidade</b> e <b>+15 de Energia</b>.",
+      "<b>[Grimório do Colecionador ativo]</b> Acumula <b>+1 Ponto de Elemento</b> (máx 4 pts).",
+      "✦ <b>Talento — Percepção de Milênios · Grimório Oculto:</b> imune a atrasos de turno. Começa a batalha com <b>2 Pontos de Elemento</b> gerados. Aggro reduzido a zero enquanto Energia < 50%.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "Grimório do Colecionador: causa <b>180% de ATK</b> em Dano Holy em <b>TODOS os inimigos</b> (área).",
+      "Gera <b>+2 Pontos de Elemento</b> de tipos aleatórios (Fogo/Gelo/Vento/Eletro) — acumula até <b>4 pontos</b> no total.",
+      "<b>[Cajado do Fim da Era]</b> Ao gerar pontos, recupera adicionalmente <b>+20 de Energia</b>.",
+      "<b>[C2]</b> Cada uso gera <b>+1 Ponto de Elemento</b> extra.",
+    ],
+    ult: [
+      "Custo: <b>110 de Energia</b>. Retém <b>5 de Energia base</b> após o disparo.",
+      "Descompressão de Mana — escolhe automaticamente uma das 3 opções conforme a situação em campo:",
+      "━━ <b>[Zoltraak]</b> (padrão — alvo único): ━━",
+      "Causa <b>500% de ATK</b> em Dano Holy no inimigo principal. Vs Chaos/Vírus: <b>Crítico Garantido</b> e ignora Escudos.",
+      "━━ <b>[Reação de Campo]</b> (2+ inimigos vivos com pontos acumulados): ━━",
+      "Libera os Pontos de Elemento — dano Holy em <b>TODOS os inimigos</b>. Cada ponto: <b>+30%</b> de dano total (máx ×2.2). Com 3+ pontos: inimigos ficam lentos por 2 turnos.",
+      "━━ <b>[Magia de Flores]</b> (algum aliado com <40% HP): ━━",
+      "Cura <b>todos os aliados em 20% do HP Máx</b>, remove debuffs e concede <b>+15% de Resistência a Dano</b> por 3 turnos.",
+      "<b>[Vestígio: Zoltraak Silencioso]</b> Zoltraak vs Chaos/Vírus: Crítico Garantido + ignora 100% dos Escudos.",
+      "<b>[Vestígio: Campo de Flores Eterno]</b> Magia de Flores: cura <b>+15% HP Máx extra</b> e concede <b>+10% Dano Bônus</b> ao time por 2 turnos.",
+      "<b>[C1]</b> Começa a batalha com 2 Pontos de Elemento prontos para usar.",
+      "<b>[C2]</b> Zoltraak atravessa o alvo e atinge adjacentes por <b>50% do dano</b>.",
+      "<b>[C4]</b> Com Energia máxima, reduz passivamente a <b>DEF de todos os inimigos em 15%</b>.",
+      "<b>[C6]</b> Zoltraak elimina instantaneamente alvos não-chefe com menos de <b>30% de HP</b>.",
+    ],
+  },
+  ryoshu: {
+    basic: [
+      "Causa <b>140% de ATK</b> em Dano de Vírus no inimigo principal — Fio de Penumbra.",
+      "Ganha <b>+1 Ponto de Habilidade</b>.",
+      "Aplica <b>Teia</b>: reduz VEL do alvo em <b>-10%</b> por 2 turnos (acumula até -20%).",
+      "✦ <b>Talento — Caçadora das Profundezas:</b> cada ataque contra alvos com DoT ou DEF reduzida ganha <b>+25% de dano</b> adicional.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "Marionetes de Sangue: drena <b>15% do HP Máx</b> de cada aliado e converte em devastação em <b>TODOS os inimigos</b>.",
+      "Dano base: <b>300% de ATK</b> + Dano Fixo (×2.4 do HP total drenado).",
+      "Acumula <b>Tensão</b> (×1–3) pelo HP drenado — cada nível de Tensão aumenta o Dano Fixo em <b>+18%</b>.",
+      "<b>[C1]</b> A Habilidade drena apenas <b>10%</b> do HP dos aliados.",
+      "<b>[C2]</b> Aliados drenados recebem <b>+30% de Redução de Dano</b> por 1 turno (Fio Guia).",
+      "<b>[C4]</b> Cada aliado com buff ativo concede <b>+5 de Energia</b> ao drenar.",
+    ],
+    ult: [
+      "Custo: <b>120 de Energia</b>.",
+      "A Tela da Aranha: drena <b>32% do HP Máx</b> de todos os aliados e desencadeia ataque massivo em <b>TODOS os inimigos</b>.",
+      "Dano base: <b>680% de ATK</b> + Dano Fixo massivo (×6 do HP total drenado contra chefes).",
+      "Executa inimigos não-chefe com HP menor que o total drenado.",
+      "<b>[Vestígio: Instinto de Predadora]</b> Penetra até <b>65% da DEF</b> baseado no HP perdido pelos aliados.",
+      "<b>[C5]</b> +50% de dano na Ultimate.",
+      "<b>[C6]</b> Dano Verdadeiro vs chefes ×10. Se todos os aliados com <50% HP: Ryoshu <b>age imediatamente de novo</b>.",
+    ],
+  },
+  omegamon: {
+    basic: [
+      "Dispara a <b>Garuru Cannon</b> — causa <b>100% de ATK</b> em Dano de Vírus no inimigo principal.",
+      "Ganha <b>+1 Ponto de Habilidade</b> e <b>+15 de Energia</b>.",
+      "Se o alvo estiver sob <b>Corrosão</b>, cura Omegamon em <b>10% do HP Máx</b>.",
+      "Se acumular <b>5 cargas de [Vírus Defeat]</b>: remove todos os buffs do alvo e causa <b>Dano Verdadeiro = 20% do HP Máx</b>.",
+      "✦ <b>Talento — Digital Hazard:</b> HP Máx de <b>todos os aliados +25%</b>. Ao ser atacado (ou aliado com [Protocolo]): acumula 1 carga de [Vírus Defeat] (máx 5). Cada carga: <b>+15% CRIT DMG</b> e reduz DEF do atacante em <b>-10%</b>.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "Protocolo de Infecção: causa <b>120% de ATK</b> em Dano de Vírus em <b>TODOS os inimigos</b> (área).",
+      "Aplica <b>[Protocolo de Infecção]</b> nos aliados por 2 turnos — ativa o sistema de cargas do Talento.",
+      "Aplica <b>Corrosão</b> nos inimigos: DoT de Vírus que também cura o time a cada tick.",
+      "<b>[Vestígio: Saturação de Vírus]</b> O dano da Ultimate aumenta em <b>0,8% por 1% de HP perdido</b> de Omegamon.",
+      "<b>[Vestígio: Contágio de Dados]</b> Aliados com [Protocolo] ganham <b>+20% de Resistência a Dano</b>. Escudo quebrado → Corrosão imediata no agressor.",
+    ],
+    ult: [
+      "Custo: <b>130 de Energia</b>.",
+      "ALL DELETE: sacrifica <b>30% do próprio HP</b> e esmaga <b>TODOS os inimigos</b> em área.",
+      "Causa <b>150% de ATK</b> (×Saturação) em Dano de Vírus + <b>30% do HP Máx</b> como Dano Verdadeiro.",
+      "Aplica <b>Corrosão</b> por 3 turnos em todos — cada tick cura o time proporcionalmente.",
+      "<b>[Vestígio: Saturação de Vírus]</b> Cada 1% de HP perdido = <b>+0,8% de dano</b> total (máx ~+40%).",
+      "<b>[C4]</b> Todos os inimigos: <b>-15% de VEL</b> por 1 turno após o ALL DELETE.",
+      "<b>[C6]</b> Com <30% HP: dano <b>×2</b>. Após o ALL DELETE, <b>revive todos os aliados caídos</b> com 30% de HP.",
+    ],
+  },
   soifon: {
     basic: [
       "Desfere dois golpes rápidos no inimigo principal — causa <b>100% de ATK</b> em Dano de Vento.",
@@ -2711,7 +2827,7 @@ function TeamScreen({ owned, team, setTeam, startTest, flash }) {
 }
 
 /* ==========================================================================
-   TORRE (70 andares = 24000)
+   TORRE (200 andares = 78500)
    ========================================================================== */
 function TowerBossCard({ floorNum, towerCleared, start, team, flash }) {
   const images = useImg();
@@ -2843,17 +2959,67 @@ function BossRushTeamSelect({ boss, owned, defaultTeam, images, onCancel, onConf
     </div>
   );
 }
+function TowerLeaderboard() {
+  const [rows, setRows] = React.useState(null);
+  React.useEffect(() => {
+    cloudReady.then(async () => {
+      try {
+        if (!Cloud.ready) { setRows([]); return; }
+        const { collection, getDocs, query, orderBy, limit } = Cloud.fs;
+        const snap = await withTimeout(getDocs(query(collection(Cloud.db, "tower_lb"), orderBy("floor", "desc"), limit(20))), 5000, null);
+        if (!snap) { setRows([]); return; }
+        const arr = [];
+        snap.forEach(d => arr.push(d.data()));
+        setRows(arr);
+      } catch { setRows([]); }
+    });
+  }, []);
+  if (rows === null) return <div style={{ fontSize: 12, color: C.mute, padding: "8px 0" }}>🏆 Carregando ranking…</div>;
+  if (!rows.length) return <div style={{ fontSize: 12, color: C.mute, padding: "8px 0" }}>Nenhum dado de ranking ainda. Seja o primeiro!</div>;
+  return (
+    <Panel style={{ padding: 12 }}>
+      <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 8 }}>🏆 Ranking Global — Torre Estelar</div>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+          <thead>
+            <tr style={{ color: C.mute, borderBottom: `1px solid ${C.line}` }}>
+              <th style={{ textAlign: "left", padding: "4px 8px" }}>#</th>
+              <th style={{ textAlign: "left", padding: "4px 8px" }}>Jogador</th>
+              <th style={{ textAlign: "right", padding: "4px 8px" }}>Andar</th>
+              <th style={{ textAlign: "right", padding: "4px 8px" }}>Progresso</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => {
+              const pct = Math.round((r.floor / TOWER_FLOORS) * 100);
+              const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`;
+              return (
+                <tr key={r.name + i} style={{ borderBottom: `1px solid ${C.line}22`, background: i < 3 ? `${C.gold}08` : "transparent" }}>
+                  <td style={{ padding: "5px 8px", color: i < 3 ? C.gold : C.mute, fontWeight: i < 3 ? 700 : 400 }}>{medal}</td>
+                  <td style={{ padding: "5px 8px", fontWeight: 600 }}>{r.name}</td>
+                  <td style={{ padding: "5px 8px", textAlign: "right", color: C.gold, fontWeight: 700 }}>{r.floor}</td>
+                  <td style={{ padding: "5px 8px", textAlign: "right", color: C.mute }}>{pct}%</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </Panel>
+  );
+}
 function Tower({ towerCleared, towerClaimed, start, team, flash }) {
   const earned = towerClaimed.reduce((a, f) => a + rewardFor(f), 0);
+  const totalReward = 78500; // soma total de todos os andares 1-200
   return (
     <div className="flex flex-col gap-4">
       <Panel glow={C.gold} style={{ position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(420px 200px at 85% 0%, #6FE3FF22, transparent)" }} />
         <div style={{ position: "relative" }}>
           <div style={{ ...ORB, fontSize: 20, fontWeight: 800 }}>🗼 Torre Estelar</div>
-          <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>{TOWER_FLOORS} andares. As primeiras conquistas somam exatamente <Glow color={C.gold}>24.000💎</Glow>. Andares múltiplos de 10 são chefes com IA avançada.</div>
-          <div className="flex items-center gap-3 mt-3" style={{ fontSize: 13 }}><span>Progresso: <b style={{ color: C.gold }}>{towerCleared}/{TOWER_FLOORS}</b></span><span>Gemas ganhas: <b style={{ color: "#86d8ff" }}>{earned}/24000</b></span></div>
-          <Bar value={earned} max={24000} color={C.gold} />
+          <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>{TOWER_FLOORS} andares · andares do 10 em 10 são chefes com IA avançada · andares 100+ dropam materiais de arma e relíquia · <Glow color={C.gold}>{totalReward.toLocaleString("pt-BR")}💎 totais</Glow>.</div>
+          <div className="flex items-center gap-3 mt-3" style={{ fontSize: 13 }}><span>Progresso: <b style={{ color: C.gold }}>{towerCleared}/{TOWER_FLOORS}</b></span><span>Gemas ganhas: <b style={{ color: "#86d8ff" }}>{earned.toLocaleString("pt-BR")}/{totalReward.toLocaleString("pt-BR")}</b></span></div>
+          <Bar value={earned} max={totalReward} color={C.gold} />
         </div>
       </Panel>
       {towerCleared > 0 && towerCleared < TOWER_FLOORS && (
@@ -2888,8 +3054,9 @@ function Tower({ towerCleared, towerClaimed, start, team, flash }) {
             </button>;
           })}
         </div>
-        <div style={{ fontSize: 11, color: C.mute, marginTop: 10 }}>Toque no andar liberado (dourado) para batalhar. Andares <b>não podem ser repetidos</b> após a vitória.</div>
+        <div style={{ fontSize: 11, color: C.mute, marginTop: 10 }}>Toque no andar liberado (dourado) para batalhar. Andares <b>não podem ser repetidos</b> após a vitória. A partir do andar 100, cada vitória também dropa materiais de arma (⚙️) e relíquia (🔷).</div>
       </Panel>
+      <TowerLeaderboard />
     </div>
   );
 }
@@ -2977,12 +3144,19 @@ function makeEnemy(idx, enc) {
     baseHp = power * 2.4 + lvl * 50 + idx * 150;
     if (enc.relicFarm) baseHp *= 0.20; // Dungeon de relíquias: bem mais rápida
     if (enc.ascend) baseHp *= 0.35; // Dungeon de ascensão: mais acessível
-    // Bosses da Torre com HP reduzido para ritmo mais agil
-    if (boss) baseHp *= (finalBoss ? 7.2 : weekly ? 8.5 : ascend ? 2.8 : enc.relicFarm ? 0.85 : 4.6) * (enc.isTower ? 0.5 : 1);
+    // Torre: HP dos chefes escala exponencialmente — andar 200 tem exatamente 10.000.000 de HP
+    if (enc.isTower && boss) {
+      const f = enc.floor || enc.level;
+      baseHp = Math.round(316000 * Math.pow(10, (f - 50) / 100));
+    } else if (boss) {
+      baseHp *= (finalBoss ? 7.2 : weekly ? 8.5 : ascend ? 2.8 : enc.relicFarm ? 0.85 : 4.6);
+    }
   }
   const hp = Math.round(baseHp);
-  const atkReduce = enc.relicFarm ? 0.50 : enc.ascend ? 0.45 : 1.0;
-  const atk = Math.round((power * 0.06 + lvl * 4 + 80) * (boss ? 1.35 : 1) * atkReduce);
+  const atkReduce = enc.relicFarm ? 0.70 : enc.ascend ? 0.45 : 1.0;
+  // Dungeons e Torre escalam o ATK para garantir dano de 500–4.000 por hit nos heróis
+  const dungeonAtkMult = enc.tagDungeon ? 3.0 : enc.isTower ? Math.min(2.5, 1.0 + Math.max(0, (enc.floor || enc.level || 50) - 50) / 100) : 1.8;
+  const atk = Math.round((power * 0.06 + lvl * 4 + 80) * (boss ? 1.35 : 1) * atkReduce * dungeonAtkMult);
   const def = Math.round(power * 0.035 + lvl * 3 + (boss ? power * 0.03 : 0));
   const spd = 95 + idx * 3 + (boss ? 4 : 0);
   if (enc.bossRush && idx === 0) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===enc.bossId;}); if (bd) { const atkBr = Math.round(3500 + (enc.level||90) * 12); const defBr = Math.round(2200 + (enc.level||90) * 8); return { uid: "E0", side: "enemy", name: bd.name, bossTitle: bd.lore, bossImgId: bd.imgKey, avatar: bd.avatar, element: bd.element, level: bd.level, roleKey: "dps", bossKind: bd.kind, boss: true, finalBoss: false, weekly: false, ascend: false, elite: false, res: bd.res || [], weak: bd.weak || [], base: { atk: atkBr, def: defBr, spd: 90, critRate: 15, critDmg: 60, dmgBonus: 0 }, hp: bd.hp, maxHp: bd.hp, shield: bd.kind === "sukuna" ? 200000 : 0, av: 10000 / 90, buffs: [], debuffs: [], dots: [], alive: true, actCount: 0 }; } }
@@ -3469,11 +3643,13 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           msg = u.name + " usa F.P. em " + enemy.name + " — " + r.dmg + " de Dano Vírus" + (r.crit ? " (CRÍTICO!)" : "") + "! Teia: VEL -5%.";
           miyDone = true;
         }
-        // Frieren basic
-        if (!miyDone && u.id === "frieren" && enemy) {
-          const r = dealDamage(u, enemy, (sk.basicMul || 90) * u.tBasic * ampB, fx, { el: "Holy" });
+        // Frieren basic — AOE (Magia Comum atinge todos)
+        if (!miyDone && u.id === "frieren") {
+          const frEnems = aliveEnemies(s);
+          let frTot = 0, frCrit = false;
+          frEnems.forEach(e => { const r = dealDamage(u, e, (sk.basicMul || 90) * u.tBasic * ampB, fx, { el: "Holy" }); frTot += r.dmg; if (r.crit) frCrit = true; });
           if (f.frGrimoire) { u._frPoints = Math.min(4, (u._frPoints || 0) + 1); }
-          msg = u.name + " conjura Magia Comum em " + enemy.name + " — " + r.dmg + " de Dano Holy" + (r.crit ? " (CRÍTICO!)" : "") + (f.frGrimoire ? (" [" + (u._frPoints||0) + "/4 pts]") : "") + ".";
+          msg = u.name + " conjura Magia Comum em área — " + frTot + " de Dano Holy" + (frCrit ? " (CRÍTICO!)" : "") + (f.frGrimoire ? (" [" + (u._frPoints||0) + "/4 pts]") : "") + ".";
           miyDone = true;
         }
         if (!miyDone && u.id === "omegamon" && enemy) {
@@ -3542,11 +3718,14 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         }
         else if (u.id === "frieren" && sk.frSkill) {
           const sMul = u.tSkill * ampS;
-          const r = enemy ? dealDamage(u, enemy, (sk.skillMul || 180) * sMul, fx, { el: "Holy" }) : { dmg: 0, crit: false };
+          // Grimório do Colecionador — AOE (atinge todos os inimigos)
+          const frSkEnems = aliveEnemies(s);
+          let frSkTot = 0, frSkCrit = false;
+          frSkEnems.forEach(e => { const r = dealDamage(u, e, (sk.skillMul || 180) * sMul, fx, { el: "Holy" }); frSkTot += r.dmg; if (r.crit) frSkCrit = true; });
           u._frPoints = Math.min(4, (u._frPoints || 0) + 2);
           u._frPointTypes = (u._frPointTypes || []).concat(["Vento","Fogo","Gelo","Eletro"][Math.floor(Math.random()*4)], ["Vento","Fogo","Gelo","Eletro"][Math.floor(Math.random()*4)]).slice(-4);
           if (u.weapon?.id === "cajado_fim_era") u.energy = Math.min(u.energyMax, u.energy + (u.weapon.buff?.frElemEnergy || 10) * 2);
-          msg = u.name + " usa Grimório do Colecionador em " + (enemy ? enemy.name : "inimigos") + " — " + r.dmg + " de Dano Holy" + (r.crit ? " (CRÍTICO!)" : "") + "! +2 Pts de Elemento (" + (u._frPoints||0) + "/4).";
+          msg = u.name + " usa Grimório do Colecionador em área — " + frSkTot + " de Dano Holy" + (frSkCrit ? " (CRÍTICO!)" : "") + "! +2 Pts de Elemento (" + (u._frPoints||0) + "/4).";
         }
         else if (u.id === "soifon" && sk.sfSkill && enemy) {
           const sMul = u.tSkill * ampS;
