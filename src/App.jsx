@@ -1049,6 +1049,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [mail2Claimed, setMail2Claimed] = useState(() => { try { return localStorage.getItem('sr_mail2_claimed_v1') === '1'; } catch { return false; } });
   const [mail3Claimed, setMail3Claimed] = useState(() => { try { return localStorage.getItem('sr_mail3_claimed_v1') === '1'; } catch { return false; } });
   const [mail3CharPicked, setMail3CharPicked] = useState(() => { try { return localStorage.getItem('sr_mail3_char_v1') || null; } catch { return null; } });
+  const [mail4Claimed, setMail4Claimed] = useState(() => { try { return localStorage.getItem('sr_mail4_claimed_v1') === '1'; } catch { return false; } });
   const [relicMats, setRelicMats] = useState(0);
   const [rouletteCleared, setRouletteCleared] = useState(false);
   const [nextRouletteClaimAt, setNextRouletteClaimAt] = useState(0);
@@ -1454,7 +1455,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} setRelicMats={setRelicMats} flash={flash} setBattle={setBattle} />}
               {screen === "relics" && <RelicsScreen relicInv={relicInv} />}
               {screen === "loja" && <Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} />}
-              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mail2Claimed={mail2Claimed} setMail2Claimed={setMail2Claimed} mail3Claimed={mail3Claimed} setMail3Claimed={setMail3Claimed} mail3CharPicked={mail3CharPicked} setMail3CharPicked={setMail3CharPicked} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setOwned={setOwned} setOwnedWeapons={setOwnedWeapons} flash={flash} />}
+              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mail4Claimed={mail4Claimed} setMail4Claimed={setMail4Claimed} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setSkillMats={setSkillMats} setTagMats={setTagMats} flash={flash} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
               {screen === "roleta" && <RouletteEvent jade={jade} setJade={setJade} rouletteCleared={rouletteCleared} setRouletteCleared={setRouletteCleared} nextRouletteClaimAt={nextRouletteClaimAt} setNextRouletteClaimAt={setNextRouletteClaimAt} />}
@@ -5911,22 +5912,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared, nex
   );
 }
 
-function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, mail3Claimed, setMail3Claimed, mail3CharPicked, setMail3CharPicked, setJade, setExpItems, setWeaponMats, setRelicMats, setOwned, setOwnedWeapons, flash }) {
-  const MAIL2_UNLOCK = new Date("2026-07-03T00:00:00Z").getTime(); // liberado desde 03/Jul
-  const [now, setNow] = React.useState(Date.now());
-  React.useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
-  const mail2Remaining = Math.max(0, MAIL2_UNLOCK - now);
-  const mail2Unlocked = mail2Remaining === 0;
-
-  function fmtCountdown(ms) {
-    const s = Math.floor(ms / 1000);
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const sec = s % 60;
-    if (h > 0) return h + "h " + String(m).padStart(2,"0") + "m " + String(sec).padStart(2,"0") + "s";
-    return String(m).padStart(2,"0") + "m " + String(sec).padStart(2,"0") + "s";
-  }
-
+function Correio({ mailClaimed, setMailClaimed, mail4Claimed, setMail4Claimed, setJade, setExpItems, setWeaponMats, setSkillMats, setTagMats, flash }) {
   function claimMail() {
     setMailClaimed((prev) => {
       if (prev) { flash("Correio já coletado!", C.bad); return prev; }
@@ -5940,38 +5926,21 @@ function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, m
     });
   }
 
-  function claimMail2() {
-    if (!mail2Unlocked) { flash("Carta ainda não liberada!", C.bad); return; }
-    setMail2Claimed((prev) => {
+
+  function claimMail4() {
+    setMail4Claimed((prev) => {
       if (prev) { flash("Correio já coletado!", C.bad); return prev; }
-      try { localStorage.setItem('sr_mail2_claimed_v1', '1'); } catch {}
-      setJade((j) => j + 7000);
-      flash("💎 +7.000 Jade Estelar coletados!", C.gold);
+      try { localStorage.setItem('sr_mail4_claimed_v1', '1'); } catch {}
+      setWeaponMats((v) => v + 200);
+      setSkillMats((v) => v + 20);
+      setTagMats((m) => {
+        const updated = { ...m };
+        ALL_TAGS.forEach(tag => { updated[tag] = (updated[tag] || 0) + 30; });
+        return updated;
+      });
+      flash("📬 Recompensas coletadas! +200⚙️ +20💠 +30🗺️ (todas as tags)", C.gold);
       return true;
     });
-  }
-
-  const [mail3Modal, setMail3Modal] = React.useState(null);
-
-  function confirmMail3(charId) {
-    const entry = BEGINNER_PICK_CHARS.find(x => x.id === charId);
-    if (!entry) return;
-    setMail3Claimed(true);
-    setMail3CharPicked(charId);
-    try { localStorage.setItem('sr_mail3_claimed_v1', '1'); localStorage.setItem('sr_mail3_char_v1', charId); } catch {}
-    setOwned(prev => {
-      if (prev.some(o => o.id === charId)) return prev;
-      return [...prev, normChar({ id: charId, level: 1, eidolon: 0, weapon: entry.wpn, relics: EMPTY_RELICS() })];
-    });
-    setOwnedWeapons(prev => {
-      if (prev.some(w => w.id === entry.wpn)) return prev;
-      return [...prev, { id: entry.wpn, lv: 1 }];
-    });
-    setJade(j => j + 12000);
-    setMail3Modal(null);
-    const cname = CHAR_MAP[charId]?.name || charId;
-    const wname = WEAPON_MAP[entry.wpn]?.name || entry.wpn;
-    flash("✨ " + cname + " + " + wname + " + 12.000💎 chegaram ao seu elenco!", C.gold);
   }
 
   return (
@@ -6011,151 +5980,48 @@ function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, m
         </div>
       </Panel>
 
-      <Panel glow={mail2Claimed ? C.mute : mail2Unlocked ? C.gold : "#334"}>
+
+      <Panel glow={mail4Claimed ? C.mute : "#22c55e"}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-          <div style={{ fontSize: 38 }}>{mail2Claimed ? "✉️" : mail2Unlocked ? "💌" : "🔒"}</div>
+          <div style={{ fontSize: 38 }}>{mail4Claimed ? "✉️" : "📦"}</div>
           <div style={{ flex: 1 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-              <div style={{ ...ORB, fontWeight: 800, fontSize: 15 }}>💎 Bônus de Atualização</div>
-              {mail2Claimed && <span style={{ background: C.panelHi, color: C.mute, border: "1px solid " + C.line, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>COLETADO</span>}
-              {!mail2Claimed && !mail2Unlocked && <span style={{ background: "#1a1040", color: "#aaa", border: "1px solid #334", borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>EM BREVE</span>}
-              {!mail2Claimed && mail2Unlocked && <span style={{ background: "#2a1a00", color: C.gold, border: "1px solid " + C.gold, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>DISPONÍVEL</span>}
+              <div style={{ ...ORB, fontWeight: 800, fontSize: 15 }}>⚙️ Pacote de Recursos</div>
+              {mail4Claimed
+                ? <span style={{ background: C.panelHi, color: C.mute, border: "1px solid " + C.line, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>COLETADO</span>
+                : <span style={{ background: "#052e16", color: "#4ade80", border: "1px solid #22c55e", borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>DISPONÍVEL</span>}
             </div>
             <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
-              Recompensa especial do servidor pelos novos conteúdos. Obrigado pelo apoio, Pioneiro ✦
+              Pacote de recursos para impulsionar sua equipe. Inclui materiais de forja, cristais de habilidade e suprimentos de todas as Dungeons de Tag ✦
             </div>
             <div style={{ background: C.panelHi, border: "1px solid " + C.line, borderRadius: 14, padding: 14, marginBottom: 14 }}>
               <div style={{ fontWeight: 700, fontSize: 12, marginBottom: 10, color: C.gold }}>📦 Conteúdo:</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ fontSize: 24, width: 32, textAlign: "center" }}>💎</span>
-                <div style={{ flex: 1, fontWeight: 600 }}>Jade Estelar</div>
-                <span style={{ fontWeight: 800, color: C.gold, fontSize: 16 }}>×7.000</span>
+              <div className="flex flex-col gap-3">
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ fontSize: 24, width: 32, textAlign: "center" }}>⚙️</span>
+                  <div style={{ flex: 1, fontWeight: 600 }}>Engrenagens de Arma</div>
+                  <span style={{ fontWeight: 800, color: C.gold, fontSize: 16 }}>×200</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ fontSize: 24, width: 32, textAlign: "center" }}>💠</span>
+                  <div style={{ flex: 1, fontWeight: 600 }}>Cristais de Habilidade (Rastro)</div>
+                  <span style={{ fontWeight: 800, color: C.gold, fontSize: 16 }}>×20</span>
+                </div>
+                {ALL_TAGS.map((tag) => (
+                  <div key={tag} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <span style={{ fontSize: 24, width: 32, textAlign: "center" }}>🗺️</span>
+                    <div style={{ flex: 1, fontWeight: 600 }}>Mat. Dungeon · {tag}</div>
+                    <span style={{ fontWeight: 800, color: C.gold, fontSize: 16 }}>×30</span>
+                  </div>
+                ))}
               </div>
             </div>
-            {!mail2Claimed && !mail2Unlocked && (
-              <div style={{ background: "#0d0920", border: "1px solid #334", borderRadius: 12, padding: "10px 14px", textAlign: "center", fontSize: 13, color: "#888", marginBottom: 8 }}>
-                ⏳ Disponível em: <b style={{ color: "#b0a0ff" }}>{fmtCountdown(mail2Remaining)}</b>
-              </div>
-            )}
-            <Btn disabled={mail2Claimed || !mail2Unlocked} kind={mail2Claimed ? "soft" : mail2Unlocked ? "primary" : "soft"} style={{ width: "100%", padding: "13px 0", fontSize: 15, fontWeight: 800, letterSpacing: 1 }} onClick={claimMail2}>
-              {mail2Claimed ? "✓ Recompensas já coletadas" : mail2Unlocked ? "💎 Coletar 7.000 Jade" : "🔒 Bloqueado"}
+            <Btn disabled={mail4Claimed} kind={mail4Claimed ? "soft" : "primary"} style={{ width: "100%", padding: "13px 0", fontSize: 15, fontWeight: 800, letterSpacing: 1 }} onClick={claimMail4}>
+              {mail4Claimed ? "✓ Recompensas já coletadas" : "📦 Coletar Recompensas"}
             </Btn>
           </div>
         </div>
       </Panel>
-
-      {/* ── MAIL 3: Pacote do Mochileiro ─────────────────────────────── */}
-      <Panel glow={mail3Claimed ? C.mute : "#F6C95B"}>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-          <div style={{ fontSize: 38 }}>{mail3Claimed ? "✉️" : "🎒"}</div>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-              <div style={{ ...ORB, fontWeight: 800, fontSize: 15 }}>🎒 Pacote do Mochileiro</div>
-              {mail3Claimed
-                ? <span style={{ background: C.panelHi, color: C.mute, border: "1px solid " + C.line, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>COLETADO</span>
-                : <span style={{ background: "#2a1a00", color: C.gold, border: "1px solid " + C.gold, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>DISPONÍVEL</span>}
-            </div>
-            <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
-              Cada Pioneiro tem uma jornada única. Escolha <b style={{ color: C.text }}>1 personagem</b> para começar ao seu lado — ele vem com sua <b style={{ color: C.gold }}>arma ideal</b> e <b style={{ color: C.gold }}>+12.000 💎 Jade</b>.
-            </div>
-
-            {mail3Claimed ? (
-              <div style={{ background: C.panelHi, border: "1px solid " + C.line, borderRadius: 12, padding: "14px 16px" }}>
-                {(() => {
-                  const cd = CHAR_MAP[mail3CharPicked];
-                  const entry = BEGINNER_PICK_CHARS.find(x => x.id === mail3CharPicked);
-                  const wd = entry && WEAPON_MAP[entry.wpn];
-                  return cd ? (
-                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                      <div style={{ fontSize: 38, lineHeight: 1 }}>{cd.avatar}</div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 800, fontSize: 15, color: C.text }}>{cd.name}</div>
-                        <div style={{ fontSize: 12, color: C.mute }}>{cd.element} · {"★".repeat(cd.rarity)}</div>
-                        {wd && <div style={{ fontSize: 12, color: C.gold, marginTop: 2 }}>⚔️ {wd.name}</div>}
-                      </div>
-                      <span style={{ fontSize: 22, color: "#4ade80" }}>✓</span>
-                    </div>
-                  ) : <div style={{ color: C.mute, fontSize: 13 }}>Personagem escolhido e adicionado ao elenco.</div>;
-                })()}
-              </div>
-            ) : (
-              <>
-                <div style={{ fontWeight: 700, fontSize: 12, color: C.gold, marginBottom: 10 }}>✦ Toque em um personagem para confirmar sua escolha:</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(76px, 1fr))", gap: 8 }}>
-                  {BEGINNER_PICK_CHARS.map(entry => {
-                    const cd = CHAR_MAP[entry.id];
-                    if (!cd) return null;
-                    const isHov = mail3Modal === entry.id;
-                    return (
-                      <button key={entry.id} onClick={() => setMail3Modal(entry.id)}
-                        style={{ background: isHov ? "#1e1040" : C.panelHi, border: "2px solid " + (isHov ? "#7B5CF6" : C.line), borderRadius: 12, padding: "10px 6px 8px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, transition: "all 0.15s", outline: "none" }}>
-                        <div style={{ fontSize: 28, lineHeight: 1 }}>{cd.avatar}</div>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: cd.rarity === 5 ? C.gold : "#a0a0cc", textAlign: "center", lineHeight: 1.2 }}>{cd.name}</div>
-                        <div style={{ fontSize: 9, color: C.mute }}>{"★".repeat(cd.rarity)}</div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </Panel>
-
-      {/* ── Modal de confirmação do Mochileiro ───────────────────────── */}
-      {mail3Modal && (() => {
-        const entry = BEGINNER_PICK_CHARS.find(x => x.id === mail3Modal);
-        const cd = entry && CHAR_MAP[entry.id];
-        const wd = entry && WEAPON_MAP[entry.wpn];
-        if (!cd) return null;
-        return (
-          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.78)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setMail3Modal(null)}>
-            <div style={{ background: C.panel, border: "2px solid #7B5CF6", borderRadius: 22, padding: 26, maxWidth: 360, width: "100%", boxShadow: "0 0 60px #7B5CF660" }} onClick={e => e.stopPropagation()}>
-              {/* Cabeçalho do personagem */}
-              <div style={{ textAlign: "center", marginBottom: 20 }}>
-                <div style={{ fontSize: 60, lineHeight: 1, marginBottom: 8 }}>{cd.avatar}</div>
-                <div style={{ fontWeight: 900, fontSize: 22, color: C.text }}>{cd.name}</div>
-                <div style={{ fontSize: 13, color: C.mute, marginTop: 3 }}>{cd.title}</div>
-                <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 10 }}>
-                  <span style={{ background: "#1a1030", border: "1px solid " + C.line, borderRadius: 8, padding: "3px 12px", fontSize: 12, fontWeight: 700, color: cd.rarity === 5 ? C.gold : "#a0a0ff" }}>{"★".repeat(cd.rarity)}</span>
-                  <span style={{ background: "#1a1030", border: "1px solid " + C.line, borderRadius: 8, padding: "3px 12px", fontSize: 12, fontWeight: 700, color: "#b0e0ff" }}>{cd.element}</span>
-                </div>
-              </div>
-
-              {/* Arma incluída */}
-              {wd && (
-                <div style={{ background: C.panelHi, border: "1px solid " + C.line, borderRadius: 14, padding: "12px 14px", marginBottom: 12 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: C.mute, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>⚔️ Arma incluída</div>
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                    <div style={{ fontSize: 28, lineHeight: 1 }}>🗡️</div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 800, fontSize: 14, color: wd.rarity === 5 ? C.gold : "#b0b0ff" }}>{wd.name} {"★".repeat(wd.rarity)}</div>
-                      <div style={{ fontSize: 11, color: C.mute, marginTop: 4, lineHeight: 1.5 }}>{(wd.passive || "").slice(0, 90)}{(wd.passive || "").length > 90 ? "…" : ""}</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Jade bônus */}
-              <div style={{ background: "rgba(246,201,91,0.08)", border: "1px solid " + C.gold + "44", borderRadius: 12, padding: "10px 14px", marginBottom: 20, display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 22 }}>💎</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: 13, color: C.gold }}>+12.000 Jade Estelar</div>
-                  <div style={{ fontSize: 11, color: C.mute }}>Adicionado automaticamente ao confirmar</div>
-                </div>
-              </div>
-
-              {/* Botões */}
-              <div style={{ display: "flex", gap: 10 }}>
-                <Btn kind="soft" style={{ flex: 1, padding: "12px 0", fontWeight: 700 }} onClick={() => setMail3Modal(null)}>Cancelar</Btn>
-                <Btn kind="primary" style={{ flex: 2, padding: "12px 0", fontWeight: 800, fontSize: 15, background: "linear-gradient(135deg,#7B5CF6,#a855f7)" }} onClick={() => confirmMail3(mail3Modal)}>
-                  ✨ Confirmar Escolha
-                </Btn>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
 
       <Panel>
         <div style={{ textAlign: "center", padding: "24px 0" }}>
