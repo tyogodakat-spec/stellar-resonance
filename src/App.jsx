@@ -3144,7 +3144,12 @@ function makeEnemy(idx, enc) {
     baseHp = power * 2.4 + lvl * 50 + idx * 150;
     if (enc.relicFarm) baseHp *= 0.20; // Dungeon de relíquias: bem mais rápida
     if (enc.ascend) baseHp *= 0.35; // Dungeon de ascensão: mais acessível
-    // Torre: HP dos chefes escala exponencialmente — andar 200 = exatamente 10.000.000 HP
+    // Torre: NPCs do andar 90+ têm HP escalado (1× no 90 → 5× no 200)
+    if (enc.isTower && !boss) {
+      const f = enc.floor || enc.level;
+      if (f >= 90) baseHp *= 1 + (f - 90) / 110 * 4;
+    }
+    // Torre: HP dos chefes escala exponencialmente — andar 200 = exatamente 5.000.000 HP
     if (enc.isTower && boss) {
       const f = enc.floor || enc.level;
       baseHp = f === 200 ? 5000000 : Math.round(158114 * Math.pow(10, (f - 50) / 100));
