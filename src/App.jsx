@@ -1297,10 +1297,11 @@ function Game({ email, isAdmin, onLogout }) {
           return makeRelic(slot, "Protocolo Ômega");
         });
         setRelicInv(function(inv){ return [...inv, ...newRelics]; });
-        flash("Rede Corrompida vencida! +" + count + " Relíquia(s) Protocolo Ômega ☢️ (Elenco → Relíquias)", "#00E5CC");
+        setRelicMats(function(v){ return v + 12; });
+        flash("Rede Corrompida vencida! +" + count + " Relíquia(s) Protocolo Ômega ☢️ +12 🔷 Matéria de Relíquia (Elenco → Relíquias)", "#00E5CC");
       } else { flash("A Rede Corrompida resistiu…", C.bad); }
     } else if (b.context === "tagdungeon") {
-      if (result.win) { const t = b.tag; const drop = Math.floor(Math.random() * 2) + 1; setTagMats((m) => ({ ...m, [t]: (m[t] || 0) + drop })); setWeaponMats((v) => v + 5); setSkillMats((v) => v + 5); setBossMats((v) => v + 1); flash(`Dungeon de ${t} concluída! +${drop} material "${t}", +5 ⚙️ Arma, +5 💠 Habilidade, +1 🔮`, C.gold); }
+      if (result.win) { const t = b.tag; const drop = Math.floor(Math.random() * 2) + 1; setTagMats((m) => ({ ...m, [t]: (m[t] || 0) + drop })); setWeaponMats((v) => v + 5); setSkillMats((v) => v + 5); setBossMats((v) => v + 1); setRelicMats((v) => v + 12); flash(`Dungeon de ${t} concluída! +${drop} material "${t}", +5 ⚙️ Arma, +5 💠 Habilidade, +1 🔮, +12 🔷 Matéria de Relíquia`, C.gold); }
       else flash("A dungeon resistiu…", C.bad);
     } else if (b.context === "weekly") {
       if (result.win) {
