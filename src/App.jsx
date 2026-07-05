@@ -2718,7 +2718,7 @@ const SKILL_DESC = {
       "<b>[C4 · Aura de Condução]</b> Durante a Zona de Condução, o time inteiro ganha <b>+10% de Taxa Crítica</b>. O dano das explosões da zona sobe para <b>70% do ATK</b> de Soi Fon.",
       "<b>[C6 · Suprema Execução]</b> Eliminar o alvo com a Ultimate recupera <b>100% de Energia</b> e concede <b>+50% de Dano Bônus</b> por 1 turno.",
     ],
-  },,
+  },
   wonderofyou: {
     basic: [
       "Causa <b>100% de ATK</b> em Dano de Caos no inimigo principal — Toque do Fim.",
