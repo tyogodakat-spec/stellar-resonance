@@ -339,12 +339,12 @@ const CONS = {
     { name: "S6 · Médico de Bordo", flag: "reviveEnergy", desc: "Mudança de kit: o Ultimate concede +20 de energia a TODA a equipe, acelerando os Ultimates dos DPS e transformando Chopper num motor de rotação." },
   ],
   kirara: [
-    { name: "S1 · Postura Firme", stat: "def", value: 10, desc: "Aprimoramento: DEF +10%." },
-    { name: "S2 · Encontro Estelar", flag: "shieldPlus", desc: "Mudança de kit: os escudos de Kirara ficam +30% mais fortes (somado à passiva), criando barreiras quase intransponíveis." },
-    { name: "S3 · Abraço Cósmico", ...A_SKILL, desc: "Eleva em +25% o valor do escudo da Habilidade." },
-    { name: "S4 · Coração Resiliente", stat: "hp", value: 12, desc: "Aprimoramento: HP +12%." },
-    { name: "S5 · Constelação Guardiã", ...A_ULT, desc: "Eleva em +50% o escudo e o buff de DEF do Ultimate em área." },
-    { name: "S6 · Muralha Viva", flag: "ultDmgBuff", desc: "Mudança de kit: o Ultimate concede +20% de bônus de dano a TODA a equipe por 2 turnos — Kirara deixa de ser só defensiva e passa a turbinar o dano do grupo." },
+    { name: "C1 · Aura Estelar", flag: "kirC1", desc: "Mudança de kit: a Habilidade de Kirara passa a conceder escudo a TODO o time. Cada aliado recebe 80% do valor do escudo principal — Kirara para de proteger só um e começa a blindar todos ao mesmo tempo." },
+    { name: "C2 · Guardião Cósmico", flag: "kirC2", desc: "Os escudos de Kirara ficam +30% mais fortes. Quando a Habilidade é usada, o aliado com menos escudo recebe +15% de DEF por 2 turnos, empilhando proteção onde mais importa." },
+    { name: "C3 · Compressão Estelar", ...A_SKILL, ampV: 30, desc: "Nível da Habilidade +2 / Básico +1. +30% no valor do escudo da Habilidade — cada ponto de DEF se converte em barreiras ainda mais grossas." },
+    { name: "C4 · Modo Guardião Ativo", flag: "kirC4", desc: "Mudança de kit: enquanto o escudo de Kirara estiver ativo, todos os aliados ganham +15% de redução de dano adicional. Ao usar a Ultimate, Kirara recupera imediatamente 20 de Energia." },
+    { name: "C5 · Muralha do Cosmos", ...A_ULT, ampV: 60, desc: "Nível da Ultimate +2 / Talento +2. +60% no escudo e no buff de DEF do Ultimate — a Constelação Guardiã atinge seu pico de proteção absoluta." },
+    { name: "C6 · Muralha Estelar Absoluta", flag: "kirC6", desc: "Capstone: a Ultimate concede escudos 50% mais grossos E +25% de Bônus de Dano ao time por 2 turnos. Enquanto qualquer aliado tiver escudo ativo, Kirara provoca TODOS os inimigos — a guardiã cósmica não descansa." },
   ],
   yoruichi: [
     { name: "S1 · Deusa da Velocidade", stat: "spd", value: 10, desc: "Aprimoramento: VEL +10, agindo ainda antes na ordem de turnos." },
@@ -414,7 +414,7 @@ const CONS = {
     { name: "C1 · Despertar da Preguiça", flag: "frC1", desc: "Frieren entra na batalha já com 2 Pontos de Elemento gerados aleatoriamente, permitindo usar opções avançadas do Supremo no primeiro turno." },
     { name: "C2 · Zoltraak Aprimorado (Dispersão)", flag: "frC2", desc: "Quando Frieren escolhe Zoltraak no Supremo, o feixe atravessa o alvo principal e atinge inimigos adjacentes causando 50% do dano." },
     { name: "C3 · Grimório Antigo", amp: "skill", ampV: 25, desc: "Nível da Habilidade +2 / Nível do Básico +1. +25% de dano no Grimório do Colecionador." },
-    { name: "C4 · Aura Oculta Repressora", flag: "frC4", desc: "Enquanto Frieren estiver em campo com energia da Suprema cheia (100%), a DEF de todos os inimigos é reduzida passivamente em 15%." },
+    { name: "C4 · Aura Oculta Repressora", flag: "frC4", desc: "Enquanto Frieren estiver em campo com energia da Suprema cheia (100%), a DEF de todos os inimigos é reduzida em 20% (aprimorado de 15%). Além disso, a cada turno nesse estado, Frieren regenera +8 de Energia passivamente, acelerando o próximo ciclo da Suprema." },
     { name: "C5 · Compressão de Mana Milenar", amp: "ult", ampV: 50, desc: "Nível do Supremo +2 / Nível do Talento +2. +50% de dano em Descompressão de Mana." },
     { name: "C6 · A Maga Que Derrotou o Rei Demônio", flag: "frC6", desc: "Zoltraak causa Morte Instantânea em inimigos comuns/elites com menos de 30% HP. Contra Chefes, ignora 100% da DEF e reduz resistência Holy a zero até o fim da batalha." },
   ],
@@ -3605,7 +3605,17 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       refreshKaibaBuffs(s);
       // Frieren C4: DEF -15% on all enemies when ult energy is full
       if (u.id === "frieren" && u.stFlags?.frC4 && u.energy >= u.energyMax) {
-        aliveEnemies(s).forEach(e => { if (!e.debuffs.some(d => d.name === "AuraOculta")) e.debuffs.push({ stat: "def", value: -15, turns: 2, name: "AuraOculta" }); });
+        aliveEnemies(s).forEach(e => {
+          const existingAura = e.debuffs.find(d => d.name === "AuraOculta");
+          if (existingAura) { existingAura.value = -20; existingAura.turns = Math.max(existingAura.turns, 2); }
+          else e.debuffs.push({ stat: "def", value: -20, turns: 2, name: "AuraOculta" });
+        });
+        u.energy = Math.min(u.energyMax, u.energy + 8);
+      }
+      // Kirara C4: team dmgReduce while Kirara has shield active
+      if (u.id === "kirara" && u.stFlags?.kirC4 && u.shield > 0) {
+        const kAllies = s.heroes.filter(h => h.alive);
+        kAllies.forEach(a => { if (!a.buffs.some(b => b.name === "GuardiaoCos")) a.buffs.push({ stat: "dmgReduce", value: 15, turns: 2, name: "GuardiaoCos" }); });
       }
       const fx = s.fx, sk = u.skill, allies = s.heroes.filter((h) => h.alive), enemy = targetEnemy(s);
       const f = u.stFlags || {};
@@ -3634,7 +3644,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       const ampS = u.ampSkill || 1, ampU = u.ampUlt || 1, ampB = u.ampBasic || 1;
       const hb = 1 + (u.base.healBonus || 0) / 100;
       const healMul = (f.healPlus ? 1.3 : 1) * (f.pRegen ? 1.25 : 1);
-      const shB = hb * (1 + (u.weapon?.shieldBonus || 0) / 100) * (f.shieldPlus ? 1.3 : 1) * (f.pBulwark ? 1.25 : 1);
+      const shB = hb * (1 + (u.weapon?.shieldBonus || 0) / 100) * ((f.shieldPlus || f.kirC2) ? 1.3 : 1) * (f.pBulwark ? 1.25 : 1);
       const enGain = (n) => Math.round(n * (1 + (effStat(u, "energyRegen") || 0) / 100));
       const doHeal = (tgt, amt) => { const done = healUnit(tgt, Math.round(amt * healMul), fx); if (f.healShield) tgt.shield += Math.round(done * 0.3); };
       let msg = "";
@@ -3748,8 +3758,11 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           const red = 62 + (f.omgContagio ? 28 : 0); // 62% redirect + 28% extra resist
           allies.forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Protocolo"); a.buffs.push({ stat: "dmgReduce", value: red, turns: 2, name: "Protocolo" }); if (f.omgC2) a.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "Contágio+" }); });
           const sh = Math.round(u.maxHp * 0.42); u.shield = Math.max(u.shield, sh);
-          if (enemy) { const r = dealDamage(u, enemy, (sk.skillMul || 120) * sMul, fx, { el: "Virus" }); msg = `🛡️ ${u.name} ativa Protocolo de Infecção — o time recebe -${red}% de dano por 2 turnos e ele ergue um Escudo de Dados de ${sh}. Atinge ${enemy.name} por ${r.dmg} de Dano de Vírus${r.crit ? " (CRÍTICO!)" : ""}.`; }
-          else msg = `🛡️ ${u.name} ativa Protocolo de Infecção — -${red}% de dano ao time e Escudo de Dados de ${sh}.`;
+          // Omegamon agora concede escudo ao time todo (não só a si mesmo)
+          const teamSh = Math.round(u.maxHp * 0.22);
+          allies.forEach((a) => { if (a.uid !== u.uid) a.shield = (a.shield || 0) + teamSh; });
+          if (enemy) { const r = dealDamage(u, enemy, (sk.skillMul || 120) * sMul, fx, { el: "Virus" }); msg = `🛡️ ${u.name} ativa Protocolo de Infecção — o time recebe -${red}% de dano por 2 turnos. Omegamon ergue Escudo de Dados de ${sh} e protege aliados com +${teamSh} de escudo cada. Atinge ${enemy.name} por ${r.dmg} de Dano de Vírus${r.crit ? " (CRÍTICO!)" : ""}.`; }
+          else msg = `🛡️ ${u.name} ativa Protocolo de Infecção — -${red}% de dano ao time, Escudo de Dados de ${sh} e +${teamSh} de escudo para todos os aliados.`;
         }
         else if (u.id === "lancer" && sk.lancerSkill) {
           u.lancerDodges = (u.lancerDodges || 0) + 2;
@@ -3791,12 +3804,26 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         if (sk.skillDebuff && enemy) { applyDebuff([enemy], sk.skillDebuff, u.weapon?.extraDefDown, u); msg = `${u.name} reduz a DEF e aplica vulnerabilidade em ${enemy.name}.`; }
         if (f.defShredHit && enemy) applyDebuff([enemy], { defDown: 12, turns: 2 }, 0, u);
         if (sk.heal) { const tgt = allies.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0]; doHeal(tgt, (effStat(u, "atk") * sk.heal.mul / 100 + sk.heal.flat) * hb * ampS); msg = `${u.name} cura ${tgt.name}.`; }
-        if (sk.shield) { const sh = Math.round((effStat(u, "def") * sk.shield.defMul / 100 + sk.shield.flat) * shB * ampS); u.shield += sh; msg = `${u.name} ergue um escudo de ${sh} e provoca os inimigos.`; }
+        if (sk.shield) {
+          const sh = Math.round((effStat(u, "def") * sk.shield.defMul / 100 + sk.shield.flat) * shB * ampS);
+          u.shield += sh;
+          if (f.kirC1) {
+            const teamSh = Math.round(sh * 0.80);
+            allies.forEach((a) => { if (a.uid !== u.uid) a.shield = (a.shield || 0) + teamSh; });
+            if (f.kirC2) { const weakest = allies.slice().sort((a,b) => (a.shield||0) - (b.shield||0))[0]; if (weakest) { weakest.buffs = weakest.buffs.filter(b => b.name !== "GdDefBoost"); weakest.buffs.push({ stat: "def", value: 15, pct: true, turns: 2, name: "GdDefBoost" }); } }
+            msg = `💫 ${u.name} projeta [Aura Estelar] — escudo de ${sh} em si e +${teamSh} a TODO o time! Provocação ativa.`;
+          } else {
+            if (f.kirC2) { const weakest = allies.slice().sort((a,b) => (a.shield||0) - (b.shield||0))[0]; if (weakest) { weakest.buffs = weakest.buffs.filter(b => b.name !== "GdDefBoost"); weakest.buffs.push({ stat: "def", value: 15, pct: true, turns: 2, name: "GdDefBoost" }); } }
+            msg = `${u.name} ergue um escudo de ${sh} e provoca os inimigos.`;
+          }
+        }
         if (u.weapon?.buff?.onSkill) { applyBuff([u], u.weapon.buff.onSkill, u.weapon.name, fx, u); msg += ` [${u.weapon.name}]`; }
         if (sk.energyGift) { const t = allies.filter((a) => a.uid !== u.uid && !a.isSummon)[0]; if (t) { t.energy = Math.min(t.energyMax, t.energy + sk.energyGift); msg += ` Doa ${sk.energyGift} de energia a ${t.name}.`; } }
       } else if (kind === "ult") {
         if (u.energy < u.energyMax) return s;
         if (u.id === "kaiba") { if (aliveDragons(s, u.uid).length >= 3) { s.choice = { uid: u.uid }; return s; } else { return s; } } // Suprema só com 3 dragões
+        if (u.id === "kirara" && (u.stFlags?.kirC4)) { u.energy = Math.min(u.energyMax, u.energy + 20); } // C4: recupera 20 energia ao usar ult
+        if (u.id === "frieren" && u.stFlags?.frC6) { s.choice = { uid: u.uid, kind: "frieren" }; return s; } // C6: jogador escolhe a forma da Suprema
         if (u.id === "soifon" && sk.sfUlt) {
           u.energy = enGain(5);
           if (enemy) {
@@ -3871,7 +3898,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
             if (origCR !== null) u.base.critRate = origCR;
             if (f.frC2 && enems.length > 1) enems.filter(e => e.uid !== mainT.uid && e.alive).forEach(e => dealDamage(u, e, (sk.ultMul || 500) * sMul * 0.5, fx, { el: "Holy" }));
             if (!mainT.boss && f.frC6 && mainT.hp / mainT.maxHp < 0.30) { mainT.hp = 0; mainT.alive = false; fx.push({ uid: mainT.uid, txt: "APAGADO!", crit: true, id: Math.random() }); }
-            if (f.frC4) enems.forEach(e => { if (!e.debuffs.some(d => d.name === "AuraOculta")) e.debuffs.push({ stat: "def", value: -15, turns: 3, name: "AuraOculta" }); });
+            if (f.frC4) enems.forEach(e => { const exA = e.debuffs.find(d => d.name === "AuraOculta"); if (exA) { exA.value = -20; exA.turns = Math.max(exA.turns, 3); } else e.debuffs.push({ stat: "def", value: -20, turns: 3, name: "AuraOculta" }); });
             msg = "ZOLTRAAK! " + u.name + " dispara o feixe colossal em " + mainT.name + " — " + rz.dmg + " de Dano Holy" + (rz.crit ? " CRÍTICO!" : "") + "!" + (isChaosVirus ? " Crit Garantido + ignora Escudos!" : "") + (f.frC2 ? " Refração em adjacentes!" : "");
           } else if (ultChoice === "reaction") {
             const dmgMul = 1 + pts * 0.3;
@@ -3948,7 +3975,17 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         if (sk.ultBuff) { applyBuff(allies, { ...sk.ultBuff, turns: Math.round(sk.ultBuff.turns * ampU) }, u.name, fx, u); msg += ` Fortalece o time.`; }
         if (sk.ultDebuff) { applyDebuff(aliveEnemies(s), sk.ultDebuff, 0, u); msg += ` Inimigos ficam vulneráveis.`; }
         if (sk.ultHeal) { allies.forEach((a) => doHeal(a, (effStat(u, "atk") * sk.ultHeal.mul / 100 + sk.ultHeal.flat) * hb * ampU * (f.pMedic ? 1.25 : 1))); msg = msg ? msg + " Cura toda a equipe." : `💥 ${u.name} cura toda a equipe.`; }
-        if (sk.ultShield) { allies.forEach((a) => (a.shield += Math.round((effStat(u, "def") * sk.ultShield.defMul / 100 + sk.ultShield.flat) * shB * ampU))); msg += ` Escuda a equipe.`; }
+        if (sk.ultShield) {
+          const ultShVal = Math.round((effStat(u, "def") * sk.ultShield.defMul / 100 + sk.ultShield.flat) * shB * ampU);
+          allies.forEach((a) => (a.shield += ultShVal));
+          msg += ` Escuda a equipe.`;
+          if (f.kirC6) {
+            const bonusSh = Math.round(ultShVal * 0.50);
+            allies.forEach((a) => { a.shield += bonusSh; });
+            applyBuff(allies, { dmgBonus: 25, all: true, turns: 2 }, u.name, fx, u);
+            msg += ` 💫 [Muralha Estelar Absoluta] +${bonusSh} escudo extra a todos e +25% Bônus de Dano ao time por 2 turnos!`;
+          }
+        }
         if (f.vulnUlt) { applyDebuff(aliveEnemies(s), { vuln: 25, turns: 2 }, 0, u); msg += ` (Juízo: +25% vulnerabilidade)`; }
         if (f.cleanseUlt) { allies.forEach((a) => { if (a.debuffs.length) a.debuffs.shift(); }); msg += ` (Remove debuffs)`; }
         if (f.ultDmgBuff) { applyBuff(allies, { dmgBonus: 20, all: true, turns: 2 }, u.name, fx, u); msg += ` (+20% dano à equipe)`; }
@@ -4008,6 +4045,51 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
     });
   }
 
+  function resolveFrierenUlt(which) {
+    setState((s0) => {
+      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null };
+      const u = s.heroes.find((h) => h.id === "frieren" && h.alive); if (!u) { s.turn = null; return s; }
+      const fx = s.fx, sk = u.skill, allies = s.heroes.filter((h) => h.alive), enems = aliveEnemies(s), mainT = targetEnemy(s);
+      const f = u.stFlags || {}, ampU = u.ampUlt || 1;
+      const sMul = u.tUlt * ampU;
+      const pts = u._frPoints || 0;
+      u.energy = Math.round(5 * (1 + (effStat(u, "energyRegen") || 0) / 100));
+      let msg = "";
+      if (which === "zoltraak" && mainT) {
+        const isChaosVirus = mainT.element === "Chaos" || mainT.element === "Virus";
+        let origCR = null;
+        if (isChaosVirus || f.frZoltraak) { origCR = u.base.critRate; u.base = { ...u.base, critRate: 200 }; }
+        const defP = (isChaosVirus && f.frZoltraak) ? 100 : 100; // C6 sempre ignora 100% DEF
+        const rz = dealDamage(u, mainT, (sk.ultMul || 500) * sMul, fx, { el: "Holy", pierceShield: isChaosVirus, defPen: defP });
+        if (origCR !== null) u.base.critRate = origCR;
+        if (f.frC2 && enems.length > 1) enems.filter(e => e.uid !== mainT.uid && e.alive).forEach(e => dealDamage(u, e, (sk.ultMul || 500) * sMul * 0.5, fx, { el: "Holy" }));
+        if (!mainT.boss && mainT.hp / mainT.maxHp < 0.30) { mainT.hp = 0; mainT.alive = false; fx.push({ uid: mainT.uid, txt: "APAGADO!", crit: true, id: Math.random() }); }
+        if (f.frC4) enems.forEach(e => { const exA = e.debuffs.find(d => d.name === "AuraOculta"); if (exA) { exA.value = -20; exA.turns = 3; } else e.debuffs.push({ stat: "def", value: -20, turns: 3, name: "AuraOculta" }); });
+        msg = "✨ ZOLTRAAK [Escolha Milenar]! " + u.name + " dispara o feixe absoluto em " + mainT.name + " — " + rz.dmg + " de Dano Holy (ignora 100% DEF!)" + (rz.crit ? " CRÍTICO!" : "") + "!" + (f.frC2 ? " Refração em adjacentes!" : "");
+      } else if (which === "reaction") {
+        const dmgMul = 1 + pts * 0.3;
+        u._frPoints = 0; u._frPointTypes = [];
+        let tot3 = 0;
+        enems.forEach(e => { const r = dealDamage(u, e, (sk.ultMul || 500) * sMul * dmgMul * 0.6, fx, { el: "Holy" }); tot3 += r.dmg; if (pts >= 3) e.debuffs.push({ stat: "spd", value: -15, pct: true, turns: 2, name: "Nevasca" }); });
+        if (u.weapon?.buff?.frTeamBonus) allies.forEach(a => a.buffs.push({ stat: "dmgBonus", value: 15, turns: 1, name: "CajadoReacao" }));
+        msg = "⚗️ REAÇÃO DE CAMPO [Escolha Milenar]! " + u.name + " libera " + pts + " pontos de elemento — " + tot3 + " de dano em área (×" + dmgMul.toFixed(1) + ")!" + (pts >= 3 ? " Inimigos ficam lentos!" : "");
+      } else {
+        u._frPoints = Math.max(0, pts - 2);
+        const healAmt = Math.round(0.25 * u.maxHp); // C6: cura 25% HP (melhorado de 20%)
+        allies.forEach(a => { healUnit(a, healAmt, fx); a.debuffs = []; a.buffs.push({ stat: "dmgReduce", value: 15, turns: 3, name: "CampoFlores" }); });
+        if (f.frFlowers) allies.forEach(a => { a.hp = Math.min(a.maxHp, a.hp + Math.round(a.maxHp * 0.15)); a.buffs.push({ stat: "dmgBonus", value: 10, turns: 2, name: "FloraEterna" }); });
+        msg = "🌸 MAGIA DE FLORES [Escolha Milenar]! " + u.name + " faz nascer flores — o time é curado em " + healAmt + " (25% HP), debuffs removidos e +15% resistência por 3 turnos!";
+      }
+      if (f.setHorizonte4) {
+        const extraBonus = Math.min(20, (u._frPoints || 0) * 5);
+        allies.forEach(a => { a.buffs.push({ stat: "dmgBonus", value: 15 + extraBonus, turns: 2, name: "HorizonteUlt" }); a.buffs.push({ stat: "critDmg", value: 12, turns: 2, name: "HorizonteCrit" }); });
+        msg += (extraBonus > 0 ? " [Além do Horizonte] +15%+" + extraBonus + "% Dano Bônus e +12% CRIT DMG ao time!" : " [Além do Horizonte] +15% Dano Bônus e +12% CRIT DMG ao time!");
+      }
+      tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
+    });
+  }
+
   function autoAct(uid) {
     setState((s0) => {
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
@@ -4041,7 +4123,18 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         const role = u.roleKey;
         if (role === "healer" && (sk.heal || sk.ultHeal)) { const tgt = allies.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0]; const h = sk.heal || { mul: 80, flat: 300 }; healUnit(tgt, Math.round(effStat(u, "atk") * h.mul / 100 + h.flat), fx); msg = `${u.name} cura ${tgt.name}`; }
         else if (role === "buffer" && sk.skillBuff) { applyBuff(allies, sk.skillBuff, u.name, fx, u); msg = `${u.name} fortalece o time`; }
-        else if (role === "shield" && sk.shield) { const tgt = allies.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0]; tgt.shield += Math.round(effStat(u, "def") * (sk.shield.defMul / 100) + sk.shield.flat); msg = `${u.name} escuda ${tgt.name}`; }
+        else if (role === "shield" && sk.shield) {
+          const shBa = 1 + (u.weapon?.shieldBonus || 0) / 100;
+          const shVal = Math.round((effStat(u, "def") * (sk.shield.defMul / 100) + sk.shield.flat) * shBa);
+          if (u.stFlags?.kirC1) {
+            allies.forEach((a) => { a.shield = (a.shield || 0) + (a.uid === u.uid ? shVal : Math.round(shVal * 0.80)); });
+            msg = `${u.name} escuda todo o time`;
+          } else {
+            const tgt = allies.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+            tgt.shield += shVal;
+            msg = `${u.name} escuda ${tgt.name}`;
+          }
+        }
         else if (role === "debuffer" && sk.skillDebuff && enemies[0]) { applyDebuff([enemies[0]], sk.skillDebuff, 0, u); if (sk.skillDot) applyDot([enemies[0]], sk.skillDot, u, fx); if (sk.skillMul) dealDamage(u, enemies[0], sk.skillMul, fx); msg = `${u.name} enfraquece o inimigo`; }
         else { const tgt = enemies.slice().sort((a, b) => b.hp - a.hp)[0]; if (tgt) { const full = u.energyMax && u.energy >= u.energyMax; if (full && sk.ultMul) { u.energy = 0; if (sk.ultAoe) enemies.forEach((e) => dealDamage(u, e, sk.ultMul, fx)); else dealDamage(u, tgt, sk.ultMul, fx); msg = `💥 ${u.name} usa Ultimate!`; } else { const m = sk.skillMul || sk.basicMul || 100; if (sk.aoe && sk.skillMul) enemies.forEach((e) => dealDamage(u, e, m, fx)); else dealDamage(u, tgt, m, fx); if (sk.skillDot) applyDot(sk.aoe ? enemies : [tgt], sk.skillDot, u, fx); u.energy = Math.min(u.energyMax, u.energy + 22); msg = `${u.name} ataca ${tgt.name}`; } } }
       }
@@ -4281,19 +4374,43 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           </div>
         ) : state.choice ? (
           <div>
-            <div style={{ textAlign: "center", ...ORB, fontWeight: 800, fontSize: 14, color: C.gold, marginBottom: 8 }}>3 DRAGÕES EM CAMPO — ESCOLHA A INVOCAÇÃO SUPREMA</div>
-            <div className="flex gap-3" style={{ justifyContent: "center", flexWrap: "wrap" }}>
-              {[{ k: "obelisk", id: "obelisk", emoji: "🗿", name: "Obelisco, o Atormentador", desc: "Tributa os 3 dragões: explosão SAGRADA (Holy) massiva em área agora + Obelisco luta 2 turnos com dano bruto altíssimo." },
-                { k: "ultimate", id: "ultimate", emoji: "🐲", name: "Dragão Branco Definitivo", desc: "Funde os 3 Blue-Eyes: dragão independente por 5 turnos com dano Elétrico + Glacial a cada ataque." }].map((opt) => (
-                <button key={opt.k} onClick={() => resolveKaibaUlt(opt.k)}
-                  style={{ flex: 1, minWidth: 150, maxWidth: 230, textAlign: "left", border: `2px solid ${C.gold}77`, borderRadius: 14, padding: 10, background: "linear-gradient(180deg,#1a1530,#0f0b22)", cursor: "pointer", boxShadow: `0 0 16px ${C.gold}22` }}>
-                  <div className="flex items-center gap-2" style={{ marginBottom: 6 }}>
-                    <Avatar ch={{ id: opt.id, element: opt.k === "obelisk" ? "Holy" : "Eletro", avatar: opt.emoji }} size={42} ring={C.gold} />
-                    <span style={{ ...ORB, fontWeight: 800, fontSize: 13, color: C.gold }}>{opt.name}</span>
-                  </div>
-                  <div style={{ fontSize: 11, color: C.mute, lineHeight: 1.4 }}>{opt.desc}</div>
-                </button>))}
-            </div>
+            {state.choice.kind === "frieren" ? (
+              <>
+                <div style={{ textAlign: "center", ...ORB, fontWeight: 800, fontSize: 14, color: "#C8E6C9", marginBottom: 8 }}>✨ GRIMÓRIO MILENAR — ESCOLHA A FORMA DA SUPREMA</div>
+                <div className="flex gap-2" style={{ justifyContent: "center", flexWrap: "wrap" }}>
+                  {[
+                    { k: "zoltraak", emoji: "✨", name: "Zoltraak", col: "#FFE08A", desc: "Feixe anti-magia focado. Ignora 100% da DEF, Crit Garantido contra Chaos/Vírus. Mata inimigos comuns <30% HP." },
+                    { k: "reaction", emoji: "⚗️", name: "Reação de Campo", col: "#6FE3FF", desc: "Libera todos os Pontos de Elemento em explosão AoE. Dano ×(1+pts×0.3). Precisa de ≥1 ponto para potência máxima." },
+                    { k: "flowers", emoji: "🌸", name: "Magia de Flores", col: "#A8E6CF", desc: "Cura o time em 25% do HP máx de Frieren, remove todos os debuffs e concede +15% resistência por 3 turnos." },
+                  ].map((opt) => (
+                    <button key={opt.k} onClick={() => resolveFrierenUlt(opt.k)}
+                      style={{ flex: 1, minWidth: 130, maxWidth: 200, textAlign: "left", border: `2px solid ${opt.col}77`, borderRadius: 14, padding: 10, background: "linear-gradient(180deg,#101a14,#080f0a)", cursor: "pointer", boxShadow: `0 0 16px ${opt.col}22` }}>
+                      <div className="flex items-center gap-2" style={{ marginBottom: 6 }}>
+                        <span style={{ fontSize: 28 }}>{opt.emoji}</span>
+                        <span style={{ ...ORB, fontWeight: 800, fontSize: 12, color: opt.col }}>{opt.name}</span>
+                      </div>
+                      <div style={{ fontSize: 10, color: C.mute, lineHeight: 1.4 }}>{opt.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ textAlign: "center", ...ORB, fontWeight: 800, fontSize: 14, color: C.gold, marginBottom: 8 }}>3 DRAGÕES EM CAMPO — ESCOLHA A INVOCAÇÃO SUPREMA</div>
+                <div className="flex gap-3" style={{ justifyContent: "center", flexWrap: "wrap" }}>
+                  {[{ k: "obelisk", id: "obelisk", emoji: "🗿", name: "Obelisco, o Atormentador", desc: "Tributa os 3 dragões: explosão SAGRADA (Holy) massiva em área agora + Obelisco luta 2 turnos com dano bruto altíssimo." },
+                    { k: "ultimate", id: "ultimate", emoji: "🐲", name: "Dragão Branco Definitivo", desc: "Funde os 3 Blue-Eyes: dragão independente por 5 turnos com dano Elétrico + Glacial a cada ataque." }].map((opt) => (
+                    <button key={opt.k} onClick={() => resolveKaibaUlt(opt.k)}
+                      style={{ flex: 1, minWidth: 150, maxWidth: 230, textAlign: "left", border: `2px solid ${C.gold}77`, borderRadius: 14, padding: 10, background: "linear-gradient(180deg,#1a1530,#0f0b22)", cursor: "pointer", boxShadow: `0 0 16px ${C.gold}22` }}>
+                      <div className="flex items-center gap-2" style={{ marginBottom: 6 }}>
+                        <Avatar ch={{ id: opt.id, element: opt.k === "obelisk" ? "Holy" : "Eletro", avatar: opt.emoji }} size={42} ring={C.gold} />
+                        <span style={{ ...ORB, fontWeight: 800, fontSize: 13, color: C.gold }}>{opt.name}</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: C.mute, lineHeight: 1.4 }}>{opt.desc}</div>
+                    </button>))}
+                </div>
+              </>
+            )}
           </div>
         ) : isHeroTurn ? (() => { const nm = skillNamesOf(activeHero.id); const kaiba3 = activeHero.id === "kaiba" && aliveDragons(state, activeHero.uid).length >= 3;
           const _kindLabel = { basic: "Ataque Básico", skill: "Perícia · 1 PH", ult: "Ultimate" };
