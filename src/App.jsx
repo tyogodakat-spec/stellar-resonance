@@ -123,6 +123,22 @@ const WEAPON_MAP = Object.fromEntries(WEAPONS.map((w) => [w.id, w]));
 const WEAPON_5_IDS = WEAPONS.filter((w) => w.rarity === 5).map((w) => w.id);
 const DEFAULT_FEATURED_WEAPON = "starblade";
 
+/* ---------- MOCHILEIRO (seletor de personagem inicial) ---------- */
+const BEGINNER_PICK_CHARS = [
+  { id: "kirara",    wpn: "starmantle"   },
+  { id: "yoruichi",  wpn: "thunderclaws" },
+  { id: "kiritsugu", wpn: "originpistol" },
+  { id: "renji",    wpn: "shadowkunai"  },
+  { id: "ace",      wpn: "chaostome"    },
+  { id: "usopp",    wpn: "slingshot"    },
+  { id: "sakura",   wpn: "starblade"    },
+  { id: "chopper",  wpn: "healstaff"    },
+  { id: "lancer",   wpn: "shadowkunai"  },
+  { id: "nanami",   wpn: "starblade"    },
+  { id: "nami",     wpn: "chaostome"    },
+  { id: "uraraka",  wpn: "radiant"      },
+];
+
 /* ---------- RELÍQUIAS ---------- */
 const RELIC_SETS = {
   "Tempestade Eletro": { color: "#B98BFF", el: "Eletro", p2: { elemDmg: 20 }, p4: { critRate: 5 }, flag4: "setEletro4", d2: "+20% de dano Eletro", d4: "+5% CRIT; ao agir (ação avançada/turno) +2% de dano, acumula até 12%" },
@@ -957,6 +973,8 @@ function Game({ email, isAdmin, onLogout }) {
   const [draftBoons, setDraftBoons] = useState([]);
   const [mailClaimed, setMailClaimed] = useState(() => { try { return localStorage.getItem('sr_mail1_claimed_v1') === '1'; } catch { return false; } });
   const [mail2Claimed, setMail2Claimed] = useState(() => { try { return localStorage.getItem('sr_mail2_claimed_v1') === '1'; } catch { return false; } });
+  const [mail3Claimed, setMail3Claimed] = useState(() => { try { return localStorage.getItem('sr_mail3_claimed_v1') === '1'; } catch { return false; } });
+  const [mail3CharPicked, setMail3CharPicked] = useState(() => { try { return localStorage.getItem('sr_mail3_char_v1') || null; } catch { return null; } });
   const [relicMats, setRelicMats] = useState(0);
   const [shopResetAt, setShopResetAt] = useState(0);
   const [shopPurchases, setShopPurchases] = useState({});
@@ -981,6 +999,7 @@ function Game({ email, isAdmin, onLogout }) {
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0); setBossRushCleared(Array.isArray(s.bossRushCleared) ? s.bossRushCleared : []);
       setDraftRoomCleared(s.draftRoomCleared ?? 0); setDraftClaimedGems(s.draftClaimedGems ?? 0); setDraftBoons(Array.isArray(s.draftBoons) ? s.draftBoons : []);
       setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setMail2Claimed(prev => prev || (s.mail2Claimed ?? false)); setRelicMats(s.relicMats ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
+      setMail3Claimed(prev => prev || (s.mail3Claimed ?? false)); if (s.mail3CharPicked) setMail3CharPicked(prev => prev || s.mail3CharPicked);
     }
     // Carrega fotos do localStorage imediatamente (sem depender do Firebase)
     try { const li = _ls.get("sr_shared_images"); if (li) { const parsed = JSON.parse(li); if (parsed && typeof parsed === "object") setImages(parsed); } } catch {}
@@ -1013,8 +1032,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1346,7 +1365,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} flash={flash} setBattle={setBattle} />}
               {screen === "relics" && <RelicsScreen relicInv={relicInv} />}
               {screen === "loja" && <Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} />}
-              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mail2Claimed={mail2Claimed} setMail2Claimed={setMail2Claimed} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} flash={flash} />}
+              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mail2Claimed={mail2Claimed} setMail2Claimed={setMail2Claimed} mail3Claimed={mail3Claimed} setMail3Claimed={setMail3Claimed} mail3CharPicked={mail3CharPicked} setMail3CharPicked={setMail3CharPicked} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setOwned={setOwned} setOwnedWeapons={setOwnedWeapons} flash={flash} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
                 {screen === "roteiro" && <Roteiro />}
@@ -2956,12 +2975,14 @@ function makeEnemy(idx, enc) {
   } else {
     // HP atrelado ao PODER da equipe (invariante de escala) — mantém a luta justa mesmo após o rebalanceamento HSR
     baseHp = power * 2.4 + lvl * 50 + idx * 150;
-    if (enc.relicFarm) baseHp *= 0.45; // Dungeon de relíquias: inimigos mais rápidos de derrotar
+    if (enc.relicFarm) baseHp *= 0.20; // Dungeon de relíquias: bem mais rápida
+    if (enc.ascend) baseHp *= 0.35; // Dungeon de ascensão: mais acessível
     // Bosses da Torre com HP reduzido para ritmo mais agil
-    if (boss) baseHp *= (finalBoss ? 7.2 : weekly ? 8.5 : ascend ? 7.8 : enc.relicFarm ? 1.6 : 4.6) * (enc.isTower ? 0.5 : 1);
+    if (boss) baseHp *= (finalBoss ? 7.2 : weekly ? 8.5 : ascend ? 2.8 : enc.relicFarm ? 0.85 : 4.6) * (enc.isTower ? 0.5 : 1);
   }
   const hp = Math.round(baseHp);
-  const atk = Math.round((power * 0.06 + lvl * 4 + 80) * (boss ? 1.35 : 1));
+  const atkReduce = enc.relicFarm ? 0.50 : enc.ascend ? 0.45 : 1.0;
+  const atk = Math.round((power * 0.06 + lvl * 4 + 80) * (boss ? 1.35 : 1) * atkReduce);
   const def = Math.round(power * 0.035 + lvl * 3 + (boss ? power * 0.03 : 0));
   const spd = 95 + idx * 3 + (boss ? 4 : 0);
   if (enc.bossRush && idx === 0) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===enc.bossId;}); if (bd) { const atkBr = Math.round(3500 + (enc.level||90) * 12); const defBr = Math.round(2200 + (enc.level||90) * 8); return { uid: "E0", side: "enemy", name: bd.name, bossTitle: bd.lore, bossImgId: bd.imgKey, avatar: bd.avatar, element: bd.element, level: bd.level, roleKey: "dps", bossKind: bd.kind, boss: true, finalBoss: false, weekly: false, ascend: false, elite: false, res: bd.res || [], weak: bd.weak || [], base: { atk: atkBr, def: defBr, spd: 90, critRate: 15, critDmg: 60, dmgBonus: 0 }, hp: bd.hp, maxHp: bd.hp, shield: bd.kind === "sukuna" ? 200000 : 0, av: 10000 / 90, buffs: [], debuffs: [], dots: [], alive: true, actCount: 0 }; } }
@@ -5061,7 +5082,7 @@ const MAIL_PKG = [
   { icon: "🔷", label: "Matéria de Relíquia",       value: "100" },
 ];
 
-function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, setJade, setExpItems, setWeaponMats, setRelicMats, flash }) {
+function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, mail3Claimed, setMail3Claimed, mail3CharPicked, setMail3CharPicked, setJade, setExpItems, setWeaponMats, setRelicMats, setOwned, setOwnedWeapons, flash }) {
   const MAIL2_UNLOCK = new Date("2026-07-03T00:00:00Z").getTime(); // liberado desde 03/Jul
   const [now, setNow] = React.useState(Date.now());
   React.useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
@@ -5099,6 +5120,29 @@ function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, s
       flash("💎 +7.000 Jade Estelar coletados!", C.gold);
       return true;
     });
+  }
+
+  const [mail3Modal, setMail3Modal] = React.useState(null);
+
+  function confirmMail3(charId) {
+    const entry = BEGINNER_PICK_CHARS.find(x => x.id === charId);
+    if (!entry) return;
+    setMail3Claimed(true);
+    setMail3CharPicked(charId);
+    try { localStorage.setItem('sr_mail3_claimed_v1', '1'); localStorage.setItem('sr_mail3_char_v1', charId); } catch {}
+    setOwned(prev => {
+      if (prev.some(o => o.id === charId)) return prev;
+      return [...prev, normChar({ id: charId, level: 1, eidolon: 0, weapon: entry.wpn, relics: EMPTY_RELICS() })];
+    });
+    setOwnedWeapons(prev => {
+      if (prev.some(w => w.id === entry.wpn)) return prev;
+      return [...prev, { id: entry.wpn, lv: 1 }];
+    });
+    setJade(j => j + 12000);
+    setMail3Modal(null);
+    const cname = CHAR_MAP[charId]?.name || charId;
+    const wname = WEAPON_MAP[entry.wpn]?.name || entry.wpn;
+    flash("✨ " + cname + " + " + wname + " + 12.000💎 chegaram ao seu elenco!", C.gold);
   }
 
   return (
@@ -5170,6 +5214,119 @@ function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, s
           </div>
         </div>
       </Panel>
+
+      {/* ── MAIL 3: Pacote do Mochileiro ─────────────────────────────── */}
+      <Panel glow={mail3Claimed ? C.mute : "#F6C95B"}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+          <div style={{ fontSize: 38 }}>{mail3Claimed ? "✉️" : "🎒"}</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+              <div style={{ ...ORB, fontWeight: 800, fontSize: 15 }}>🎒 Pacote do Mochileiro</div>
+              {mail3Claimed
+                ? <span style={{ background: C.panelHi, color: C.mute, border: "1px solid " + C.line, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>COLETADO</span>
+                : <span style={{ background: "#2a1a00", color: C.gold, border: "1px solid " + C.gold, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>DISPONÍVEL</span>}
+            </div>
+            <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
+              Cada Pioneiro tem uma jornada única. Escolha <b style={{ color: C.text }}>1 personagem</b> para começar ao seu lado — ele vem com sua <b style={{ color: C.gold }}>arma ideal</b> e <b style={{ color: C.gold }}>+12.000 💎 Jade</b>.
+            </div>
+
+            {mail3Claimed ? (
+              <div style={{ background: C.panelHi, border: "1px solid " + C.line, borderRadius: 12, padding: "14px 16px" }}>
+                {(() => {
+                  const cd = CHAR_MAP[mail3CharPicked];
+                  const entry = BEGINNER_PICK_CHARS.find(x => x.id === mail3CharPicked);
+                  const wd = entry && WEAPON_MAP[entry.wpn];
+                  return cd ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                      <div style={{ fontSize: 38, lineHeight: 1 }}>{cd.avatar}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 800, fontSize: 15, color: C.text }}>{cd.name}</div>
+                        <div style={{ fontSize: 12, color: C.mute }}>{cd.element} · {"★".repeat(cd.rarity)}</div>
+                        {wd && <div style={{ fontSize: 12, color: C.gold, marginTop: 2 }}>⚔️ {wd.name}</div>}
+                      </div>
+                      <span style={{ fontSize: 22, color: "#4ade80" }}>✓</span>
+                    </div>
+                  ) : <div style={{ color: C.mute, fontSize: 13 }}>Personagem escolhido e adicionado ao elenco.</div>;
+                })()}
+              </div>
+            ) : (
+              <>
+                <div style={{ fontWeight: 700, fontSize: 12, color: C.gold, marginBottom: 10 }}>✦ Toque em um personagem para confirmar sua escolha:</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(76px, 1fr))", gap: 8 }}>
+                  {BEGINNER_PICK_CHARS.map(entry => {
+                    const cd = CHAR_MAP[entry.id];
+                    if (!cd) return null;
+                    const isHov = mail3Modal === entry.id;
+                    return (
+                      <button key={entry.id} onClick={() => setMail3Modal(entry.id)}
+                        style={{ background: isHov ? "#1e1040" : C.panelHi, border: "2px solid " + (isHov ? "#7B5CF6" : C.line), borderRadius: 12, padding: "10px 6px 8px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, transition: "all 0.15s", outline: "none" }}>
+                        <div style={{ fontSize: 28, lineHeight: 1 }}>{cd.avatar}</div>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: cd.rarity === 5 ? C.gold : "#a0a0cc", textAlign: "center", lineHeight: 1.2 }}>{cd.name}</div>
+                        <div style={{ fontSize: 9, color: C.mute }}>{"★".repeat(cd.rarity)}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </Panel>
+
+      {/* ── Modal de confirmação do Mochileiro ───────────────────────── */}
+      {mail3Modal && (() => {
+        const entry = BEGINNER_PICK_CHARS.find(x => x.id === mail3Modal);
+        const cd = entry && CHAR_MAP[entry.id];
+        const wd = entry && WEAPON_MAP[entry.wpn];
+        if (!cd) return null;
+        return (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.78)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setMail3Modal(null)}>
+            <div style={{ background: C.panel, border: "2px solid #7B5CF6", borderRadius: 22, padding: 26, maxWidth: 360, width: "100%", boxShadow: "0 0 60px #7B5CF660" }} onClick={e => e.stopPropagation()}>
+              {/* Cabeçalho do personagem */}
+              <div style={{ textAlign: "center", marginBottom: 20 }}>
+                <div style={{ fontSize: 60, lineHeight: 1, marginBottom: 8 }}>{cd.avatar}</div>
+                <div style={{ fontWeight: 900, fontSize: 22, color: C.text }}>{cd.name}</div>
+                <div style={{ fontSize: 13, color: C.mute, marginTop: 3 }}>{cd.title}</div>
+                <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 10 }}>
+                  <span style={{ background: "#1a1030", border: "1px solid " + C.line, borderRadius: 8, padding: "3px 12px", fontSize: 12, fontWeight: 700, color: cd.rarity === 5 ? C.gold : "#a0a0ff" }}>{"★".repeat(cd.rarity)}</span>
+                  <span style={{ background: "#1a1030", border: "1px solid " + C.line, borderRadius: 8, padding: "3px 12px", fontSize: 12, fontWeight: 700, color: "#b0e0ff" }}>{cd.element}</span>
+                </div>
+              </div>
+
+              {/* Arma incluída */}
+              {wd && (
+                <div style={{ background: C.panelHi, border: "1px solid " + C.line, borderRadius: 14, padding: "12px 14px", marginBottom: 12 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: C.mute, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>⚔️ Arma incluída</div>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                    <div style={{ fontSize: 28, lineHeight: 1 }}>🗡️</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 800, fontSize: 14, color: wd.rarity === 5 ? C.gold : "#b0b0ff" }}>{wd.name} {"★".repeat(wd.rarity)}</div>
+                      <div style={{ fontSize: 11, color: C.mute, marginTop: 4, lineHeight: 1.5 }}>{(wd.passive || "").slice(0, 90)}{(wd.passive || "").length > 90 ? "…" : ""}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Jade bônus */}
+              <div style={{ background: "rgba(246,201,91,0.08)", border: "1px solid " + C.gold + "44", borderRadius: 12, padding: "10px 14px", marginBottom: 20, display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 22 }}>💎</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: 13, color: C.gold }}>+12.000 Jade Estelar</div>
+                  <div style={{ fontSize: 11, color: C.mute }}>Adicionado automaticamente ao confirmar</div>
+                </div>
+              </div>
+
+              {/* Botões */}
+              <div style={{ display: "flex", gap: 10 }}>
+                <Btn kind="soft" style={{ flex: 1, padding: "12px 0", fontWeight: 700 }} onClick={() => setMail3Modal(null)}>Cancelar</Btn>
+                <Btn kind="primary" style={{ flex: 2, padding: "12px 0", fontWeight: 800, fontSize: 15, background: "linear-gradient(135deg,#7B5CF6,#a855f7)" }} onClick={() => confirmMail3(mail3Modal)}>
+                  ✨ Confirmar Escolha
+                </Btn>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       <Panel>
         <div style={{ textAlign: "center", padding: "24px 0" }}>
