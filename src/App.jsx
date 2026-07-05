@@ -997,6 +997,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [mail3Claimed, setMail3Claimed] = useState(() => { try { return localStorage.getItem('sr_mail3_claimed_v1') === '1'; } catch { return false; } });
   const [mail3CharPicked, setMail3CharPicked] = useState(() => { try { return localStorage.getItem('sr_mail3_char_v1') || null; } catch { return null; } });
   const [relicMats, setRelicMats] = useState(0);
+  const [rouletteCleared, setRouletteCleared] = useState(false);
   const [shopResetAt, setShopResetAt] = useState(0);
   const [shopPurchases, setShopPurchases] = useState({});
 
@@ -1019,7 +1020,7 @@ function Game({ email, isAdmin, onLogout }) {
       setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []);
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0); setBossRushCleared(Array.isArray(s.bossRushCleared) ? s.bossRushCleared : []);
       setDraftRoomCleared(s.draftRoomCleared ?? 0); setDraftClaimedGems(s.draftClaimedGems ?? 0); setDraftBoons(Array.isArray(s.draftBoons) ? s.draftBoons : []);
-      setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setMail2Claimed(prev => prev || (s.mail2Claimed ?? false)); setRelicMats(s.relicMats ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
+      setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setMail2Claimed(prev => prev || (s.mail2Claimed ?? false)); setRelicMats(s.relicMats ?? 0); setRouletteCleared(s.rouletteCleared ?? false); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
       setMail3Claimed(prev => prev || (s.mail3Claimed ?? false)); if (s.mail3CharPicked) setMail3CharPicked(prev => prev || s.mail3CharPicked);
     }
     // Carrega fotos do localStorage imediatamente (sem depender do Firebase)
@@ -1053,7 +1054,7 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked });
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked });
   }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
@@ -1349,7 +1350,7 @@ function Game({ email, isAdmin, onLogout }) {
 
   if (!loaded) return <div style={{ minHeight: "100vh", background: C.bg0, color: C.mute, display: "flex", alignItems: "center", justifyContent: "center" }}>Sincronizando ressonância…</div>;
 
-  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["roteiro", "Roteiro", "📖"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
+  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["roleta", "Pacto", "🎰"], ["roteiro", "Roteiro", "📖"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
 
   const needsNick = loaded && (!playerName || playerName === "Pioneiro");
 
@@ -1402,6 +1403,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mail2Claimed={mail2Claimed} setMail2Claimed={setMail2Claimed} mail3Claimed={mail3Claimed} setMail3Claimed={setMail3Claimed} mail3CharPicked={mail3CharPicked} setMail3CharPicked={setMail3CharPicked} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setOwned={setOwned} setOwnedWeapons={setOwnedWeapons} flash={flash} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
+              {screen === "roleta" && <RouletteEvent jade={jade} setJade={setJade} rouletteCleared={rouletteCleared} setRouletteCleared={setRouletteCleared} />}
                 {screen === "roteiro" && <Roteiro />}
               {screen === "admin" && (isAdmin ? <Admin images={images} setImages={setImages} flash={flash} isAdmin={isAdmin} draftActive={draftActive} setDraftActive={setDraftActive} /> : <Empty msg="Acesso restrito ao administrador." />)}
             </>
@@ -5388,6 +5390,317 @@ const MAIL_PKG = [
   { icon: "⚙️", label: "Engrenagens de Arma",      value: "200" },
   { icon: "🔷", label: "Matéria de Relíquia",       value: "100" },
 ];
+
+/* ==========================================================================
+   ROLETA RUSSA — O ÚLTIMO PACTO
+   ========================================================================== */
+function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared }) {
+  const ST = [
+    { b:1, reward:300,  name:"O Convite",       color:"#43A047", risk:"1 de 6",
+      pre:  "...Então você aceitou o convite.\nCurioso. Ou desesperado?",
+      safe: "Sorte de iniciante. Não confunda com destino.",
+      dead: "O gatilho escolheu. Eu apenas observo. Como sempre." },
+    { b:1, reward:400,  name:"A Confiança",      color:"#7CB342", risk:"1 de 6",
+      pre:  "Sobreviveu.\n*gira o cilindro novamente, sem hesitar*\nVamos ver se foi sorte.",
+      safe: "Duas vezes... O vazio parece gostar de você hoje.",
+      dead: "A segunda câmara tinha seu nome desde o início." },
+    { b:2, reward:500,  name:"A Traição",        color:"#F9A825", risk:"2 de 6",
+      pre:  "*desliza uma segunda bala lentamente*\nEstava ficando monótono com apenas uma.",
+      safe: "2 em 6 e você ainda respira. Genuinamente impressionante.",
+      dead: "A segunda bala sempre soube aonde ia.\nEla tem memória longa." },
+    { b:3, reward:600,  name:"O Abismo",         color:"#EF6C00", risk:"3 de 6",
+      pre:  "*carrega a terceira*\nMetade. Exatamente metade.\nAcho isso... poético.",
+      safe: "...Você está me irritando.\nIsso não costuma acontecer.",
+      dead: "Metade das chances eram suas.\nVocê encontrou a parte errada." },
+    { b:4, reward:900,  name:"Ponto de Quebra",  color:"#C62828", risk:"4 de 6",
+      pre:  "4 câmaras carregadas. Apenas 2 livres.\n*a máscara sorri sob o véu*\nAinda quer continuar, Sobrevivente?",
+      safe: "Impossível.\nNinguém chegou tão longe em séculos.\nVocê é... diferente. Odeio isso.",
+      dead: "4 chances de morrer. 2 de viver.\nVocê encontrou uma das quatro.\nEra apenas estatística." },
+    { b:1, reward:300,  name:"O Último Pacto",   color:"#AD1457", risk:"1 de 6 ✦",
+      pre:  "*remove cada bala, uma por uma, em silêncio*\n\n...\n\nDeixa eu ser justa.\nUma só.\nQue o Abismo escolha.",
+      safe: "...\n\n*inclina a cabeça lentamente pela primeira vez*\n\nVocê venceu.\n\nEm eras de jogo...\nvocê é o primeiro a honrar o pacto inteiro.\n\nPegue suas gemas, Sobrevivente do Abismo.",
+      dead: "Até no último momento...\no Abismo reclamou o que era seu.\n\nTeria sido uma história bonita." },
+  ];
+
+  const [stIdx, setStIdx]   = useState(0);
+  const [phase, setPhase]   = useState('intro');
+  const [accum, setAccum]   = useState(0);
+  const [rotation, setRotation] = useState(15);
+  const [bpos, setBpos]     = useState([]);
+  const [fired, setFired]   = useState(null);
+  const [ok, setOk]         = useState(null);
+  const [shake, setShake]   = useState(false);
+
+  const st = ST[stIdx];
+  const willEarn = accum + st.reward;
+  const stColor  = st.color;
+
+  function doShoot() {
+    if (phase === 'spinning') return;
+    setPhase('spinning'); setFired(null); setBpos([]); setOk(null);
+    const pool = [0,1,2,3,4,5], positions = [];
+    for (let i = 0; i < st.b; i++) { const r = Math.floor(Math.random() * pool.length); positions.push(pool.splice(r,1)[0]); }
+    const fc = Math.floor(Math.random() * 6);
+    const targetR = (360 - fc * 60 + 360) % 360;
+    const delta   = ((targetR - ((rotation % 360) + 360) % 360) + 360) % 360;
+    const newRot  = rotation + (5 + Math.floor(Math.random() * 4)) * 360 + delta;
+    setRotation(newRot);
+    setTimeout(() => {
+      const hit = positions.includes(fc);
+      setBpos(positions); setFired(fc); setOk(!hit);
+      if (hit) {
+        setShake(true);
+        setTimeout(() => { setShake(false); setPhase('dead'); setRouletteCleared(true); }, 1100);
+      } else {
+        setAccum(a => a + st.reward);
+        setTimeout(() => setPhase('npc_talk'), 600);
+      }
+    }, 2500);
+  }
+
+  function cashout() { setJade(j => j + accum); setRouletteCleared(true); setPhase('done'); }
+
+  function advance() {
+    if (stIdx >= 5) { setJade(j => j + accum); setRouletteCleared(true); setPhase('victory'); }
+    else { setStIdx(s => s + 1); setFired(null); setBpos([]); setOk(null); setPhase('between'); }
+  }
+
+  // NPC dialogue
+  const npcText = {
+    intro: "Sento-me aqui há eras.\nVocê é o enésimo a sentar nessa cadeira...\n\nMas o primeiro que ainda parece esperançoso.\n\nSeis câmaras. Seis estágios.\nA cada um que vencer, as apostas crescem.\nSe sobreviver a todos os seis... as 3.000 gemas são suas.\n\nSe morrer... você me deve uma história.",
+    between: st.pre,
+    spinning: st.pre,
+    npc_talk: ok ? st.safe : st.dead,
+    dead: st.dead,
+    victory: ST[5].safe,
+    done: "Uma escolha sábia.\nA saída existe para os prudentes.\n\n*acena levemente*\n\nAté a próxima vez, Sobrevivente.",
+  }[phase] ?? st.pre;
+
+  const npcEmoji = ['intro','between'].includes(phase) ? (stIdx >= 4 ? '🩸' : stIdx >= 2 ? '🎭' : '🤍')
+    : phase === 'dead' ? '💀' : phase === 'victory' ? '🫡' : ok ? '👁️' : '💀';
+
+  if (rouletteCleared && phase === 'intro') return (
+    <div style={{ minHeight:320, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:16, textAlign:'center', padding:24 }}>
+      <div style={{ fontSize:52 }}>🎭</div>
+      <div style={{ ...ORB, fontSize:20, color: C.gold, fontWeight:900 }}>O ÚLTIMO PACTO</div>
+      <div style={{ color: C.mute, fontSize:13, lineHeight:1.7 }}>Você já enfrentou A Dama de Branco.<br/>O pacto foi honrado — ou o Abismo te reclamou.<br/>Este evento é único. Não há segunda chance.</div>
+    </div>
+  );
+
+  return (
+    <div style={{ background:`radial-gradient(ellipse at 50% -15%, ${phase==='dead'?'#B71C1C':stColor}44, #060610 62%)`, minHeight:'85vh', paddingBottom:60 }}>
+      <style dangerouslySetInnerHTML={{ __html:`
+        @keyframes rlShake{0%,100%{transform:translate(0,0)}12%{transform:translate(-9px,6px)}25%{transform:translate(8px,-6px)}37%{transform:translate(-7px,5px)}50%{transform:translate(7px,-4px)}62%{transform:translate(-5px,3px)}75%{transform:translate(5px,-3px)}87%{transform:translate(-3px,2px)}}
+        @keyframes rlPulse{0%,100%{opacity:.65}50%{opacity:1}}
+        @keyframes rlFade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+        @keyframes rlDeathFlash{0%{background:rgba(183,28,28,.55)}60%{background:rgba(183,28,28,.2)}100%{background:transparent}}
+        @keyframes rlWinGlow{0%,100%{box-shadow:0 0 20px ${stColor}44}50%{box-shadow:0 0 55px ${stColor}99,0 0 100px ${stColor}22}}
+        @keyframes rlSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+      `}} />
+
+      {/* DEATH FLASH OVERLAY */}
+      {phase==='dead' && shake && <div style={{ position:'fixed',top:0,left:0,right:0,bottom:0,animation:'rlDeathFlash 1.1s ease-out forwards',pointerEvents:'none',zIndex:9999 }} />}
+
+      {/* HEADER */}
+      <div style={{ padding:'20px 16px 6px', textAlign:'center' }}>
+        <div style={{ ...ORB, fontSize:10, letterSpacing:4, color:stColor, opacity:.85, marginBottom:4 }}>✦ EVENTO LIMITADO · UMA VEZ APENAS ✦</div>
+        <div style={{ ...ORB, fontSize:24, fontWeight:900, color:'#f0f0f8', textShadow:`0 0 32px ${phase==='dead'?'#E53935':stColor}88`, letterSpacing:2 }}>O ÚLTIMO PACTO</div>
+        <div style={{ fontSize:11, color:C.mute, marginTop:2 }}>com <span style={{ color:stColor, fontWeight:700 }}>A Dama de Branco</span></div>
+
+        {/* Stage bar */}
+        <div className="flex gap-1 mt-3" style={{ justifyContent:'center', position:'relative' }}>
+          {ST.map((s,i) => (
+            <div key={i} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:3 }}>
+              {i===stIdx && <div style={{ fontSize:9, color:stColor, ...ORB, fontWeight:800 }}>{i+1}/6</div>}
+              <div style={{ width:34, height:6, borderRadius:4,
+                background: i < stIdx ? s.color : i===stIdx ? stColor : '#1e1e2a',
+                border:`1px solid ${i===stIdx ? stColor+'99' : '#2a2a3a'}`,
+                opacity: i > stIdx ? 0.35 : 1, transition:'all .4s' }} />
+              {i===stIdx && <div style={{ fontSize:8, color:stColor, opacity:.7 }}>{s.risk}</div>}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* CURRENT STAGE NAME */}
+      {phase !== 'dead' && phase !== 'victory' && phase !== 'done' && (
+        <div style={{ textAlign:'center', margin:'6px 0 2px' }}>
+          <div style={{ ...ORB, fontSize:15, fontWeight:900, color:stColor, letterSpacing:1 }}>{st.name.toUpperCase()}</div>
+        </div>
+      )}
+
+      {/* NPC DIALOGUE */}
+      <div key={phase+stIdx} style={{ margin:'10px 14px', padding:'12px 14px', background:'rgba(6,6,18,.85)', border:`1px solid ${stColor}2a`, borderRadius:14, animation:'rlFade .4s ease' }}>
+        <div className="flex gap-3">
+          <div style={{ flexShrink:0, width:48, height:48, borderRadius:12, background:`linear-gradient(135deg,#10061a,#060410)`, border:`2px solid ${stColor}55`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, boxShadow:`0 0 14px ${stColor}33` }}>{npcEmoji}</div>
+          <div>
+            <div style={{ fontSize:9, color:stColor, ...ORB, fontWeight:800, letterSpacing:2, marginBottom:5 }}>A DAMA DE BRANCO</div>
+            <div style={{ fontSize:12, color:'#ccd', lineHeight:1.65, whiteSpace:'pre-line' }}>{npcText}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── CYLINDER ─── */}
+      {phase !== 'victory' && phase !== 'done' && (
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', margin:'16px 0 8px', animation:shake?'rlShake 1.1s ease':'none' }}>
+          {/* Pointer */}
+          <div style={{ fontSize:20, color:stColor, lineHeight:1, marginBottom:3, filter:`drop-shadow(0 0 6px ${stColor}88)` }}>▼</div>
+
+          {/* Cylinder */}
+          <div style={{ position:'relative', width:168, height:168 }}>
+            {/* Outer ring glow */}
+            <div style={{ position:'absolute', inset:-4, borderRadius:'50%', border:`2px solid ${stColor}22`, boxShadow:phase==='spinning'?`0 0 40px ${stColor}66,0 0 80px ${stColor}22`:`0 0 16px ${stColor}22`, transition:'box-shadow .6s', pointerEvents:'none' }} />
+
+            {/* Rotating cylinder disk */}
+            <div style={{
+              width:168, height:168, borderRadius:'50%',
+              background:'radial-gradient(circle at 36% 30%, #272730, #0e0e18)',
+              border:`4px solid ${phase==='spinning'?stColor:'#333'}`,
+              transform:`rotate(${rotation}deg)`,
+              transition:phase==='spinning'?'transform 2.5s cubic-bezier(0.10,0.82,0.15,1.0)':'border-color .4s',
+              position:'relative',
+              boxShadow:'0 6px 30px rgba(0,0,0,.9)',
+            }}>
+              {/* Center hub */}
+              <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:24, height:24, borderRadius:'50%', background:'#1a1a22', border:`2px solid ${stColor}55`, zIndex:2 }} />
+
+              {/* 6 Chambers */}
+              {[0,1,2,3,4,5].map(i => {
+                const rad = i * Math.PI / 3;
+                const cx  = 50 + 36 * Math.sin(rad);
+                const cy  = 50 - 36 * Math.cos(rad);
+                const isFired  = fired === i;
+                const hasBullet= bpos.includes(i);
+                const revealed = fired !== null;
+                let bg='#111118', border2='#333', glow2='none', content=null;
+                if (revealed) {
+                  if (isFired && ok)   { bg='#0d2e12'; border2='#43A047'; glow2=`0 0 14px #43A04799`; content=<span style={{fontSize:10,color:'#43A047'}}>○</span>; }
+                  if (isFired && !ok)  { bg='#2a0808'; border2='#E53935'; glow2=`0 0 18px #E5393599`; content=<span style={{fontSize:12}}>🔴</span>; }
+                  if (!isFired && hasBullet) { bg='#1a0606'; border2='#7B0000'; content=<span style={{fontSize:8,color:'#7B0000'}}>●</span>; }
+                }
+                return (
+                  <div key={i} style={{ position:'absolute', left:`${cx}%`, top:`${cy}%`, transform:'translate(-50%,-50%)', width:30, height:30, borderRadius:'50%', background:bg, border:`2px solid ${border2}`, boxShadow:glow2, display:'flex', alignItems:'center', justifyContent:'center', transition:'all .35s' }}>
+                    {content}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Hammer/firing pin at right */}
+            <div style={{ position:'absolute', top:'50%', right:-28, transform:'translateY(-50%)', display:'flex', alignItems:'center', gap:2 }}>
+              <div style={{ width:6, height:14, background:'#444', borderRadius:2 }} />
+              <div style={{ width:20, height:10, background:'linear-gradient(90deg,#555,#333)', borderRadius:'0 4px 4px 0', border:'1px solid #444' }} />
+            </div>
+          </div>
+
+          {/* Chamber status */}
+          <div style={{ marginTop:10, fontSize:11, color:C.mute, minHeight:20, textAlign:'center' }}>
+            {phase==='spinning' && <span style={{ color:stColor, animation:'rlPulse .75s ease infinite' }}>⟳ Girando o cilindro...</span>}
+            {fired!==null && ok  && <span style={{ color:'#43A047', fontWeight:700 }}>✓ Câmara {fired+1} — VAZIA</span>}
+            {fired!==null && !ok && <span style={{ color:'#E53935', fontWeight:700 }}>✗ Câmara {fired+1} — CARREGADA</span>}
+            {phase==='intro' && <span>Pronto para puxar o gatilho?</span>}
+          </div>
+        </div>
+      )}
+
+      {/* ─── REWARD TRACKER ─── */}
+      {phase !== 'victory' && phase !== 'done' && phase !== 'dead' && (
+        <div style={{ margin:'4px 14px 12px', padding:'10px 14px', background:'rgba(6,6,18,.7)', border:`1px solid ${stColor}22`, borderRadius:12, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <div>
+            <div style={{ fontSize:9, color:C.mute, ...ORB, letterSpacing:1 }}>ACUMULADO</div>
+            <div style={{ fontSize:20, fontWeight:900, color:stColor }}>💎 {accum.toLocaleString()}</div>
+          </div>
+          <div style={{ textAlign:'right' }}>
+            <div style={{ fontSize:9, color:C.mute, ...ORB, letterSpacing:1 }}>SE VENCER ESTE ESTÁGIO</div>
+            <div style={{ fontSize:13, color:'#aaa', fontWeight:700 }}>+{st.reward} → <span style={{ color:stColor }}>💎 {willEarn.toLocaleString()}</span></div>
+            <div style={{ fontSize:9, color:'#555', marginTop:2 }}>total possível: 💎 3.000</div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── ACTION AREA ─── */}
+      <div style={{ padding:'0 14px', display:'flex', flexDirection:'column', gap:10 }}>
+
+        {/* INTRO */}
+        {phase==='intro' && (
+          <Btn onClick={doShoot} style={{ background:`linear-gradient(135deg,${stColor}cc,${stColor}88)`, border:'none', color:'#fff', fontWeight:900, fontSize:16, letterSpacing:1, padding:'14px 0' }}>
+            🔫  Puxar o Gatilho
+          </Btn>
+        )}
+
+        {/* BETWEEN STAGES (after surviving, before shooting next) */}
+        {phase==='between' && (
+          <>
+            <Btn onClick={doShoot} style={{ background:`linear-gradient(135deg,${stColor}cc,${stColor}88)`, border:'none', color:'#fff', fontWeight:900, fontSize:15, padding:'13px 0' }}>
+              🔫  Continuar — Estágio {stIdx+1}/6
+            </Btn>
+            {accum>0 && (
+              <Btn kind="soft" onClick={cashout} style={{ fontSize:13, color:'#999', padding:'10px 0' }}>
+                📤  Encerrar e Coletar 💎 {accum.toLocaleString()}
+              </Btn>
+            )}
+          </>
+        )}
+
+        {/* AFTER SURVIVING (npc just spoke) */}
+        {phase==='npc_talk' && (
+          <>
+            <Btn onClick={advance} style={{ background:`linear-gradient(135deg,${stColor}cc,${stColor}88)`, border:'none', color:'#fff', fontWeight:900, fontSize:15, padding:'13px 0' }}>
+              {stIdx>=5 ? '🏆  Receber 💎 3.000 — Você Venceu!' : `⚔️  Avançar → Estágio ${stIdx+2}/6`}
+            </Btn>
+            {accum>0 && stIdx<5 && (
+              <Btn kind="soft" onClick={cashout} style={{ fontSize:13, color:'#999', padding:'10px 0' }}>
+                📤  Coletar e Sair — 💎 {accum.toLocaleString()}
+              </Btn>
+            )}
+          </>
+        )}
+
+        {/* DEAD */}
+        {phase==='dead' && (
+          <div style={{ textAlign:'center', padding:'24px 8px', animation:'rlFade .5s ease' }}>
+            <div style={{ fontSize:52, marginBottom:10, filter:'drop-shadow(0 0 20px #E5393566)' }}>💀</div>
+            <div style={{ ...ORB, fontSize:22, fontWeight:900, color:'#E53935', textShadow:'0 0 28px #E5393599', letterSpacing:2, marginBottom:10 }}>O ABISMO TE RECLAMOU</div>
+            <div style={{ fontSize:13, color:C.mute, lineHeight:1.7, marginBottom:6 }}>
+              O Último Pacto encerrou aqui.
+            </div>
+            {accum>0 && (
+              <div style={{ fontSize:12, color:'#663030', fontStyle:'italic', marginBottom:16 }}>
+                💎 {accum.toLocaleString()} gemas prometidas... dissoltas no vácuo.
+              </div>
+            )}
+            <div style={{ fontSize:11, color:'#444', fontStyle:'italic', marginTop:8 }}>
+              A Dama de Branco aguarda em silêncio.<br/>Este pacto não será renovado.
+            </div>
+          </div>
+        )}
+
+        {/* VICTORY */}
+        {phase==='victory' && (
+          <div style={{ textAlign:'center', padding:'24px 8px', animation:'rlFade .5s ease' }}>
+            <div style={{ fontSize:52, marginBottom:10, filter:`drop-shadow(0 0 20px ${C.gold}66)` }}>🏆</div>
+            <div style={{ ...ORB, fontSize:22, fontWeight:900, color:C.gold, textShadow:`0 0 30px ${C.gold}88`, letterSpacing:2, marginBottom:6 }}>SOBREVIVENTE DO ABISMO</div>
+            <div style={{ fontSize:14, color:'#ddd', marginBottom:4 }}>Você honrou todos os 6 estágios do pacto.</div>
+            <div style={{ fontSize:28, fontWeight:900, color:stColor, margin:'12px 0', filter:`drop-shadow(0 0 16px ${stColor}88)` }}>💎 3.000 Gemas</div>
+            <div style={{ fontSize:11, color:'#666', fontStyle:'italic' }}>Em eras de jogo, você é o primeiro a vencer.<br/>A Dama de Branco abaixou a cabeça.</div>
+          </div>
+        )}
+
+        {/* CASHED OUT */}
+        {phase==='done' && (
+          <div style={{ textAlign:'center', padding:'24px 8px', animation:'rlFade .5s ease' }}>
+            <div style={{ fontSize:44, marginBottom:10 }}>📤</div>
+            <div style={{ ...ORB, fontSize:20, fontWeight:800, color:C.gold, marginBottom:6 }}>Pacto Encerrado</div>
+            <div style={{ fontSize:14, color:'#ddd', lineHeight:1.7 }}>
+              Você coletou <b style={{ color:stColor }}>💎 {accum.toLocaleString()}</b> e se retirou com sabedoria.
+            </div>
+            <div style={{ fontSize:11, color:'#555', fontStyle:'italic', marginTop:10 }}>A Dama de Branco respeita a prudência.</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, mail3Claimed, setMail3Claimed, mail3CharPicked, setMail3CharPicked, setJade, setExpItems, setWeaponMats, setRelicMats, setOwned, setOwnedWeapons, flash }) {
   const MAIL2_UNLOCK = new Date("2026-07-03T00:00:00Z").getTime(); // liberado desde 03/Jul
