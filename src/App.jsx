@@ -1396,7 +1396,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "farm" && <Farm stamina={stamina} start={startFarm} expItems={expItems} startTagDungeon={startTagDungeon} tagMats={tagMats} weaponMats={weaponMats} skillMats={skillMats} startRelicDungeon={startRelicDungeon} />}
               {screen === "tower" && <Tower towerCleared={towerCleared} towerClaimed={towerClaimed} start={startTower} team={team} flash={flash} />}
               {screen === "weekly" && <WeeklyBoss start={startWeekly} stamina={stamina} bossMats={bossMats} lastWeeklyBoss={lastWeeklyBoss} startAscension={startAscension} ascMats={ascMats} />}
-              {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} flash={flash} setBattle={setBattle} />}
+              {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} setRelicMats={setRelicMats} flash={flash} setBattle={setBattle} />}
               {screen === "relics" && <RelicsScreen relicInv={relicInv} />}
               {screen === "loja" && <Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} />}
               {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mail2Claimed={mail2Claimed} setMail2Claimed={setMail2Claimed} mail3Claimed={mail3Claimed} setMail3Claimed={setMail3Claimed} mail3CharPicked={mail3CharPicked} setMail3CharPicked={setMail3CharPicked} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setOwned={setOwned} setOwnedWeapons={setOwnedWeapons} flash={flash} />}
@@ -3161,7 +3161,7 @@ function makeEnemy(idx, enc) {
   const hp = Math.round(baseHp);
   const atkReduce = enc.relicFarm ? 0.70 : enc.ascend ? 0.45 : 1.0;
   // Dungeons e Torre escalam o ATK para garantir dano de 500–4.000 por hit nos heróis
-  const dungeonAtkMult = enc.tagDungeon ? 3.0 : enc.isTower ? Math.min(2.5, 1.0 + Math.max(0, (enc.floor || enc.level || 50) - 50) / 100) : 1.8;
+  const dungeonAtkMult = enc.tagDungeon ? 1.62 : enc.isTower ? Math.min(2.5, 1.0 + Math.max(0, (enc.floor || enc.level || 50) - 50) / 100) : 1.8;
   const atk = Math.round((power * 0.06 + lvl * 4 + 80) * (boss ? 1.35 : 1) * atkReduce * dungeonAtkMult);
   const def = Math.round(power * 0.035 + lvl * 3 + (boss ? power * 0.03 : 0));
   const spd = 95 + idx * 3 + (boss ? 4 : 0);
@@ -4561,7 +4561,7 @@ async function fetchRandomAlly() {
 }
 function defaultAlly() { const o = { id: "yoruichi", level: 70, eidolon: 2, weapon: "thunderclaws", relics: EMPTY_RELICS() }; const st = computeStats(o); return { player: "Aliada IA", name: "Yoruichi", avatar: CHAR_MAP.yoruichi.avatar, element: "Eletro", role: "dps", rarity: 5, level: 70, eidolon: 2, stats: st, skill: CHAR_MAP.yoruichi.skill }; }
 
-function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, flash, setBattle }) {
+function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, setRelicMats, flash, setBattle }) {
   const [setName, setSetName] = useState(RELIC_SET_NAMES[0]);
   const [ally, setAlly] = useState(null);
   useEffect(() => { (async () => setAlly((await fetchRandomAlly()) || defaultAlly()))(); }, []);
@@ -4574,7 +4574,9 @@ function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, flash, setBatt
       if (res.win) {
         const n = 2 + Math.floor(Math.random() * 3), drops = [];
         for (let i = 0; i < n; i++) { drops.push(makeRelic(Math.floor(Math.random() * 6), setName)); }
-        setRelicInv((p) => [...p, ...drops]); flash(`Domínio limpo! +${drops.length} relíquias`, C.good);
+        setRelicInv((p) => [...p, ...drops]);
+        setRelicMats((v) => v + 12);
+        flash(`Domínio limpo! +${drops.length} relíquias · +12 🔷 Matéria de Relíquia`, C.good);
       } else flash("O domínio resistiu…", C.bad);
     };
     setBattle({ context: "coop", encounter: { level: 45, count: 3, boss: true }, ally, onResolve });
