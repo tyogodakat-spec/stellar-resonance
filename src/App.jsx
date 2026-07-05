@@ -3144,10 +3144,10 @@ function makeEnemy(idx, enc) {
     baseHp = power * 2.4 + lvl * 50 + idx * 150;
     if (enc.relicFarm) baseHp *= 0.20; // Dungeon de relíquias: bem mais rápida
     if (enc.ascend) baseHp *= 0.35; // Dungeon de ascensão: mais acessível
-    // Torre: HP dos chefes escala exponencialmente — andar 200 tem exatamente 10.000.000 de HP
+    // Torre: HP dos chefes escala exponencialmente — andar 200 = exatamente 10.000.000 HP
     if (enc.isTower && boss) {
       const f = enc.floor || enc.level;
-      baseHp = Math.round(316000 * Math.pow(10, (f - 50) / 100));
+      baseHp = f === 200 ? 10000000 : Math.round(316228 * Math.pow(10, (f - 50) / 100));
     } else if (boss) {
       baseHp *= (finalBoss ? 7.2 : weekly ? 8.5 : ascend ? 2.8 : enc.relicFarm ? 0.85 : 4.6);
     }
@@ -3164,8 +3164,10 @@ function makeEnemy(idx, enc) {
   const name = ascend ? (enc.bossName || "Guardião da Ascensão") : weekly ? (enc.bossName || "Tirano do Vazio") : finalBoss ? "Soberano do Vazio" : boss ? "Guardião do Andar" : "Aberração " + (idx + 1);
   // Alguns chefes têm RESISTÊNCIA (1-3 elementos) e FRAQUEZA (1-2 elementos)
   let res = [], weak = [];
-  const _tbd = enc.bossKind ? Object.values(TOWER_BOSSES).find(b => b.bossKind === enc.bossKind) : null;
-  if (_tbd) { res = [...(_tbd.res || [])]; weak = [...(_tbd.weak || [])]; }
+  // Prioriza res/weak já resolvidos por andar (enc.bossRes/enc.bossWeak definidos em towerEncounter)
+  const _tbd = (enc.bossRes || enc.bossWeak) ? null : (enc.bossKind ? Object.values(TOWER_BOSSES).find(b => b.bossKind === enc.bossKind) : null);
+  if (enc.bossRes || enc.bossWeak) { res = [...(enc.bossRes || [])]; weak = [...(enc.bossWeak || [])]; }
+  else if (_tbd) { res = [...(_tbd.res || [])]; weak = [...(_tbd.weak || [])]; }
   else if (boss && Math.random() < 0.7) {
     const poolE = [...ELEMENT_NAMES]; res.push(bossEl); poolE.splice(poolE.indexOf(bossEl), 1);
     const nRes = Math.floor(Math.random() * 2);
