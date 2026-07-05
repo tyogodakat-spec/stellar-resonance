@@ -3147,7 +3147,7 @@ function makeEnemy(idx, enc) {
     // Torre: HP dos chefes escala exponencialmente — andar 200 = exatamente 10.000.000 HP
     if (enc.isTower && boss) {
       const f = enc.floor || enc.level;
-      baseHp = f === 200 ? 10000000 : Math.round(316228 * Math.pow(10, (f - 50) / 100));
+      baseHp = f === 200 ? 5000000 : Math.round(158114 * Math.pow(10, (f - 50) / 100));
     } else if (boss) {
       baseHp *= (finalBoss ? 7.2 : weekly ? 8.5 : ascend ? 2.8 : enc.relicFarm ? 0.85 : 4.6);
     }
