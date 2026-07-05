@@ -87,13 +87,19 @@ const ROSTER = [
   // ---- Omegamon Zwart D (Limitado) ----
   mk({ id: "omegamon", name: "Omegamon Zwart D", title: "Digital Hazard · Defeat", element: "Virus", role: "shield", rarity: 5, avatar: "🛡️", hp: 1900, atk: 950, def: 740, spd: 99, energy: 130, cr: 10, cd: 58, er: 22, elemDmg: 0, tags: ["Vírus", "Guardião", "Tanque", "Corrosão"],
     skill: { basicMul: 100, omgBasic: true, skillMul: 120, omgSkill: true, ultMul: 150, omgUlt: true } }),
-];
+    // ---- The Wonder of You (Limitado) ----
+    mk({ id: "wonderofyou", name: "The Wonder of You", title: "A Calamidade Inevitável", element: "Chaos", role: "dps", rarity: 5, avatar: "🌑", hp: 1780, atk: 920, def: 590, spd: 109, energy: 130, cr: 14, cd: 62, tags: ["Chaos", "Calamidade", "DPS", "Debuffer"],
+      skill: { basicMul: 100, wooBasic: true, skillMul: 210, wooSkill: true, ultMul: 400, wooUlt: true } }),
+    // ---- Athena (Limitada) ----
+    mk({ id: "athena", name: "Athena", title: "A Autoridade das Sete Casas", element: "Holy", role: "healer", rarity: 5, avatar: "🕊️", hp: 1620, atk: 610, def: 560, spd: 103, energy: 140, cr: 6, cd: 46, er: 20, tags: ["Holy", "Suporte", "Cura", "Buffer"],
+      skill: { basicMul: 90, athBasic: true, skillMul: 130, athSkill: true, ultMul: 210, athUlt: true } }),
+  ];
 const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 // Tag primária de um personagem (usada como requisito de nó) e todas as tags únicas do elenco
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
 const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon"];     // limitados (pool 50/50): só via rate-up
-const FEATURED_LIMITEDS = ["ryoshu", "frieren", "soifon", "omegamon"]; // banners: Ryoshu+Frieren (Jul 5) -> Soi Fon -> Omegamon
+const FEATURED_LIMITEDS = ["ryoshu", "frieren", "soifon", "omegamon", "wonderofyou", "athena"]; // banners: Ryoshu+Frieren (Jul 5) -> Soi Fon -> Omegamon -> Wonder of You/Athena (05/07/2026 19h)
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
 const DEFAULT_FEATURED_CHAR = "ryoshu";
 
@@ -112,7 +118,9 @@ const WEAPONS = [
   { id: "glitch_apagamento",name: "Glitch de Apagamento", rarity: 5, role: "shield",   atk: 476, def: 440, omgWeapon: true,        passive: "Instabilidade Digital: +20% HP Maximo. Ao perder HP, +25% Dano de Virus por 2 turnos. Exclusivo (Omegamon): Corrupcao dobrada; Dano Verdadeiro +8 Energia." },
   { id: "lamina_matriarca",  name: "Lamina da Matriarca",    rarity: 5, role: "dps",    atk: 635, hp: 1085, def: 398, critRate: 12.0, passive: "Fio Condutor de Agonia: +12% CRIT Rate permanente. Exclusivo (Ryoshu): ao drenar HP dos aliados, acumula Gotas de Tinta (+15% Dano Fixo por gota, max 3, dura 2 turnos). No inicio de cada turno, cura todos os aliados em 6% do HP Max.", buff: { ryoInkDrops: true, allyHealPct: 6 } },
   { id: "cajado_fim_era",     name: "Cajado do Fim da Era",   rarity: 5, role: "aoe",   atk: 720, critDmg: 52.0, passive: "Heranca de Flamme: +24% de Dano Holy. Ao gerar Pontos de Elemento, recupera 10 de Energia. Apos usar magia com pontos, o proximo ataque do time causa dano extra (+15% ATK de Frieren).", buff: { frElemEnergy: 10, frTeamBonus: true } },
-  // ── ★★★★ 4-estrelas ────────────────────────────────────────────────────────
+  { id: "calamidade", name: "Calamidade", rarity: 5, role: "dps", atk: 940, critDmg: 58.0, cr: 6, passive: "A Calamidade Não Escolhe: +28% de Dano Bônus. Ao usar a Habilidade, o portador ignora 20% da DEF de todos os inimigos por 2 turnos.", buff: { wooWeapon: true, onSkill: { defPenAll: 20, turns: 2 } } },
+    { id: "cetro_autoridade_celestial", name: "Cetro da Autoridade Celestial", rarity: 5, role: "healer", atk: 700, energyRegen: 28.0, healBonus: 22, passive: "Autoridade das Sete Casas: +22% de Eficácia de Cura. Ao curar um aliado, ele recebe +10% de Dano Bônus por 2 turnos.", buff: { athWeapon: true, onHeal: { dmgBonus: 10, turns: 2 } } },
+    // ── ★★★★ 4-estrelas ────────────────────────────────────────────────────────
   { id: "shadowkunai", name: "Kunai Sombria",       rarity: 4, role: "dps",      atk: 528, critDmg: 38.4, defPen: 10,       passive: "Sombra Rastreadora: perfura 10% da DEF do inimigo em todos os ataques." },
   { id: "slingshot",   name: "Estilingue de Elite", rarity: 4, role: "debuffer", atk: 476, critDmg: 28.8, extraDefDown: 12, passive: "Mira de Precisao: debuffs reduzem +12% de DEF adicional." },
   { id: "healstaff",   name: "Bordao Curativo",     rarity: 4, role: "healer",   atk: 396, energyRegen: 22.0, ultEnergy: 10, passive: "Pulso Vital: a Ultimate concede +10 de Energia a todo o time." },
@@ -278,7 +286,9 @@ const PASSIVE = {
   uraraka: { name: "Quirk Zero Gravity · Levitação", desc: "Talento: ao usar o Ataque Básico, Uraraka avança sua própria barra de ação em 15%, agindo com mais frequência que a velocidade base indicaria. Além disso, aliados com o buff de Zero Gravity ativo têm a ação dos inimigos que atacam atrasada em 8%, criando uma vantagem de turno cumulativa para a equipe.", flag: "uraAdvance" },
   ryoshu:  { name: "Marionetes de Sangue · Fios da Agonia", desc: "Talento (P.I.P.): o dreno de Ryoshu ignora Escudos aliados, retirando o valor direto da barra vital. Se o aliado drenado possuía Escudo, Ryoshu absorve 30% do valor como ATK temporário. Os aliados não podem morrer pelo dreno (param em 1 HP). Para cada 1% de HP faltando nos aliados após o dreno, Ryoshu ignora 0,5% da DEF dos inimigos (máx 45%).", flag: "ryoTalent" },
   frieren: { name: "Percepção de Milênios · Grimório Oculto", desc: "Talento: Frieren é imune a qualquer debuff de lentidão ou atraso de turno. No início da batalha, ela esconde sua verdadeira força: o Aggro dela é reduzido a quase zero enquanto tiver menos de 50% de energia da Ultimate carregada. Além disso, começa a batalha com 2 Pontos de Elemento aleatórios já acumulados.", flag: "frTalent" },
-};
+    wonderofyou: { name: "A Calamidade Não Escolhe", desc: "Talento: sempre que Wonder of You causa dano CRÍTICO, todos os inimigos sofrem +8% de vulnerabilidade a dano por 2 turnos (acumula até 24%). Se um inimigo morrer sob efeito de qualquer debuff dela, ela recupera 15 de Energia imediatamente.", flag: "pWoo" },
+    athena: { name: "Eco da Justiça", desc: "Talento: sempre que Athena cura um aliado com a Habilidade, todos os outros aliados também recebem 50% daquele valor de cura. Se algum aliado estiver abaixo de 50% de HP no momento, o eco de cura nele é dobrado.", flag: "pAth" },
+  };
 // Corrente de Ressonância / Eidolons — 6 nós ÚNICOS por personagem (estilo HSR/WuWa)
 const A_SKILL = { amp: "skill", ampV: 25 }, A_ULT = { amp: "ult", ampV: 50 };
 const CONS = {
@@ -426,7 +436,24 @@ const CONS = {
     { name: "C5 · Chuva Devastadora", amp: "ult", ampV: 50, desc: "Eleva o nível da Ultimate e do Talento. +50% de dano na Chuva de Destroços." },
     { name: "C6 · Custo Zero", flag: "uraC6", desc: "Mudança de kit (capstone): o aliado com buff de Zero Gravity ativo recebe -10 pontos de custo fixo na própria Ultimate — combinações devastadoras tornam-se muito mais frequentes." },
   ],
-};
+
+    wonderofyou: [
+      { name: "E1 · O Convite Aceito", flag: "wooE1", desc: "Ao entrar em combate, Wonder of You já começa com 1 estágio da Calamidade ativo em todos os inimigos, sem precisar usar a Habilidade." },
+      { name: "E2 · A Confiança Cega", flag: "wooE2", desc: "A duração dos debuffs aplicados pela Habilidade e pela Ultimate aumenta em +1 turno. Cada debuff ativo em um inimigo aumenta o dano que Wonder of You causa nele em +4% (máx +16%)." },
+      { name: "E3 · A Traição Certa", ...A_SKILL, desc: "Eleva o nível da Habilidade Calamidade Inevitável em +2 (dano e potência dos debuffs aumentados)." },
+      { name: "E4 · O Abismo Pessoal", flag: "wooE4", desc: "Sempre que um inimigo morre enquanto afetado por um debuff dela, Wonder of You ganha +15% de ATK pelo resto do combate (acumula até 3 vezes)." },
+      { name: "E5 · Ponto de Quebra", ...A_ULT, desc: "Eleva o nível da Ultimate Lei da Calamidade Absoluta em +2 e reduz o custo de energia da Ultimate em 15%." },
+      { name: "E6 · O Último Pacto", flag: "wooE6", desc: "Mudança de kit (capstone): a Ultimate passa a aplicar TODOS os 4 debuffs exclusivos dela em dobro de intensidade e por 4 turnos. Enquanto qualquer inimigo estiver sob 3 ou mais debuffs simultâneos, Wonder of You ignora 30% da DEF de todos os alvos." },
+    ],
+    athena: [
+      { name: "C1 · Primeira Casa: Áries", flag: "athC1", desc: "Ao usar a Ultimate, a aliada escolhida entre as 7 Casas recebe também +20% de Taxa de CRIT por 2 turnos." },
+      { name: "C2 · Segunda Casa: Touro", flag: "athC2", desc: "A Habilidade Bênção das Sete Casas cura +15% a mais e aplica Armadura de Luz (−15% de dano recebido) por mais 1 turno." },
+      { name: "C3 · Terceira Casa: Gêmeos", ...A_SKILL, desc: "Eleva o nível da Habilidade Bênção das Sete Casas em +2." },
+      { name: "C4 · Quarta Casa: Câncer", flag: "athC4", desc: "Sempre que Athena cura um aliado com HP abaixo de 50%, esse aliado recebe +15 de Energia imediatamente." },
+      { name: "C5 · Quinta Casa: Leão", ...A_ULT, desc: "Eleva o nível da Ultimate Julgamento do Olimpo em +2 e reduz o custo de energia em 15%." },
+      { name: "C6 · Sétima Casa: Escorpião ao Peixes", flag: "athC6", desc: "Mudança de kit (capstone): a Ultimate agora concede o Modo Aprimorado (Lança de Luz) ao ataque básico de Athena por 3 turnos em vez de 2, e permite escolher DUAS aliadas das 7 Casas em vez de uma para receber a bênção completa." },
+    ],
+  };
 const GENERIC_CONS = [
   { name: "S1 · Despertar", stat: "atk", value: 8, desc: "ATK +8%." },
   { name: "S2 · Vínculo", stat: "critRate", value: 8, desc: "Taxa de CRIT +8%." },
@@ -456,7 +483,9 @@ const SKILL_NAMES = {
   nanami: ["Golpe de Cutelo", "Razão 7:3", "Colapso"],
   nami: ["Golpe com Clima-Tact", "Gust Sword", "Zeus Breeze Tempo"],
   uraraka: ["Combate de Gravidade", "Zero Gravity", "Chuva de Destroços"],
-};
+    wonderofyou: ["Toque do Fim", "Calamidade Inevitável", "Lei da Calamidade Absoluta"],
+    athena: ["Lança de Luz", "Bênção das Sete Casas", "Julgamento do Olimpo"],
+  };
 const skillNamesOf = (id) => SKILL_NAMES[id] || ["Ataque Básico", "Habilidade", "Ultimate"];
 
 /* ---------- RASTROS (estilo HSR) ---------- */
@@ -540,7 +569,17 @@ const TRACE_MAX = 10;
 const traceMul = (level) => 1 + (Math.max(1, level || 1) - 1) * 0.08; // +8% por nível
 const traceCost = (level) => 600 + (level - 1) * 450; // jade p/ subir do nível atual
 function specialTraces(def) {
-  if (def.id === "miyabi") return [
+    if (def.id === "wonderofyou") return [
+      { name: "A2 · Marca da Calamidade", desc: "Rastro Especial de combate: os inimigos afetados pelos debuffs exclusivos de Wonder of You (Miss, Vulnerabilidade, Atraso ou Redução de Atributos) recebem +12% de dano de todas as fontes enquanto durar qualquer um desses debuffs.", combat: "wooA2", cost: 2 },
+      { name: "A4 · Convite ao Vazio", desc: "Rastro Especial de combate: ao final de cada turno em que pelo menos um inimigo estiver sob 2 ou mais debuffs de Wonder of You simultâneos, ela recupera 10 de Energia extra.", combat: "wooA4", cost: 2 },
+      { name: "A6 · A Calamidade Absoluta", desc: "Rastro Especial de combate: se um inimigo atingir 0 debuffs exclusivos dela após tê-los perdido por expiração (não por remoção externa), Wonder of You causa uma explosão residual de 120% do ATK nesse alvo.", combat: "wooA6", cost: 3 },
+    ];
+    if (def.id === "athena") return [
+      { name: "Traço I · Guardiã das Casas", desc: "Rastro Especial de combate: ao curar um aliado com HP cheio, o excedente de cura vira um escudo equivalente a 50% do valor, durando 2 turnos.", combat: "athI", cost: 2 },
+      { name: "Traço II · Luz Consagrada", desc: "Rastro Especial de combate: enquanto estiver no Modo Aprimorado (após a Ultimate), os Ataques Básicos de Athena (Lança de Luz) também curam o time em 15% do dano causado.", combat: "athII", cost: 2 },
+      { name: "Traço III · Julgamento das Sete Casas", desc: "Rastro Especial de combate: a Ultimate de Athena concede +1 de Ponto de Ação (turno extra imediato) à aliada escolhida entre as Casas, uma vez por combate.", combat: "athIII", cost: 3 },
+    ];
+    if (def.id === "miyabi") return [
     { name: "Vestígio do Poder", desc: "Rastro Especial de combate · Postura Iaido: o Ataque Básico gera 1 PH. Ao acumular o limite de 3 PH, Miyabi entra na Postura Iaido — seu próximo Ataque Básico consome os 3 PH de uma vez para um corte que ignora 30% da DEF do alvo e avança a própria ação dela em 50% na linha do tempo.", combat: "miPostura", cost: 2 },
     { name: "Vestígio da Lâmina", desc: "Rastro Especial de combate · Cortes Residuais: quando Miyabi desfere um acerto CRÍTICO com a Habilidade ou o Ultimate, deixa Cortes Residuais congelados no alvo. Quando ela usa o Ataque Básico contra esse inimigo, os cortes ecoam causando 90% do ATK como dano Glacial extra e estendem a duração de quaisquer DoTs ativos nele em +1 turno.", combat: "miResidual", cost: 2 },
     { name: "Vestígio: Tempestade", desc: "Rastro Especial de combate · Detonação: ao atacar inimigos que já estejam sob efeito de DoT ou com a DEF reduzida, Miyabi consome instantaneamente esses debuffs para gerar uma explosão de 150% de Dano Glacial em área e aplica Congelamento por 1 turno.", combat: "miDetonate", cost: 3 },
@@ -964,6 +1003,20 @@ function Game({ email, isAdmin, onLogout }) {
   const [standardTickets, setStandardTickets] = useState(10);
   const [featuredChar, setFeaturedChar] = useState(DEFAULT_FEATURED_CHAR);
   const [featuredWeapon, setFeaturedWeapon] = useState(DEFAULT_FEATURED_WEAPON);
+    const [featuredChar2, setFeaturedChar2] = useState(null);
+    useEffect(() => {
+      const CUTOVER = new Date(2026, 6, 5, 19, 0, 0).getTime();
+      const applySchedule = () => {
+        if (Date.now() >= CUTOVER) {
+          setFeaturedChar("wonderofyou");
+          setFeaturedChar2("athena");
+          setFeaturedWeapon("calamidade");
+        }
+      };
+      applySchedule();
+      const iv = setInterval(applySchedule, 30000);
+      return () => clearInterval(iv);
+    }, []);
   const [pity, setPity] = useState({ char: 0, weapon: 0, standard: 0, guaranteeChar: false });
   const [pullHistory, setPullHistory] = useState([]);
   const [owned, setOwned] = useState([
@@ -998,6 +1051,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [mail3CharPicked, setMail3CharPicked] = useState(() => { try { return localStorage.getItem('sr_mail3_char_v1') || null; } catch { return null; } });
   const [relicMats, setRelicMats] = useState(0);
   const [rouletteCleared, setRouletteCleared] = useState(false);
+  const [nextRouletteClaimAt, setNextRouletteClaimAt] = useState(0);
   const [shopResetAt, setShopResetAt] = useState(0);
   const [shopPurchases, setShopPurchases] = useState({});
 
@@ -1020,7 +1074,7 @@ function Game({ email, isAdmin, onLogout }) {
       setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []);
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0); setBossRushCleared(Array.isArray(s.bossRushCleared) ? s.bossRushCleared : []);
       setDraftRoomCleared(s.draftRoomCleared ?? 0); setDraftClaimedGems(s.draftClaimedGems ?? 0); setDraftBoons(Array.isArray(s.draftBoons) ? s.draftBoons : []);
-      setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setMail2Claimed(prev => prev || (s.mail2Claimed ?? false)); setRelicMats(s.relicMats ?? 0); setRouletteCleared(s.rouletteCleared ?? false); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
+      setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setMail2Claimed(prev => prev || (s.mail2Claimed ?? false)); setRelicMats(s.relicMats ?? 0); setRouletteCleared(s.rouletteCleared ?? false); setNextRouletteClaimAt(s.nextRouletteClaimAt ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
       setMail3Claimed(prev => prev || (s.mail3Claimed ?? false)); if (s.mail3CharPicked) setMail3CharPicked(prev => prev || s.mail3CharPicked);
     }
     // Carrega fotos do localStorage imediatamente (sem depender do Firebase)
@@ -1054,8 +1108,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1177,7 +1231,7 @@ function Game({ email, isAdmin, onLogout }) {
           fives.push({ id, name: CHAR_MAP[id].name, banner: "Permanente" });
         } else {
           let id, won;
-          if (guar || Math.random() < 0.5) { id = featuredChar; guar = false; won = true; } // ganhou o 50/50
+          if (guar || Math.random() < 0.5) { id = (featuredChar2 && Math.random() < 0.5) ? featuredChar2 : featuredChar; guar = false; won = true; } // ganhou o 50/50 (banner duplo considera featuredChar2)
           else { id = pick(STANDARD_5); guar = true; won = false; } // perdeu: cai um padrão
           const dup = grantChar(id, ownedRef);
           results.push({ rarity: 5, kind, id, name: CHAR_MAP[id].name, dup, won });
@@ -1403,7 +1457,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mail2Claimed={mail2Claimed} setMail2Claimed={setMail2Claimed} mail3Claimed={mail3Claimed} setMail3Claimed={setMail3Claimed} mail3CharPicked={mail3CharPicked} setMail3CharPicked={setMail3CharPicked} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setOwned={setOwned} setOwnedWeapons={setOwnedWeapons} flash={flash} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
-              {screen === "roleta" && <RouletteEvent jade={jade} setJade={setJade} rouletteCleared={rouletteCleared} setRouletteCleared={setRouletteCleared} />}
+              {screen === "roleta" && <RouletteEvent jade={jade} setJade={setJade} rouletteCleared={rouletteCleared} setRouletteCleared={setRouletteCleared} nextRouletteClaimAt={nextRouletteClaimAt} setNextRouletteClaimAt={setNextRouletteClaimAt} />}
                 {screen === "roteiro" && <Roteiro />}
               {screen === "admin" && (isAdmin ? <Admin images={images} setImages={setImages} flash={flash} isAdmin={isAdmin} draftActive={draftActive} setDraftActive={setDraftActive} /> : <Empty msg="Acesso restrito ao administrador." />)}
             </>
@@ -3267,6 +3321,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   const afflicted = (defender.dots && defender.dots.length) || (defender.debuffs && defender.debuffs.some((d) => d.stat === "def" && d.value < 0));
   if ((f.dmgVsAfflicted || f.afflictedDmg) && afflicted) dmg *= 1.25;
   if (f.pShatter && defender.dots && defender.dots.length) dmg *= 1.3;
+    if (f.pWoo && attacker.id === "wonderofyou" && crit) { const cur = defender.debuffs.find((d) => d.name === "Vulnerabilidade da Calamidade"); if (cur) cur.value = Math.min(24, cur.value + 8); else defender.debuffs.push({ stat: "vuln", value: 8, turns: 2, name: "Vulnerabilidade da Calamidade" }); }
   const hpPct = defender.hp / defender.maxHp;
   if (f.lowHpDmg && hpPct < 0.5) dmg *= 1.25;
   if (f.pExecute && hpPct < 0.4) dmg *= 1.25;
@@ -3757,7 +3812,44 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           if (u.weapon?.id === "ferrao_borboleta") u.sfWpnCharges = Math.min(5, (u.sfWpnCharges || 0) + 1);
           msg = `🦋 ${u.name} usa Nigeki Kessatsu em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " (CRÍTICO!)" : ""}! [Ferrão da Morte] marcado por 3 turnos — follow-ups de aliados Eletro ativarão golpes de acompanhamento!`;
         }
-        else if (u.id === "omegamon" && sk.omgSkill) {
+        else if (u.id === "wonderofyou" && sk.wooSkill) {
+            const sMul = u.tSkill * ampS;
+            const wooEnemies = aliveEnemies(s);
+            let wooTot = 0, wooCrit = false;
+            const dur = 3 + (f.wooE2 ? 1 : 0);
+            wooEnemies.forEach((e) => {
+              const r = dealDamage(u, e, (sk.skillMul || 210) * sMul / Math.max(1, wooEnemies.length * 0.6), fx, { el: "Chaos" });
+              wooTot += r.dmg; if (r.crit) wooCrit = true;
+              if (!e.debuffs.some(d => d.name === "Miss da Calamidade")) e.debuffs.push({ stat: "missChance", value: 20, turns: dur, name: "Miss da Calamidade" });
+              if (!e.debuffs.some(d => d.name === "Vuln")) e.debuffs.push({ stat: "vuln", value: 18, turns: dur, name: "Vuln" });
+              if (!e.debuffs.some(d => d.name === "Atraso Fatal")) e.debuffs.push({ stat: "spd", value: -12, pct: true, turns: dur, name: "Atraso Fatal" });
+              if (!e.debuffs.some(d => d.name === "Colapso de Atributos")) e.debuffs.push({ stat: "def", value: -15, pct: true, turns: dur, name: "Colapso de Atributos" });
+            });
+            allies.forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Bênção da Calamidade"); a.buffs.push({ stat: "dmgBonus", value: 18, turns: dur, name: "Bênção da Calamidade" }); });
+            msg = `🌑 ${u.name} conjura Calamidade Inevitável em toda a área — ${wooTot} de Dano Chaos${wooCrit ? " (CRÍTICO!)" : ""}! 4 debuffs exclusivos aplicados por ${dur} turnos: Miss +20%, Vulnerabilidade +18%, VEL -12%, DEF -15%.`;
+          }
+          else if (u.id === "athena" && sk.athSkill) {
+            const target = ally || enemy; // no modo cura, escolhe aliado; fallback para dano se necessário
+            const healTargets = allies.filter((a) => a.alive);
+            const lowest = healTargets.slice().sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0];
+            if (u.athEnhanced) {
+              const aEnemies = aliveEnemies(s);
+              let aTot = 0, aCrit = false;
+              aEnemies.forEach((e) => { const r = dealDamage(u, e, (sk.skillMul || 130) * u.tSkill * ampS, fx, { el: "Holy" }); aTot += r.dmg; if (r.crit) aCrit = true; if (!e.debuffs.some(d => d.name === "HolyRES↓")) e.debuffs.push({ stat: "elemRes", value: -15, turns: 2, name: "HolyRES↓" }); });
+              msg = `🕊️ ${u.name} usa Lança de Luz (Aprimorada) em área — ${aTot} de Dano Holy${aCrit ? " (CRÍTICO!)" : ""}! RES Holy -15% por 2 turnos.`;
+            } else if (lowest) {
+              const healAmt = Math.round(effStat(u, "atk") * ((sk.skillMul || 130) / 100));
+              healUnit(lowest, healAmt, fx);
+              lowest.buffs = lowest.buffs.filter((b) => b.name !== "Armadura de Luz");
+              lowest.buffs.push({ stat: "dmgReduce", value: 15, turns: 2 + (f.athC2 ? 1 : 0), name: "Armadura de Luz" });
+              const echoTargets = healTargets.filter((a) => a.uid !== lowest.uid);
+              let echoAmt = Math.round(healAmt * 0.5);
+              echoTargets.forEach((a) => { const amt = (a.hp / a.maxHp) < 0.5 ? echoAmt * 2 : echoAmt; healUnit(a, amt, fx); });
+              if (f.athC4 && (lowest.hp / lowest.maxHp) < 0.5) lowest.energy = Math.min(lowest.energyMax, lowest.energy + 15);
+              msg = `🕊️ ${u.name} usa Bênção das Sete Casas em ${lowest.name} — cura ${healAmt} de HP e concede Armadura de Luz (-15% de dano recebido)! Eco da Justiça cura os demais aliados.`;
+            }
+          }
+          else if (u.id === "omegamon" && sk.omgSkill) {
           const sMul = u.tSkill * ampS;
           const red = 62 + (f.omgContagio ? 28 : 0); // 62% redirect + 28% extra resist
           allies.forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Protocolo"); a.buffs.push({ stat: "dmgReduce", value: red, turns: 2, name: "Protocolo" }); if (f.omgC2) a.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "Contágio+" }); });
@@ -3845,7 +3937,32 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
             if (!enemy.alive && f.sfC6) { u.energy = u.energyMax; u.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); }
             msg = `💥🦋 JAKUHŌ RAIKŌBEN! ${u.name} dispara o míssil definitivo em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " CRÍTICO!" : ""}!${fmMarks ? ` (+${fmMarks * 15}% de marcas!)` : ""} Zona de Condução por ${zonaTurns} turno(s)!${f.sfC4 ? " +10% CRIT ao time!" : ""}`;
           }
-        } else if (u.id === "ryoshu" && sk.ryoUlt) {
+        } else if (u.id === "wonderofyou" && sk.wooUlt) {
+            u.energy = enGain(5);
+            const wooEnemies = aliveEnemies(s);
+            let wooTot = 0, wooCrit = false;
+            const dur = (4 + (f.wooE6 ? 0 : 0)) - (f.wooE2 ? -1 : 0);
+            const durFinal = f.wooE6 ? 4 : dur;
+            const mulX = f.wooE6 ? 2 : 1;
+            wooEnemies.forEach((e) => {
+              const r = dealDamage(u, e, (sk.ultMul || 400) * (u.tUlt || 1) * ampU / Math.max(1, wooEnemies.length * 0.55), fx, { el: "Chaos" });
+              wooTot += r.dmg; if (r.crit) wooCrit = true;
+              e.debuffs.push({ stat: "missChance", value: 20 * mulX, turns: durFinal, name: "Miss da Calamidade" });
+              e.debuffs.push({ stat: "vuln", value: 18 * mulX, turns: durFinal, name: "Vuln" });
+              e.debuffs.push({ stat: "spd", value: -12 * mulX, pct: true, turns: durFinal, name: "Atraso Fatal" });
+              e.debuffs.push({ stat: "def", value: -15 * mulX, pct: true, turns: durFinal, name: "Colapso de Atributos" });
+            });
+            if (f.wooE1) u._wooRetal = { turns: 2 };
+            msg = `☠️ LEI DA CALAMIDADE ABSOLUTA! ${u.name} renova todos os debuffs em ${wooTot} de Dano Chaos${wooCrit ? " (CRÍTICO!)" : ""} por ${durFinal} turnos${f.wooE6 ? " (intensidade dobrada!)" : ""}!`;
+          } else if (u.id === "athena" && sk.athUlt) {
+            u.energy = enGain(5);
+            const houseTarget = (allies.filter(a => a.alive).sort((a, b) => (b.atk || 0) - (a.atk || 0))[0]) || u;
+            u.athEnhanced = true; u._athEnhancedTurns = f.athC6 ? 3 : 2;
+            allies.forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Bênção do Olimpo"); a.buffs.push({ stat: "spd", value: 30, pct: true, turns: 3, name: "Bênção do Olimpo" }); a.buffs.push({ stat: "def", value: 30, pct: true, turns: 3, name: "Bênção do Olimpo" }); a.buffs.push({ stat: "critRate", value: 20, turns: 3, name: "Bênção do Olimpo" }); });
+            if (f.athC1) houseTarget.buffs.push({ stat: "critRate", value: 20, turns: 2, name: "Casa Extra" });
+            if (f.athIII && !u._athIIIUsed) { houseTarget.av = 0; u._athIIIUsed = true; }
+            msg = `🕊️✨ JULGAMENTO DO OLIMPO! ${u.name} invoca as Sete Casas — todo o time recebe +30% VEL, +30% DEF e +20% CRIT por 3 turnos! ${u.name} entra no Modo Aprimorado (Lança de Luz) por ${u._athEnhancedTurns} turnos.`;
+          } else if (u.id === "ryoshu" && sk.ryoUlt) {
           u.energy = enGain(5);
           const sMul = u.tUlt * ampU;
           const drainable = allies.filter(a => a.uid !== u.uid && !a.isSummon && a.alive);
@@ -5394,7 +5511,7 @@ const MAIL_PKG = [
 /* ==========================================================================
    ROLETA RUSSA — O ÚLTIMO PACTO
    ========================================================================== */
-function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared }) {
+function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared, nextRouletteClaimAt, setNextRouletteClaimAt }) {
   const ST = [
     { b:1, reward:300,  name:"O Convite",       color:"#43A047", risk:"1 de 6",
       pre:  "...Então você aceitou o convite.\nCurioso. Ou desesperado?",
@@ -5450,7 +5567,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared }) {
       setBpos(positions); setFired(fc); setOk(!hit);
       if (hit) {
         setShake(true);
-        setTimeout(() => { setShake(false); setPhase('dead'); setRouletteCleared(true); }, 1100);
+        setTimeout(() => { setShake(false); setPhase('dead'); }, 1100);
       } else {
         setAccum(a => a + st.reward);
         setTimeout(() => setPhase('npc_talk'), 600);
@@ -5458,34 +5575,49 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared }) {
     }, 2500);
   }
 
-  function cashout() { setJade(j => j + accum); setRouletteCleared(true); setPhase('done'); }
+  function cashout() { setJade(j => j + accum); setPhase('done'); }
 
   function advance() {
-    if (stIdx >= 5) { setJade(j => j + accum); setRouletteCleared(true); setPhase('victory'); }
-    else { setStIdx(s => s + 1); setFired(null); setBpos([]); setOk(null); setPhase('between'); }
-  }
+      if (stIdx >= 5) {
+        const now = Date.now();
+        const COOLDOWN_MS = 2 * 24 * 60 * 60 * 1000;
+        if (now >= (nextRouletteClaimAt || 0)) {
+          setJade(j => j + 1200);
+          setNextRouletteClaimAt(now + COOLDOWN_MS);
+          setPhase('victory');
+        } else {
+          setPhase('victory_wait');
+        }
+      }
+      else { setStIdx(s => s + 1); setFired(null); setBpos([]); setOk(null); setPhase('between'); }
+    }
 
   // NPC dialogue
   const npcText = {
-    intro: "Sento-me aqui há eras.\nVocê é o enésimo a sentar nessa cadeira...\n\nMas o primeiro que ainda parece esperançoso.\n\nSeis câmaras. Seis estágios.\nA cada um que vencer, as apostas crescem.\nSe sobreviver a todos os seis... as 3.000 gemas são suas.\n\nSe morrer... você me deve uma história.",
+    intro: "Sento-me aqui há eras.\nVocê é o enésimo a sentar nessa cadeira...\n\nMas o primeiro que ainda parece esperançoso.\n\nSeis câmaras. Seis estágios.\nA cada um que vencer, as apostas crescem.\nSe sobreviver a todos os seis... 1200 gemas são suas — mas o Abismo só paga essa recompensa uma vez a cada 2 dias.\n\nSe morrer... você me deve uma história.",
     between: st.pre,
     spinning: st.pre,
     npc_talk: ok ? st.safe : st.dead,
     dead: st.dead,
     victory: ST[5].safe,
+    victory_wait: "Você venceu novamente...\nMas o Abismo só paga uma vez a cada dois dias.\n\nVolte quando o cooldown expirar para reclamar suas 1200 gemas.",
     done: "Uma escolha sábia.\nA saída existe para os prudentes.\n\n*acena levemente*\n\nAté a próxima vez, Sobrevivente.",
   }[phase] ?? st.pre;
 
   const npcEmoji = ['intro','between'].includes(phase) ? (stIdx >= 4 ? '🩸' : stIdx >= 2 ? '🎭' : '🤍')
     : phase === 'dead' ? '💀' : phase === 'victory' ? '🫡' : ok ? '👁️' : '💀';
 
-  if (rouletteCleared && phase === 'intro') return (
-    <div style={{ minHeight:320, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:16, textAlign:'center', padding:24 }}>
-      <div style={{ fontSize:52 }}>🎭</div>
-      <div style={{ ...ORB, fontSize:20, color: C.gold, fontWeight:900 }}>O ÚLTIMO PACTO</div>
-      <div style={{ color: C.mute, fontSize:13, lineHeight:1.7 }}>Você já enfrentou A Dama de Branco.<br/>O pacto foi honrado — ou o Abismo te reclamou.<br/>Este evento é único. Não há segunda chance.</div>
-    </div>
-  );
+  const rouletteOnCooldown = Date.now() < (nextRouletteClaimAt || 0);
+    if (rouletteOnCooldown && phase === 'intro') {
+      const hoursLeft = Math.max(0, Math.ceil(((nextRouletteClaimAt || 0) - Date.now()) / 3600000));
+      return (
+        <div style={{ minHeight:320, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:16, textAlign:'center', padding:24 }}>
+          <div style={{ fontSize:52 }}>🎭</div>
+          <div style={{ ...ORB, fontSize:20, color: C.gold, fontWeight:900 }}>O ÚLTIMO PACTO</div>
+          <div style={{ color: C.mute, fontSize:13, lineHeight:1.7 }}>Você já reclamou as 1200 gemas do pacto completo.<br/>O Abismo permite jogar novamente, mas a recompensa máxima renasce a cada 2 dias.<br/>Volte em ~{hoursLeft}h para reclamar novamente.</div>
+        </div>
+      );
+    }
 
   return (
     <div style={{ background:`radial-gradient(ellipse at 50% -15%, ${phase==='dead'?'#B71C1C':stColor}44, #060610 62%)`, minHeight:'85vh', paddingBottom:60 }}>
@@ -5503,7 +5635,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared }) {
 
       {/* HEADER */}
       <div style={{ padding:'20px 16px 6px', textAlign:'center' }}>
-        <div style={{ ...ORB, fontSize:10, letterSpacing:4, color:stColor, opacity:.85, marginBottom:4 }}>✦ EVENTO LIMITADO · UMA VEZ APENAS ✦</div>
+        <div style={{ ...ORB, fontSize:10, letterSpacing:4, color:stColor, opacity:.85, marginBottom:4 }}>✦ EVENTO PERMANENTE · RECOMPENSA A CADA 2 DIAS ✦</div>
         <div style={{ ...ORB, fontSize:24, fontWeight:900, color:'#f0f0f8', textShadow:`0 0 32px ${phase==='dead'?'#E53935':stColor}88`, letterSpacing:2 }}>O ÚLTIMO PACTO</div>
         <div style={{ fontSize:11, color:C.mute, marginTop:2 }}>com <span style={{ color:stColor, fontWeight:700 }}>A Dama de Branco</span></div>
 
@@ -5523,7 +5655,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared }) {
       </div>
 
       {/* CURRENT STAGE NAME */}
-      {phase !== 'dead' && phase !== 'victory' && phase !== 'done' && (
+      {phase !== 'dead' && phase !== 'victory' && phase !== 'victory_wait' && phase !== 'done' && (
         <div style={{ textAlign:'center', margin:'6px 0 2px' }}>
           <div style={{ ...ORB, fontSize:15, fontWeight:900, color:stColor, letterSpacing:1 }}>{st.name.toUpperCase()}</div>
         </div>
@@ -5541,7 +5673,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared }) {
       </div>
 
       {/* ─── CYLINDER ─── */}
-      {phase !== 'victory' && phase !== 'done' && (
+      {phase !== 'victory' && phase !== 'victory_wait' && phase !== 'done' && (
         <div style={{ display:'flex', flexDirection:'column', alignItems:'center', margin:'16px 0 8px', animation:shake?'rlShake 1.1s ease':'none' }}>
           {/* Pointer */}
           <div style={{ fontSize:20, color:stColor, lineHeight:1, marginBottom:3, filter:`drop-shadow(0 0 6px ${stColor}88)` }}>▼</div>
@@ -5604,7 +5736,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared }) {
       )}
 
       {/* ─── REWARD TRACKER ─── */}
-      {phase !== 'victory' && phase !== 'done' && phase !== 'dead' && (
+      {phase !== 'victory' && phase !== 'victory_wait' && phase !== 'done' && phase !== 'dead' && (
         <div style={{ margin:'4px 14px 12px', padding:'10px 14px', background:'rgba(6,6,18,.7)', border:`1px solid ${stColor}22`, borderRadius:12, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
           <div>
             <div style={{ fontSize:9, color:C.mute, ...ORB, letterSpacing:1 }}>ACUMULADO</div>
@@ -5613,7 +5745,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared }) {
           <div style={{ textAlign:'right' }}>
             <div style={{ fontSize:9, color:C.mute, ...ORB, letterSpacing:1 }}>SE VENCER ESTE ESTÁGIO</div>
             <div style={{ fontSize:13, color:'#aaa', fontWeight:700 }}>+{st.reward} → <span style={{ color:stColor }}>💎 {willEarn.toLocaleString()}</span></div>
-            <div style={{ fontSize:9, color:'#555', marginTop:2 }}>total possível: 💎 3.000</div>
+            <div style={{ fontSize:9, color:'#555', marginTop:2 }}>bônus por pacto completo: 💎 1200 (a cada 2 dias)</div>
           </div>
         </div>
       )}
@@ -5646,7 +5778,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared }) {
         {phase==='npc_talk' && (
           <>
             <Btn onClick={advance} style={{ background:`linear-gradient(135deg,${stColor}cc,${stColor}88)`, border:'none', color:'#fff', fontWeight:900, fontSize:15, padding:'13px 0' }}>
-              {stIdx>=5 ? '🏆  Receber 💎 3.000 — Você Venceu!' : `⚔️  Avançar → Estágio ${stIdx+2}/6`}
+              {stIdx>=5 ? (Date.now() >= (nextRouletteClaimAt || 0) ? '🏆  Receber 💎 1200 — Você Venceu!' : '🏆  Ver Resultado — Pacto Completo') : `⚔️  Avançar → Estágio ${stIdx+2}/6`}
             </Btn>
             {accum>0 && stIdx<5 && (
               <Btn kind="soft" onClick={cashout} style={{ fontSize:13, color:'#999', padding:'10px 0' }}>
@@ -5670,7 +5802,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared }) {
               </div>
             )}
             <div style={{ fontSize:11, color:'#444', fontStyle:'italic', marginTop:8 }}>
-              A Dama de Branco aguarda em silêncio.<br/>Este pacto não será renovado.
+              A Dama de Branco aguarda em silêncio.<br/>O pacto pode ser refeito a qualquer momento.
             </div>
           </div>
         )}
@@ -5681,8 +5813,18 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared }) {
             <div style={{ fontSize:52, marginBottom:10, filter:`drop-shadow(0 0 20px ${C.gold}66)` }}>🏆</div>
             <div style={{ ...ORB, fontSize:22, fontWeight:900, color:C.gold, textShadow:`0 0 30px ${C.gold}88`, letterSpacing:2, marginBottom:6 }}>SOBREVIVENTE DO ABISMO</div>
             <div style={{ fontSize:14, color:'#ddd', marginBottom:4 }}>Você honrou todos os 6 estágios do pacto.</div>
-            <div style={{ fontSize:28, fontWeight:900, color:stColor, margin:'12px 0', filter:`drop-shadow(0 0 16px ${stColor}88)` }}>💎 3.000 Gemas</div>
+            <div style={{ fontSize:28, fontWeight:900, color:stColor, margin:'12px 0', filter:`drop-shadow(0 0 16px ${stColor}88)` }}>💎 1200 Gemas</div>
             <div style={{ fontSize:11, color:'#666', fontStyle:'italic' }}>Em eras de jogo, você é o primeiro a vencer.<br/>A Dama de Branco abaixou a cabeça.</div>
+          </div>
+        )}
+
+        {/* VICTORY WAIT (cooldown active) */}
+        {phase==='victory_wait' && (
+          <div style={{ textAlign:'center', padding:'24px 8px', animation:'rlFade .5s ease' }}>
+            <div style={{ fontSize:52, marginBottom:10, filter:`drop-shadow(0 0 20px ${C.gold}66)` }}>⏳</div>
+            <div style={{ ...ORB, fontSize:20, fontWeight:900, color:C.gold, textShadow:`0 0 26px ${C.gold}77`, letterSpacing:2, marginBottom:6 }}>PACTO JÁ RECOMPENSADO</div>
+            <div style={{ fontSize:14, color:'#ddd', marginBottom:4 }}>Você venceu novamente, mas o Abismo só concede as 💎 1200 gemas uma vez a cada 2 dias.</div>
+            <div style={{ fontSize:11, color:'#666', fontStyle:'italic', marginTop:8 }}>Volte quando o cooldown expirar para reclamar a recompensa outra vez.</div>
           </div>
         )}
 
