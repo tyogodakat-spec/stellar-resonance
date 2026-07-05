@@ -4377,13 +4377,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
 
       const pickTarget = () => {
         if (taunter) return taunter;
-        const healer = targetable.find((h) => h.roleKey === "healer");
-        const carry = targetable.slice().sort((a, b) => effStat(b, "atk") - effStat(a, "atk"))[0];
-        const weakest = targetable.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
-        const r = Math.random();
-        if (healer && r < 0.32) return healer;        // negar sustento
-        if ((u.boss || r < 0.45)) return carry;        // ameaçar o DPS
-        return weakest;                                 // finalizar o mais fraco
+        // 25% por membro vivo — distribuição igual, sem preferência por healer ou carry
+        return targetable[Math.floor(Math.random() * targetable.length)];
       };
 
       // Tower Boss special mechanics
