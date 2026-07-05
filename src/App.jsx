@@ -76,8 +76,8 @@ const ROSTER = [
   mk({ id: "kiritsugu", name: "Kiritsugu", title: "Caçador de Magos", element: "Virus", role: "debuffer", rarity: 5, avatar: "🔫", hp: 1080, atk: 725, def: 450, spd: 108, energy: 120, cr: 8, cd: 56, tags: ["Vírus", "Debuffador", "Veneno"],
     skill: { basicMul: 100, skillMul: 205, skillDebuff: { defDown: 40, vuln: 22, turns: 3 }, skillDot: { type: "poison", mul: 70, turns: 3 }, ultMul: 365, ultDebuff: { vuln: 30, all: true, turns: 3 } } }),
   // ---- Ryoshu (Limitada) ----
-  mk({ id: "ryoshu", name: "Ryoshu", title: "Lamina da Casa das Aranhas", element: "Virus", role: "dps", rarity: 5, avatar: "🕸", hp: 1150, atk: 910, def: 480, spd: 110, energy: 120, cr: 15, cd: 62, elemDmg: 11.2, tags: ["Virus", "DPS", "Dreno de HP", "Execucao", "Dano Verdadeiro"],
-    skill: { basicMul: 100, ryoBasic: true, skillMul: 220, ryoSkill: true, aoe: true, ultMul: 450, ultAoe: true, ryoUlt: true } }),
+  mk({ id: "ryoshu", name: "Ryoshu", title: "Lamina da Casa das Aranhas", element: "Virus", role: "dps", rarity: 5, avatar: "🕸", hp: 1320, atk: 1060, def: 520, spd: 114, energy: 120, cr: 22, cd: 75, elemDmg: 20.0, tags: ["Virus", "DPS", "Dreno de HP", "Execucao", "Dano Verdadeiro"],
+    skill: { basicMul: 140, ryoBasic: true, skillMul: 300, ryoSkill: true, aoe: true, ultMul: 680, ultAoe: true, ryoUlt: true } }),
   // ---- Frieren (Limitada) ----
   mk({ id: "frieren", name: "Frieren", title: "Alem do Fim das Jornadas", element: "Holy", role: "aoe", rarity: 5, avatar: "🧝", hp: 1080, atk: 880, def: 430, spd: 103, energy: 110, cr: 8, cd: 58, elemDmg: 8.0, tags: ["Holy", "Maga", "AoE", "Elementalista", "Suporte"],
     skill: { basicMul: 90, frBasic: true, skillMul: 180, frSkill: true, ultMul: 500, frUlt: true } }),
@@ -85,7 +85,7 @@ const ROSTER = [
   mk({ id: "soifon", name: "Soi Fon", title: "Capitã da 2ª Divisão", element: "Vento", role: "dps", rarity: 5, avatar: "🦋", hp: 1040, atk: 740, def: 420, spd: 118, energy: 120, cr: 8, cd: 56, tags: ["Vento", "Follow-up", "Sub DPS", "Assassina"],
     skill: { basicMul: 100, sfBasic: true, skillMul: 160, sfSkill: true, ultMul: 350, sfUlt: true } }),
   // ---- Omegamon Zwart D (Limitado) ----
-  mk({ id: "omegamon", name: "Omegamon Zwart D", title: "Digital Hazard · Defeat", element: "Virus", role: "shield", rarity: 5, avatar: "🛡️", hp: 1480, atk: 700, def: 560, spd: 96, energy: 130, cr: 5, cd: 50, er: 15, elemDmg: 0, tags: ["Vírus", "Guardião", "Tanque", "Corrosão"],
+  mk({ id: "omegamon", name: "Omegamon Zwart D", title: "Digital Hazard · Defeat", element: "Virus", role: "shield", rarity: 5, avatar: "🛡️", hp: 1900, atk: 950, def: 740, spd: 99, energy: 130, cr: 10, cd: 58, er: 22, elemDmg: 0, tags: ["Vírus", "Guardião", "Tanque", "Corrosão"],
     skill: { basicMul: 100, omgBasic: true, skillMul: 120, omgSkill: true, ultMul: 150, omgUlt: true } }),
 ];
 const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
@@ -1022,7 +1022,7 @@ function Game({ email, isAdmin, onLogout }) {
   useEffect(() => {
     if (!loaded) return;
     const tick = () => {
-      const gained = Math.floor((Date.now() - lastStaminaRef.current) / (6 * 60 * 1000));
+      const gained = Math.floor((Date.now() - lastStaminaRef.current) / 5625); // 30 min full (320 stamina × 5625ms)
       if (gained > 0) { setStamina((v) => Math.min(320, v + gained)); setLastStamina(Date.now()); }
     };
     tick();
@@ -3302,7 +3302,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
     const heroes = team.map((id, i) => (ownedMap[id] ? makeUnit(ownedMap[id], "H", i) : null)).filter(Boolean);
     if (ally) heroes.push(makeAllyUnit(ally, heroes.length));
     { const omg = heroes.find((h) => h && h.id === "omegamon" && h.alive); // Talento: +25% HP máx ao time; arma Glitch: +20% ao portador
-      heroes.forEach((h) => { if (!h || h.isSummon) return; let mul = 1; if (h.weapon?.omgWeapon) mul *= 1.2; if (omg) mul *= 1.25; if (mul !== 1) { h.maxHp = Math.round(h.maxHp * mul); h.hp = h.maxHp; } });
+      heroes.forEach((h) => { if (!h || h.isSummon) return; let mul = 1; if (h.weapon?.omgWeapon) mul *= 1.2; if (omg) mul *= 1.42; if (mul !== 1) { h.maxHp = Math.round(h.maxHp * mul); h.hp = h.maxHp; } });
       if (omg) { omg.omgCharges = 0; omg._c6Used = false; } }
     if (heroes.some((h) => h.stFlags?.pTeamEnergy)) heroes.forEach((h) => { if (h.energyMax) h.energy = Math.min(h.energyMax, h.energy + 15); });
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
@@ -3465,7 +3465,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         // Ryoshu basic
         if (!miyDone && u.id === "ryoshu" && enemy) {
           const r = dealDamage(u, enemy, (sk.basicMul || 100) * u.tBasic * ampB, fx, { el: "Virus" });
-          if (!enemy.debuffs.some(d => d.name === "Teia")) enemy.debuffs.push({ stat: "spd", value: -5, pct: true, turns: 2, name: "Teia" });
+          if (!enemy.debuffs.some(d => d.name === "Teia")) enemy.debuffs.push({ stat: "spd", value: -10, pct: true, turns: 2, name: "Teia" }); else { const t = enemy.debuffs.find(d => d.name === "Teia"); if (t) t.value = Math.min(-20, t.value - 2); }
           msg = u.name + " usa F.P. em " + enemy.name + " — " + r.dmg + " de Dano Vírus" + (r.crit ? " (CRÍTICO!)" : "") + "! Teia: VEL -5%.";
           miyDone = true;
         }
@@ -3479,8 +3479,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         if (!miyDone && u.id === "omegamon" && enemy) {
           const r = dealDamage(u, enemy, (sk.basicMul || 100) * u.tBasic * ampB, fx, { el: "Virus" });
           let extra = "";
-          if ((enemy.dots || []).some((d) => d.type === "corrosao")) { const h = Math.round(u.maxHp * 0.05); healUnit(u, h, fx); extra = ` Recupera ${h} de HP (alvo corroído).`; }
-          if ((u.omgCharges || 0) >= 5 && enemy.alive) { enemy.buffs = []; const td = Math.round(u.maxHp * 0.20); enemy.hp -= td; if (enemy.hp <= 0) { enemy.hp = 0; enemy.alive = false; } fx.push({ uid: enemy.uid, txt: String(td), crit: true, id: Math.random(), el: "Virus" }); if (u.weapon?.omgWeapon) u.energy = Math.min(u.energyMax, u.energy + 8); u.omgCharges = 0; u.buffs = u.buffs.filter((b) => b.name !== "VirusDefeat"); extra += ` ☢️ Vírus Defeat MÁXIMO: remove buffs e causa ${td} de Dano Verdadeiro!`; }
+          if ((enemy.dots || []).some((d) => d.type === "corrosao")) { const h = Math.round(u.maxHp * 0.10); healUnit(u, h, fx); extra = ` Recupera ${h} de HP (alvo corroído).`; }
+          if ((u.omgCharges || 0) >= 5 && enemy.alive) { enemy.buffs = []; const td = Math.round(u.maxHp * 0.38); enemy.hp -= td; if (enemy.hp <= 0) { enemy.hp = 0; enemy.alive = false; } fx.push({ uid: enemy.uid, txt: String(td), crit: true, id: Math.random(), el: "Virus" }); if (u.weapon?.omgWeapon) u.energy = Math.min(u.energyMax, u.energy + 8); u.omgCharges = 0; u.buffs = u.buffs.filter((b) => b.name !== "VirusDefeat"); extra += ` ☢️ Vírus Defeat MÁXIMO: remove buffs e causa ${td} de Dano Verdadeiro!`; }
           msg = `🛡️ ${u.name} dispara Garuru Cannon em ${enemy.name} — ${r.dmg} de Dano de Vírus${r.crit ? " (CRÍTICO!)" : ""}.${extra}`;
           miyDone = true;
         }
@@ -3525,7 +3525,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           u._ryoTensao = tensao;
           if (u.weapon?.id === "lamina_matriarca") u._inkDrops = Math.min(3, (u._inkDrops || 0) + 1);
           const inkMul = u.weapon?.id === "lamina_matriarca" ? (1 + (u._inkDrops || 0) * 0.15) : 1;
-          const flatBase = Math.round(totalDrained * 1.50 * (1 + tensao * 0.10) * inkMul * (f.setTeia4 ? 1.30 : 1));
+          const flatBase = Math.round(totalDrained * 2.40 * (1 + tensao * 0.18) * inkMul * (f.setTeia4 ? 1.40 : 1));
           // Teia 4pc: +3% DEF pen per 10% missing HP on allies (max 30%)
           if (f.setTeia4) { let mp = 0; drainable.forEach(a => { mp += (1 - a.hp/a.maxHp)*100; }); u._teiaDefPen = Math.min(30, Math.round(mp/10)*3); } else u._teiaDefPen = 0;
           let tot = 0;
@@ -3559,9 +3559,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         }
         else if (u.id === "omegamon" && sk.omgSkill) {
           const sMul = u.tSkill * ampS;
-          const red = 50 + (f.omgContagio ? 20 : 0); // 50% redirect + 20% extra resist
-          allies.forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Protocolo"); a.buffs.push({ stat: "dmgReduce", value: red, turns: 2, name: "Protocolo" }); if (f.omgC2) a.buffs.push({ stat: "dmgBonus", value: 20, turns: 2, name: "Contágio+" }); });
-          const sh = Math.round(u.maxHp * 0.25); u.shield = Math.max(u.shield, sh);
+          const red = 62 + (f.omgContagio ? 28 : 0); // 62% redirect + 28% extra resist
+          allies.forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Protocolo"); a.buffs.push({ stat: "dmgReduce", value: red, turns: 2, name: "Protocolo" }); if (f.omgC2) a.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "Contágio+" }); });
+          const sh = Math.round(u.maxHp * 0.42); u.shield = Math.max(u.shield, sh);
           if (enemy) { const r = dealDamage(u, enemy, (sk.skillMul || 120) * sMul, fx, { el: "Virus" }); msg = `🛡️ ${u.name} ativa Protocolo de Infecção — o time recebe -${red}% de dano por 2 turnos e ele ergue um Escudo de Dados de ${sh}. Atinge ${enemy.name} por ${r.dmg} de Dano de Vírus${r.crit ? " (CRÍTICO!)" : ""}.`; }
           else msg = `🛡️ ${u.name} ativa Protocolo de Infecção — -${red}% de dano ao time e Escudo de Dados de ${sh}.`;
         }
@@ -3634,18 +3634,18 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           const drainable = allies.filter(a => a.uid !== u.uid && !a.isSummon && a.alive);
           let totalDrained = 0;
           drainable.forEach(a => {
-            const drained = Math.max(1, Math.round(a.maxHp * 0.25));
+            const drained = Math.max(1, Math.round(a.maxHp * 0.32));
             a.hp = Math.max(1, a.hp - drained);
             totalDrained += drained;
             fx.push({ uid: a.uid, txt: "-" + drained, dot: "drain", id: Math.random() });
-            if (f.ryoC2) { a.buffs = a.buffs.filter(b => b.name !== "FioGuia"); a.buffs.push({ stat: "dmgReduce", value: 30, turns: 1, name: "FioGuia" }); }
-            if (f.ryoC4 && a.buffs.length > 0) u.energy = Math.min(u.energyMax, u.energy + 5);
+            if (f.ryoC2) { a.buffs = a.buffs.filter(b => b.name !== "FioGuia"); a.buffs.push({ stat: "dmgReduce", value: 35, turns: 1, name: "FioGuia" }); }
+            if (f.ryoC4 && a.buffs.length > 0) u.energy = Math.min(u.energyMax, u.energy + 8);
           });
           if (u.weapon?.id === "lamina_matriarca") u._inkDrops = Math.min(3, (u._inkDrops || 0) + 1);
           const inkMul2 = u.weapon?.id === "lamina_matriarca" ? (1 + (u._inkDrops || 0) * 0.15) : 1;
           let defPenBonus = 0;
-          if (f.ryoAAM) { let mp = 0; drainable.forEach(a => { mp += (1 - a.hp / a.maxHp) * 100; }); defPenBonus = Math.min(45, mp * 0.5); }
-          const flatBase2 = Math.round(totalDrained * 2.50 * inkMul2 * (f.setTeia4 ? 1.30 : 1));
+          if (f.ryoAAM) { let mp = 0; drainable.forEach(a => { mp += (1 - a.hp / a.maxHp) * 100; }); defPenBonus = Math.min(65, mp * 0.6); }
+          const flatBase2 = Math.round(totalDrained * 4.20 * inkMul2 * (f.setTeia4 ? 1.45 : 1));
           if (f.setTeia4) { let mp2 = 0; drainable.forEach(a => { mp2 += (1-a.hp/a.maxHp)*100; }); defPenBonus = Math.max(defPenBonus, Math.min(30, Math.round(mp2/10)*3)); }
           let tot2 = 0;
           aliveEnemies(s).forEach(e => {
@@ -3661,7 +3661,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
             // Execute non-boss
             if (!isBoss && e.alive && e.hp < totalDrained) { e.hp = 0; e.alive = false; fx.push({ uid: e.uid, txt: "DELETADO!", crit: true, id: Math.random(), el: "Virus" }); }
             // Boss true damage burst
-            if (isBoss) { const tdMul = f.ryoC6 ? 6.0 : 3.0; const td = Math.round(totalDrained * tdMul); e.hp = Math.max(1, e.hp - td); fx.push({ uid: e.uid, txt: td + "!", crit: true, id: Math.random(), el: "Virus" }); tot2 += td; }
+            if (isBoss) { const tdMul = f.ryoC6 ? 10.0 : 6.0; const td = Math.round(totalDrained * tdMul); e.hp = Math.max(1, e.hp - td); fx.push({ uid: e.uid, txt: td + "!", crit: true, id: Math.random(), el: "Virus" }); tot2 += td; }
           });
           const allLow = drainable.every(a => a.hp / a.maxHp < 0.5);
           if (f.ryoC6 && allLow) { u.av = 0.01; }
@@ -3744,10 +3744,10 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           let tot = 0;
           aliveEnemies(s).forEach((e) => {
             const r = dealDamage(u, e, baseMul, fx, { el: "Virus" });
-            const extraHp = Math.max(1, Math.round(u.maxHp * 0.15 * (1 + vulnOf(e) / 100)));
+            const extraHp = Math.max(1, Math.round(u.maxHp * 0.30 * (1 + vulnOf(e) / 100)));
             e.hp -= extraHp; if (e.hp <= 0) { e.hp = 0; e.alive = false; } fx.push({ uid: e.uid, txt: String(extraHp), id: Math.random(), el: "Virus" });
             tot += r.dmg + extraHp;
-            if (e.alive) { e.dots = (e.dots || []).filter((d) => d.type !== "corrosao"); e.dots.push({ type: "corrosao", dmg: Math.max(1, Math.round(effStat(u, "atk") * 0.30 * dblCorr)), turns: 2, healMul: f.omgReescrita ? 1.25 : 1 }); if (f.omgC4) e.debuffs.push({ stat: "spd", value: -15, pct: true, turns: 1, name: "Lentidão" }); }
+            if (e.alive) { e.dots = (e.dots || []).filter((d) => d.type !== "corrosao"); e.dots.push({ type: "corrosao", dmg: Math.max(1, Math.round(effStat(u, "atk") * 0.60 * dblCorr)), turns: 3, healMul: f.omgReescrita ? 1.35 : 1 }); if (f.omgC4) e.debuffs.push({ stat: "spd", value: -15, pct: true, turns: 1, name: "Lentidão" }); }
           });
           if (f.omgC6) { s.heroes.forEach((a) => { if (!a.alive && !a.isSummon) { a.alive = true; a.hp = Math.round(a.maxHp * 0.30); a.shield = 0; a.dots = []; fx.push({ uid: a.uid, txt: "REVIVE", heal: true, id: Math.random() }); } }); }
           msg = `💥🛡️ ALL DELETE! ${u.name} consome ${cost} do próprio HP e arrasa todos os inimigos — ${tot} de Dano de Vírus em área! Aplica [Corrosão] (dano contínuo que cura o time).${f.omgC4 ? " Inimigos ficam lentos!" : ""}${f.omgC6 ? " Revive aliados caídos!" : ""}`;
