@@ -414,7 +414,7 @@ const CONS = {
     { name: "C1 · Despertar da Preguiça", flag: "frC1", desc: "Frieren entra na batalha já com 2 Pontos de Elemento gerados aleatoriamente, permitindo usar opções avançadas do Supremo no primeiro turno." },
     { name: "C2 · Zoltraak Aprimorado (Dispersão)", flag: "frC2", desc: "Quando Frieren escolhe Zoltraak no Supremo, o feixe atravessa o alvo principal e atinge inimigos adjacentes causando 50% do dano." },
     { name: "C3 · Grimório Antigo", amp: "skill", ampV: 25, desc: "Nível da Habilidade +2 / Nível do Básico +1. +25% de dano no Grimório do Colecionador." },
-    { name: "C4 · Aura Oculta Repressora", flag: "frC4", desc: "Enquanto Frieren estiver em campo com energia da Suprema cheia (100%), a DEF de todos os inimigos é reduzida em 20% (aprimorado de 15%). Além disso, a cada turno nesse estado, Frieren regenera +8 de Energia passivamente, acelerando o próximo ciclo da Suprema." },
+    { name: "C4 · Aura Oculta Repressora", flag: "frC4", desc: "Passivo permanente: Frieren ganha +30% de Taxa de Regeneração de Energia (multiplica todos os ganhos de energia por ×1.30). Enquanto a Suprema estiver cheia (100%), a DEF de todos os inimigos é reduzida em 20% e Frieren regenera +8 de Energia adicional por turno, acelerando drasticamente o próximo ciclo." },
     { name: "C5 · Compressão de Mana Milenar", amp: "ult", ampV: 50, desc: "Nível do Supremo +2 / Nível do Talento +2. +50% de dano em Descompressão de Mana." },
     { name: "C6 · A Maga Que Derrotou o Rei Demônio", flag: "frC6", desc: "Zoltraak causa Morte Instantânea em inimigos comuns/elites com menos de 30% HP. Contra Chefes, ignora 100% da DEF e reduz resistência Holy a zero até o fim da batalha." },
   ],
@@ -3486,6 +3486,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       heroes.forEach((h) => { if (!h || h.isSummon) return; let mul = 1; if (h.weapon?.omgWeapon) mul *= 1.2; if (omg) mul *= 1.42; if (mul !== 1) { h.maxHp = Math.round(h.maxHp * mul); h.hp = h.maxHp; } });
       if (omg) { omg.omgCharges = 0; omg._c6Used = false; } }
     if (heroes.some((h) => h.stFlags?.pTeamEnergy)) heroes.forEach((h) => { if (h.energyMax) h.energy = Math.min(h.energyMax, h.energy + 15); });
+    { const fr = heroes.find((h) => h.id === "frieren" && h.stFlags?.frC4); if (fr) { fr.buffs.push({ stat: "energyRegen", value: 30, pct: false, turns: 99, name: "CicloMilenar" }); } }
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
     const totalWaves = Math.max(1, Math.min(8, encounter.waves || 1));
     return { heroes, enemies, sp: 3, wave: 1, totalWaves, heroTurns: 0, enc: encounter, log: [totalWaves > 1 ? `⚔️ Dungeon de ${totalWaves} ondas — sobreviva com um só fôlego!` : "⚔️ A batalha começa! A ressonância flui…"], turn: null, over: false, win: false, fx: [], choice: null, summonFx: null };
