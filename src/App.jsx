@@ -1065,6 +1065,11 @@ function Game({ email, isAdmin, onLogout }) {
   const [nextRouletteClaimAt, setNextRouletteClaimAt] = useState(0);
   const [shopResetAt, setShopResetAt] = useState(0);
   const [shopPurchases, setShopPurchases] = useState({});
+  // ESPIRAL (2-times, fraquezas aleatórias por semana, reset 7 dias)
+  const [espiralClearedAt, setEspiralClearedAt] = useState({}); // { normal:ts, hard:ts, extreme:ts, apex:ts }
+  const [espiralTeamA, setEspiralTeamA] = useState([]);
+  const [espiralTeamB, setEspiralTeamB] = useState([]);
+  const [espiralPending, setEspiralPending] = useState(null); // { diff, half, weakA, weakB }
 
   const ownedMap = useMemo(() => Object.fromEntries(owned.map((o) => [o.id, o])), [owned]);
   const flash = (msg, color) => { setToast({ msg, color: color || C.gold }); setTimeout(() => setToast(null), 2200); };
@@ -1087,6 +1092,7 @@ function Game({ email, isAdmin, onLogout }) {
       setDraftRoomCleared(s.draftRoomCleared ?? 0); setDraftClaimedGems(s.draftClaimedGems ?? 0); setDraftBoons(Array.isArray(s.draftBoons) ? s.draftBoons : []);
       setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setMail2Claimed(prev => prev || (s.mail2Claimed ?? false)); setRelicMats(s.relicMats ?? 0); setRouletteCleared(s.rouletteCleared ?? false); setNextRouletteClaimAt(s.nextRouletteClaimAt ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
       setMail3Claimed(prev => prev || (s.mail3Claimed ?? false)); if (s.mail3CharPicked) setMail3CharPicked(prev => prev || s.mail3CharPicked);
+      if (s.espiralClearedAt) setEspiralClearedAt(s.espiralClearedAt);
     }
     // Carrega fotos do localStorage imediatamente (sem depender do Firebase)
     try { const li = _ls.get("sr_shared_images"); if (li) { const parsed = JSON.parse(li); if (parsed && typeof parsed === "object") setImages(parsed); } } catch {}
@@ -1119,8 +1125,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1242,7 +1248,7 @@ function Game({ email, isAdmin, onLogout }) {
           fives.push({ id, name: CHAR_MAP[id].name, banner: "Permanente" });
         } else {
           let id, won;
-          if (guar || Math.random() < 0.5) { id = (featuredChar2 && Math.random() < 0.5) ? featuredChar2 : featuredChar; guar = false; won = true; } // ganhou o 50/50 (banner duplo considera featuredChar2)
+          if (guar || Math.random() < 0.5) { id = featuredChar; guar = false; won = true; } // ganhou o 50/50: sempre o personagem em destaque
           else { id = pick(STANDARD_5); guar = true; won = false; } // perdeu: cai um padrão
           const dup = grantChar(id, ownedRef);
           results.push({ rarity: 5, kind, id, name: CHAR_MAP[id].name, dup, won });
@@ -1317,6 +1323,33 @@ function Game({ email, isAdmin, onLogout }) {
     const draftOwnedMap = Object.fromEntries(draftOwnedEntries.map((o) => [o.id, o]));
     setBattle({ context: "draft", draftRoom: roomIdx, customTeam: draftTeamIds, draftOwnedMap, encounter: { level: lv, count: isBoss ? 1 : 2, boss: isBoss, teamPower: teamPower(), bossName: isBoss ? (roomIdx === 6 ? "Soberano da Catacumba" : "Guardião da Catacumba") : null, bossKind: isBoss ? "guardian" : null }, ally: null });
   }
+  // Gera fraquezas elementais da semana — seed baseada no número da semana ISO
+  function espiralWeekSeed() {
+    const now = new Date();
+    const jan1 = new Date(now.getFullYear(), 0, 1);
+    const week = Math.floor((now - jan1) / (7 * 24 * 3600 * 1000));
+    return now.getFullYear() * 100 + week;
+  }
+  function espiralWeaknesses(seed) {
+    const pool = [...ELEMENT_NAMES];
+    const rng = (n) => { let x = Math.sin(seed + n) * 10000; return x - Math.floor(x); };
+    const a = pool.splice(Math.floor(rng(1) * pool.length), 1)[0];
+    const b = pool.splice(Math.floor(rng(2) * pool.length), 1)[0];
+    const c = pool.splice(Math.floor(rng(3) * pool.length), 1)[0];
+    const d = pool.splice(Math.floor(rng(4) * pool.length), 1)[0];
+    return { weakA: [a, b], weakB: [c, d] };
+  }
+  function startEspiral(diff, teamA, teamB) {
+    const seed = espiralWeekSeed();
+    const { weakA, weakB } = espiralWeaknesses(seed);
+    const diffCfg = { normal: { level: 60, waves: 1, gem: 2000 }, hard: { level: 75, waves: 2, gem: 4000 }, extreme: { level: 85, waves: 3, gem: 6000 }, apex: { level: 95, waves: 4, gem: 10000 } }[diff];
+    if (!diffCfg) return;
+    const halfOwned = Object.fromEntries([...teamA, ...teamB].map(id => [id, ownedMap[id] || normChar({ id, level: 70 })]));
+    // Começa pela metade A (Time A)
+    setEspiralPending({ diff, half: 1, weakA, weakB, diffCfg, teamA, teamB });
+    setBattle({ context: "espiral", espiralDiff: diff, espiralHalf: 1, customTeam: teamA, draftOwnedMap: halfOwned,
+      encounter: { level: diffCfg.level, count: 3, boss: true, waves: diffCfg.waves, bossName: "Guardião da Espiral", bossKind: "guardian", teamPower: teamPower(), espiral: true, bossWeak: weakA }, ally: null });
+  }
   function startRelicDungeon(tier) {
     const cost = tier === 2 ? 60 : tier === 1 ? 45 : 30;
     if (stamina < cost) { flash("Stamina insuficiente (precisa " + cost + ")", C.bad); return; }
@@ -1388,6 +1421,28 @@ function Game({ email, isAdmin, onLogout }) {
         setJade((j) => j + rw);
         flash(`Sala ${(b.draftRoom || 0) + 1} conquistada! +${rw}💎`, C.good);
       } else { flash("Derrotado na Catacumba do Rascunho…", C.bad); }
+    } else if (b.context === "espiral") {
+      const pend = espiralPending;
+      if (!pend) return;
+      if (!result.win) { setEspiralPending(null); flash("Espiral — derrota. Tente novamente!", C.bad); return; }
+      if (b.espiralHalf === 1) {
+        // Time A venceu — agora Time B entra (metade B)
+        const { diff, weakB, diffCfg, teamA, teamB } = pend;
+        const halfOwned = Object.fromEntries([...teamA, ...teamB].map(id => [id, ownedMap[id] || normChar({ id, level: 70 })]));
+        setEspiralPending({ ...pend, half: 2 });
+        setBattle({ context: "espiral", espiralDiff: diff, espiralHalf: 2, customTeam: teamB, draftOwnedMap: halfOwned,
+          encounter: { level: diffCfg.level, count: 3, boss: true, waves: diffCfg.waves, bossName: "Soberano da Espiral", bossKind: "guardian", teamPower: teamPower(), espiral: true, bossWeak: weakB }, ally: null });
+      } else {
+        // Ambos os times venceram — clear completo
+        const { diff, diffCfg } = pend;
+        setEspiralPending(null);
+        const weekKey = espiralWeekSeed();
+        const prev = espiralClearedAt[diff + "_" + weekKey] || 0;
+        const reward = prev === 0 ? diffCfg.gem : Math.round(diffCfg.gem * 0.1);
+        setJade(j => j + reward);
+        setEspiralClearedAt(c => ({ ...c, [diff + "_" + weekKey]: Date.now() }));
+        flash(`🌀 ESPIRAL ${diff.toUpperCase()} concluída! +${reward}💎${prev === 0 ? " (primeira vez esta semana!)" : " (replay — 10%)"}`, C.gold);
+      }
     } else if (b.context === "coop") {
       if (b.onResolve) b.onResolve(result);
     } else if (b.context === "bossrush") {
@@ -1415,7 +1470,7 @@ function Game({ email, isAdmin, onLogout }) {
 
   if (!loaded) return <div style={{ minHeight: "100vh", background: C.bg0, color: C.mute, display: "flex", alignItems: "center", justifyContent: "center" }}>Sincronizando ressonância…</div>;
 
-  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["roleta", "Pacto", "🎰"], ["roteiro", "Roteiro", "📖"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
+  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["roleta", "Pacto", "🎰"], ["espiral", "Espiral", "🌀"], ["roteiro", "Roteiro", "📖"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
 
   const needsNick = loaded && (!playerName || playerName === "Pioneiro");
 
@@ -1469,6 +1524,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
               {screen === "roleta" && <RouletteEvent jade={jade} setJade={setJade} rouletteCleared={rouletteCleared} setRouletteCleared={setRouletteCleared} nextRouletteClaimAt={nextRouletteClaimAt} setNextRouletteClaimAt={setNextRouletteClaimAt} />}
+              {screen === "espiral" && <Espiral owned={owned} team={team} ownedMap={ownedMap} espiralClearedAt={espiralClearedAt} espiralWeekSeed={espiralWeekSeed} espiralWeaknesses={espiralWeaknesses} startEspiral={startEspiral} images={images} flash={flash} />}
                 {screen === "roteiro" && <Roteiro />}
               {screen === "admin" && (isAdmin ? <Admin images={images} setImages={setImages} flash={flash} isAdmin={isAdmin} draftActive={draftActive} setDraftActive={setDraftActive} /> : <Empty msg="Acesso restrito ao administrador." />)}
             </>
@@ -3311,9 +3367,9 @@ function makeEnemy(idx, enc) {
     }
   }
   const hp = Math.round(baseHp);
-  const atkReduce = enc.relicFarm ? 0.70 : enc.ascend ? 0.45 : 1.0;
+  const atkReduce = enc.relicFarm ? 0.70 : enc.ascend ? 0.45 : enc.isTower ? 0.75 : 1.0;
   // Dungeons e Torre escalam o ATK para garantir dano de 500–4.000 por hit nos heróis
-  const dungeonAtkMult = enc.tagDungeon ? 1.62 : enc.isTower ? Math.min(2.5, 1.0 + Math.max(0, (enc.floor || enc.level || 50) - 50) / 100) : 1.8;
+  const dungeonAtkMult = enc.tagDungeon ? 1.62 : enc.isTower ? Math.min(1.8, 1.0 + Math.max(0, (enc.floor || enc.level || 50) - 50) / 120) : enc.espiral ? 1.5 : 1.8;
   const atk = Math.round((power * 0.06 + lvl * 4 + 80) * (boss ? 1.35 : 1) * atkReduce * dungeonAtkMult);
   const def = Math.round(power * 0.035 + lvl * 3 + (boss ? power * 0.03 : 0));
   const spd = 95 + idx * 3 + (boss ? 4 : 0);
@@ -3649,6 +3705,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       if (omg) { omg.omgCharges = 0; omg._c6Used = false; } }
     if (heroes.some((h) => h.stFlags?.pTeamEnergy)) heroes.forEach((h) => { if (h.energyMax) h.energy = Math.min(h.energyMax, h.energy + 15); });
     { const fr = heroes.find((h) => h.id === "frieren" && h.stFlags?.frC4); if (fr) { fr.buffs.push({ stat: "energyRegen", value: 30, pct: false, turns: 99, name: "CicloMilenar" }); } }
+    { const fr = heroes.find((h) => h.id === "frieren" && h.stFlags?.frC1); if (fr) { fr._frPoints = 2; } } // C1: começa com 2 Pontos de Elemento
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
     const totalWaves = Math.max(1, Math.min(8, encounter.waves || 1));
     return { heroes, enemies, sp: 3, wave: 1, totalWaves, heroTurns: 0, enc: encounter, log: [totalWaves > 1 ? `⚔️ Dungeon de ${totalWaves} ondas — sobreviva com um só fôlego!` : "⚔️ A batalha começa! A ressonância flui…"], turn: null, over: false, win: false, fx: [], choice: null, summonFx: null };
@@ -4420,7 +4477,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         if (!u.su10shadows && hpPct <= 0.25) { u.su10shadows = true; u.base = { ...u.base, atk: Math.round(u.base.atk * 1.6), def: Math.round(u.base.def * 1.3) }; pushLog(s, `👁️ SUKUNA invoca as 10 Sombras! ATK×1.6, DEF×1.3!`); }
         if (u.actCount % 5 === 0 && u.actCount > 0) {
           allAllies.forEach(h => { h.debuffs.push({ stat: "vuln", value: 30, turns: 3, name: "Domínio" }); h.debuffs.push({ stat: "def", value: -30, pct: true, turns: 3, name: "Malrep" }); });
-          let tot2 = 0; allAllies.forEach(h => { tot2 += dealDamage(u, h, 150 * rage, fx).dmg; }); pushLog(s, `🔴 SUKUNA expande o DOMÍNIO AMALDIÇOADO! ${tot2} dano em todos + 30% VULN + -30% DEF por 3 turnos!`); s = checkEnd(s); s.turn = null; return s;
+          let tot2 = 0; allAllies.forEach(h => { tot2 += dealDamage(u, h, 80 * rage, fx).dmg; }); pushLog(s, `🔴 SUKUNA expande o DOMÍNIO AMALDIÇOADO! ${tot2} dano em todos + 30% VULN + -30% DEF por 3 turnos!`); s = checkEnd(s); s.turn = null; return s;
         }
       }
       if (u.alive && u.boss && u.bossKind === "godkaiba") {
@@ -4433,18 +4490,34 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       // BOSS RUSH MECHANICS
       if (u.alive && u.boss && u.bossKind === "byakuya") {
         const bankai = u.hp / u.maxHp < 0.5;
+        // Fase 3: abaixo de 20% HP — Dispersão Final
+        if (!u._byFinalPhase && u.hp / u.maxHp < 0.20) {
+          u._byFinalPhase = true;
+          u.base = { ...u.base, atk: Math.round(u.base.atk * 1.35) };
+          u.res = [...(u.res || []), "Eletro"];
+          pushLog(s, "🌸 BYAKUYA — DISPERSÃO FINAL! As pétalas de gelo se tornam poeira de diamante. ATK×1.35, resiste Eletro!");
+        }
         if (u.actCount % 3 === 0 && u.actCount > 0) {
+          // Senbonzakura consome Marcas de Pétala acumuladas nos alvos
           let tot = 0;
           allAllies.forEach(function(h) {
+            const petalStacks = (h._byPetal || 0);
             const hasBleed = (h.dots||[]).some(function(d){return d.type==="bleed";});
-            const mul = 130 * rage * (bankai ? 1.35 : 1) * (hasBleed ? 1.3 : 1);
+            const petalBonus = 1 + 0.25 * petalStacks;
+            const mul = 130 * rage * (bankai ? 1.35 : 1) * (hasBleed ? 1.3 : 1) * petalBonus;
             tot += dealDamage(u, h, mul, fx, { el: "Holy" }).dmg;
             if (bankai && h.alive) h.debuffs.push({ stat: "def", value: -20, pct: true, turns: 2, name: "Petala" });
+            h._byPetal = 0; // consome as marcas
           });
-          msg = "SENBONZAKURA KAGEYOSHI! " + u.name + " desencadeia mil petalas - " + tot + " de dano total" + (bankai ? " (BANKAI!)" : "") + "!";
+          msg = "🌸 SENBONZAKURA KAGEYOSHI! " + u.name + " desencadeia mil pétalas — " + tot + " de dano total" + (bankai ? " (BANKAI!)" : "") + "! Marcas consumidas!";
         } else if (!msg) {
           const t = pickTarget();
-          if (t) { const r = dealDamage(u, t, 110 * rage, fx, { el: "Holy" }); msg = u.name + " ataca " + t.name + " com petalas - " + r.dmg + (r.crit ? " (CRITICO!)" : "") + "."; }
+          if (t) {
+            const r = dealDamage(u, t, 110 * rage, fx, { el: "Holy" });
+            t._byPetal = Math.min(3, (t._byPetal || 0) + 1); // aplica Marca de Pétala
+            if (bankai && t.alive) t.dots.push({ type: "bleed", dmg: Math.round(effStat(u, "atk") * 0.18), turns: 2 });
+            msg = u.name + " marca " + t.name + " com uma Pétala (" + (t._byPetal) + "/3) — " + r.dmg + (r.crit ? " CRÍTICO!" : "") + (bankai ? " [Sangramento]" : "") + ".";
+          }
         }
       } else if (u.alive && u.boss && u.bossKind === "sukuna") {
         const hpPctS = u.hp / u.maxHp;
@@ -4469,16 +4542,23 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         if (!u._frierenForbidden && u.hp / u.maxHp < 0.30) {
           u._frierenForbidden = true;
           allAllies.forEach(function(h){ if (h.alive) h.dots.push({ type: "freeze", dmg: Math.round(effStat(u,"atk")*0.25), turns: 2 }); });
-          const heal = Math.round(u.maxHp * 0.05); u.hp = Math.min(u.maxHp, u.hp + heal);
-          pushLog(s, "MAGIA PROIBIDA! Frieren recupera " + heal + " HP e congela todos os aliados!");
+          const heal = Math.round(u.maxHp * 0.08); u.hp = Math.min(u.maxHp, u.hp + heal);
+          // Fase final: Frieren fica mais agressiva (Magia Acumulada)
+          u.base = { ...u.base, atk: Math.round(u.base.atk * 1.25), spd: Math.round(u.base.spd * 1.15) };
+          pushLog(s, "🔮 MAGIA PROIBIDA! Frieren libera mil anos de feitiços acumulados — restaura " + heal + " HP (+8%), congela todos e ganha ATK×1.25 + VEL×1.15!");
+        }
+        // Pós-Magia Proibida: cada ataque básico cura Frieren em 6% HP máx
+        if (u._frierenForbidden && !msg) {
+          const selfHeal = Math.round(u.maxHp * 0.06); u.hp = Math.min(u.maxHp, u.hp + selfHeal);
+          fx.push({ uid: u.uid, txt: "+" + selfHeal, heal: true, id: Math.random() });
         }
         if (u.actCount % 4 === 0 && u.actCount > 0) {
           let tot = 0;
           for (let wi = 0; wi < 7; wi++) { const t = pickTarget(); if (t && t.alive) tot += dealDamage(u, t, 55 * rage, fx, { el: "Glacial" }).dmg; }
-          msg = "GRACA DAS FADAS! Frieren lanca 7 ondas magicas - " + tot + " de Dano Glacial total!";
+          msg = "🔮 GRAÇA DAS FADAS! Frieren lança 7 ondas mágicas — " + tot + " de Dano Glacial total!";
         } else if (!msg) {
           const t = pickTarget();
-          if (t) { const r = dealDamage(u, t, 100 * rage, fx, { el: "Glacial" }); msg = u.name + " conjura feitco em " + t.name + " - " + r.dmg + (r.crit ? " (CRITICO!)" : "") + "."; }
+          if (t) { const r = dealDamage(u, t, 100 * rage, fx, { el: "Glacial" }); msg = u.name + " conjura feitiço em " + t.name + " — " + r.dmg + (r.crit ? " (CRÍTICO!)" : "") + (u._frierenForbidden ? " [auto-cura]" : "") + "."; }
         }
       } else if (u.elite && u.actCount === 1) {
         u.buffs.push({ stat: "atk", value: 35, pct: true, turns: 99, name: "Fúria" });
@@ -5625,6 +5705,192 @@ const MAIL_PKG = [
 ];
 
 /* ==========================================================================
+   ESPIRAL — Modo de endgame: 2 times, fraquezas aleatórias, reset semanal
+   ========================================================================== */
+const ESPIRAL_DIFFS = [
+  { id: "normal",  label: "Normal",    color: "#43A047", gem: 2000,  waves: 1, level: 60,  desc: "1 onda por metade — Introdução ao Espiral." },
+  { id: "hard",    label: "Difícil",   color: "#F9A825", gem: 4000,  waves: 2, level: 75,  desc: "2 ondas por metade — Inimigos mais agressivos." },
+  { id: "extreme", label: "Extremo",   color: "#EF6C00", gem: 6000,  waves: 3, level: 85,  desc: "3 ondas por metade — Chefes com mecânicas exclusivas." },
+  { id: "apex",    label: "Ápice",     color: "#C62828", gem: 10000, waves: 4, level: 95,  desc: "4 ondas por metade — O limite da ressonância. 10.000💎 na 1ª conquista semanal." },
+];
+const ESPIRAL_WEEK_MS = 7 * 24 * 3600 * 1000;
+
+function Espiral({ owned, team, ownedMap, espiralClearedAt, espiralWeekSeed, espiralWeaknesses, startEspiral, images, flash }) {
+  const [diff, setDiff] = useState("normal");
+  const [teamA, setTeamA] = useState([]);
+  const [teamB, setTeamB] = useState([]);
+  const [tab, setTab] = useState("setup"); // "setup" | "info"
+
+  const seed = espiralWeekSeed();
+  const { weakA, weakB } = espiralWeaknesses(seed);
+  const cfg = ESPIRAL_DIFFS.find(d => d.id === diff);
+
+  // Reset semanal: limpa flags de limpeza antigas
+  const weekKey = seed;
+  const clearedA = !!espiralClearedAt[diff + "_" + weekKey];
+  const msUntilReset = (() => {
+    const now = new Date();
+    const jan1 = new Date(now.getFullYear(), 0, 1);
+    const dayOfYear = Math.floor((now - jan1) / 86400000);
+    const daysUntilMonday = (8 - now.getDay()) % 7 || 7;
+    return daysUntilMonday * 24 * 3600 * 1000 - (now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()) * 1000;
+  })();
+
+  const allIds = owned.map(o => o.id);
+  const usedA = new Set(teamA);
+  const usedB = new Set(teamB);
+
+  function toggleSlot(id, which) {
+    if (which === "A") {
+      if (usedB.has(id)) { flash("Esse personagem já está no Time B.", "#ff8800"); return; }
+      if (usedA.has(id)) { setTeamA(p => p.filter(x => x !== id)); }
+      else if (teamA.length < 4) { setTeamA(p => [...p, id]); }
+      else { flash("Time A já tem 4 personagens.", "#ff8800"); }
+    } else {
+      if (usedA.has(id)) { flash("Esse personagem já está no Time A.", "#ff8800"); return; }
+      if (usedB.has(id)) { setTeamB(p => p.filter(x => x !== id)); }
+      else if (teamB.length < 4) { setTeamB(p => [...p, id]); }
+      else { flash("Time B já tem 4 personagens.", "#ff8800"); }
+    }
+  }
+
+  function launch() {
+    if (teamA.length < 1 || teamB.length < 1) { flash("Cada time precisa de pelo menos 1 personagem.", "#ff8800"); return; }
+    startEspiral(diff, teamA, teamB);
+  }
+
+  // Auto-fill de times padrão do jogador na montagem
+  useEffect(() => {
+    if (teamA.length === 0 && team.length > 0) setTeamA(team.slice(0, Math.min(4, team.length)));
+  }, []); // eslint-disable-line
+
+  const halfHours = Math.max(0, Math.ceil(msUntilReset / 3600000));
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      {/* Header */}
+      <Panel glow="#7B5FFF" style={{ textAlign: "center", padding: "18px 16px" }}>
+        <div style={{ ...ORB, fontSize: 26, fontWeight: 900, letterSpacing: 2, color: "#a78bff", textShadow: "0 0 32px #7B5FFF88" }}>🌀 ESPIRAL</div>
+        <div style={{ fontSize: 12, color: C.mute, marginTop: 4, lineHeight: 1.6 }}>
+          Modo de End-Game · 2 times, fraquezas aleatórias por semana, reset toda segunda-feira<br />
+          <span style={{ color: "#a78bff" }}>Fraquezas desta semana:</span>{" "}
+          <b style={{ color: "#7CFFB0" }}>Time A: {weakA.map(e => ELEMENTS[e]?.glyph + " " + e).join(", ")}</b>{" · "}
+          <b style={{ color: "#86d8ff" }}>Time B: {weakB.map(e => ELEMENTS[e]?.glyph + " " + e).join(", ")}</b>
+        </div>
+        <div style={{ fontSize: 11, color: C.dim, marginTop: 6 }}>Reset em ~{halfHours}h</div>
+      </Panel>
+
+      {/* Dificuldade */}
+      <div className="flex gap-2" style={{ flexWrap: "wrap" }}>
+        {ESPIRAL_DIFFS.map(d => {
+          const clr = d.color;
+          const wkCleared = !!espiralClearedAt[d.id + "_" + weekKey];
+          return (
+            <button key={d.id} onClick={() => setDiff(d.id)}
+              style={{ flex: 1, minWidth: 100, border: `2px solid ${diff === d.id ? clr : C.line}`, borderRadius: 14, padding: "10px 8px", background: diff === d.id ? clr + "20" : C.panel, cursor: "pointer", transition: "all .2s", position: "relative" }}>
+              <div style={{ fontWeight: 800, fontSize: 13, color: clr }}>{d.label}</div>
+              <div style={{ fontSize: 10, color: C.mute, marginTop: 2 }}>Nv {d.level} · {d.waves}× onda</div>
+              <div style={{ fontSize: 10, color: "#e8c97a", marginTop: 2 }}>{wkCleared ? "✓ Limpo" : d.gem + "💎 (1ª vez)"}</div>
+            </button>
+          );
+        })}
+      </div>
+
+      {cfg && <Panel style={{ fontSize: 12, color: C.mute, padding: "10px 14px" }}>{cfg.desc}</Panel>}
+
+      {/* Seleção de times */}
+      <div style={{ fontSize: 12, color: C.mute, marginBottom: -6 }}>
+        Selecione até 4 personagens para cada time (sem sobreposição). Clique num personagem para alternar entre os times.
+      </div>
+
+      {/* Slots de time */}
+      <div className="flex gap-2">
+        {[["A", teamA, weakA, "#7CFFB0"], ["B", teamB, weakB, "#86d8ff"]].map(([lbl, tm, weak, clr]) => (
+          <Panel key={lbl} style={{ flex: 1, padding: 12 }}>
+            <div style={{ fontWeight: 800, fontSize: 13, color: clr, marginBottom: 6 }}>
+              Time {lbl} · <span style={{ fontSize: 11, fontWeight: 400, color: C.mute }}>Fraqueza: {weak.map(e => ELEMENTS[e]?.glyph + " " + e).join(", ")}</span>
+            </div>
+            <div className="flex gap-1" style={{ flexWrap: "wrap", marginBottom: 8, minHeight: 44 }}>
+              {tm.length === 0
+                ? <div style={{ fontSize: 11, color: C.dim }}>Nenhum selecionado</div>
+                : tm.map(id => {
+                    const ch = CHAR_MAP[id]; const o = ownedMap[id];
+                    const el = ch ? ELEMENTS[ch.element] : { color: C.line };
+                    const imgUrl = images && images[id];
+                    return (
+                      <div key={id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 10, overflow: "hidden", border: `2px solid ${el.color}`, background: `radial-gradient(circle at 30% 25%, ${el.color}30, ${C.panelHi})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
+                          {imgUrl ? <img src={imgUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span>{ch?.avatar || "?"}</span>}
+                        </div>
+                        <div style={{ fontSize: 9, color: C.mute, maxWidth: 40, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ch?.name || id}</div>
+                      </div>
+                    );
+                  })}
+            </div>
+            <div style={{ fontSize: 10, color: C.dim }}>{tm.length}/4 personagens</div>
+          </Panel>
+        ))}
+      </div>
+
+      {/* Grade de personagens */}
+      <Panel style={{ padding: 12 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Selecionar personagens</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(64px, 1fr))", gap: 6 }}>
+          {allIds.map(id => {
+            const ch = CHAR_MAP[id]; const o = ownedMap[id];
+            const el = ch ? ELEMENTS[ch.element] : { color: C.line };
+            const inA = usedA.has(id); const inB = usedB.has(id);
+            const imgUrl = images && images[id];
+            return (
+              <div key={id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                <div style={{ position: "relative" }}>
+                  <div onClick={() => toggleSlot(id, "A")} style={{ width: 44, height: 44, borderRadius: 10, overflow: "hidden", border: `2px solid ${inA ? "#7CFFB0" : inB ? "#86d8ff" : el.color + "66"}`, background: `radial-gradient(circle at 30% 25%, ${el.color}22, ${C.panelHi})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, cursor: "pointer", opacity: 1 }}>
+                    {imgUrl ? <img src={imgUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span>{ch?.avatar || "?"}</span>}
+                  </div>
+                  {inA && <div style={{ position: "absolute", top: -4, right: -4, background: "#7CFFB0", borderRadius: 99, width: 14, height: 14, fontSize: 8, color: "#000", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>A</div>}
+                  {inB && <div style={{ position: "absolute", top: -4, right: -4, background: "#86d8ff", borderRadius: 99, width: 14, height: 14, fontSize: 8, color: "#000", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>B</div>}
+                </div>
+                <div style={{ fontSize: 8, color: C.mute, maxWidth: 48, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textAlign: "center" }}>{ch?.name || id}</div>
+                {/* B toggle */}
+                {inA && <button onClick={() => toggleSlot(id, "B")} style={{ fontSize: 8, background: "#86d8ff22", border: "1px solid #86d8ff66", borderRadius: 6, color: "#86d8ff", padding: "1px 4px", cursor: "pointer" }}>→B</button>}
+                {inB && <button onClick={() => toggleSlot(id, "A")} style={{ fontSize: 8, background: "#7CFFB022", border: "1px solid #7CFFB066", borderRadius: 6, color: "#7CFFB0", padding: "1px 4px", cursor: "pointer" }}>→A</button>}
+                {!inA && !inB && (
+                  <div className="flex gap-1">
+                    <button onClick={() => toggleSlot(id, "A")} style={{ fontSize: 7, background: "#7CFFB015", border: "1px solid #7CFFB044", borderRadius: 4, color: "#7CFFB0", padding: "1px 3px", cursor: "pointer" }}>A</button>
+                    <button onClick={() => toggleSlot(id, "B")} style={{ fontSize: 7, background: "#86d8ff15", border: "1px solid #86d8ff44", borderRadius: 4, color: "#86d8ff", padding: "1px 3px", cursor: "pointer" }}>B</button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
+
+      {/* Botão de lançar */}
+      <Btn onClick={launch} style={{ width: "100%", fontSize: 16, padding: "14px 0", background: `linear-gradient(135deg, #7B5FFF, #4a2fa0)`, color: "#fff" }}>
+        🌀 Iniciar Espiral — {cfg?.label} (Time A primeiro)
+      </Btn>
+
+      {/* Recompensas */}
+      <Panel style={{ padding: 12 }}>
+        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Recompensas semanais</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {ESPIRAL_DIFFS.map(d => {
+            const wkCleared = !!espiralClearedAt[d.id + "_" + weekKey];
+            return (
+              <div key={d.id} className="flex items-center justify-between" style={{ padding: "6px 10px", borderRadius: 10, background: wkCleared ? d.color + "18" : C.panelHi, border: `1px solid ${wkCleared ? d.color : C.line}` }}>
+                <span style={{ fontWeight: 700, color: d.color, fontSize: 12 }}>{wkCleared ? "✓ " : ""}{d.label}</span>
+                <span style={{ fontSize: 12, color: "#e8c97a" }}>{d.gem.toLocaleString()}💎 <span style={{ color: C.dim, fontSize: 10 }}>(+{Math.round(d.gem * 0.1)} replay)</span></span>
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+/* ==========================================================================
    ROLETA RUSSA — O ÚLTIMO PACTO
    ========================================================================== */
 function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared, nextRouletteClaimAt, setNextRouletteClaimAt }) {
@@ -5691,7 +5957,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared, nex
     }, 2500);
   }
 
-  function cashout() { setJade(j => j + accum); setPhase('done'); }
+  function cashout() { setJade(j => j + accum); setAccum(0); setPhase('done'); }
 
   function advance() {
       if (stIdx >= 5) {
