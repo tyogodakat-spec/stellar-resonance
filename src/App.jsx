@@ -4655,18 +4655,6 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
             msg = u.name + " marca " + t.name + " com uma Pétala (" + (t._byPetal) + "/3) — " + r.dmg + (r.crit ? " CRÍTICO!" : "") + (bankai ? " [Sangramento]" : "") + ".";
           }
         }
-      } else if (u.alive && u.boss && u.bossKind === "sukuna") {
-        const hpPctS = u.hp / u.maxHp;
-        if (!u._sukDom70 && hpPctS <= 0.70) { u._sukDom70 = true; allAllies.forEach(function(h){ h.debuffs.push({ stat: "def", value: -30, pct: true, turns: 3, name: "Dominio" }); h.debuffs.push({ stat: "vuln", value: 30, turns: 3, name: "Dominio" }); }); pushLog(s, "SUKUNA expande o DOMINIO AMALDICAO! -30% DEF e +30% Vuln!"); }
-        if (!u._sukDom40 && hpPctS <= 0.40) { u._sukDom40 = true; allAllies.forEach(function(h){ h.debuffs.push({ stat: "def", value: -30, pct: true, turns: 3, name: "Dominio2" }); h.debuffs.push({ stat: "vuln", value: 30, turns: 3, name: "Dominio2" }); }); pushLog(s, "SUKUNA expande o DOMINIO NOVAMENTE! Todos enfraquecidos!"); }
-        if (u.actCount > 0 && u.actCount % 5 === 0 && u.shield === 0) { u.shield = 200000; pushLog(s, "Sukuna reconstroi a [Tecnica Maldita]! Escudo de 200.000 HP! Use Virus/Hazard Digital!"); }
-        if (u.actCount % 2 === 0 && u.actCount > 0) {
-          const t = pickTarget();
-          if (t) { const r = dealDamage(u, t, 120 * rage, fx, { defPen: 30 }); msg = "SUKUNA usa CLEAVE em " + t.name + " - " + r.dmg + " de dano!" + (r.crit ? " CRITICO!" : ""); }
-        } else if (!msg) {
-          const t = pickTarget();
-          if (t) { const r = dealDamage(u, t, 120 * rage, fx); msg = u.name + " ataca " + t.name + " - " + r.dmg + (r.crit ? " (CRITICO!)" : "") + "."; }
-        }
       } else if (u.alive && u.boss && u.bossKind === "frieren") {
         if (!u.counterSpell) u.counterSpell = 0;
         u.counterSpell += 1;
