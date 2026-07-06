@@ -101,7 +101,7 @@ const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplica
 const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon"];     // limitados (pool 50/50): só via rate-up
 const FEATURED_LIMITEDS = ["ryoshu", "frieren", "soifon", "omegamon", "wonderofyou", "athena"]; // banners: Ryoshu+Frieren (Jul 5) -> Soi Fon -> Omegamon -> Wonder of You/Athena (05/07/2026 19h)
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
-const DEFAULT_FEATURED_CHAR = "ryoshu";
+const DEFAULT_FEATURED_CHAR = "wonderofyou";
 
 /* ---------- ARMAS ---------- */
 // Valores de atk e stats secundários = nível MÁXIMO (80). Escalam via weaponLevelMul().
@@ -168,6 +168,9 @@ const RELIC_SETS = {
   "Traje do Astrólogo do Destino": { color: "#D4A017", el: "Holy", p2: { energyRegen: 15 }, flag2: "setAstrologo2", flag4: "setAstrologo4",
     d2: "+15% de Eficiência de Recarga de Energia · ao usar a Perícia, compartilha 10% do atributo mais alto (ATK ou DEF) com o aliado de menor HP por 2 rodadas",
     d4: "Cada Acerto Crítico de qualquer aliado gera 1 Energia Estelar (máx 8). Ao atingir 8 acúmulos: ativa Apogeu do Zodíaco — o próximo ataque ou habilidade causa Dano Adaptativo (muda para a fraqueza elemental do inimigo) e concede +30% de CRIT DMG ao grupo por 1 rodada. Ideal para Athena." },
+  "Muralha do Guardião": { color: "#4FC3F7", el: "Holy", p2: { shieldBonus: 30 }, flag2: "setMuralha2",
+    d2: "+30% no valor de todos os Escudos gerados pelo portador — toda barreira criada pela Habilidade, Ultimate ou efeito passivo absorve 30% a mais de dano. Ideal para personagens que geram escudos (Kirara, Omegamon etc.).",
+    d4: null },
 };
 const RELIC_SET_NAMES = Object.keys(RELIC_SETS);
 const RELIC_ITEM_ID = {
@@ -182,6 +185,7 @@ const RELIC_ITEM_ID = {
   "Além do Horizonte": "item_relic_horizonte",
   "Vestígios da Calamidade Eterna": "item_relic_calamidade",
   "Traje do Astrólogo do Destino": "item_relic_astrologo",
+  "Muralha do Guardião": "item_relic_muralha",
 };
 const RELIC_EMOJI = {
   "Tempestade Eletro": "⚡",
@@ -195,6 +199,7 @@ const RELIC_EMOJI = {
   "Além do Horizonte": "🌿",
   "Vestígios da Calamidade Eterna": "💀",
   "Traje do Astrólogo do Destino": "🔯",
+  "Muralha do Guardião": "🛡️",
 };
 const GAME_ITEMS = [
   { id: "item_jade",        name: "Jade Estelar",           icon: "💎" },
@@ -218,6 +223,7 @@ const GAME_ITEMS = [
   { id: "item_relic_horizonte",name: "Relíquia · Além do Horizonte",  icon: "🌿" },
   { id: "item_relic_calamidade", name: "Relíquia · Vestígios da Calamidade Eterna", icon: "💀" },
   { id: "item_relic_astrologo",  name: "Relíquia · Traje do Astrólogo do Destino",  icon: "🔯" },
+  { id: "item_relic_muralha",    name: "Relíquia · Muralha do Guardião",             icon: "🛡️" },
 ];
 const STAT_LABEL = { hp: "HP", atk: "ATK", def: "DEF", spd: "VEL", critRate: "CRIT", critDmg: "CRIT DMG", dmgBonus: "DANO", energyRegen: "REGEN ENERGIA", healBonus: "CURA", energyMax: "EN", vuln: "VULN", defPen: "PERFURAÇÃO", elemDmg: "DANO ELEM.", dotDmg: "DANO DE DoT", atkP: "ATK", hpP: "HP", defP: "DEF", atkFlat: "ATK", hpFlat: "HP", defFlat: "DEF" };
 const PCT = { hp: 1, atk: 1, def: 1 };
@@ -1017,17 +1023,9 @@ function Game({ email, isAdmin, onLogout }) {
   const [featuredWeapon, setFeaturedWeapon] = useState(DEFAULT_FEATURED_WEAPON);
     const [featuredChar2, setFeaturedChar2] = useState(null);
     useEffect(() => {
-      const CUTOVER = new Date(2026, 6, 5, 19, 0, 0).getTime();
-      const applySchedule = () => {
-        if (Date.now() >= CUTOVER) {
-          setFeaturedChar("wonderofyou");
-          setFeaturedChar2("athena");
-          setFeaturedWeapon("calamidade");
-        }
-      };
-      applySchedule();
-      const iv = setInterval(applySchedule, 30000);
-      return () => clearInterval(iv);
+      setFeaturedChar("wonderofyou");
+      setFeaturedChar2("athena");
+      setFeaturedWeapon("calamidade");
     }, []);
   const [pity, setPity] = useState({ char: 0, weapon: 0, standard: 0, guaranteeChar: false });
   const [pullHistory, setPullHistory] = useState([]);
@@ -2210,7 +2208,7 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
         <div className="flex flex-col gap-2 mt-2">
           {[["basic", "Ataque Básico", skillNamesOf(def.id)[0]], ["skill", "Habilidade", skillNamesOf(def.id)[1]], ["ult", "Ultimate", skillNamesOf(def.id)[2]]].map(([key, lbl, nm]) => { const lvl = oc.traces[key] || 1; const max = lvl >= TRACE_MAX; return (
             <div key={key} className="flex items-center justify-between" style={{ background: C.panelHi, borderRadius: 10, padding: "8px 10px" }}>
-              <div><div style={{ fontWeight: 700, fontSize: 13 }}>{lbl} <span style={{ color: C.mute, fontWeight: 400 }}>· {nm}</span></div><div style={{ fontSize: 11, color: C.mute }}>Nv {lvl}/{TRACE_MAX} · dano +{Math.round((traceMul(lvl) - 1) * 100)}%</div></div>
+              <div><div style={{ fontWeight: 700, fontSize: 13 }}>{lbl} <span style={{ color: C.mute, fontWeight: 400 }}>· {nm}</span></div><div style={{ fontSize: 11, color: C.mute }}>Nv {lvl}/{TRACE_MAX} · {def.id === "omegamon" ? "dano/escudo" : def.role === "healer" ? "cura" : def.role === "shield" ? "escudo" : "dano"} +{Math.round((traceMul(lvl) - 1) * 100)}%</div></div>
               <Btn kind={max ? "ghost" : "soft"} disabled={max} style={{ padding: "5px 10px" }} onClick={() => traceLevelUp(o.id, key)}>{max ? "MÁX" : isAdmin ? "Subir" : (<span className="flex items-center gap-1 flex-wrap" style={{ justifyContent: "center" }}><span className="flex items-center gap-1"><ItemIcon id="item_skill_mat" emoji="💠" size={13} />{1 + Math.floor(lvl / 3)}</span>{lvl >= 5 && <span className="flex items-center gap-1">+<ItemIcon id="item_boss_mat" emoji="🔮" size={13} />1</span>}</span>)}</Btn>
             </div>); })}
         </div>
@@ -3797,7 +3795,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       const ampS = u.ampSkill || 1, ampU = u.ampUlt || 1, ampB = u.ampBasic || 1;
       const hb = 1 + (u.base.healBonus || 0) / 100;
       const healMul = (f.healPlus ? 1.3 : 1) * (f.pRegen ? 1.25 : 1);
-      const shB = hb * (1 + (u.weapon?.shieldBonus || 0) / 100) * ((f.shieldPlus || f.kirC2) ? 1.3 : 1) * (f.pBulwark ? 1.25 : 1);
+      const shB = hb * (1 + ((u.weapon?.shieldBonus || 0) + (f.setMuralha2 ? 30 : 0)) / 100) * ((f.shieldPlus || f.kirC2) ? 1.3 : 1) * (f.pBulwark ? 1.25 : 1);
       const enGain = (n) => Math.round(n * (1 + (effStat(u, "energyRegen") || 0) / 100));
       const doHeal = (tgt, amt) => { const done = healUnit(tgt, Math.round(amt * healMul), fx); if (f.healShield) tgt.shield += Math.round(done * 0.3); };
       let msg = "";
@@ -4339,7 +4337,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         if (role === "healer" && (sk.heal || sk.ultHeal)) { const tgt = allies.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0]; const h = sk.heal || { mul: 80, flat: 300 }; healUnit(tgt, Math.round(effStat(u, "atk") * h.mul / 100 + h.flat), fx); msg = `${u.name} cura ${tgt.name}`; }
         else if (role === "buffer" && sk.skillBuff) { applyBuff(allies, sk.skillBuff, u.name, fx, u); msg = `${u.name} fortalece o time`; }
         else if (role === "shield" && sk.shield) {
-          const shBa = 1 + (u.weapon?.shieldBonus || 0) / 100;
+          const shBa = 1 + ((u.weapon?.shieldBonus || 0) + (f.setMuralha2 ? 30 : 0)) / 100;
           const shVal = Math.round((effStat(u, "def") * (sk.shield.defMul / 100) + sk.shield.flat) * shBa);
           if (u.stFlags?.kirC1) {
             allies.forEach((a) => { a.shield = (a.shield || 0) + (a.uid === u.uid ? shVal : Math.round(shVal * 0.80)); });
@@ -4393,14 +4391,14 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         if (!u.su10shadows && hpPct <= 0.25) { u.su10shadows = true; u.base = { ...u.base, atk: Math.round(u.base.atk * 1.6), def: Math.round(u.base.def * 1.3) }; pushLog(s, `👁️ SUKUNA invoca as 10 Sombras! ATK×1.6, DEF×1.3!`); }
         if (u.actCount % 5 === 0 && u.actCount > 0) {
           allAllies.forEach(h => { h.debuffs.push({ stat: "vuln", value: 30, turns: 3, name: "Domínio" }); h.debuffs.push({ stat: "def", value: -30, pct: true, turns: 3, name: "Malrep" }); });
-          let tot2 = 0; allAllies.forEach(h => { tot2 += dealDamage(u, h, 220 * rage, fx).dmg; }); pushLog(s, `🔴 SUKUNA expande o DOMÍNIO AMALDIÇOADO! ${tot2} dano em todos + 30% VULN + -30% DEF por 3 turnos!`); s = checkEnd(s); s.turn = null; return s;
+          let tot2 = 0; allAllies.forEach(h => { tot2 += dealDamage(u, h, 150 * rage, fx).dmg; }); pushLog(s, `🔴 SUKUNA expande o DOMÍNIO AMALDIÇOADO! ${tot2} dano em todos + 30% VULN + -30% DEF por 3 turnos!`); s = checkEnd(s); s.turn = null; return s;
         }
       }
       if (u.alive && u.boss && u.bossKind === "godkaiba") {
         const hpPct = u.hp / u.maxHp;
         if (!u.gkObelisco && hpPct <= 0.50) { u.gkObelisco = true; u.base = { ...u.base, atk: Math.round(u.base.atk * 1.5), def: Math.round(u.base.def * 1.3) }; u.res = [...(u.res || []), "Holy"]; pushLog(s, `⚡ GOD KAIBA entra na FASE DO OBELISCO! ATK×1.5, DEF×1.3, resiste Holy!`); }
         if (u.actCount % 3 === 0 && u.actCount > 0) {
-          let tot2 = 0; allAllies.forEach(h => { tot2 += dealDamage(u, h, 160 * rage, fx, { el: "Eletro" }).dmg; h.debuffs.push({ stat: "atk", value: -20, pct: true, turns: 2, name: "Supressão" }); }); pushLog(s, `⚡ PUNHO DO DESTINO! ${tot2} dano Eletro em área + ATK↓20% por 2 turnos!`); s = checkEnd(s); s.turn = null; return s;
+          let tot2 = 0; allAllies.forEach(h => { tot2 += dealDamage(u, h, 105 * rage, fx, { el: "Eletro" }).dmg; h.debuffs.push({ stat: "atk", value: -20, pct: true, turns: 2, name: "Supressão" }); }); pushLog(s, `⚡ PUNHO DO DESTINO! ${tot2} dano Eletro em área + ATK↓20% por 2 turnos!`); s = checkEnd(s); s.turn = null; return s;
         }
       }
       // BOSS RUSH MECHANICS
@@ -4410,7 +4408,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           let tot = 0;
           allAllies.forEach(function(h) {
             const hasBleed = (h.dots||[]).some(function(d){return d.type==="bleed";});
-            const mul = 200 * rage * (bankai ? 1.35 : 1) * (hasBleed ? 1.3 : 1);
+            const mul = 130 * rage * (bankai ? 1.35 : 1) * (hasBleed ? 1.3 : 1);
             tot += dealDamage(u, h, mul, fx, { el: "Holy" }).dmg;
             if (bankai && h.alive) h.debuffs.push({ stat: "def", value: -20, pct: true, turns: 2, name: "Petala" });
           });
@@ -4426,7 +4424,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         if (u.actCount > 0 && u.actCount % 5 === 0 && u.shield === 0) { u.shield = 200000; pushLog(s, "Sukuna reconstroi a [Tecnica Maldita]! Escudo de 200.000 HP! Use Virus/Hazard Digital!"); }
         if (u.actCount % 2 === 0 && u.actCount > 0) {
           const t = pickTarget();
-          if (t) { const r = dealDamage(u, t, 180 * rage, fx, { defPen: 30 }); msg = "SUKUNA usa CLEAVE em " + t.name + " - " + r.dmg + " de dano!" + (r.crit ? " CRITICO!" : ""); }
+          if (t) { const r = dealDamage(u, t, 120 * rage, fx, { defPen: 30 }); msg = "SUKUNA usa CLEAVE em " + t.name + " - " + r.dmg + " de dano!" + (r.crit ? " CRITICO!" : ""); }
         } else if (!msg) {
           const t = pickTarget();
           if (t) { const r = dealDamage(u, t, 120 * rage, fx); msg = u.name + " ataca " + t.name + " - " + r.dmg + (r.crit ? " (CRITICO!)" : "") + "."; }
@@ -4447,7 +4445,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         }
         if (u.actCount % 4 === 0 && u.actCount > 0) {
           let tot = 0;
-          for (let wi = 0; wi < 7; wi++) { const t = pickTarget(); if (t && t.alive) tot += dealDamage(u, t, 80 * rage, fx, { el: "Glacial" }).dmg; }
+          for (let wi = 0; wi < 7; wi++) { const t = pickTarget(); if (t && t.alive) tot += dealDamage(u, t, 55 * rage, fx, { el: "Glacial" }).dmg; }
           msg = "GRACA DAS FADAS! Frieren lanca 7 ondas magicas - " + tot + " de Dano Glacial total!";
         } else if (!msg) {
           const t = pickTarget();
@@ -4463,7 +4461,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         u.shield += Math.round(u.maxHp * 0.18); const t = pickTarget(); const r = t ? dealDamage(u, t, 135 * rage, fx) : { dmg: 0 };
         msg = `🗿 ${u.name} cristaliza uma carapaça (escudo) e esmaga ${t ? t.name : ""} por ${r.dmg}!`;
       } else if (u.boss && (u.actCount % 3 === 0 || (enraged && u.actCount % 2 === 0))) {
-        let tot = 0; allAllies.forEach((h) => { tot += dealDamage(u, h, 72 * rage, fx).dmg; });
+        let tot = 0; allAllies.forEach((h) => { tot += dealDamage(u, h, 48 * rage, fx).dmg; });
         realHeroes.forEach((h) => h.debuffs.push({ stat: "def", value: -25, pct: true, turns: 2, name: "DEF↓" }));
         msg = `💥 ${u.name} desfere um ataque DEVASTADOR em área — ${tot} de dano total e reduz a DEF de todos!${enraged ? " (ENFURECIDO!)" : ""}`;
       } else if (u.boss && u.actCount % 5 === 0) {
