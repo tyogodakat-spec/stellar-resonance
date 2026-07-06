@@ -3236,7 +3236,11 @@ function makeUnit(o, side, idx) {
     ampBasic: ampB, ampSkill: ampS, ampUlt: ampU, dragons: 0,
     base: stats, hp: Math.round(stats.hp), maxHp: Math.round(stats.hp), shield: 0,
     energy: Math.round(stats.energyMax * 0.2), energyMax: stats.energyMax,
-    av: (flags.pSwift ? 0.5 : 1) * 10000 / Math.max(1, stats.spd), buffs: [], debuffs: [], dots: [], alive: true,
+    av: (flags.pSwift ? 0.5 : 1) * 10000 / Math.max(1, stats.spd),
+    buffs: (o.weapon?.buff?.spdThreshold && stats.spd > o.weapon.buff.spdThreshold.spd)
+      ? [{ stat: "spd", value: o.weapon.buff.spdThreshold.spdBonus || 16, pct: false, turns: 9999, name: "VontadeGuardiã" }]
+      : [],
+    debuffs: [], dots: [], alive: true,
     posturePH: flags.miC1 ? (flags.miC6 ? 4 : 3) : 0, ritmoStacks: 0,
     weapon: o.weapon ? WEAPON_MAP[o.weapon] : null, hasSummon: false,
   };
@@ -3607,7 +3611,10 @@ function cloneU(u) { return { ...u, buffs: u.buffs.map((b) => ({ ...b })), debuf
 function findUnit(s, uid) { return [...s.heroes, ...s.enemies].find((u) => u.uid === uid); }
 function applyBuff(targets, spec, name, fx, caster) {
   const extra = caster?.stFlags?.buffPlus && spec.all ? 1 : 0;
-  targets.forEach((t) => { for (const stat of ["atk", "def", "critRate", "critDmg", "dmgBonus", "spd"]) if (spec[stat]) t.buffs.push({ stat, value: spec[stat], pct: !!PCT[stat], turns: spec.turns + extra, name }); });
+  targets.forEach((t) => { for (const stat of ["atk", "def", "critRate", "critDmg", "dmgBonus", "spd"]) if (spec[stat]) {
+    if (spec.maxStacks) { const st = t.buffs.filter(b => b.name === name && b.stat === stat).length; if (st >= spec.maxStacks) continue; }
+    t.buffs.push({ stat, value: spec[stat], pct: !!PCT[stat], turns: (spec.turns ?? 9999) + extra, name });
+  } });
 }
 function applyDebuff(targets, spec, extraDef, caster) {
   const f = caster?.stFlags || {};
@@ -3617,6 +3624,11 @@ function applyDebuff(targets, spec, extraDef, caster) {
   targets.forEach((t) => {
     if (spec.defDown) t.debuffs.push({ stat: "def", value: -(spec.defDown + defX), pct: true, turns: spec.turns + (plus ? 1 : 0), name: "DEF↓" });
     if (spec.vuln) t.debuffs.push({ stat: "vuln", value: spec.vuln + vulnX, turns: spec.turns + (plus ? 1 : 0), name: "Vuln" });
+    if (caster?.weapon?.buff?.onDebuff) {
+      const _od = caster.weapon.buff.onDebuff;
+      const _st = t.debuffs.filter(d => d.name === "WpnShred").length;
+      if (_st < (_od.maxStacks || 8)) t.debuffs.push({ stat: "def", value: -(_od.defRedTarget || 10), pct: true, turns: 2, name: "WpnShred" });
+    }
   });
 }
 
@@ -4334,7 +4346,24 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         if (isFinite(u.life)) { u.life -= 1; if (u.life <= 0) { u.alive = false; msg += ` ${u.name} se dissipa.`; } }
       } else {
         const role = u.roleKey;
-        if (role === "healer" && (sk.heal || sk.ultHeal)) { const tgt = allies.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0]; const h = sk.heal || sk.ultHeal || { mul: 80, flat: 300 }; const _tHeal = sk.ultHeal && !sk.heal ? u.tUlt : u.tSkill; healUnit(tgt, Math.round((effStat(u, "atk") * h.mul / 100 + h.flat) * _tHeal), fx); msg = `${u.name} cura ${tgt.name}`; }
+        if (role === "healer" && (sk.heal || sk.ultHeal)) {
+          const tgt = allies.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+          const h = sk.heal || sk.ultHeal || { mul: 80, flat: 300 };
+          const _tHeal = sk.ultHeal && !sk.heal ? u.tUlt : u.tSkill;
+          const _athSpd = u.weapon?.buff?.spdThreshold;
+          const _athSpdActive = _athSpd && effStat(u, "spd") > _athSpd.spd;
+          const _spdHealBonus = _athSpdActive ? (1 + _athSpd.healBonus / 100) : 1;
+          healUnit(tgt, Math.round((effStat(u, "atk") * h.mul / 100 + h.flat) * _tHeal * _spdHealBonus), fx);
+          msg = `${u.name} cura ${tgt.name}${_athSpdActive ? " ✨(Fluxo de Atena ativo)" : ""}`;
+          if (u.weapon?.buff?.athWeapon && u.weapon.buff.onSkill) {
+            const _onSk = u.weapon.buff.onSkill;
+            const _zodSt = tgt.buffs.filter(b => b.name === "ZodiacalDmg").length;
+            if (_zodSt < (_onSk.maxStacks || 3)) tgt.buffs.push({ stat: "critDmg", value: _onSk.critDmgPerStack || 12, pct: false, turns: 9999, name: "ZodiacalDmg" });
+            const _graceSt = u.buffs.filter(b => b.name === "GraçaOlimpo").length;
+            if (_graceSt < (_onSk.maxAtkStacks || 3)) u.buffs.push({ stat: "atk", value: _onSk.atkPerStack || 400, pct: false, turns: 9999, name: "GraçaOlimpo" });
+            msg += ` [Cetro: +${_onSk.critDmgPerStack}% CRIT em ${tgt.name}, +${_onSk.atkPerStack} ATQ]`;
+          }
+        }
         else if (role === "buffer" && sk.skillBuff) { applyBuff(allies, sk.skillBuff, u.name, fx, u); msg = `${u.name} fortalece o time`; }
         else if (role === "shield" && sk.shield) {
           const shBa = 1 + ((u.weapon?.shieldBonus || 0) + (f.setMuralha2 ? 30 : 0)) / 100;
