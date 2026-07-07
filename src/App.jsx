@@ -48,54 +48,60 @@ const ROSTER = [
   mk({ id: "miyabi", name: "Miyabi", title: "Caçadora do Vazio", element: "Glacial", role: "aoe", rarity: 5, avatar: "🌸", hp: 1060, atk: 790, def: 420, spd: 103, energy: 160, cr: 8, cd: 60, tags: ["Gelo", "DPS", "Área", "Anomalia"],
     skill: { basicMul: 80, skillMul: 195, aoe: true, skillDot: { type: "freeze", mul: 60, turns: 2 }, ultMul: 390, ultAoe: true, ultDot: { type: "freeze", mul: 82, turns: 2 } } }),
   mk({ id: "kaiba", name: "Seto Kaiba", title: "Mestre dos Dragões", element: "Eletro", role: "summoner", rarity: 5, avatar: "🃏", hp: 1180, atk: 720, def: 480, spd: 101, energy: 300, cr: 5, cd: 50, er: 30, elemDmg: 5, tags: ["Eletro", "Invocador", "Deus Egípcio", "Único"],
-    skill: { basicMul: 100, enBasic: 15, enSkill: 22, skillMul: 140, aoe: true, kaibaUlt: true, summon: { name: "Blue-Eyes White Dragon", avatar: "🐉", hpMul: 0.7, atkMul: 1.0, mul: 96, spd: 115 } } }),
+    skill: { basicMul: 100, enBasic: 15, enSkill: 22, skillMul: 140, aoe: true, kaibaUlt: true, summon: { name: "Blue-Eyes White Dragon", avatar: "🐉", hpMul: 0.75, atkMul: 1.0, mul: 108, spd: 115 } } }),
   // ---- T4 ----
   mk({ id: "renji", name: "Renji Abarai", title: "Zabimaru", element: "Chaos", role: "dps", rarity: 4, avatar: "🗡️", hp: 1060, atk: 705, def: 440, spd: 104, energy: 120, tags: ["Caos", "DPS", "Sangramento"],
-    skill: { basicMul: 100, skillMul: 235, skillDot: { type: "bleed", mul: 55, turns: 2 }, ultMul: 445 } }),
+    skill: { basicMul: 100, skillMul: 215, skillDot: { type: "bleed", mul: 50, turns: 2 }, ultMul: 380 } }),
   mk({ id: "ace", name: "Portgas D. Ace", title: "Punho de Fogo", element: "Fogo", role: "aoe", rarity: 4, avatar: "🔥", hp: 1110, atk: 685, def: 450, spd: 100, energy: 120, tags: ["Fogo", "Área", "Queimadura"],
-    skill: { basicMul: 100, skillMul: 150, aoe: true, skillDot: { type: "burn", mul: 55, turns: 2 }, ultMul: 330, ultAoe: true, ultDot: { type: "burn", mul: 85, turns: 3 } } }),
+    skill: { basicMul: 100, skillMul: 160, aoe: true, skillDot: { type: "burn", mul: 55, turns: 2 }, ultMul: 350, ultAoe: true, ultDot: { type: "burn", mul: 85, turns: 3 } } }),
   mk({ id: "usopp", name: "Usopp", title: "Atirador de Elite", element: "Vento", role: "debuffer", rarity: 4, avatar: "🎯", hp: 960, atk: 565, def: 420, spd: 107, energy: 120, tags: ["Vento", "Debuffador", "Suporte"],
-    skill: { basicMul: 90, skillMul: 130, skillDebuff: { defDown: 32, vuln: 18, turns: 3 }, ultMul: 220, ultDebuff: { vuln: 28, all: true, turns: 2 } } }),
+    skill: { basicMul: 95, skillMul: 145, skillDebuff: { defDown: 32, vuln: 18, turns: 3 }, ultMul: 260, ultDebuff: { vuln: 28, all: true, turns: 2 } } }),
   mk({ id: "sakura", name: "Sakura Haruno", title: "Força Centena", element: "Holy", role: "dps", rarity: 4, avatar: "🌺", hp: 1150, atk: 660, def: 470, spd: 98, energy: 120, tags: ["Holy", "DPS", "Cura"],
-    skill: { basicMul: 100, skillMul: 225, ultMul: 405, ultHeal: { mul: 60, flat: 350, all: true } } }),
+    skill: { basicMul: 100, skillMul: 210, ultMul: 360, ultHeal: { mul: 65, flat: 380, all: true } } }),
   mk({ id: "chopper", name: "Chopper", title: "Médico de Bordo", element: "Glacial", role: "healer", rarity: 4, avatar: "🦌", hp: 1250, atk: 500, def: 520, spd: 100, energy: 120, tags: ["Gelo", "Cura", "Suporte"],
     skill: { basicMul: 60, heal: { mul: 120, flat: 250, all: false }, ultHeal: { mul: 90, flat: 460, all: true }, energyGift: 12 } }),
   mk({ id: "lancer", name: "Lancer", title: "Herói do Caos · Cu Chulainn", element: "Chaos", role: "dps", rarity: 4, avatar: "🏹", hp: 1120, atk: 745, def: 530, spd: 105, energy: 110, tags: ["Caos", "DPS", "Esquiva", "Sobrevivência"],
-    skill: { basicMul: 100, lancerSkill: true, skillMul: 0, ultMul: 420, lancerUlt: true } }),
+    skill: { basicMul: 100, lancerSkill: true, skillMul: 0, ultMul: 370, lancerUlt: true } }),
   mk({ id: "nanami", name: "Nanami", title: "7:3 de Proporção", element: "Chaos", role: "dps", rarity: 4, avatar: "💼", hp: 1180, atk: 760, def: 490, spd: 101, energy: 115, cd: 62, tags: ["Caos", "DPS", "Crítico", "Hora Extra"],
     skill: { basicMul: 100, nanamSkill: true, skillMul: 240, ultMul: 310, ultAoe: true, ultDebuff: { defDown: 15, all: true, turns: 2 } } }),
   mk({ id: "nami", name: "Nami", title: "Navegadora dos Ventos", element: "Vento", role: "aoe", rarity: 4, avatar: "🌊", hp: 1050, atk: 730, def: 440, spd: 104, energy: 120, tags: ["Vento", "DoT", "Área", "Ciclone"],
     skill: { basicMul: 90, skillMul: 160, aoe: true, skillDot: { type: "cyclone", mul: 50, turns: 2 }, ultMul: 340, ultAoe: true, namiUlt: true } }),
   mk({ id: "uraraka", name: "Uraraka", title: "Gravidade Zero", element: "Vento", role: "buffer", rarity: 4, avatar: "🎈", hp: 1210, atk: 630, def: 510, spd: 102, energy: 120, tags: ["Vento", "Suporte", "Velocidade", "Controle"],
-    skill: { basicMul: 90, uraBasic: true, uraSkill: true, skillMul: 0, ultMul: 260, ultAoe: true, ultBuff: { atk: 15, all: true, turns: 2 } } }),
+    skill: { basicMul: 95, uraBasic: true, uraSkill: true, skillMul: 0, ultMul: 290, ultAoe: true, ultBuff: { atk: 15, all: true, turns: 2 } } }),
   // ---- T5 PADRÃO (saem ao perder o 50/50 e no banner permanente) ----
   mk({ id: "kirara", name: "Kirara", title: "Encontro Estelar", element: "Chaos", role: "shield", rarity: 5, avatar: "💫", hp: 1360, atk: 560, def: 620, spd: 99, energy: 120, tags: ["Caos", "Guardião", "Escudo", "Provocar"],
     skill: { basicMul: 80, shield: { defMul: 90, flat: 320 }, taunt: true, ultShield: { defMul: 130, flat: 480, all: true }, ultBuff: { def: 30, all: true, turns: 2 }, energyGift: 8 } }),
   mk({ id: "yoruichi", name: "Yoruichi", title: "Deusa do Relâmpago", element: "Eletro", role: "dps", rarity: 5, avatar: "🐈‍⬛", hp: 1040, atk: 800, def: 410, spd: 125, energy: 120, cr: 10, cd: 62, tags: ["Eletro", "DPS", "Velocidade", "Choque"],
-    skill: { basicMul: 110, skillMul: 260, skillBuff: { critRate: 20, spd: 12, all: false, turns: 2 }, skillDot: { type: "shock", mul: 45, turns: 2 }, ultMul: 510 } }),
+    skill: { basicMul: 110, skillMul: 260, skillBuff: { critRate: 20, spd: 12, all: false, turns: 2 }, skillDot: { type: "shock", mul: 45, turns: 2 }, ultMul: 460 } }),
   mk({ id: "kiritsugu", name: "Kiritsugu", title: "Caçador de Magos", element: "Virus", role: "debuffer", rarity: 5, avatar: "🔫", hp: 1080, atk: 725, def: 450, spd: 108, energy: 120, cr: 8, cd: 56, tags: ["Vírus", "Debuffador", "Veneno"],
     skill: { basicMul: 100, skillMul: 205, skillDebuff: { defDown: 40, vuln: 22, turns: 3 }, skillDot: { type: "poison", mul: 70, turns: 3 }, ultMul: 365, ultDebuff: { vuln: 30, all: true, turns: 3 } } }),
   // ---- Ryoshu (Limitada) ----
   mk({ id: "ryoshu", name: "Ryoshu", title: "Lamina da Casa das Aranhas", element: "Virus", role: "dps", rarity: 5, avatar: "🕸", hp: 1320, atk: 1060, def: 520, spd: 114, energy: 120, cr: 22, cd: 75, elemDmg: 20.0, tags: ["Virus", "DPS", "Dreno de HP", "Execucao", "Dano Verdadeiro"],
-    skill: { basicMul: 140, ryoBasic: true, skillMul: 300, ryoSkill: true, aoe: true, ultMul: 680, ultAoe: true, ryoUlt: true } }),
+    skill: { basicMul: 120, ryoBasic: true, skillMul: 255, ryoSkill: true, aoe: true, ultMul: 520, ultAoe: true, ryoUlt: true } }),
   // ---- Frieren (Limitada) ----
   mk({ id: "frieren", name: "Frieren", title: "Alem do Fim das Jornadas", element: "Holy", role: "aoe", rarity: 5, avatar: "🧝", hp: 1080, atk: 880, def: 430, spd: 103, energy: 110, cr: 8, cd: 58, elemDmg: 8.0, tags: ["Holy", "Maga", "AoE", "Elementalista", "Suporte"],
-    skill: { basicMul: 90, frBasic: true, skillMul: 180, frSkill: true, ultMul: 500, frUlt: true } }),
+    skill: { basicMul: 90, frBasic: true, skillMul: 180, frSkill: true, ultMul: 470, frUlt: true } }),
   // ---- Soi Fon (Limitada) ----
   mk({ id: "soifon", name: "Soi Fon", title: "Capitã da 2ª Divisão", element: "Vento", role: "dps", rarity: 5, avatar: "🦋", hp: 1040, atk: 740, def: 420, spd: 118, energy: 120, cr: 8, cd: 56, tags: ["Vento", "Follow-up", "Sub DPS", "Assassina"],
     skill: { basicMul: 100, sfBasic: true, skillMul: 160, sfSkill: true, ultMul: 350, sfUlt: true } }),
   // ---- Omegamon Zwart D (Limitado) ----
   mk({ id: "omegamon", name: "Omegamon Zwart D", title: "Digital Hazard · Defeat", element: "Virus", role: "shield", rarity: 5, avatar: "🛡️", hp: 1900, atk: 950, def: 740, spd: 99, energy: 130, cr: 10, cd: 58, er: 22, elemDmg: 0, tags: ["Vírus", "Guardião", "Tanque", "Corrosão"],
     skill: { basicMul: 100, omgBasic: true, skillMul: 120, omgSkill: true, ultMul: 150, omgUlt: true } }),
-];
+    // ---- The Wonder of You (Limitado) ----
+    mk({ id: "wonderofyou", name: "The Wonder of You", title: "A Calamidade Inevitável", element: "Chaos", role: "dps", rarity: 5, avatar: "🌑", hp: 1780, atk: 920, def: 590, spd: 109, energy: 130, cr: 14, cd: 62, tags: ["Chaos", "Calamidade", "DPS", "Debuffer"],
+      skill: { basicMul: 100, wooBasic: true, skillMul: 210, wooSkill: true, ultMul: 400, wooUlt: true } }),
+    // ---- Athena (Limitada) ----
+    mk({ id: "athena", name: "Athena", title: "A Autoridade das Sete Casas", element: "Holy", role: "healer", rarity: 5, avatar: "🕊️", hp: 1620, atk: 610, def: 560, spd: 103, energy: 140, cr: 6, cd: 46, er: 20, tags: ["Holy", "Suporte", "Cura", "Buffer"],
+      skill: { basicMul: 90, athBasic: true, skillMul: 130, athSkill: true, ultMul: 210, athUlt: true } }),
+  ];
 const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 // Tag primária de um personagem (usada como requisito de nó) e todas as tags únicas do elenco
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
 const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon"];     // limitados (pool 50/50): só via rate-up
-const FEATURED_LIMITEDS = ["ryoshu", "frieren", "soifon", "omegamon"]; // banners: Ryoshu+Frieren (Jul 5) -> Soi Fon -> Omegamon
+const FEATURED_LIMITEDS = ["ryoshu", "frieren", "soifon", "omegamon", "wonderofyou", "athena"]; // banners: Ryoshu+Frieren (Jul 5) -> Soi Fon -> Omegamon -> Wonder of You/Athena (05/07/2026 19h)
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
-const DEFAULT_FEATURED_CHAR = "ryoshu";
+const DEFAULT_FEATURED_CHAR = "wonderofyou";
 
 /* ---------- ARMAS ---------- */
 // Valores de atk e stats secundários = nível MÁXIMO (80). Escalam via weaponLevelMul().
@@ -112,7 +118,9 @@ const WEAPONS = [
   { id: "glitch_apagamento",name: "Glitch de Apagamento", rarity: 5, role: "shield",   atk: 476, def: 440, omgWeapon: true,        passive: "Instabilidade Digital: +20% HP Maximo. Ao perder HP, +25% Dano de Virus por 2 turnos. Exclusivo (Omegamon): Corrupcao dobrada; Dano Verdadeiro +8 Energia." },
   { id: "lamina_matriarca",  name: "Lamina da Matriarca",    rarity: 5, role: "dps",    atk: 635, hp: 1085, def: 398, critRate: 12.0, passive: "Fio Condutor de Agonia: +12% CRIT Rate permanente. Exclusivo (Ryoshu): ao drenar HP dos aliados, acumula Gotas de Tinta (+15% Dano Fixo por gota, max 3, dura 2 turnos). No inicio de cada turno, cura todos os aliados em 6% do HP Max.", buff: { ryoInkDrops: true, allyHealPct: 6 } },
   { id: "cajado_fim_era",     name: "Cajado do Fim da Era",   rarity: 5, role: "aoe",   atk: 720, critDmg: 52.0, passive: "Heranca de Flamme: +24% de Dano Holy. Ao gerar Pontos de Elemento, recupera 10 de Energia. Apos usar magia com pontos, o proximo ataque do time causa dano extra (+15% ATK de Frieren).", buff: { frElemEnergy: 10, frTeamBonus: true } },
-  // ── ★★★★ 4-estrelas ────────────────────────────────────────────────────────
+  { id: "calamidade", name: "Calamidade", rarity: 5, role: "dps", hp: 2600, atk: 529, def: 463, passive: "A Tragédia Sempre Encontra um Caminho: +30% de HP máx. Ao conceder um buff a um aliado, aumenta o dano desse aliado em 20% (acumula até 8×). Ao aplicar um debuff a um inimigo, reduz a DEF do alvo em 10% (acumula até 8×).", buff: { wooWeapon: true, onBuff: { dmgBonus: 20, maxStacks: 8 }, onDebuff: { defRedTarget: 10, maxStacks: 8 } } },
+    { id: "cetro_autoridade_celestial", name: "Cetro da Autoridade Celestial", rarity: 5, role: "healer", hp: 3200, def: 640, spd: 16, passive: "Sétimo Pilar da Criação — I) Aura de Santuário: +20% de DEF. Ao usar a Perícia, o aliado curado ganha Proteção Zodiácal (+12% CRIT DMG por acúmulo, até 3 acúmulos) e Athena acumula Graça do Olimpo (+400 ATQ fixo por acúmulo, máximo de 3 acúmulos — total de até +1200 ATQ fixo). Os acúmulos duram até o fim do combate e não podem ser removidos. II) O Fluxo de Atena: quando a VEL do usuário for superior a 140, ativa Vontade da Guardiã — toda a cura gerada por habilidades é aumentada em 24%, a cura excedente é convertida em Escudo de Absorção no alvo por 1 rodada e a VEL de Athena é ampliada em mais +16 fixos adicionais (totalizando +32 de VEL com os 16 da arma).", buff: { athWeapon: true, onSkill: { critDmgPerStack: 12, maxStacks: 3, atkPerStack: 400, maxAtkStacks: 3 }, spdThreshold: { spd: 140, healBonus: 24, overHealShield: true, spdBonus: 16 } } },
+    // ── ★★★★ 4-estrelas ────────────────────────────────────────────────────────
   { id: "shadowkunai", name: "Kunai Sombria",       rarity: 4, role: "dps",      atk: 528, critDmg: 38.4, defPen: 10,       passive: "Sombra Rastreadora: perfura 10% da DEF do inimigo em todos os ataques." },
   { id: "slingshot",   name: "Estilingue de Elite", rarity: 4, role: "debuffer", atk: 476, critDmg: 28.8, extraDefDown: 12, passive: "Mira de Precisao: debuffs reduzem +12% de DEF adicional." },
   { id: "healstaff",   name: "Bordao Curativo",     rarity: 4, role: "healer",   atk: 396, energyRegen: 22.0, ultEnergy: 10, passive: "Pulso Vital: a Ultimate concede +10 de Energia a todo o time." },
@@ -154,6 +162,15 @@ const RELIC_SETS = {
   "Além do Horizonte": { color: "#C8E6C9", el: "Holy", p2: { elemDmg: 20 }, flag4: "setHorizonte4",
     d2: "+20% de Dano Holy",
     d4: "Ao conjurar a Ultimate, concede ao time +15% de Dano Bônus e +12% de CRIT DMG por 2 turnos. Se o portador possuir Pontos de Elemento acumulados, cada ponto gera +5% de Dano Bônus adicional ao time (máx +20% extra). Ideal para Frieren e futuros personagens de acumulação de elemento." },
+  "Vestígios da Calamidade Eterna": { color: "#6B21A8", el: "Chaos", p2: { energyRegen: 12, elemDmg: 15 }, flag2: "setCalamidade2", flag4: "setCalamidade4",
+    d2: "+12% Taxa de Regeneração de Energia · +15% Dano de Chaos · ao aplicar buff ou debuff: recupera 3 de Energia (1× por ação)",
+    d4: "A cada buff/debuff aplicado, ganha 1 Acúmulo de Calamidade (máx 10). Cada acúmulo: +4% Dano Chaos · +3% VEL · +4% CRIT DMG. Ao atingir 10 acúmulos: ignora 25% da DEF · duração de todos os buffs e debuffs +30% · ataques causam Golpe de Chaos adicional de 80% ATQ. Ideal para Wonder of You." },
+  "Traje do Astrólogo do Destino": { color: "#D4A017", el: "Holy", p2: { energyRegen: 15 }, flag2: "setAstrologo2", flag4: "setAstrologo4",
+    d2: "+15% de Eficiência de Recarga de Energia · ao usar a Perícia, compartilha 10% do atributo mais alto (ATK ou DEF) com o aliado de menor HP por 2 rodadas",
+    d4: "Cada Acerto Crítico de qualquer aliado gera 1 Energia Estelar (máx 8). Ao atingir 8 acúmulos: ativa Apogeu do Zodíaco — o próximo ataque ou habilidade causa Dano Adaptativo (muda para a fraqueza elemental do inimigo) e concede +30% de CRIT DMG ao grupo por 1 rodada. Ideal para Athena." },
+  "Muralha do Guardião": { color: "#4FC3F7", el: "Holy", p2: { shieldBonus: 30 }, flag2: "setMuralha2",
+    d2: "+30% no valor de todos os Escudos gerados pelo portador — toda barreira criada pela Habilidade, Ultimate ou efeito passivo absorve 30% a mais de dano. Ideal para personagens que geram escudos (Kirara, Omegamon etc.).",
+    d4: null },
 };
 const RELIC_SET_NAMES = Object.keys(RELIC_SETS);
 const RELIC_ITEM_ID = {
@@ -166,6 +183,9 @@ const RELIC_ITEM_ID = {
   "Asas de Borboleta": "item_relic_butterfly",
   "Teia da Agonia": "item_relic_teia",
   "Além do Horizonte": "item_relic_horizonte",
+  "Vestígios da Calamidade Eterna": "item_relic_calamidade",
+  "Traje do Astrólogo do Destino": "item_relic_astrologo",
+  "Muralha do Guardião": "item_relic_muralha",
 };
 const RELIC_EMOJI = {
   "Tempestade Eletro": "⚡",
@@ -177,6 +197,9 @@ const RELIC_EMOJI = {
   "Asas de Borboleta": "🦋",
   "Teia da Agonia": "🕸️",
   "Além do Horizonte": "🌿",
+  "Vestígios da Calamidade Eterna": "💀",
+  "Traje do Astrólogo do Destino": "🔯",
+  "Muralha do Guardião": "🛡️",
 };
 const GAME_ITEMS = [
   { id: "item_jade",        name: "Jade Estelar",           icon: "💎" },
@@ -198,6 +221,9 @@ const GAME_ITEMS = [
   { id: "item_relic_mat",   name: "Matéria de Relíquia",              icon: "🔷" },
   { id: "item_relic_teia",     name: "Relíquia · Teia da Agonia",          icon: "🕸️" },
   { id: "item_relic_horizonte",name: "Relíquia · Além do Horizonte",  icon: "🌿" },
+  { id: "item_relic_calamidade", name: "Relíquia · Vestígios da Calamidade Eterna", icon: "💀" },
+  { id: "item_relic_astrologo",  name: "Relíquia · Traje do Astrólogo do Destino",  icon: "🔯" },
+  { id: "item_relic_muralha",    name: "Relíquia · Muralha do Guardião",             icon: "🛡️" },
 ];
 const STAT_LABEL = { hp: "HP", atk: "ATK", def: "DEF", spd: "VEL", critRate: "CRIT", critDmg: "CRIT DMG", dmgBonus: "DANO", energyRegen: "REGEN ENERGIA", healBonus: "CURA", energyMax: "EN", vuln: "VULN", defPen: "PERFURAÇÃO", elemDmg: "DANO ELEM.", dotDmg: "DANO DE DoT", atkP: "ATK", hpP: "HP", defP: "DEF", atkFlat: "ATK", hpFlat: "HP", defFlat: "DEF" };
 const PCT = { hp: 1, atk: 1, def: 1 };
@@ -278,7 +304,9 @@ const PASSIVE = {
   uraraka: { name: "Quirk Zero Gravity · Levitação", desc: "Talento: ao usar o Ataque Básico, Uraraka avança sua própria barra de ação em 15%, agindo com mais frequência que a velocidade base indicaria. Além disso, aliados com o buff de Zero Gravity ativo têm a ação dos inimigos que atacam atrasada em 8%, criando uma vantagem de turno cumulativa para a equipe.", flag: "uraAdvance" },
   ryoshu:  { name: "Marionetes de Sangue · Fios da Agonia", desc: "Talento (P.I.P.): o dreno de Ryoshu ignora Escudos aliados, retirando o valor direto da barra vital. Se o aliado drenado possuía Escudo, Ryoshu absorve 30% do valor como ATK temporário. Os aliados não podem morrer pelo dreno (param em 1 HP). Para cada 1% de HP faltando nos aliados após o dreno, Ryoshu ignora 0,5% da DEF dos inimigos (máx 45%).", flag: "ryoTalent" },
   frieren: { name: "Percepção de Milênios · Grimório Oculto", desc: "Talento: Frieren é imune a qualquer debuff de lentidão ou atraso de turno. No início da batalha, ela esconde sua verdadeira força: o Aggro dela é reduzido a quase zero enquanto tiver menos de 50% de energia da Ultimate carregada. Além disso, começa a batalha com 2 Pontos de Elemento aleatórios já acumulados.", flag: "frTalent" },
-};
+    wonderofyou: { name: "A Lei Natural do Infortúnio", desc: "Talento passivo de duas vias simultâneas. Via 1 — Proteção pelo Infortúnio: sempre que qualquer aliado receber dano de qualquer fonte (ataque, área, DoT), Wonder of You automaticamente aplica nesse aliado um Buff Único Aleatório dentre os 8 disponíveis — somente se ele ainda não possuir aquele Buff específico. Via 2 — Punição da Calamidade: sempre que qualquer inimigo causar dano a qualquer fonte, esse inimigo recebe automaticamente um dos 4 Debuffs Especiais — somente se ele ainda não o possuir. Ordem de aplicação: Calamidade → Acidente Inevitável → Má Fortuna → Destino Quebrado. Ambas as vias operam sem custo de ação e sem consumo de Pontos de Habilidade.", flag: "pWoo" },
+    athena: { name: "Eco da Justiça", desc: "Talento passivo de duas funções simultâneas. Função 1 — Eco de Cura: sempre que Athena usar a Perícia (em qualquer Modo), um Eco de Cura é disparado automaticamente em todos os aliados que não foram o alvo principal — cada um recebe 50% do valor total da cura aplicada, calculado após todos os modificadores. Se algum desses aliados estiver com HP abaixo de 50% no momento do Eco, o valor do Eco nele é dobrado (equivalente a 100% do valor original). O Eco não conta como ação separada de Athena. Função 2 — Resistência das Casas: enquanto qualquer aliado estiver sob os buffs das 7 Casas, Athena recebe 100% de Resistência a todos os efeitos de Controle de Grupo — Atordoamento, Congelamento, Imobilização, Silêncio, Confusão e quaisquer outros que impeçam ou alterem sua ação.", flag: "pAth" },
+  };
 // Corrente de Ressonância / Eidolons — 6 nós ÚNICOS por personagem (estilo HSR/WuWa)
 const A_SKILL = { amp: "skill", ampV: 25 }, A_ULT = { amp: "ult", ampV: 50 };
 const CONS = {
@@ -339,12 +367,12 @@ const CONS = {
     { name: "S6 · Médico de Bordo", flag: "reviveEnergy", desc: "Mudança de kit: o Ultimate concede +20 de energia a TODA a equipe, acelerando os Ultimates dos DPS e transformando Chopper num motor de rotação." },
   ],
   kirara: [
-    { name: "S1 · Postura Firme", stat: "def", value: 10, desc: "Aprimoramento: DEF +10%." },
-    { name: "S2 · Encontro Estelar", flag: "shieldPlus", desc: "Mudança de kit: os escudos de Kirara ficam +30% mais fortes (somado à passiva), criando barreiras quase intransponíveis." },
-    { name: "S3 · Abraço Cósmico", ...A_SKILL, desc: "Eleva em +25% o valor do escudo da Habilidade." },
-    { name: "S4 · Coração Resiliente", stat: "hp", value: 12, desc: "Aprimoramento: HP +12%." },
-    { name: "S5 · Constelação Guardiã", ...A_ULT, desc: "Eleva em +50% o escudo e o buff de DEF do Ultimate em área." },
-    { name: "S6 · Muralha Viva", flag: "ultDmgBuff", desc: "Mudança de kit: o Ultimate concede +20% de bônus de dano a TODA a equipe por 2 turnos — Kirara deixa de ser só defensiva e passa a turbinar o dano do grupo." },
+    { name: "C1 · Aura Estelar", flag: "kirC1", desc: "Mudança de kit: a Habilidade de Kirara passa a conceder escudo a TODO o time. Cada aliado recebe 80% do valor do escudo principal — Kirara para de proteger só um e começa a blindar todos ao mesmo tempo." },
+    { name: "C2 · Guardião Cósmico", flag: "kirC2", desc: "Os escudos de Kirara ficam +30% mais fortes. Quando a Habilidade é usada, o aliado com menos escudo recebe +15% de DEF por 2 turnos, empilhando proteção onde mais importa." },
+    { name: "C3 · Compressão Estelar", ...A_SKILL, ampV: 30, desc: "Nível da Habilidade +2 / Básico +1. +30% no valor do escudo da Habilidade — cada ponto de DEF se converte em barreiras ainda mais grossas." },
+    { name: "C4 · Modo Guardião Ativo", flag: "kirC4", desc: "Mudança de kit: enquanto o escudo de Kirara estiver ativo, todos os aliados ganham +15% de redução de dano adicional. Ao usar a Ultimate, Kirara recupera imediatamente 20 de Energia." },
+    { name: "C5 · Muralha do Cosmos", ...A_ULT, ampV: 60, desc: "Nível da Ultimate +2 / Talento +2. +60% no escudo e no buff de DEF do Ultimate — a Constelação Guardiã atinge seu pico de proteção absoluta." },
+    { name: "C6 · Muralha Estelar Absoluta", flag: "kirC6", desc: "Capstone: a Ultimate concede escudos 50% mais grossos E +25% de Bônus de Dano ao time por 2 turnos. Enquanto qualquer aliado tiver escudo ativo, Kirara provoca TODOS os inimigos — a guardiã cósmica não descansa." },
   ],
   yoruichi: [
     { name: "S1 · Deusa da Velocidade", stat: "spd", value: 10, desc: "Aprimoramento: VEL +10, agindo ainda antes na ordem de turnos." },
@@ -414,7 +442,7 @@ const CONS = {
     { name: "C1 · Despertar da Preguiça", flag: "frC1", desc: "Frieren entra na batalha já com 2 Pontos de Elemento gerados aleatoriamente, permitindo usar opções avançadas do Supremo no primeiro turno." },
     { name: "C2 · Zoltraak Aprimorado (Dispersão)", flag: "frC2", desc: "Quando Frieren escolhe Zoltraak no Supremo, o feixe atravessa o alvo principal e atinge inimigos adjacentes causando 50% do dano." },
     { name: "C3 · Grimório Antigo", amp: "skill", ampV: 25, desc: "Nível da Habilidade +2 / Nível do Básico +1. +25% de dano no Grimório do Colecionador." },
-    { name: "C4 · Aura Oculta Repressora", flag: "frC4", desc: "Enquanto Frieren estiver em campo com energia da Suprema cheia (100%), a DEF de todos os inimigos é reduzida passivamente em 15%." },
+    { name: "C4 · Aura Oculta Repressora", flag: "frC4", desc: "Passivo permanente: Frieren ganha +30% de Taxa de Regeneração de Energia (multiplica todos os ganhos de energia por ×1.30). Enquanto a Suprema estiver cheia (100%), a DEF de todos os inimigos é reduzida em 20% e Frieren regenera +8 de Energia adicional por turno, acelerando drasticamente o próximo ciclo." },
     { name: "C5 · Compressão de Mana Milenar", amp: "ult", ampV: 50, desc: "Nível do Supremo +2 / Nível do Talento +2. +50% de dano em Descompressão de Mana." },
     { name: "C6 · A Maga Que Derrotou o Rei Demônio", flag: "frC6", desc: "Zoltraak causa Morte Instantânea em inimigos comuns/elites com menos de 30% HP. Contra Chefes, ignora 100% da DEF e reduz resistência Holy a zero até o fim da batalha." },
   ],
@@ -426,7 +454,24 @@ const CONS = {
     { name: "C5 · Chuva Devastadora", amp: "ult", ampV: 50, desc: "Eleva o nível da Ultimate e do Talento. +50% de dano na Chuva de Destroços." },
     { name: "C6 · Custo Zero", flag: "uraC6", desc: "Mudança de kit (capstone): o aliado com buff de Zero Gravity ativo recebe -10 pontos de custo fixo na própria Ultimate — combinações devastadoras tornam-se muito mais frequentes." },
   ],
-};
+
+    wonderofyou: [
+      { name: "E1 · Calamidade Sem Escolha", flag: "wooE1", desc: "Mudança de kit: A Perícia Calamidade Inevitável agora concede todos os 8 Buffs Únicos com 120% da potência original (ex.: Força do Destino passa de +40% ATQ para +48% ATQ). Além disso, os 4 Debuffs Especiais passam a ignorar 35% da Resistência a Efeitos dos inimigos ao serem aplicados. Por fim, sempre que um Buff ativo em um aliado for renovado pela Perícia ou pela Suprema, esse Buff aumenta sua própria duração em +1 turno adicional, podendo acumular até no máximo 6 turnos de duração total." },
+      { name: "E2 · Ser Evitado", flag: "wooE2", desc: "Mudança de kit: Os 4 Debuffs Especiais exclusivos de Wonder of You (Calamidade, Acidente Inevitável, Má Fortuna e Destino Quebrado) tornam-se permanentes enquanto ela permanecer vivo em combate — sua duração não diminui mais a cada turno. Esses Debuffs passam a ignorar imunidade a efeitos, ignorar resistência a efeitos, não podem ser dissipados por nenhuma habilidade ou item, não podem ser copiados por outras unidades e não podem ser transferidos. Contra Chefes: a redução de duração de habilidades de controle é limitada a 60% da duração original, mas todos os demais efeitos dos Debuffs Especiais são mantidos integralmente. Adicionalmente, sempre que um inimigo receber qualquer outro debuff de qualquer fonte, um Debuff Especial aleatório (dentre os que ele ainda não possui) é automaticamente aplicado nele também." },
+      { name: "E3 · A História Já Foi Escrita", ...A_SKILL, desc: "O nível da Perícia Calamidade Inevitável aumenta em +2 (máximo de nível 15). O nível do Ataque Básico Toque do Fim aumenta em +1 (máximo de nível 10). Além do aumento de nível padrão, todos os multiplicadores numéricos da Perícia são aumentados em 25%: o dano base, os valores dos Buffs concedidos e a potência dos Debuffs Especiais aplicados são todos amplificados por esse fator simultaneamente." },
+      { name: "E4 · O Universo Sempre Cobra Seu Preço", flag: "wooE4", desc: "Mudança de kit: para cada tipo de Buff diferente ativo em qualquer aliado da equipe, Wonder of You ganha +6% de Dano Final, +4% de penetração de DEF e +3 de Velocidade (esses bônus são calculados e aplicados dinamicamente a cada turno). Para cada Debuff Especial ativo em qualquer inimigo em campo, Wonder of You e seus aliados ganham +8% de Vulnerabilidade aplicada ao alvo, +5% de eficiência de Quebra de Fraqueza e +5% de Eficiência de Quebra geral contra ele. Efeito especial: se todos os 8 Buffs e todos os 4 Debuffs Especiais estiverem simultaneamente ativos no campo de batalha, todos os aliados recebem uma ação adicional automática ao final de cada turno." },
+      { name: "E5 · O Infortúnio Não Conhece Limites", ...A_ULT, desc: "O nível da Suprema Lei da Calamidade Absoluta aumenta em +2 (máximo de nível 15). O nível do Talento A Lei Natural do Infortúnio aumenta em +2 (máximo de nível 15). Além do aumento de nível padrão, a Suprema ganha um efeito adicional: ao ser conjurada, ela verifica todos os Buffs e Debuffs Especiais que estavam ativos antes de sua conjuração e reaplica instantaneamente qualquer um que tenha sido removido ou expirado durante o combate, renovando sua duração completa." },
+      { name: "E6 · Wonder of U", flag: "wooE6", desc: "Mudança de kit (Capstone — Eidolão Máximo): Todos os 8 Buffs Únicos concedidos pela Perícia tornam-se permanentes enquanto Wonder of You estiver em campo. Todos os 4 Debuffs Especiais tornam-se permanentes enquanto Wonder of You estiver em campo. Novo efeito — Julgamento da Calamidade: sempre que qualquer inimigo realizar uma das seguintes ações — atacar, usar uma Perícia, usar uma Suprema, invocar unidades aliadas, receber qualquer buff, recuperar HP, remover algum Debuff, ou avançar sua própria barra de ação — ele sofre imediatamente o Julgamento da Calamidade: causa Dano Quântico equivalente a 650% do ATQ de Wonder of You, ignora 60% da DEF do alvo, ignora 50% da Resistência a Todos os Tipos e aplica atraso de ação de 40% no alvo. Proteção aos aliados: enquanto Wonder of You estiver em campo, nenhum aliado pode ter seus Buffs removidos por qualquer fonte. Contenção dos inimigos: nenhum inimigo pode remover os Debuffs Especiais por qualquer meio." },
+    ],
+    athena: [
+      { name: "C1 · Arquitetura do Destino", flag: "athC1", desc: "Mudança de kit: a aba de seleção de aliados da Suprema Expansão das 7 Casas ganha o Modo Totalitário. Nesse modo, além de distribuir os buffs normalmente, Athena pode marcar um único aliado como Guardado pelas Casas. O aliado marcado recebe todos os buffs da Suprema em dobro: +60% de VEL, +60% de DEF e +40% de Taxa de CRIT, em vez dos valores padrão. Os demais aliados não marcados ainda recebem os buffs normais (+30% VEL, +30% DEF, +20% CRIT). Isso permite concentrar todo o poder das Casas em um único Hyper-Carry ou garantir que o personagem mais importante do time nunca seja atingido de forma crítica." },
+      { name: "C2 · Sinfonia da Velocidade", flag: "athC2", desc: "Mudança de kit: a Lei da Inércia entra em efeito. Sempre que qualquer aliado sob o efeito dos buffs das 7 Casas (ou seja, enquanto a Suprema estiver ativa) realizar qualquer ação — seja um Ataque Básico, uma Perícia ou qualquer outra habilidade — Athena avança automaticamente sua própria barra de ação em 15%. Esse avanço não conta como uma ação e não consome recursos. O efeito pode ser ativado por qualquer aliado elegível, sem limite de vezes por turno. Isso garante que Athena tenha turnos quase contínuos enquanto o time estiver ativo, permitindo manter o Modo Aprimorado da Perícia ativo praticamente 100% do tempo sem precisar investir pesadamente em Velocidade na build." },
+      { name: "C3 · Domínio de Santuário", ...A_SKILL, desc: "O nível da Perícia Bênção do Santuário aumenta em +2 (máximo de nível 15). O nível da Suprema Expansão das 7 Casas aumenta em +2 (máximo de nível 15). Isso amplifica diretamente todos os multiplicadores de cura (mais HP restaurado por uso da Perícia), os valores dos buffs concedidos pela Suprema (maior bônus de VEL, DEF e CRIT) e o dano do Modo Aprimorado da Perícia (escalonamento de ATK + VEL aumentado). Essencial para o conteúdo de End Game onde cada ponto percentual de cura e de buff faz diferença." },
+      { name: "C4 · Justiça Retributiva", flag: "athC4", desc: "Mudança de kit: enquanto a Suprema Expansão das 7 Casas estiver ativa, qualquer inimigo que atacar qualquer aliado sob o efeito dos buffs das 7 Casas recebe automaticamente o debuff Julgamento do Santuário: a DEF desse inimigo é reduzida em 20% pela duração de 2 turnos. Contra Chefes: além da redução de DEF, o Chefe também sofre Dano Holy puro (não pode ser resistido por Resistência Holy) a cada ação que ele realizar, calculado como 10% da Velocidade atual de Athena convertida em dano fixo. Esse dano ocorre antes da ação do Chefe ser executada, tornando Athena uma fonte passiva de dano contra conteúdo de alta dificuldade sem precisar de nenhuma ação extra." },
+      { name: "C5 · Visão do Zodíaco", ...A_ULT, desc: "O nível do Talento Eco da Justiça aumenta em +2 (máximo de nível 15). O nível do Ataque Básico Julgamento Divino aumenta em +2 (máximo de nível 10). O aumento do Talento amplifica diretamente o valor do Eco de Cura disparado em todos os aliados não-alvo (de 50% para um valor maior conforme a tabela de nível), além de reforçar a Resistência a Controle de Grupo durante as 7 Casas. O aumento do Ataque Básico melhora o dano e a recuperação de energia por uso, otimizando a rotação de energia para conjurar a Suprema mais rapidamente." },
+      { name: "C6 · Ascensão Divina: O Trono das 7 Casas", flag: "athC6", desc: "Mudança de kit (Capstone — Constelação Máxima): a Suprema Expansão das 7 Casas perde completamente o limite de duração enquanto Athena estiver viva em campo. Assim que a Suprema é conjurada pela primeira vez, os buffs das 7 Casas (+30% VEL, +30% DEF, +20% CRIT — ou em dobro se C1 estiver ativo) tornam-se Auras Permanentes que persistem até o fim da batalha ou até Athena ser derrotada, sem necessidade de reconjuração. Adicionalmente, a aba de seleção de aliados das 7 Casas pode ser reaberta a qualquer momento a cada 2 turnos de Athena para redistribuir ou mudar os alvos dos buffs sem nenhum custo de Energia. Isso transforma Athena de uma personagem de gerenciamento de buffs em uma Fonte de Poder Infinita, permitindo que o time inteiro opere com buffs permanentes de alto nível do início ao fim do combate." },
+    ],
+  };
 const GENERIC_CONS = [
   { name: "S1 · Despertar", stat: "atk", value: 8, desc: "ATK +8%." },
   { name: "S2 · Vínculo", stat: "critRate", value: 8, desc: "Taxa de CRIT +8%." },
@@ -456,7 +501,9 @@ const SKILL_NAMES = {
   nanami: ["Golpe de Cutelo", "Razão 7:3", "Colapso"],
   nami: ["Golpe com Clima-Tact", "Gust Sword", "Zeus Breeze Tempo"],
   uraraka: ["Combate de Gravidade", "Zero Gravity", "Chuva de Destroços"],
-};
+    wonderofyou: ["Toque do Fim", "Calamidade Inevitável", "Lei da Calamidade Absoluta"],
+    athena: ["Lança de Luz", "Bênção das Sete Casas", "Julgamento do Olimpo"],
+  };
 const skillNamesOf = (id) => SKILL_NAMES[id] || ["Ataque Básico", "Habilidade", "Ultimate"];
 
 /* ---------- RASTROS (estilo HSR) ---------- */
@@ -540,7 +587,17 @@ const TRACE_MAX = 10;
 const traceMul = (level) => 1 + (Math.max(1, level || 1) - 1) * 0.08; // +8% por nível
 const traceCost = (level) => 600 + (level - 1) * 450; // jade p/ subir do nível atual
 function specialTraces(def) {
-  if (def.id === "miyabi") return [
+    if (def.id === "wonderofyou") return [
+      { name: "A2 · Marca da Calamidade", desc: "Rastro Especial de combate: os inimigos afetados pelos debuffs exclusivos de Wonder of You (Miss, Vulnerabilidade, Atraso ou Redução de Atributos) recebem +12% de dano de todas as fontes enquanto durar qualquer um desses debuffs.", combat: "wooA2", cost: 2 },
+      { name: "A4 · Convite ao Vazio", desc: "Rastro Especial de combate: ao final de cada turno em que pelo menos um inimigo estiver sob 2 ou mais debuffs de Wonder of You simultâneos, ela recupera 10 de Energia extra.", combat: "wooA4", cost: 2 },
+      { name: "A6 · A Calamidade Absoluta", desc: "Rastro Especial de combate: se um inimigo atingir 0 debuffs exclusivos dela após tê-los perdido por expiração (não por remoção externa), Wonder of You causa uma explosão residual de 120% do ATK nesse alvo.", combat: "wooA6", cost: 3 },
+    ];
+    if (def.id === "athena") return [
+      { name: "Traço I · Guardiã das Casas", desc: "Rastro Especial de combate: ao curar um aliado com HP cheio, o excedente de cura vira um escudo equivalente a 50% do valor, durando 2 turnos.", combat: "athI", cost: 2 },
+      { name: "Traço II · Luz Consagrada", desc: "Rastro Especial de combate: enquanto estiver no Modo Aprimorado (após a Ultimate), os Ataques Básicos de Athena (Lança de Luz) também curam o time em 15% do dano causado.", combat: "athII", cost: 2 },
+      { name: "Traço III · Julgamento das Sete Casas", desc: "Rastro Especial de combate: a Ultimate de Athena concede +1 de Ponto de Ação (turno extra imediato) à aliada escolhida entre as Casas, uma vez por combate.", combat: "athIII", cost: 3 },
+    ];
+    if (def.id === "miyabi") return [
     { name: "Vestígio do Poder", desc: "Rastro Especial de combate · Postura Iaido: o Ataque Básico gera 1 PH. Ao acumular o limite de 3 PH, Miyabi entra na Postura Iaido — seu próximo Ataque Básico consome os 3 PH de uma vez para um corte que ignora 30% da DEF do alvo e avança a própria ação dela em 50% na linha do tempo.", combat: "miPostura", cost: 2 },
     { name: "Vestígio da Lâmina", desc: "Rastro Especial de combate · Cortes Residuais: quando Miyabi desfere um acerto CRÍTICO com a Habilidade ou o Ultimate, deixa Cortes Residuais congelados no alvo. Quando ela usa o Ataque Básico contra esse inimigo, os cortes ecoam causando 90% do ATK como dano Glacial extra e estendem a duração de quaisquer DoTs ativos nele em +1 turno.", combat: "miResidual", cost: 2 },
     { name: "Vestígio: Tempestade", desc: "Rastro Especial de combate · Detonação: ao atacar inimigos que já estejam sob efeito de DoT ou com a DEF reduzida, Miyabi consome instantaneamente esses debuffs para gerar uma explosão de 150% de Dano Glacial em área e aplica Congelamento por 1 turno.", combat: "miDetonate", cost: 3 },
@@ -695,9 +752,11 @@ function computeStats(owned) {
 
 /* ---------- GACHA ---------- */
 const RATE = { c5: 0.006, c4: 0.051, soft: 74, hard: 90 };
-function rollRarity(pity) {
-  let p5 = RATE.c5;
-  if (pity + 1 >= RATE.soft) p5 += (pity + 1 - (RATE.soft - 1)) * 0.06;
+function rollRarity(pity, hardMode) {
+  // hardMode (banner de evento): 5★ mais raro fora do pity — taxa base menor e soft pity mais tardio
+  let p5 = hardMode ? 0.004 : RATE.c5;
+  const soft = hardMode ? 80 : RATE.soft;
+  if (pity + 1 >= soft) p5 += (pity + 1 - (soft - 1)) * 0.06;
   if (pity + 1 >= RATE.hard) return 5;
   const r = Math.random();
   if (r < p5) return 5;
@@ -822,20 +881,20 @@ async function saveAccounts(a) { try { await SS.set(ACCOUNTS_KEY, JSON.stringify
 /* ---------- TORRE ---------- */
 const TOWER_FLOORS = 200;
 const TOWER_BOSSES = {
-  50: { name: "Sōsuke Aizen", title: "Shinigami Traidor", element: "Holy", bossKind: "aizen", bossImgId: "boss_tower_50", res: ["Holy", "Virus"], weak: ["Fogo", "Eletro"] },
-  60: { name: "Seto Kaiba · Modo Deus", title: "Portador de Obelisco", element: "Eletro", bossKind: "godkaiba", bossImgId: "boss_tower_60", res: ["Eletro", "Holy"], weak: ["Chaos", "Glacial"] },
+  50: { name: "Sōsuke Aizen", title: "Shinigami Traidor", element: "Holy", bossKind: "aizen", bossImgId: "boss_tower_50", res: ["Virus"], weak: ["Fogo", "Eletro"] },
+  60: { name: "Seto Kaiba · Modo Deus", title: "Portador de Obelisco", element: "Eletro", bossKind: "godkaiba", bossImgId: "boss_tower_60", res: ["Eletro"], weak: ["Chaos", "Glacial"] },
   70: { name: "Ryōmen Sukuna", title: "Rei das Maldições", element: "Chaos", bossKind: "sukuna", bossImgId: "boss_tower_70", res: ["Chaos", "Fogo", "Virus"], weak: ["Holy"] },
   80: { name: "Ryoshu · Matriarca Final", title: "A Aranha que Devora Estrelas", element: "Virus", bossKind: "ryoshu_boss", bossImgId: "boss_tower_80", res: ["Virus", "Chaos"], weak: ["Holy", "Glacial"] },
-  90: { name: "Frieren · Além do Fim", title: "A Maga do Milênio Absoluto", element: "Holy", bossKind: "frieren_boss", bossImgId: "boss_tower_90", res: ["Holy", "Glacial", "Vento"], weak: ["Chaos", "Virus"] },
-  100: { name: "Aizen · Transcendência", title: "Além da Ilusão Perfeita", element: "Holy", bossKind: "aizen", bossImgId: "boss_tower_100", res: ["Holy", "Vento", "Eletro"], weak: ["Chaos", "Fogo"] },
-  110: { name: "Sukuna · Rei Absoluto", title: "Domínio Infinito", element: "Chaos", bossKind: "sukuna", bossImgId: "boss_tower_110", res: ["Chaos", "Fogo", "Holy"], weak: ["Glacial"] },
-  120: { name: "Kaiba · Deus dos Deuses", title: "Obelisco Desperto", element: "Eletro", bossKind: "godkaiba", bossImgId: "boss_tower_120", res: ["Eletro", "Glacial", "Holy"], weak: ["Virus", "Chaos"] },
-  130: { name: "Ryoshu · Tecelã do Destino", title: "Teia que Consome Estrelas", element: "Virus", bossKind: "ryoshu_boss", bossImgId: "boss_tower_130", res: ["Virus", "Holy", "Chaos"], weak: ["Fogo", "Eletro"] },
+  90: { name: "Frieren · Além do Fim", title: "A Maga do Milênio Absoluto", element: "Holy", bossKind: "frieren_boss", bossImgId: "boss_tower_90", res: ["Glacial", "Vento"], weak: ["Chaos", "Virus"] },
+  100: { name: "Aizen · Transcendência", title: "Além da Ilusão Perfeita", element: "Holy", bossKind: "aizen", bossImgId: "boss_tower_100", res: ["Vento", "Eletro"], weak: ["Chaos", "Fogo"] },
+  110: { name: "Sukuna · Rei Absoluto", title: "Domínio Infinito", element: "Chaos", bossKind: "sukuna", bossImgId: "boss_tower_110", res: ["Chaos", "Fogo"], weak: ["Glacial"] },
+  120: { name: "Kaiba · Deus dos Deuses", title: "Obelisco Desperto", element: "Eletro", bossKind: "godkaiba", bossImgId: "boss_tower_120", res: ["Eletro", "Glacial"], weak: ["Virus", "Chaos"] },
+  130: { name: "Ryoshu · Tecelã do Destino", title: "Teia que Consome Estrelas", element: "Virus", bossKind: "ryoshu_boss", bossImgId: "boss_tower_130", res: ["Virus", "Chaos"], weak: ["Fogo", "Eletro"] },
   140: { name: "Frieren · Forma Primordial", title: "Milênios de Mana Descomprimida", element: "Holy", bossKind: "frieren_boss", bossImgId: "boss_tower_140", res: ["Holy", "Glacial", "Vento", "Eletro"], weak: ["Chaos", "Virus", "Fogo"] },
   150: { name: "Soberano do Vazio · Fase I", title: "Primeiro Despertar do Vazio", element: "Chaos", bossKind: "void_sovereign", bossImgId: "boss_tower_150", res: ["Chaos", "Virus"], weak: ["Holy"] },
   160: { name: "Soberano do Vazio · Fase II", title: "Dimensão Fraturada", element: "Virus", bossKind: "void_sovereign", bossImgId: "boss_tower_160", res: ["Virus", "Chaos", "Fogo"], weak: ["Glacial", "Holy"] },
   170: { name: "Omegamon · Modo Negativo", title: "Protocolo de Extinção", element: "Virus", bossKind: "omegamon_boss", bossImgId: "boss_tower_170", res: ["Virus", "Chaos"], weak: ["Holy", "Fogo"] },
-  180: { name: "Trindade das Sombras", title: "Aizen · Sukuna · Ryoshu Unidos", element: "Chaos", bossKind: "void_sovereign", bossImgId: "boss_tower_180", res: ["Chaos", "Virus", "Holy", "Eletro"], weak: ["Glacial"] },
+  180: { name: "Trindade das Sombras", title: "Aizen · Sukuna · Ryoshu Unidos", element: "Chaos", bossKind: "void_sovereign", bossImgId: "boss_tower_180", res: ["Chaos", "Virus", "Eletro"], weak: ["Glacial"] },
   190: { name: "Frieren · A Derradeira", title: "O Fim Além do Fim", element: "Holy", bossKind: "frieren_boss", bossImgId: "boss_tower_190", res: ["Holy", "Glacial", "Vento", "Fogo"], weak: ["Chaos"] },
   200: { name: "Soberano do Vazio · Forma Final", title: "O Abismo que Devora a Realidade", element: "Chaos", bossKind: "void_final", bossImgId: "boss_tower_200", res: ["Chaos", "Virus", "Holy"], weak: ["Glacial"] },
 };
@@ -859,9 +918,9 @@ function towerEncounter(f, power) {
   };
 }
 const FARM_STAGES = [
-  { id: "f1", name: "Clareira dos Ecos", level: 12, count: 3, cost: 30, exp: 16 },
-  { id: "f2", name: "Ruínas Cintilantes", level: 28, count: 3, cost: 40, exp: 30, boss: true },
-  { id: "f3", name: "Abismo Estelar", level: 46, count: 3, cost: 60, exp: 50, boss: true },
+  { id: "facil",   name: "Fácil · Clareira dos Ecos",    level: 20, count: 3, cost: 30, exp: 18,  desc: "Nv 1-20 — introdução. Drop leve de Lágrimas de XP." },
+  { id: "medio",   name: "Médio · Ruínas Cintilantes",   level: 50, count: 3, cost: 45, exp: 42,  boss: true, desc: "Nv 20-50 — drop equilibrado (melhor custo/benefício)." },
+  { id: "dificil", name: "Difícil · Abismo Estelar",     level: 80, count: 3, cost: 60, exp: 72,  boss: true, desc: "Nv 60-80 — para times fortes. Drop máximo de Lágrimas de XP." },
 ];
 function expToLevel(level) { return 2 + Math.floor(level / 10); } // Lácrimas de XP por nível (curva suave)
 const ASC_GATES = [20, 40, 60, 80];      // níveis em que é preciso ascender (derrotar o Guardião da Ascensão)
@@ -964,6 +1023,12 @@ function Game({ email, isAdmin, onLogout }) {
   const [standardTickets, setStandardTickets] = useState(10);
   const [featuredChar, setFeaturedChar] = useState(DEFAULT_FEATURED_CHAR);
   const [featuredWeapon, setFeaturedWeapon] = useState(DEFAULT_FEATURED_WEAPON);
+    const [featuredChar2, setFeaturedChar2] = useState(null);
+    useEffect(() => {
+      setFeaturedChar("wonderofyou");
+      setFeaturedChar2("athena");
+      setFeaturedWeapon("calamidade");
+    }, []);
   const [pity, setPity] = useState({ char: 0, weapon: 0, standard: 0, guaranteeChar: false });
   const [pullHistory, setPullHistory] = useState([]);
   const [owned, setOwned] = useState([
@@ -997,9 +1062,23 @@ function Game({ email, isAdmin, onLogout }) {
   const [mail3Claimed, setMail3Claimed] = useState(() => { try { return localStorage.getItem('sr_mail3_claimed_v1') === '1'; } catch { return false; } });
   const [mail3CharPicked, setMail3CharPicked] = useState(() => { try { return localStorage.getItem('sr_mail3_char_v1') || null; } catch { return null; } });
   const [mail4Claimed, setMail4Claimed] = useState(() => { try { return localStorage.getItem('sr_mail4_claimed_v1') === '1'; } catch { return false; } });
+  const [mail5Claimed, setMail5Claimed] = useState(() => { try { return localStorage.getItem('sr_mail5_claimed_v1') === '1'; } catch { return false; } });
   const [relicMats, setRelicMats] = useState(0);
+  const [rouletteCleared, setRouletteCleared] = useState(false);
+  const [nextRouletteClaimAt, setNextRouletteClaimAt] = useState(0);
   const [shopResetAt, setShopResetAt] = useState(0);
   const [shopPurchases, setShopPurchases] = useState({});
+  // ESPIRAL (2-times, fraquezas aleatórias por semana, reset 7 dias)
+  const [espiralClearedAt, setEspiralClearedAt] = useState({}); // { normal:ts, hard:ts, extreme:ts, apex:ts }
+  // ══ ABISMO DE DADOS (roguelike) ══
+  const [abismoRun, setAbismoRun] = useState(null);            // run atual: { floor, team:[ids], hpMap:{id:pct}, dead:[ids], gold, points, glitches:[], curse, seed, nodeOptions, pendingDraft, utiUsed }
+  const [abismoFrags, setAbismoFrags] = useState(0);           // Fragmentos de Dados (moeda isolada — nunca vira gema)
+  const [abismoMeta, setAbismoMeta] = useState({});            // Mainframe: { draft4, reroll, sanct70, bolsos, uti }
+  const [abismoFirstClears, setAbismoFirstClears] = useState([]); // andares 10/20/30... já premiados (160💎 únicas)
+  const [abismoWeekly, setAbismoWeekly] = useState({ key: "", gems: 0 }); // hard cap: 800💎/semana
+  const [espiralTeamA, setEspiralTeamA] = useState([]);
+  const [espiralTeamB, setEspiralTeamB] = useState([]);
+  const [espiralPending, setEspiralPending] = useState(null); // { diff, half, weakA, weakB }
 
   const ownedMap = useMemo(() => Object.fromEntries(owned.map((o) => [o.id, o])), [owned]);
   const flash = (msg, color) => { setToast({ msg, color: color || C.gold }); setTimeout(() => setToast(null), 2200); };
@@ -1020,9 +1099,13 @@ function Game({ email, isAdmin, onLogout }) {
       setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []);
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0); setBossRushCleared(Array.isArray(s.bossRushCleared) ? s.bossRushCleared : []);
       setDraftRoomCleared(s.draftRoomCleared ?? 0); setDraftClaimedGems(s.draftClaimedGems ?? 0); setDraftBoons(Array.isArray(s.draftBoons) ? s.draftBoons : []);
-      setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setMail2Claimed(prev => prev || (s.mail2Claimed ?? false)); setRelicMats(s.relicMats ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
+      setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setMail2Claimed(prev => prev || (s.mail2Claimed ?? false)); setRelicMats(s.relicMats ?? 0); setRouletteCleared(s.rouletteCleared ?? false); setNextRouletteClaimAt(s.nextRouletteClaimAt ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
       setMail3Claimed(prev => prev || (s.mail3Claimed ?? false)); if (s.mail3CharPicked) setMail3CharPicked(prev => prev || s.mail3CharPicked);
-      setMail4Claimed(prev => prev || (s.mail4Claimed ?? false));
+      if (s.espiralClearedAt) setEspiralClearedAt(s.espiralClearedAt);
+      if (s.abismoRun !== undefined) setAbismoRun(s.abismoRun || null);
+      setAbismoFrags(s.abismoFrags ?? 0); setAbismoMeta(s.abismoMeta || {});
+      setAbismoFirstClears(Array.isArray(s.abismoFirstClears) ? s.abismoFirstClears : []);
+      setAbismoWeekly(s.abismoWeekly || { key: "", gems: 0 });
     }
     // Carrega fotos do localStorage imediatamente (sem depender do Firebase)
     try { const li = _ls.get("sr_shared_images"); if (li) { const parsed = JSON.parse(li); if (parsed && typeof parsed === "object") setImages(parsed); } } catch {}
@@ -1055,8 +1138,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, mail4Claimed });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, mail4Claimed]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1163,7 +1246,7 @@ function Game({ email, isAdmin, onLogout }) {
     const ownedRef = new Set(owned.map((o) => o.id));
 
     for (let i = 0; i < count; i++) {
-      const rar = rollRarity(curPity);
+      const rar = rollRarity(curPity, isChar); // banner de evento: 5★ mais raro fora do pity 90
       if (rar === 5) {
         curPity = 0;
         if (isWeapon) {
@@ -1177,12 +1260,11 @@ function Game({ email, isAdmin, onLogout }) {
           results.push({ rarity: 5, kind, id, name: CHAR_MAP[id].name, dup });
           fives.push({ id, name: CHAR_MAP[id].name, banner: "Permanente" });
         } else {
-          let id, won;
-          if (guar || Math.random() < 0.5) { id = featuredChar; guar = false; won = true; } // ganhou o 50/50
-          else { id = pick(STANDARD_5); guar = true; won = false; } // perdeu: cai um padrão
+          // SEM 50/50: todo 5★ do banner de evento É o personagem destaque, sempre
+          const id = featuredChar; guar = false;
           const dup = grantChar(id, ownedRef);
-          results.push({ rarity: 5, kind, id, name: CHAR_MAP[id].name, dup, won });
-          fives.push({ id, name: CHAR_MAP[id].name, banner: won ? "Evento (50/50 ✓)" : "Evento (perdeu 50/50)" });
+          results.push({ rarity: 5, kind, id, name: CHAR_MAP[id].name, dup, won: true });
+          fives.push({ id, name: CHAR_MAP[id].name, banner: "Evento ✦ Destaque garantido!" });
         }
       } else if (rar === 4) {
         curPity += 1;
@@ -1253,6 +1335,126 @@ function Game({ email, isAdmin, onLogout }) {
     const draftOwnedMap = Object.fromEntries(draftOwnedEntries.map((o) => [o.id, o]));
     setBattle({ context: "draft", draftRoom: roomIdx, customTeam: draftTeamIds, draftOwnedMap, encounter: { level: lv, count: isBoss ? 1 : 2, boss: isBoss, teamPower: teamPower(), bossName: isBoss ? (roomIdx === 6 ? "Soberano da Catacumba" : "Guardião da Catacumba") : null, bossKind: isBoss ? "guardian" : null }, ally: null });
   }
+  // Gera fraquezas elementais da semana — seed baseada no número da semana ISO
+  /* ══════════ ABISMO DE DADOS — motor da run ══════════ */
+  const ABISMO_MUTS = ["pacto_vidro", "miasma", "espelhos", "frenesi", "chao", "vinganca", "explosao", "escalada", "ventos", "masoquista"];
+  function abismoNodeOptions(floor, seedN) {
+    if (floor % 10 === 0) return ["boss"];
+    const rng = (n) => { const x = Math.sin(seedN * 9301 + floor * 49297 + n * 233) * 43758.5453; return x - Math.floor(x); };
+    const pool = [];
+    pool.push(rng(1) < 0.5 ? "combate" : "elite");
+    pool.push(rng(2) < 0.55 ? "combate" : (rng(3) < 0.5 ? "evento" : "santuario"));
+    if (floor % 5 === 0) pool[1] = "santuario";
+    return [...new Set(pool)].length > 1 ? pool : [pool[0], "evento"];
+  }
+  function startAbismo() {
+    const pool = owned.map(o => o.id);
+    if (!pool.length) { flash("Você precisa de pelo menos 1 personagem!", C.bad); return; }
+    const pioneer = pool[Math.floor(Math.random() * pool.length)];
+    const seed = Date.now() % 100000; // semente nova a cada run (anti-macro)
+    setAbismoRun({ floor: 1, team: [pioneer], hpMap: {}, dead: [], gold: 50 + (abismoMeta.bolsos ? 100 : 0), points: 0, frags: 0, glitches: [], curse: 0, seed, nodeOptions: abismoNodeOptions(1, seed), pendingDraft: false, utiUsed: false, rerollUsed: false, startedAt: Date.now(), battles: 0 });
+    flash(`🕳️ A run começa! Pioneiro(a): ${CHAR_MAP[pioneer]?.name}. Sobreviva.`, C.gold);
+  }
+  function abismoBattle(kind) {
+    const r = abismoRun; if (!r) return;
+    const mutIdx = Math.floor((Math.sin(r.seed + r.floor * 77) * 0.5 + 0.5) * ABISMO_MUTS.length) % ABISMO_MUTS.length;
+    const lvl = Math.min(95, 6 + r.floor * 2);
+    setBattle({ context: "abismo", abismoKind: kind, customTeam: r.team, draftOwnedMap: ownedMap,
+      encounter: { level: lvl, count: kind === "boss" ? 2 : kind === "elite" ? 2 : 3, boss: kind === "boss" || kind === "elite",
+        bossName: kind === "boss" ? "Núcleo do Abismo · Andar " + r.floor : kind === "elite" ? "Elite Corrompida" : null,
+        bossKind: kind === "boss" ? "espiral_lord" : "guardian", espiralLordHpMul: 1.5,
+        teamPower: teamPower(), abismo: true, abismoMutator: ABISMO_MUTS[mutIdx],
+        abismoGlitches: r.glitches, abismoHp: r.hpMap, abismoCurse: r.curse, abismoUti: !!(abismoMeta.uti && !r.utiUsed) }, ally: null });
+  }
+  async function claimAbismoFirstClear(floor) {
+    // Validação server-side: o prêmio fica cravado no Firestore por conta.
+    // Mesmo apagando/editando o save local, o servidor recusa o segundo resgate.
+    const claimId = (email || "anon") + "_abismo_" + floor;
+    if (Cloud.ready) {
+      const rec = await cloudGet("abismo_claims", claimId);
+      if (rec) { setAbismoFirstClears(fc => fc.includes(floor) ? fc : [...fc, floor]); flash("💎 First clear do Andar " + floor + " já registrado no servidor.", C.mute); return; }
+      const ok = await cloudSet("abismo_claims", claimId, { email: email || "anon", floor, at: Date.now() });
+      if (!ok) { flash("⚠️ Servidor indisponível — o first clear será validado quando reconectar.", C.bad); return; }
+    }
+    setAbismoFirstClears(fc => fc.includes(floor) ? fc : [...fc, floor]);
+    setJade(j => j + 160);
+    flash(`💎 FIRST CLEAR — Andar ${floor}: +160 Gemas (registrado ${Cloud.ready ? "no servidor" : "localmente"})!`, C.gold);
+  }
+  function abismoCashout(r, died) {
+    // ── Validação de integridade (anti-macro/anti-cheat) ──
+    // 1) Plausibilidade temporal: nenhuma batalha real leva menos de ~6s
+    const elapsed = Date.now() - (r.startedAt || 0);
+    const minPlausible = (r.battles || 0) * 6000;
+    // 2) Teto teórico de pontos por andar alcançado
+    const maxPoints = r.floor * 30 + 60;
+    const suspicious = (r.battles > 0 && elapsed < minPlausible) || r.points > maxPoints;
+    if (suspicious) {
+      setAbismoRun(null);
+      flash("🚫 RUN REPROVADA pela validação de integridade — recompensas anuladas (progresso rápido/dados implausíveis).", C.bad);
+      return;
+    }
+    // Hard cap semanal de 800💎 vindas dos Pontos de Exploração
+    const wk = espiralWeekSeed() + "";
+    const cur = abismoWeekly.key === wk ? abismoWeekly.gems : 0;
+    const gems = Math.max(0, Math.min(800 - cur, r.points));
+    if (gems > 0) { setJade(j => j + gems); setAbismoWeekly({ key: wk, gems: cur + gems }); }
+    const xp = Math.floor(r.points / 5);
+    if (xp > 0) setExpItems(v => v + xp);
+    setAbismoFrags(f => f + (r.frags || 0));
+    setAbismoRun(null);
+    flash(`${died ? "☠️ A run termina no Andar " + r.floor : "🏁 Retirada estratégica no Andar " + r.floor}. +${gems}💎 (${cur + gems}/800 semanais) · +${xp}📘 · +${r.frags || 0}🧬 Fragmentos`, died ? C.bad : C.gold);
+  }
+  function abismoAfterWin(kind, res) {
+    setAbismoRun(prev => {
+      if (!prev) return prev;
+      const r = { ...prev, hpMap: { ...prev.hpMap }, dead: [...prev.dead], glitches: [...prev.glitches], team: [...prev.team] };
+      (res.heroesHp || []).forEach(h => { r.hpMap[h.id] = h.hpPct; if (!h.alive && !r.dead.includes(h.id)) { r.dead.push(h.id); r.team = r.team.filter(x => x !== h.id); } });
+      r.points += kind === "boss" ? 30 : kind === "elite" ? 15 : 10;
+      r.battles = (r.battles || 0) + 1;
+      r.frags = (r.frags || 0) + (kind === "boss" ? 40 : kind === "elite" ? 15 : 8);
+      r.gold += kind === "boss" ? 80 : kind === "elite" ? 35 : 20;
+      if (r.curse > 0) r.curse -= 1;
+      // First-clear: a cada 10 andares, 160💎 ÚNICAS por conta — validado no SERVIDOR (Firestore)
+      if (r.floor % 10 === 0 && !abismoFirstClears.includes(r.floor)) claimAbismoFirstClear(r.floor);
+      // Glitch drop: elites/bosses (e Troia bloqueia draft)
+      if ((kind === "elite" || kind === "boss") && Math.random() < (kind === "boss" ? 0.65 : 0.4)) {
+        const GL_POOL = ["patch", "bateria", "lente", "sanguefrio", "contrato", ...(kind === "boss" ? ["troia"] : [])];
+        const avail = GL_POOL.filter(g => !r.glitches.includes(g));
+        if (avail.length) { const g = avail[Math.floor(Math.random() * avail.length)]; r.glitches.push(g); flash("🧩 Glitch adquirido: " + ABISMO_GLITCH_INFO[g].n + "!", "#B98BFF"); }
+      }
+      // Draft após Elite/Boss (bloqueado pelo Cavalo de Troia)
+      r.pendingDraft = (kind === "elite" || kind === "boss") && !r.glitches.includes("troia") && r.team.length < 4;
+      r.floor += 1;
+      r.nodeOptions = abismoNodeOptions(r.floor, r.seed);
+      return r;
+    });
+  }
+  function espiralWeekSeed() {
+    const now = new Date();
+    const jan1 = new Date(now.getFullYear(), 0, 1);
+    const week = Math.floor((now - jan1) / (7 * 24 * 3600 * 1000));
+    return now.getFullYear() * 100 + week;
+  }
+  function espiralWeaknesses(seed) {
+    const pool = [...ELEMENT_NAMES];
+    const rng = (n) => { let x = Math.sin(seed + n) * 10000; return x - Math.floor(x); };
+    const a = pool.splice(Math.floor(rng(1) * pool.length), 1)[0];
+    const b = pool.splice(Math.floor(rng(2) * pool.length), 1)[0];
+    const c = pool.splice(Math.floor(rng(3) * pool.length), 1)[0];
+    const d = pool.splice(Math.floor(rng(4) * pool.length), 1)[0];
+    return { weakA: [a, b], weakB: [c, d] };
+  }
+  function startEspiral(diff, teamA, teamB) {
+    const seed = espiralWeekSeed();
+    const { weakA, weakB } = espiralWeaknesses(seed);
+    const diffCfg = { normal: { level: 60, waves: 1, gem: 2000 }, hard: { level: 75, waves: 2, gem: 4000 }, extreme: { level: 85, waves: 3, gem: 6000 }, apex: { level: 95, waves: 4, gem: 10000 } }[diff];
+    if (!diffCfg) return;
+    const halfOwned = Object.fromEntries([...teamA, ...teamB].map(id => [id, ownedMap[id] || normChar({ id, level: 70 })]));
+    // Começa pela metade A (Time A)
+    setEspiralPending({ diff, half: 1, weakA, weakB, diffCfg, teamA, teamB });
+    setBattle({ context: "espiral", espiralDiff: diff, espiralHalf: 1, customTeam: teamA, draftOwnedMap: halfOwned,
+      encounter: { level: diffCfg.level, count: 3, boss: true, waves: diffCfg.waves, bossName: "Guardião da Espiral", bossKind: "guardian", teamPower: teamPower(), espiral: true, bossWeak: weakA }, ally: null });
+  }
   function startRelicDungeon(tier) {
     const cost = tier === 2 ? 60 : tier === 1 ? 45 : 30;
     if (stamina < cost) { flash("Stamina insuficiente (precisa " + cost + ")", C.bad); return; }
@@ -1299,10 +1501,11 @@ function Game({ email, isAdmin, onLogout }) {
           return makeRelic(slot, "Protocolo Ômega");
         });
         setRelicInv(function(inv){ return [...inv, ...newRelics]; });
-        flash("Rede Corrompida vencida! +" + count + " Relíquia(s) Protocolo Ômega ☢️ (Elenco → Relíquias)", "#00E5CC");
+        setRelicMats(function(v){ return v + 12; });
+        flash("Rede Corrompida vencida! +" + count + " Relíquia(s) Protocolo Ômega ☢️ +12 🔷 Matéria de Relíquia (Elenco → Relíquias)", "#00E5CC");
       } else { flash("A Rede Corrompida resistiu…", C.bad); }
     } else if (b.context === "tagdungeon") {
-      if (result.win) { const t = b.tag; const drop = Math.floor(Math.random() * 2) + 1; setTagMats((m) => ({ ...m, [t]: (m[t] || 0) + drop })); setWeaponMats((v) => v + 5); setSkillMats((v) => v + 5); setBossMats((v) => v + 1); flash(`Dungeon de ${t} concluída! +${drop} material "${t}", +5 ⚙️ Arma, +5 💠 Habilidade, +1 🔮`, C.gold); }
+      if (result.win) { const t = b.tag; const drop = Math.floor(Math.random() * 2) + 1; setTagMats((m) => ({ ...m, [t]: (m[t] || 0) + drop })); setWeaponMats((v) => v + 5); setSkillMats((v) => v + 5); setBossMats((v) => v + 1); setRelicMats((v) => v + 12); flash(`Dungeon de ${t} concluída! +${drop} material "${t}", +5 ⚙️ Arma, +5 💠 Habilidade, +1 🔮, +12 🔷 Matéria de Relíquia`, C.gold); }
       else flash("A dungeon resistiu…", C.bad);
     } else if (b.context === "weekly") {
       if (result.win) {
@@ -1323,6 +1526,50 @@ function Game({ email, isAdmin, onLogout }) {
         setJade((j) => j + rw);
         flash(`Sala ${(b.draftRoom || 0) + 1} conquistada! +${rw}💎`, C.good);
       } else { flash("Derrotado na Catacumba do Rascunho…", C.bad); }
+    } else if (b.context === "abismo") {
+      const r0 = abismoRun;
+      if (!r0) { setBattle(null); return; }
+      if (res.win) {
+        abismoAfterWin(b.abismoKind, res);
+      } else {
+        // Derrota ou recuo em combate = fim da run (permadeath)
+        abismoCashout(r0, !res.abort);
+      }
+      setBattle(null); setScreen("abismo"); return;
+    } else if (b.context === "espiral") {
+      const pend = espiralPending;
+      if (!pend) return;
+      if (!result.win) { setEspiralPending(null); flash("Espiral — derrota. Tente novamente!", C.bad); return; }
+      if (b.espiralHalf === 1) {
+        // Time A venceu — agora Time B entra (metade B); guarda turnos da metade A
+        const { diff, weakB, diffCfg, teamA, teamB } = pend;
+        const halfOwned = Object.fromEntries([...teamA, ...teamB].map(id => [id, ownedMap[id] || normChar({ id, level: 70 })]));
+        setEspiralPending({ ...pend, half: 2, turnsA: result.turns || 0 });
+        setBattle({ context: "espiral", espiralDiff: diff, espiralHalf: 2, customTeam: teamB, draftOwnedMap: halfOwned,
+          encounter: { level: diffCfg.level, count: 3, boss: true, waves: diffCfg.waves, bossName: "Soberano da Espiral", bossKind: (diff === "extreme" || diff === "apex") ? "espiral_lord" : "guardian", espiralLordHpMul: diff === "apex" ? 2.6 : 1.9, teamPower: teamPower(), espiral: true, bossWeak: weakB }, ally: null });
+      } else {
+        // Ambos os times venceram — clear completo com sistema de estrelas
+        const { diff, diffCfg, turnsA } = pend;
+        setEspiralPending(null);
+        const weekKey = espiralWeekSeed();
+        const totalTurns = (turnsA || 0) + (result.turns || 0);
+        // Limites por dificuldade: [3★, 2★]; >2★ limite = 1★ (qualquer vitória)
+        const starLimits = { normal:[12,22], hard:[16,28], extreme:[20,36], apex:[24,44] }[diff] || [16,28];
+        const newStars = totalTurns <= starLimits[0] ? 3 : totalTurns <= starLimits[1] ? 2 : 1;
+        const prevStars = espiralClearedAt[diff + "_" + weekKey] || 0;
+        const isFirst = prevStars === 0;
+        const isNewBest = newStars > prevStars;
+        let reward = 0;
+        if (isFirst)        { reward = newStars === 3 ? diffCfg.gem : newStars === 2 ? Math.round(diffCfg.gem * 0.6) : Math.round(diffCfg.gem * 0.3); }
+        else if (isNewBest) { reward = newStars === 3 ? Math.round(diffCfg.gem * 0.5) : Math.round(diffCfg.gem * 0.1); }
+        else if (prevStars < 3) { reward = Math.round(diffCfg.gem * 0.05); }
+        // Se já tem 3★ e não é primeiro, sem recompensa
+        if (prevStars >= 3 && !isFirst) reward = 0;
+        const starStr = "⭐".repeat(newStars) + "☆".repeat(3 - newStars);
+        if (reward > 0) setJade(j => j + reward);
+        setEspiralClearedAt(c => ({ ...c, [diff + "_" + weekKey]: Math.max(prevStars, newStars) }));
+        flash(`🌀 ESPIRAL ${diff.toUpperCase()} ${starStr} (${totalTurns} turnos)!${reward > 0 ? ` +${reward}💎` : ""}${isFirst ? " (1ª vez!)" : isNewBest ? " (Novo recorde!)" : prevStars >= 3 ? " (Já 3★ — sem bônus)" : ""}`, reward > 0 ? C.gold : C.mute);
+      }
     } else if (b.context === "coop") {
       if (b.onResolve) b.onResolve(result);
     } else if (b.context === "bossrush") {
@@ -1350,7 +1597,7 @@ function Game({ email, isAdmin, onLogout }) {
 
   if (!loaded) return <div style={{ minHeight: "100vh", background: C.bg0, color: C.mute, display: "flex", alignItems: "center", justifyContent: "center" }}>Sincronizando ressonância…</div>;
 
-  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["roteiro", "Roteiro", "📖"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
+  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["roleta", "Pacto", "🎰"], ["espiral", "Espiral", "🌀"], ["abismo", "Abismo", "🕳️"], ["roteiro", "Roteiro", "📖"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
 
   const needsNick = loaded && (!playerName || playerName === "Pioneiro");
 
@@ -1397,12 +1644,15 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "farm" && <Farm stamina={stamina} start={startFarm} expItems={expItems} startTagDungeon={startTagDungeon} tagMats={tagMats} weaponMats={weaponMats} skillMats={skillMats} startRelicDungeon={startRelicDungeon} />}
               {screen === "tower" && <Tower towerCleared={towerCleared} towerClaimed={towerClaimed} start={startTower} team={team} flash={flash} />}
               {screen === "weekly" && <WeeklyBoss start={startWeekly} stamina={stamina} bossMats={bossMats} lastWeeklyBoss={lastWeeklyBoss} startAscension={startAscension} ascMats={ascMats} />}
-              {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} flash={flash} setBattle={setBattle} />}
+              {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} setRelicMats={setRelicMats} flash={flash} setBattle={setBattle} />}
               {screen === "relics" && <RelicsScreen relicInv={relicInv} />}
               {screen === "loja" && <Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} />}
-              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mail2Claimed={mail2Claimed} setMail2Claimed={setMail2Claimed} mail3Claimed={mail3Claimed} setMail3Claimed={setMail3Claimed} mail3CharPicked={mail3CharPicked} setMail3CharPicked={setMail3CharPicked} mail4Claimed={mail4Claimed} setMail4Claimed={setMail4Claimed} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setOwned={setOwned} setOwnedWeapons={setOwnedWeapons} flash={flash} />}
+              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mail4Claimed={mail4Claimed} setMail4Claimed={setMail4Claimed} mail5Claimed={mail5Claimed} setMail5Claimed={setMail5Claimed} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setSkillMats={setSkillMats} setTagMats={setTagMats} flash={flash} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
+              {screen === "roleta" && <RouletteEvent jade={jade} setJade={setJade} rouletteCleared={rouletteCleared} setRouletteCleared={setRouletteCleared} nextRouletteClaimAt={nextRouletteClaimAt} setNextRouletteClaimAt={setNextRouletteClaimAt} />}
+              {screen === "abismo" && <AbismoDados run={abismoRun} setRun={setAbismoRun} frags={abismoFrags} setFrags={setAbismoFrags} meta={abismoMeta} setMeta={setAbismoMeta} firstClears={abismoFirstClears} weekly={abismoWeekly} owned={owned} ownedMap={ownedMap} images={images} startAbismo={startAbismo} abismoBattle={abismoBattle} abismoCashout={abismoCashout} flash={flash} />}
+              {screen === "espiral" && <Espiral owned={owned} team={team} ownedMap={ownedMap} espiralClearedAt={espiralClearedAt} espiralWeekSeed={espiralWeekSeed} espiralWeaknesses={espiralWeaknesses} startEspiral={startEspiral} images={images} flash={flash} />}
                 {screen === "roteiro" && <Roteiro />}
               {screen === "admin" && (isAdmin ? <Admin images={images} setImages={setImages} flash={flash} isAdmin={isAdmin} draftActive={draftActive} setDraftActive={setDraftActive} /> : <Empty msg="Acesso restrito ao administrador." />)}
             </>
@@ -1740,7 +1990,7 @@ function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, 
     </Panel>
     {FARM_STAGES.map((st) => <Panel key={st.id}>
       <div className="flex items-center justify-between" style={{ gap: 10 }}>
-        <div><b>{st.name}</b><div style={{ color: C.mute, fontSize: 12 }}>Nv {st.level} · {st.count} inimigos{st.boss ? " · Elite" : ""} · recompensa +{st.exp} 📘</div></div>
+        <div><b>{st.name}</b><div style={{ color: C.mute, fontSize: 12 }}>Nv {st.level} · {st.count} inimigos{st.boss ? " · Elite" : ""} · recompensa +{st.exp} 📘</div>{st.desc && <div style={{ color: C.dim, fontSize: 11, marginTop: 2 }}>{st.desc}</div>}</div>
         <Btn kind={stamina < st.cost ? "soft" : "primary"} disabled={stamina < st.cost} onClick={() => start(st)}>{st.cost}⚡ Entrar</Btn>
       </div>
     </Panel>)}
@@ -1950,7 +2200,7 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
           </>}
 
           <div style={{ marginTop: 12 }}>
-            <div style={{ fontSize: 12, color: C.mute }}>Garantia: 5★ em até 90 · sem 5★ há <b style={{ color: C.gold }}>{curPity}</b>/90{isChar && pity.guaranteeChar ? " · próximo 5★ é o destaque garantido!" : ""}</div>
+            <div style={{ fontSize: 12, color: C.mute }}>Garantia: 5★ em até 90 · sem 5★ há <b style={{ color: C.gold }}>{curPity}</b>/90{isChar ? " · todo 5★ é o personagem destaque (sem 50/50)" : ""}</div>
             <Bar value={curPity} max={90} color={C.gold} />
           </div>
           <div className="flex gap-2 mt-4">
@@ -2142,7 +2392,7 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
         <div className="flex flex-col gap-2 mt-2">
           {[["basic", "Ataque Básico", skillNamesOf(def.id)[0]], ["skill", "Habilidade", skillNamesOf(def.id)[1]], ["ult", "Ultimate", skillNamesOf(def.id)[2]]].map(([key, lbl, nm]) => { const lvl = oc.traces[key] || 1; const max = lvl >= TRACE_MAX; return (
             <div key={key} className="flex items-center justify-between" style={{ background: C.panelHi, borderRadius: 10, padding: "8px 10px" }}>
-              <div><div style={{ fontWeight: 700, fontSize: 13 }}>{lbl} <span style={{ color: C.mute, fontWeight: 400 }}>· {nm}</span></div><div style={{ fontSize: 11, color: C.mute }}>Nv {lvl}/{TRACE_MAX} · dano +{Math.round((traceMul(lvl) - 1) * 100)}%</div></div>
+              <div><div style={{ fontWeight: 700, fontSize: 13 }}>{lbl} <span style={{ color: C.mute, fontWeight: 400 }}>· {nm}</span></div><div style={{ fontSize: 11, color: C.mute }}>Nv {lvl}/{TRACE_MAX} · {key === "basic" ? "dano" : (key === "ult" && (def.id === "sakura" || def.id === "usopp")) ? "dano/cura" : def.id === "omegamon" ? "dano/escudo" : def.role === "healer" ? "cura" : def.role === "shield" ? "escudo" : "dano"} +{Math.round((traceMul(lvl) - 1) * 100)}%</div></div>
               <Btn kind={max ? "ghost" : "soft"} disabled={max} style={{ padding: "5px 10px" }} onClick={() => traceLevelUp(o.id, key)}>{max ? "MÁX" : isAdmin ? "Subir" : (<span className="flex items-center gap-1 flex-wrap" style={{ justifyContent: "center" }}><span className="flex items-center gap-1"><ItemIcon id="item_skill_mat" emoji="💠" size={13} />{1 + Math.floor(lvl / 3)}</span>{lvl >= 5 && <span className="flex items-center gap-1">+<ItemIcon id="item_boss_mat" emoji="🔮" size={13} />1</span>}</span>)}</Btn>
             </div>); })}
         </div>
@@ -2663,6 +2913,87 @@ const SKILL_DESC = {
       "<b>[C6 · Suprema Execução]</b> Eliminar o alvo com a Ultimate recupera <b>100% de Energia</b> e concede <b>+50% de Dano Bônus</b> por 1 turno.",
     ],
   },
+  wonderofyou: {
+    basic: [
+      "Ataque Básico — <b>Toque do Fim</b>: causa Dano de Caos a um único inimigo.",
+      "Ganha <b>+1 Ponto de Habilidade</b>.",
+      "━━ <b>✦ Talento — A Lei Natural do Infortúnio:</b> ━━",
+      "• Sempre que um aliado <b>receber dano</b>: aplica automaticamente um <b>Buff Aleatório</b> que ele ainda não possui.",
+      "• Sempre que um inimigo <b>causar dano</b>: recebe um <b>Debuff Especial</b> que ainda não possui.",
+      "<b>[A2 · Princípio da Causalidade Infinita]</b> Verifica continuamente o campo e ativa dois estágios progressivos. <b>Estágio 1 — Fluxo da Calamidade</b>: ativado quando cada aliado possui 2+ Buffs Únicos E cada inimigo possui 2+ Debuffs Especiais simultaneamente. Enquanto ativo: todos os aliados ganham <b>+25% ATQ, +20% VEL e +35% Dano Final</b>; todos os inimigos sofrem <b>−25% de Resistência</b> a todos os tipos de dano. <b>Estágio 2 — Destino Absoluto</b>: evolui a partir do Estágio 1 quando todos os inimigos possuem os 4 Debuffs Especiais simultaneamente (Calamidade, Acidente Inevitável, Má Fortuna e Destino Quebrado). Mantém todos os bônus do Estágio 1 e adiciona: <b>+20% de dano</b> em todas as fontes para toda a equipe. Ambos os estágios desativam imediatamente se as condições deixarem de ser atendidas e reativam assim que restauradas.",
+      "<b>[A4 · O Mundo Sempre Corrige a Si Mesmo]</b> Opera em dois cenários distintos com efeitos automáticos. <b>Cenário 1 — Ao aplicar Buff</b> (por Perícia, Talento ou Suprema): o aliado que recebeu o Buff <b>imediatamente</b> recupera <b>8 de Energia</b>, avança sua barra de ação em <b>12%</b> e tem <b>1 efeito negativo aleatório removido</b> — os três efeitos ocorrem simultaneamente, independentemente do Buff aplicado. <b>Cenário 2 — Ao aplicar Debuff Especial</b> (por qualquer fonte): o inimigo <b>imediatamente</b> perde <b>10 de Energia</b>, tem sua ação atrasada em <b>15%</b> e sofre <b>Dano Quântico de 90% do ATQ</b> de Wonder of You (não escala com CRIT). <b>Mecanismo de Proteção</b>: se qualquer inimigo tentar remover, dissipar ou neutralizar um Debuff Especial por qualquer meio, o efeito de remoção <b>falha completamente</b> e o inimigo recebe o debuff <b>Colapso Causal</b> por 2 turnos — enquanto ativo, ele recebe <b>+35% de dano</b> de todas as fontes.",
+      "<b>[A6 · A Calamidade É Uma Constante Universal]</b> Opera em três camadas simultâneas. <b>Camada 1 — Supremacia dos Buffs</b>: enquanto qualquer aliado possuir os 8 Buffs Únicos ao mesmo tempo, todos os ataques de Wonder of You ignoram <b>35% da DEF</b> do alvo, ela ganha <b>+40% CRIT DMG</b> e cada ataque recupera <b>5 de Energia</b>. <b>Camada 2 — Supremacia dos Debuffs</b>: enquanto qualquer inimigo possuir os 4 Debuffs Especiais ao mesmo tempo, esse inimigo fica <b>completamente bloqueado</b> de receber qualquer bônus de ATQ, DEF, VEL ou RES — se algum buff desse tipo tentar ser aplicado, ele é convertido em <b>+15% de dano recebido</b> por 1 turno. <b>Camada 3 — Acumulador de Calamidade</b>: no início de cada rodada de WoY, por cada tipo de Buff diferente ativo em qualquer aliado, toda a equipe ganha <b>+3% de dano</b>; por cada Debuff Especial ativo em qualquer inimigo, todos os inimigos sofrem <b>−4% de DEF</b>. Ambos acumulam livremente com máximo de <b>24 aplicações cada</b> (máx <b>+72% dano</b> da equipe e <b>−96% DEF</b> dos inimigos em condições perfeitas).",
+      "<b>[Arma · Calamidade — A Tragédia Sempre Encontra um Caminho]</b> +30% HP máx. Ao conceder buff: +20% dano do aliado (até 8×). Ao aplicar debuff: −10% DEF do alvo (até 8×).",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "━━ <b>Calamidade Inevitável</b> ━━",
+      "Concede a todos os aliados <b>8 Buffs Aleatórios Únicos</b> por <b>3 turnos</b>:",
+      "• <b>Força do Destino</b> — +40% ATQ.",
+      "• <b>Muralha da Causalidade</b> — +35% DEF.",
+      "• <b>Passos Impossíveis</b> — +30 de VEL.",
+      "• <b>Olhos da Verdade</b> — +25% Taxa de CRIT.",
+      "• <b>Golpe Inegável</b> — +50% Dano CRIT.",
+      "• <b>Fluxo Infinito</b> — +30% Regeneração de Energia.",
+      "• <b>Destino Favorável</b> — +40% de Dano causado.",
+      "• <b>Milagre Estatístico</b> — ignora 25% da DEF dos inimigos.",
+      "Aplica a todos os inimigos <b>4 Debuffs Especiais Únicos</b> por <b>3 turnos</b> (exclusivos de Wonder of You — não podem ser copiados nem dissipados):",
+      "• <b>Calamidade</b> — 50% de chance de atrasar a ação em 40% sempre que o inimigo agir.",
+      "• <b>Acidente Inevitável</b> — recebe 40% mais dano de todas as fontes.",
+      "• <b>Má Fortuna</b> — 35% de chance de falhar completamente ao atacar.",
+      "• <b>Destino Quebrado</b> — −40% ATQ, DEF, RES e VEL simultaneamente.",
+      "<b>[E1 · Calamidade Sem Escolha]</b> A Perícia concede todos os 8 Buffs com <b>120% da potência original</b>. Os Debuffs Especiais passam a ignorar <b>35% da Resistência a Efeitos</b>. Cada Buff renovado aumenta sua duração em <b>+1 turno</b> (máx 6).",
+      "<b>[E2 · Ser Evitado]</b> Os 4 Debuffs Especiais tornam-se <b>permanentes</b> enquanto WoY estiver vivo — ignoram imunidade, resistência, não podem ser dissipados nem copiados. Ao qualquer inimigo receber outro debuff: um Debuff Especial aleatório é também aplicado.",
+      "<b>[E3 · A História Já Foi Escrita]</b> Perícia +2 (máx 15), Ataque Básico +1 (máx 10). Todos os multiplicadores numéricos da Perícia +25%.",
+    ],
+    ult: [
+      "Custo: <b>140 de Energia</b>.",
+      "━━ <b>Lei da Calamidade Absoluta</b> ━━",
+      "Renova todos os <b>Buffs</b> e <b>Debuffs Especiais</b> ativos.",
+      "Todos os aliados recebem um <b>turno imediato</b> (avanço de ação 100%).",
+      "Todos os inimigos recebem novamente os <b>4 Debuffs Especiais</b>, ignorando <b>40% da Resistência a Efeitos</b>.",
+      "Por <b>2 turnos</b>: qualquer inimigo que atacar sofre <b>Dano de Caos de 350% do ATQ</b> de Wonder of You.",
+      "<b>[E4 · O Universo Sempre Cobra Seu Preço]</b> Por Buff diferente na equipe: +6% Dano Final, +4% DEF ignorada, +3 VEL. Por Debuff Especial nos inimigos: +8% Vulnerabilidade, +5% Quebra de Fraqueza, +5% Eficiência de Quebra. Com todos os Buffs e Debuffs ativos ao mesmo tempo: todos os aliados recebem <b>ação adicional ao final do turno</b>.",
+      "<b>[E5 · O Infortúnio Não Conhece Limites]</b> Suprema +2 (máx 15), Talento +2 (máx 15). A Suprema também <b>reaplica instantaneamente</b> qualquer Buff ou Debuff perdido durante a batalha.",
+      "<b>[E6 · Wonder of U]</b> Todos os Buffs e Debuffs Especiais tornam-se <b>permanentes</b>. Sempre que um inimigo atacar, usar Perícia, invocar unidades, ganhar buffs, recuperar HP, remover debuffs ou avançar ação: sofre imediatamente <b>Julgamento da Calamidade</b> — Dano Quântico <b>650% ATQ</b>, ignora 60% DEF e 50% RES, atraso de ação de <b>40%</b>. Aliados não podem ter buffs removidos; inimigos não podem remover Debuffs Especiais.",
+    ],
+  },
+  athena: {
+    basic: [
+      "Ataque Básico — <b>Julgamento Divino</b>: causa Dano Holy a um único inimigo e regenera Energia para Athena.",
+      "━━ <b>✦ Talento — Eco da Justiça:</b> ━━",
+      "• Sempre que Athena usa a Perícia (em qualquer modo), dispara um <b>Eco de Cura</b> em todos os aliados que não foram o alvo principal — <b>50% do valor da cura original</b>.",
+      "• Enquanto os buffs das <b>7 Casas</b> estiverem ativos: Athena possui <b>100% de Resistência a Controle de Grupo</b> (Atordoamento, Congelamento, etc.).",
+      "<b>[Rastro II · Luz Consagrada]</b> Enquanto Athena estiver no <b>Modo Aprimorado</b> (após a Suprema), seus Ataques Básicos também <b>curam todo o time em 15% do dano causado</b> — permitindo manter sustain mesmo na rotação ofensiva.",
+      "<b>[Arma · Cetro da Autoridade Celestial — Sétimo Pilar da Criação]</b> I) +20% de DEF; ao usar a Perícia, o aliado curado ganha <b>Proteção Zodiácal</b> (+12% CRIT DMG por acúmulo, até 3×). II) Se VEL > 140: <b>Vontade da Guardiã</b> — cura +24% e excedente vira <b>Escudo de Absorção</b> por 1 rodada.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "━━ <b>Bênção do Santuário</b> (Modo Padrão) ━━",
+      "Cura um aliado alvo com base no <b>ATK + DEF</b> de Athena.",
+      "Aplica <b>Armadura de Luz</b>: −15% de dano recebido por <b>2 rodadas</b>.",
+      "✦ <b>Eco da Justiça</b> (Talento): todos os aliados não-alvo recebem automaticamente <b>50% do valor da cura</b>.",
+      "━━ <b>Golpe do Santuário</b> (Modo Aprimorado — após o Supremo) ━━",
+      "Em vez de curar, desfere um golpe que causa Dano Holy: <b>120% do ATK + 80% da VEL atual</b> de Athena.",
+      "Reduz a <b>Resistência Holy</b> do inimigo atingido em <b>20%</b> por 2 rodadas.",
+      "<b>[Rastro I · Guardiã das Casas]</b> Ao curar um aliado além do HP máximo, o <b>excedente de cura vira Escudo</b> equivalente a <b>50% do valor</b>. Com o Cetro da Autoridade Celestial e VEL > 140, o excedente vira escudo <b>integral</b> (o efeito da arma prevalece).",
+      "<b>[C2 · Sinfonia da Velocidade]</b> Sempre que um aliado sob as 7 Casas realizar uma ação, Athena avança sua barra de ação em <b>15%</b>.",
+      "<b>[C3 · Domínio de Santuário]</b> Nível da Perícia e do Supremo +2 (máx 15).",
+      "<b>[C4 · Justiça Retributiva]</b> Inimigos que atacarem aliados sob efeito do Supremo recebem <b>Julgamento do Santuário</b>: DEF −20%; Chefes sofrem Dano Holy puro baseado em <b>10% da VEL de Athena</b> a cada ação.",
+    ],
+    ult: [
+      "Custo: <b>140 de Energia</b>.",
+      "━━ <b>Expansão das 7 Casas — Domínio do Éden</b> ━━",
+      "Abre a aba de seleção de aliados — distribua os buffs de forma inteligente ou concentre tudo no Hyper-Carry.",
+      "Os aliados selecionados recebem por <b>3 rodadas</b>:",
+      "• <b>+30% de VEL</b> · <b>+30% de DEF</b> · <b>+20% de Taxa de CRIT</b>.",
+      "Athena entra no <b>Modo Aprimorado</b> por 2 rodadas — Perícia passa a ser <b>Golpe do Santuário</b> (dano + quebra de postura).",
+      "<b>[Rastro III · Julgamento das Sete Casas]</b> Ao conjurar a Suprema, o aliado <b>escolhido na aba de seleção</b> recebe <b>+1 Ponto de Ação</b> — sua barra de ação avança instantaneamente para o próximo turno. Funciona <b>1 vez por combate</b>.",
+      "<b>[C1 · Arquitetura do Destino]</b> Modo Totalitário: marque 1 aliado como <b>Guardado pelas Casas</b> — ele recebe os buffs em dobro (<b>+60% VEL, +60% DEF, +40% CRIT</b>).",
+      "<b>[C5 · Visão do Zodíaco]</b> Nível do Talento e do Ataque Básico +2.",
+      "<b>[C6 · Ascensão Divina — O Trono das 7 Casas]</b> O Supremo não tem mais duração limitada enquanto Athena estiver em campo — os buffs das 7 Casas tornam-se <b>Auras Permanentes</b>. A aba de seleção pode ser reaberta a cada 2 turnos sem gastar Energia.",
+    ],
+  },
 };
 
 function SkillList({ def, stats }) {
@@ -3089,7 +3420,11 @@ function makeUnit(o, side, idx) {
     ampBasic: ampB, ampSkill: ampS, ampUlt: ampU, dragons: 0,
     base: stats, hp: Math.round(stats.hp), maxHp: Math.round(stats.hp), shield: 0,
     energy: Math.round(stats.energyMax * 0.2), energyMax: stats.energyMax,
-    av: (flags.pSwift ? 0.5 : 1) * 10000 / Math.max(1, stats.spd), buffs: [], debuffs: [], dots: [], alive: true,
+    av: (flags.pSwift ? 0.5 : 1) * 10000 / Math.max(1, stats.spd),
+    buffs: (o.weapon?.buff?.spdThreshold && stats.spd > o.weapon.buff.spdThreshold.spd)
+      ? [{ stat: "spd", value: o.weapon.buff.spdThreshold.spdBonus || 16, pct: false, turns: 9999, name: "VontadeGuardiã" }]
+      : [],
+    debuffs: [], dots: [], alive: true,
     posturePH: flags.miC1 ? (flags.miC6 ? 4 : 3) : 0, ritmoStacks: 0,
     weapon: o.weapon ? WEAPON_MAP[o.weapon] : null, hasSummon: false,
   };
@@ -3139,11 +3474,11 @@ function makeEnemy(idx, enc) {
   if (enc.tagDungeon) {
     // HP fixo baseado no nível — não escala com poder do time (estilo HSR)
     // Ondas regulares têm HP substancialmente maior que dungeons de farm
-    baseHp = 280 * Math.pow(lvl, 1.28) + idx * 500;
-    if (boss) baseHp *= 5.5; // Guardião da Tag é bem mais resistente
+    baseHp = 210 * Math.pow(lvl, 1.26) + idx * 400;
+    if (boss) baseHp *= 4.0; // Guardião da Tag (rebalance: -27%)
   } else {
     // HP atrelado ao PODER da equipe (invariante de escala) — mantém a luta justa mesmo após o rebalanceamento HSR
-    baseHp = power * 2.4 + lvl * 50 + idx * 150;
+    baseHp = power * 1.8 + lvl * 40 + idx * 120;
     if (enc.relicFarm) baseHp *= 0.20; // Dungeon de relíquias: bem mais rápida
     if (enc.ascend) baseHp *= 0.35; // Dungeon de ascensão: mais acessível
     // Torre: NPCs do andar 90+ têm HP escalado (1× no 90 → 5× no 200)
@@ -3154,20 +3489,19 @@ function makeEnemy(idx, enc) {
     // Torre: HP dos chefes escala exponencialmente — andar 200 = exatamente 5.000.000 HP
     if (enc.isTower && boss) {
       const f = enc.floor || enc.level;
-      const _baseTower = f === 200 ? 5000000 : Math.round(158114 * Math.pow(10, (f - 50) / 100));
-      baseHp = f === 100 ? Math.round(_baseTower * 0.65) : f === 110 ? Math.round(_baseTower * 0.68) : _baseTower;
+      baseHp = f === 200 ? 3500000 : Math.round(118000 * Math.pow(10, (f - 50) / 105));
     } else if (boss) {
-      baseHp *= (finalBoss ? 7.2 : weekly ? 8.5 : ascend ? 2.8 : enc.relicFarm ? 0.85 : 4.6);
+      baseHp *= (finalBoss ? 5.4 : weekly ? 6.2 : ascend ? 2.4 : enc.relicFarm ? 0.85 : 3.4);
     }
   }
   const hp = Math.round(baseHp);
-  const atkReduce = enc.relicFarm ? 0.70 : enc.ascend ? 0.45 : 1.0;
+  const atkReduce = enc.relicFarm ? 0.70 : enc.ascend ? 0.45 : enc.isTower ? 0.75 : 1.0;
   // Dungeons e Torre escalam o ATK para garantir dano de 500–4.000 por hit nos heróis
-  const dungeonAtkMult = enc.tagDungeon ? 3.0 : enc.isTower ? Math.min(2.5, 1.0 + Math.max(0, (enc.floor || enc.level || 50) - 50) / 100) : 1.8;
-  const atk = Math.round((power * 0.06 + lvl * 4 + 80) * (boss ? 1.35 : 1) * atkReduce * dungeonAtkMult);
+  const dungeonAtkMult = enc.tagDungeon ? 1.38 : enc.isTower ? Math.min(1.55, 0.9 + Math.max(0, (enc.floor || enc.level || 50) - 50) / 130) : enc.espiral ? 1.3 : enc.abismo ? 1.25 : 1.5;
+  const atk = Math.round((power * 0.052 + lvl * 3.5 + 70) * (boss ? 1.3 : 1) * atkReduce * dungeonAtkMult);
   const def = Math.round(power * 0.035 + lvl * 3 + (boss ? power * 0.03 : 0));
   const spd = 95 + idx * 3 + (boss ? 4 : 0);
-  if (enc.bossRush && idx === 0) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===enc.bossId;}); if (bd) { const atkBr = Math.round(3500 + (enc.level||90) * 12); const defBr = Math.round(2200 + (enc.level||90) * 8); return { uid: "E0", side: "enemy", name: bd.name, bossTitle: bd.lore, bossImgId: bd.imgKey, avatar: bd.avatar, element: bd.element, level: bd.level, roleKey: "dps", bossKind: bd.kind, boss: true, finalBoss: false, weekly: false, ascend: false, elite: false, res: bd.res || [], weak: bd.weak || [], base: { atk: atkBr, def: defBr, spd: 90, critRate: 15, critDmg: 60, dmgBonus: 0 }, hp: bd.hp, maxHp: bd.hp, shield: bd.kind === "sukuna" ? 200000 : 0, av: 10000 / 90, buffs: [], debuffs: [], dots: [], alive: true, actCount: 0 }; } }
+  if (enc.bossRush && idx === 0) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===enc.bossId;}); if (bd) { const atkBr = Math.round(2900 + (enc.level||90) * 10); const defBr = Math.round(2200 + (enc.level||90) * 8); return { uid: "E0", side: "enemy", name: bd.name, bossTitle: bd.lore, bossImgId: bd.imgKey, avatar: bd.avatar, element: bd.element, level: bd.level, roleKey: "dps", bossKind: bd.kind, boss: true, finalBoss: false, weekly: false, ascend: false, elite: false, res: bd.res || [], weak: bd.weak || [], base: { atk: atkBr, def: defBr, spd: 90, critRate: 15, critDmg: 60, dmgBonus: 0 }, hp: bd.hp, maxHp: bd.hp, shield: bd.kind === "sukuna" ? 120000 : 0, av: 10000 / 90, buffs: [], debuffs: [], dots: [], alive: true, actCount: 0 }; } }
   const bossEl = enc.bossElement || pick(ELEMENT_NAMES);
   const name = ascend ? (enc.bossName || "Guardião da Ascensão") : weekly ? (enc.bossName || "Tirano do Vazio") : finalBoss ? "Soberano do Vazio" : boss ? "Guardião do Andar" : "Aberração " + (idx + 1);
   // Alguns chefes têm RESISTÊNCIA (1-3 elementos) e FRAQUEZA (1-2 elementos)
@@ -3184,12 +3518,15 @@ function makeEnemy(idx, enc) {
     const nWeak = 1 + Math.floor(Math.random() * 2);
     for (let i = 0; i < nWeak && poolE.length; i++) { weak.push(poolE.splice(Math.floor(Math.random() * poolE.length), 1)[0]); }
   }
+  // Soberano da Espiral (Extremo/Ápice): vida massivamente aumentada
+  const _espLordMul = (enc.bossKind === "espiral_lord" && (boss || finalBoss) && idx === 0) ? (enc.espiralLordHpMul || 2.2) : 1;
+  const _finalHp = Math.round(hp * _espLordMul);
   return {
     uid: "E" + idx, side: "enemy", name: enc.bossName && (boss || finalBoss) && idx === 0 ? enc.bossName : name, bossTitle: enc.bossTitle || null, bossImgId: enc.bossImgId || null, avatar: ascend ? "🗿" : weekly ? "🦂" : finalBoss ? "🕳️" : boss ? "👑" : ["👾", "👹", "🐲"][idx % 3],
-    element: (enc.bossElement && (boss || finalBoss) && idx === 0) ? enc.bossElement : (boss ? bossEl : pick(ELEMENT_NAMES)), level: lvl, roleKey: "dps", bossKind: enc.bossKind || (finalBoss ? "void" : weekly ? "venom" : ascend ? "stone" : "guardian"),
+    element: (enc.bossElement && (boss || finalBoss) && idx === 0) ? enc.bossElement : (boss ? bossEl : pick(ELEMENT_NAMES)), level: lvl, roleKey: "dps", bossKind: (idx === 0 ? enc.bossKind : null) || (finalBoss ? "void" : weekly ? "venom" : ascend ? "stone" : "guardian"),
     boss: boss || weekly || ascend, finalBoss, weekly, ascend, elite: !boss && lvl >= 18 && idx === 0, res, weak,
     base: { atk, def, spd, critRate: boss ? 12 : 6, critDmg: 55, dmgBonus: 0 },
-    hp, maxHp: hp, shield: 0, av: 10000 / Math.max(1, spd), buffs: [], debuffs: [], dots: [], alive: true, actCount: 0,
+    hp: _finalHp, maxHp: _finalHp, shield: 0, av: 10000 / Math.max(1, spd), buffs: [], debuffs: [], dots: [], alive: true, actCount: 0,
   };
 }
 function effStat(u, key) {
@@ -3197,6 +3534,23 @@ function effStat(u, key) {
   let base = b0[key] || 0, flat = 0, pct = 0;
   for (const b of (u.buffs || [])) if (b.stat === key) { if (b.pct) pct += b.value || 0; else flat += b.value || 0; }
   for (const b of (u.debuffs || [])) if (b.stat === key) { if (b.pct) pct += b.value || 0; else flat += b.value || 0; }
+  // Ignis: chamas negras consomem a força ofensiva — ATK -10% enquanto ativo
+  if (key === "atk" && u && (u.dots || []).some(d => d.type === "burn")) pct -= 10;
+  // Glacies Stasis: VEL -10% enquanto congelado (não acumula — trava anti turn-lock)
+  if (key === "spd" && u && (u.dots || []).some(d => d.type === "freeze" || d.type === "geada")) pct -= 10;
+  // Aero Sunder: cada acúmulo reduz a DEF em 8% (máx 40%)
+  if (key === "def" && u && u.dots) { const _ae = Math.min(5, u.dots.filter(d => d.type === "aero").length); if (_ae > 0) pct -= _ae * 8; }
+  // Uraraka (Rastro Lâmina): +15% DEF enquanto HP > 50%
+  if (key === "def" && u && u.stFlags && u.stFlags.uraDefBuffer && u.maxHp && u.hp / u.maxHp > 0.5) pct += 15;
+  // Cetro da Autoridade Celestial: Aura de Santuário (+20% DEF); Fluxo de Atena (+16 VEL quando VEL > 140)
+  if (u && u.weapon && u.weapon.buff && u.weapon.buff.athWeapon) {
+    if (key === "def") pct += 20;
+    if (key === "spd") {
+      const th = u.weapon.buff.spdThreshold;
+      const rawSpd = PCT[key] ? base * (1 + pct / 100) + flat : base + flat + pct;
+      if (th && rawSpd > th.spd && th.spdBonus) flat += th.spdBonus;
+    }
+  }
   const v = PCT[key] ? base * (1 + pct / 100) + flat : base + flat + pct;
   return isFinite(v) ? v : base;
 }
@@ -3206,7 +3560,7 @@ function defMult(attacker, defenderDef) { const lvl = (attacker && attacker.leve
 const BOSS_RUSH_BOSSES = [
   {
     id: "byakuya", name: "Byakuya Kuchiki", avatar: "\uD83C\uDF38", imgKey: "boss_byakuya",
-    hp: 600000, element: "Holy", reward: 400,
+    hp: 380000, element: "Holy", reward: 400,
     lore: "Capitao da 6a Divisao da Gotei 13. Petalas de cerejeira feitas de gelo cortam sem piedade.",
     mechanics: [
       "A cada 3 acoes usa Senbonzakura Kageyoshi: mil petalas causam dano em area a todos os aliados.",
@@ -3217,7 +3571,7 @@ const BOSS_RUSH_BOSSES = [
   },
   {
     id: "sukuna", name: "Ryomen Sukuna", avatar: "\uD83D\uDC79", imgKey: "boss_sukuna",
-    hp: 1200000, element: "Chaos", reward: 400,
+    hp: 720000, element: "Chaos", reward: 400,
     lore: "O Rei das Maldicoes. Seu Dominio Amaldicoado envolve tudo no caos absoluto.",
     mechanics: [
       "A cada 2 acoes usa Cleave: corte frontal que ignora 30% de DEF.",
@@ -3229,23 +3583,33 @@ const BOSS_RUSH_BOSSES = [
   },
   {
     id: "frieren", name: "Frieren", avatar: "\uD83E\uDDD9", imgKey: "boss_frieren",
-    hp: 1500000, element: "Glacial", reward: 400,
+    hp: 900000, element: "Glacial", reward: 400,
     lore: "A Maga do Pos-Alem. Feiticos acumulados por mais de mil anos.",
     mechanics: [
       "A cada 4 acoes conjura Graca das Fadas: 7 ondas de magia Glacial em alvos aleatorios.",
       "Acumula [Contra-Feitco] a cada ataque recebido (max 3) — ao atingir 3 cargas, paralisa o atacante por 1 turno.",
-      "Abaixo de 30% de HP ativa Magia Proibida: Geada em todos os aliados e recupera 5% do HP maximo.",
+      "Abaixo de 30% de HP ativa Magia Proibida: Geada em todos os aliados, recupera 8% do HP maximo e passa a se auto-curar a cada acao — limitada a uma Reserva de Mana de 80.000 no total.",
     ],
     kind: "frieren", weak: ["Fogo","Holy"], res: ["Glacial","Eletro"], level: 95,
   },
 ];
 
-const DOT_INFO = { burn: { c: "#FF6B45", n: "Queimadura" }, poison: { c: "#A6E22E", n: "Veneno" }, shock: { c: "#B98BFF", n: "Choque" }, bleed: { c: "#FF5FC4", n: "Sangramento" }, freeze: { c: "#6FE3FF", n: "Geada" }, geada: { c: "#6FE3FF", n: "Geada" }, corrosao: { c: "#7CFFB0", n: "Corrosão" }, cyclone: { c: "#74E8A6", n: "Ciclone" } };
+const DOT_INFO = {
+  burn: { c: "#FF6B45", n: "Ignis" },                 // Rework: chamas negras — dano capado em 10% do HP atual + ATK -10% enquanto ativo
+  poison: { c: "#A6E22E", n: "Veneno" },
+  shock: { c: "#B98BFF", n: "Choque" },
+  bleed: { c: "#FF5FC4", n: "Cruor Fracture" },       // Rework: o sangue cristaliza — agir rompe os cristais: DEF -5% (acumula 4×); a -20% limpa e dá imunidade 2 rodadas
+  freeze: { c: "#6FE3FF", n: "Glacies Stasis" }, geada: { c: "#6FE3FF", n: "Glacies Stasis" }, // Rework: tick -40%, VEL -10% e +12% de dano Glacial recebido; Ataque Básico quebra 1 camada de gelo
+  corrosao: { c: "#7CFFB0", n: "Corrosão" }, cyclone: { c: "#74E8A6", n: "Ciclone" },
+  fulgur: { c: "#FFE45B", n: "Fulgur Resonance" },    // Eletro: hits diretos no alvo drenam 3 de energia e ricocheteiam arco (máx 4/rodada)
+  aero: { c: "#9FF5C8", n: "Aero Sunder" },           // Vento: acumula até 5 — cada acúmulo DEF -8%; no 5º, colapso atrasa a ação em 20% (cd interno 2 rodadas)
+};
 function dealDamage(attacker, defender, mult, fx, opts) {
   // Lancer Esquiva Absoluta: bloqueia o próximo ataque
   if (defender.id === "lancer" && (defender.lancerDodges || 0) > 0 && attacker.side !== "H" && !opts?.pierceShield) {
     defender.lancerDodges -= 1;
     fx.push({ uid: defender.uid, txt: "ESQUIVOU!", heal: true, id: Math.random(), el: "Chaos" });
+    if (defender.stFlags?.lancerCounterDmg) { defender.buffs = defender.buffs.filter(b => b.name !== "Contra-Golpe"); defender.buffs.push({ stat: "dmgBonus", value: 20, turns: 1, name: "Contra-Golpe" }); }
     if (defender.stFlags?.lancerC4) {
       const cntAtk = Math.round(effStat(defender, "atk") * 0.80);
       attacker.hp -= cntAtk; if (attacker.hp <= 0) { attacker.hp = 0; attacker.alive = false; }
@@ -3253,20 +3617,38 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     }
     return { dmg: 0, crit: false };
   }
+  // Uraraka (Rastro Tempestade): aliado com Zero Gravity atacado atrasa a ação do inimigo em 8%
+  if (defender.side === "H" && attacker.side !== "H" && defender.buffs && defender.buffs.some(b => b.name === "Zero Gravity") && defender._uraDelayFlag) {
+    attacker.av = (attacker.av || 1) * 1.08;
+  }
+  // Glacies Stasis: alvos congelados sofrem +12% de dano de fontes Glaciais
+  if ((opts?.el || attacker.element) === "Glacial" && (defender.dots || []).some(d => d.type === "freeze" || d.type === "geada")) mult = mult * 1.12;
+  // Nami C2 · Vento Cortante: +15% de dano contra alvos sob Ciclone
+  if (attacker.id === "nami" && attacker.stFlags?.namiC2 && (defender.dots || []).some(d => d.type === "cyclone")) {
+    mult = mult * 1.15;
+  }
+  // Nanami (Rastro Tempestade): +20% de dano contra inimigos com DEF reduzida
+  if (attacker.id === "nanami" && attacker.stFlags?.nanamDefBonus && (defender.debuffs || []).some(d => d.stat === "def" && d.value < 0)) {
+    mult = mult * 1.20;
+  }
   // Aizen mechanic: 40% miss chance before Bankai
   if (defender.bossKind === "aizen" && !defender.aiBankai && attacker.side === "H" && Math.random() < 0.40 && !opts?.pierceShield) {
     fx.push({ uid: defender.uid, txt: "ERROU!", crit: false, id: Math.random(), el: attacker.element || "Holy" });
     return { dmg: 0, crit: false };
   }
   const f = attacker.stFlags || {};
+  // Mutador Espelhos: 25% de chance de erro em qualquer ataque
+  if ((attacker._mut || defender._mut) === "espelhos" && Math.random() < 0.25) { fx.push({ uid: defender.uid, txt: "ERROU!", crit: false, id: Math.random() }); return { dmg: 0, crit: false }; }
   let dmg = effStat(attacker, "atk") * (mult / 100);
-  const crit = Math.random() * 100 < Math.min(100, effStat(attacker, "critRate"));
+  // Mutador Miasma Cegante: Chance Crítica travada em 0%
+  const crit = (attacker._mut || defender._mut) === "miasma" ? false : Math.random() * 100 < Math.min(100, effStat(attacker, "critRate"));
   if (crit) dmg *= 1 + effStat(attacker, "critDmg") / 100;
   dmg *= 1 + effStat(attacker, "dmgBonus") / 100;
   if (f.omgC6 && attacker.id === "omegamon" && (attacker.hp / attacker.maxHp) < 0.3) dmg *= 2; // Final Defeat: +100% Dano de Vírus
   const afflicted = (defender.dots && defender.dots.length) || (defender.debuffs && defender.debuffs.some((d) => d.stat === "def" && d.value < 0));
   if ((f.dmgVsAfflicted || f.afflictedDmg) && afflicted) dmg *= 1.25;
   if (f.pShatter && defender.dots && defender.dots.length) dmg *= 1.3;
+    if (f.pWoo && attacker.id === "wonderofyou" && crit) { const cur = defender.debuffs.find((d) => d.name === "Vulnerabilidade da Calamidade"); if (cur) cur.value = Math.min(24, cur.value + 8); else defender.debuffs.push({ stat: "vuln", value: 8, turns: 2, name: "Vulnerabilidade da Calamidade" }); }
   const hpPct = defender.hp / defender.maxHp;
   if (f.lowHpDmg && hpPct < 0.5) dmg *= 1.25;
   if (f.pExecute && hpPct < 0.4) dmg *= 1.25;
@@ -3309,6 +3691,37 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   if (dmg > 0 && defender.weapon && defender.weapon.omgWeapon && defender.alive && !defender.buffs.some(function(b){return b.name==="GlitchBoost";})) { defender.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "GlitchBoost" }); }
   if (defender.side === "H" && !defender.isSummon && defender.energyMax) { const heavy = attacker.boss || mult >= 300; defender.energy = Math.min(defender.energyMax, defender.energy + Math.round((heavy ? 12 : 6) * (1 + (effStat(defender, "energyRegen") || 0) / 100))); }
   if (!defender.alive && attacker.side === "H" && !attacker.isSummon && attacker.energyMax) { attacker.energy = Math.min(attacker.energyMax, attacker.energy + Math.round(6 * (1 + (effStat(attacker, "energyRegen") || 0) / 100))); } // kill: +6 ×ERR
+  // ── Fulgur Resonance: alvo eletrizado atingido por hit direto — drena 3 de energia + arco no aliado de menor HP (máx 4/rodada)
+  if (dmg > 0 && !opts?.isDot) {
+    const fulg = (defender.dots || []).find(d => d.type === "fulgur");
+    if (fulg && (defender._fulgHits || 0) < 4) {
+      defender._fulgHits = (defender._fulgHits || 0) + 1;
+      if (defender.energyMax) defender.energy = Math.max(0, defender.energy - 3);
+      const sibs = (defender._sibs || []).filter(x => x.alive && x.uid !== defender.uid);
+      if (sibs.length) {
+        const lowSib = sibs.slice().sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0];
+        const arc = Math.max(1, Math.round(fulg.dmg * 0.15));
+        lowSib.hp = Math.max(0, lowSib.hp - arc); if (lowSib.hp <= 0) lowSib.alive = false;
+        fx.push({ uid: lowSib.uid, txt: String(arc), dot: "fulgur", id: Math.random() });
+      }
+    }
+  }
+  // ── Mutadores do Abismo (por unidade) ──
+  const MUT = attacker._mut || defender._mut;
+  if (MUT === "masoquista" && dmg > 0 && defender.alive) {
+    const stacks = defender.buffs.filter(b => b.name === "Masoquista").length;
+    if (stacks < 10) defender.buffs.push({ stat: "atk", value: 5, pct: true, turns: 9999, name: "Masoquista" });
+  }
+  if (MUT === "frenesi" && !defender.alive && attacker.alive) attacker.av = 0; // matar concede turno extra
+  // ── Glitches do Abismo ──
+  const GL = attacker._glitches || [];
+  if (!defender.alive && attacker.side === "H" && GL.includes("sanguefrio")) { const h5 = Math.round(attacker.maxHp * 0.05); attacker.hp = Math.min(attacker.maxHp, attacker.hp + h5); fx.push({ uid: attacker.uid, txt: "+" + h5, heal: true, id: Math.random() }); }
+  if (attacker.side === "H" && dmg > 0 && GL.includes("troia")) {
+    const tst = attacker.buffs.filter(b => b.name === "Cavalo de Troia").length;
+    if (tst < 10) attacker.buffs.push({ stat: "dmgBonus", value: 10, turns: 9999, name: "Cavalo de Troia" });
+  }
+  // ── UTI (Mainframe): 1 revive automático com 1 de HP por run ──
+  if (!defender.alive && defender.side === "H" && defender._uti) { defender._uti = false; defender.hp = 1; defender.alive = true; fx.push({ uid: defender.uid, txt: "UTI: +1 HP!", heal: true, id: Math.random() }); }
   fx.push({ uid: defender.uid, txt: String(dmg), crit, id: Math.random(), el: opts?.el || attacker.element });
   return { dmg, crit };
 }
@@ -3323,6 +3736,8 @@ function applyDot(targets, spec, source, fx) {
   const glacial = spec.type === "freeze" || spec.type === "geada";
   targets.forEach((t) => {
     if (!t.alive) return;
+    if (spec.type === "aero" && t.dots.filter(d => d.type === "aero").length >= 5) return; // Aero: máx 5 acúmulos
+    if (spec.type === "bleed" && (t._cruorImmune || 0) > 0) { fx.push({ uid: t.uid, txt: "IMUNE (Cruor)", crit: false, id: Math.random() }); return; } // imunidade pós-ruptura
     t.dots.push({ type: spec.type, dmg, turns: spec.turns });
     if (f.setGlacial4 && glacial) { const cur = t.debuffs.find((d) => d.name === "GlacialSet"); if (cur) cur.value = Math.min(7, cur.value + 2); else t.debuffs.push({ stat: "vuln", value: 2, turns: 3, name: "GlacialSet" }); } // Sopro Glacial 4pç
   });
@@ -3444,23 +3859,70 @@ function miyabiBasicAttack(s, u, enemy, fx, ampB) {
   if (f.miDetonate) { const t = miyabiDetonate(s, u, fx); if (t) msg += ` 💥 Detonação Glacial: ${t} em área + Congelamento.`; }
   return msg;
 }
+// Mutadores do Abismo aplicados após cada ação (chão estilhaçado, vingança, explosão, escalada, ventos)
+function applyMutPostAction(s, actor) {
+  const mut = actor && actor._mut; if (!mut) return;
+  if (mut === "chao" && actor.alive) { const c = Math.max(1, Math.round(actor.maxHp * 0.05)); actor.hp -= c; if (actor.hp <= 0) { actor.hp = 0; actor.alive = false; } s.fx.push({ uid: actor.uid, txt: String(c), dot: "burn", id: Math.random() }); }
+  if (mut === "escalada" && actor.side === "enemy" && actor.alive) actor.base.dmgBonus = (actor.base.dmgBonus || 0) + 10;
+  if (mut === "ventos" && actor.side === "enemy" && actor.alive) { const rg = Math.round(actor.maxHp * 0.10); actor.hp = Math.min(actor.maxHp, actor.hp + rg); s.fx.push({ uid: actor.uid, txt: "+" + rg, heal: true, id: Math.random() }); }
+  // Vingança / Explosão: processa inimigos recém-mortos
+  s.enemies.forEach(e => {
+    if (!e.alive && !e._mutDeathDone) {
+      e._mutDeathDone = true;
+      if (mut === "vinganca") s.enemies.forEach(o => { if (o.alive) { o.buffs.push({ stat: "atk", value: 20, pct: true, turns: 9999, name: "Vingança" }); o.buffs.push({ stat: "spd", value: 20, pct: true, turns: 9999, name: "Vingança" }); } });
+      if (mut === "explosao") { const bd = Math.round(e.maxHp * 0.15); s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.hp -= bd; if (h.hp <= 0) { h.hp = 0; h.alive = false; } s.fx.push({ uid: h.uid, txt: String(bd), crit: true, id: Math.random(), el: "Fogo" }); } }); pushLog(s, "💥 " + e.name + " EXPLODE ao morrer — " + bd + " de dano em todos!"); }
+    }
+  });
+}
 function tickDots(u, fx, allies) {
   if (!u.dots || !u.dots.length) return;
   let total = 0;
-  u.dots.forEach((d) => { const dmg = Math.max(1, Math.round(d.dmg * (1 + vulnOf(u) / 100))); u.hp -= dmg; total += dmg; d.turns -= 1; fx.push({ uid: u.uid, txt: String(dmg), dot: d.type, id: Math.random() });
+  if ((u._aeroCd || 0) > 0) u._aeroCd -= 1;
+  if ((u._cruorImmune || 0) > 0) u._cruorImmune -= 1;
+  // Cruor Fracture: agir com os cristais de sangue rompe-os — DEF -5% por camada (máx 4)
+  if (u.dots.some(d => d.type === "bleed")) {
+    const cruorStacks = u.debuffs.filter(b => b.name === "Cruor Fracture").length;
+    if (cruorStacks < 4) { u.debuffs.push({ stat: "def", value: -5, pct: true, turns: 4, name: "Cruor Fracture" }); }
+    if (cruorStacks + 1 >= 4) {
+      // Trava anti-HK: ao chegar a -20% de DEF, o status é limpo e o alvo ganha imunidade por 2 rodadas
+      u.debuffs = u.debuffs.filter(b => b.name !== "Cruor Fracture");
+      u.dots = u.dots.filter(d => d.type !== "bleed");
+      u._cruorImmune = 2;
+      fx.push({ uid: u.uid, txt: "💎 CRISTAIS ROMPIDOS!", crit: true, id: Math.random() });
+    }
+  }
+  u.dots.forEach((d) => {
+    let dmg = Math.max(1, Math.round(d.dmg * (1 + vulnOf(u) / 100)));
+    // Ignis (trava anti-HK): o dano do tick nunca excede 10% do HP atual do alvo
+    if (d.type === "burn") dmg = Math.max(1, Math.min(dmg, Math.round(u.hp * 0.10)));
+    // Glacies Stasis: tick reduzido em 40% — o valor está no controle (VEL↓ e vulnerabilidade Glacial), não no dano bruto
+    if (d.type === "freeze" || d.type === "geada") dmg = Math.max(1, Math.round(dmg * 0.6));
+    u.hp -= dmg; total += dmg; d.turns -= 1; fx.push({ uid: u.uid, txt: String(dmg), dot: d.type, id: Math.random() });
     if (d.type === "corrosao" && allies && allies.length) { const h = Math.round(dmg * 0.25 * (d.healMul || 1)); allies.forEach((a) => { if (a.alive && !a.isSummon) healUnit(a, h, fx); }); } // Corrosão cura o time
   });
+  // Aero Sunder: colapso ao atingir 5 acúmulos (com cooldown interno de 2 rodadas — anti Turn-Lock)
+  const aeroStacks = u.dots.filter(d => d.type === "aero").length;
+  if (aeroStacks >= 5 && (u._aeroCd || 0) <= 0) {
+    u.av = (u.av || 1) * 1.2; // atraso de 20% na barra de ação
+    u._aeroCd = 2;
+    let removed = 0; u.dots = u.dots.filter(d => { if (d.type === "aero" && removed < 3) { removed++; return false; } return true; }); // 5 → 2 acúmulos
+    fx.push({ uid: u.uid, txt: "🌪️ COLAPSO!", crit: true, id: Math.random() });
+  }
+  u._fulgHits = 0; // Fulgur: reseta o limite de 4 ativações por rodada do alvo
   u.dots = u.dots.filter((d) => d.turns > 0);
   if (u.hp <= 0) { u.hp = 0; u.alive = false; }
   return total;
 }
-function healUnit(u, amount, fx) { const before = u.hp; u.hp = Math.min(u.maxHp, u.hp + amount); const done = u.hp - before; fx.push({ uid: u.uid, txt: "+" + done, heal: true, id: Math.random() }); return done; }
+function healUnit(u, amount, fx) { let amt = amount; if (u._mut === "ventos") amt = Math.round(amt * 2); if (u._glitchHealHalf) amt = Math.round(amt * 0.5); const before = u.hp; u.hp = Math.min(u.maxHp, u.hp + amt); const done = u.hp - before; fx.push({ uid: u.uid, txt: "+" + done, heal: true, id: Math.random() }); return done; }
 function tickBuffs(u) { u.buffs = u.buffs.map((b) => ({ ...b, turns: b.turns - 1 })).filter((b) => b.turns > 0); u.debuffs = u.debuffs.map((b) => ({ ...b, turns: b.turns - 1 })).filter((b) => b.turns > 0); }
 function cloneU(u) { return { ...u, buffs: u.buffs.map((b) => ({ ...b })), debuffs: u.debuffs.map((b) => ({ ...b })), dots: (u.dots || []).map((d) => ({ ...d })), base: { ...u.base }, stFlags: { ...(u.stFlags || {}) } }; }
 function findUnit(s, uid) { return [...s.heroes, ...s.enemies].find((u) => u.uid === uid); }
 function applyBuff(targets, spec, name, fx, caster) {
   const extra = caster?.stFlags?.buffPlus && spec.all ? 1 : 0;
-  targets.forEach((t) => { for (const stat of ["atk", "def", "critRate", "critDmg", "dmgBonus", "spd"]) if (spec[stat]) t.buffs.push({ stat, value: spec[stat], pct: !!PCT[stat], turns: spec.turns + extra, name }); });
+  targets.forEach((t) => { for (const stat of ["atk", "def", "critRate", "critDmg", "dmgBonus", "spd"]) if (spec[stat]) {
+    if (spec.maxStacks) { const st = t.buffs.filter(b => b.name === name && b.stat === stat).length; if (st >= spec.maxStacks) continue; }
+    t.buffs.push({ stat, value: spec[stat], pct: !!PCT[stat], turns: (spec.turns ?? 9999) + extra, name });
+  } });
 }
 function applyDebuff(targets, spec, extraDef, caster) {
   const f = caster?.stFlags || {};
@@ -3470,6 +3932,11 @@ function applyDebuff(targets, spec, extraDef, caster) {
   targets.forEach((t) => {
     if (spec.defDown) t.debuffs.push({ stat: "def", value: -(spec.defDown + defX), pct: true, turns: spec.turns + (plus ? 1 : 0), name: "DEF↓" });
     if (spec.vuln) t.debuffs.push({ stat: "vuln", value: spec.vuln + vulnX, turns: spec.turns + (plus ? 1 : 0), name: "Vuln" });
+    if (caster?.weapon?.buff?.onDebuff) {
+      const _od = caster.weapon.buff.onDebuff;
+      const _st = t.debuffs.filter(d => d.name === "WpnShred").length;
+      if (_st < (_od.maxStacks || 8)) t.debuffs.push({ stat: "def", value: -(_od.defRedTarget || 10), pct: true, turns: 2, name: "WpnShred" });
+    }
   });
 }
 
@@ -3489,9 +3956,34 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       heroes.forEach((h) => { if (!h || h.isSummon) return; let mul = 1; if (h.weapon?.omgWeapon) mul *= 1.2; if (omg) mul *= 1.42; if (mul !== 1) { h.maxHp = Math.round(h.maxHp * mul); h.hp = h.maxHp; } });
       if (omg) { omg.omgCharges = 0; omg._c6Used = false; } }
     if (heroes.some((h) => h.stFlags?.pTeamEnergy)) heroes.forEach((h) => { if (h.energyMax) h.energy = Math.min(h.energyMax, h.energy + 15); });
+    { const fr = heroes.find((h) => h.id === "frieren" && h.stFlags?.frC4); if (fr) { fr.buffs.push({ stat: "energyRegen", value: 30, pct: false, turns: 99, name: "CicloMilenar" }); } }
+    { const fr = heroes.find((h) => h.id === "frieren"); if (fr) { fr._frPoints = 2; } } // Talento + C1: começa com 2 Pontos de Elemento
+    { const lc = heroes.find((h) => h.id === "lancer" && h.stFlags?.lancerC1); if (lc) { lc.lancerDodges = 1; } } // C1: 1 Esquiva Absoluta grátis
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
+    // _sibs: referências dos aliados de cada lado (Fulgur Resonance precisa achar o de menor HP)
+    heroes.forEach(h => { h._sibs = heroes; });
+    enemies.forEach(e => { e._sibs = enemies; });
+    // ══ ABISMO DE DADOS: HP persistente (permadeath), mutador do andar e glitches da run ══
+    let abLog = [];
+    if (encounter.abismo) {
+      const hpMap = encounter.abismoHp || {};
+      heroes.forEach(h => { if (hpMap[h.id] != null) { h.hp = Math.max(1, Math.min(h.maxHp, Math.round(h.maxHp * hpMap[h.id]))); } });
+      const mut = encounter.abismoMutator || null;
+      const gls = encounter.abismoGlitches || [];
+      [...heroes, ...enemies].forEach(x => { x._mut = mut; });
+      heroes.forEach(h => { h._glitches = gls; if (encounter.abismoUti) h._uti = true; });
+      if (mut === "pacto_vidro") [...heroes, ...enemies].forEach(x => { x.maxHp = Math.round(x.maxHp / 2); x.hp = Math.min(x.hp, x.maxHp); x.buffs.push({ stat: "critDmg", value: 150, turns: 9999, name: "Pacto de Vidro" }); });
+      if (gls.includes("patch")) heroes.forEach(h => { h.shield = (h.shield || 0) + Math.round(h.maxHp * 0.10); });
+      if (gls.includes("bateria")) heroes.forEach(h => { if (h.energyMax) h.energy = Math.min(h.energyMax, h.energy + 20); });
+      if (gls.includes("lente")) heroes.forEach(h => { h.buffs.push({ stat: "critRate", value: 15, turns: 9999, name: "Lente de Aumento" }); });
+      if (gls.includes("contrato")) heroes.forEach(h => { h.buffs.push({ stat: "critDmg", value: 80, turns: 9999, name: "Contrato Equivalente" }); h._glitchHealHalf = true; });
+      if ((encounter.abismoCurse || 0) > 0) heroes.forEach(h => { h.debuffs.push({ stat: "spd", value: -15, pct: false, turns: 9999, name: "Pesos de Chumbo" }); });
+      const MUT_NAMES = { pacto_vidro: "Pacto de Vidro (+150% CRIT DMG, HP pela metade)", miasma: "Miasma Cegante (CRIT travado em 0%)", espelhos: "Espelhos (25% de erro global)", frenesi: "Frenesi (abates concedem turno extra)", chao: "Chão Estilhaçado (agir custa 5% do HP)", vinganca: "Vingança (inimigos abatidos enfurecem os vivos)", explosao: "Explosão (inimigos detonam ao morrer)", escalada: "Escalada (+10% de dano inimigo por ação)", ventos: "Ventos Curativos (curas ×2, inimigos regeneram)", masoquista: "Masoquista (sofrer dano acumula +5% ATK)" };
+      if (mut) abLog.push("🌪️ MUTADOR DO ANDAR: " + (MUT_NAMES[mut] || mut));
+      if (gls.length) abLog.push("🧩 Glitches ativos: " + gls.length);
+    }
     const totalWaves = Math.max(1, Math.min(8, encounter.waves || 1));
-    return { heroes, enemies, sp: 3, wave: 1, totalWaves, heroTurns: 0, enc: encounter, log: [totalWaves > 1 ? `⚔️ Dungeon de ${totalWaves} ondas — sobreviva com um só fôlego!` : "⚔️ A batalha começa! A ressonância flui…"], turn: null, over: false, win: false, fx: [], choice: null, summonFx: null };
+    return { heroes, enemies, sp: 3, wave: 1, totalWaves, heroTurns: 0, enc: encounter, log: [...abLog, totalWaves > 1 ? `⚔️ Dungeon de ${totalWaves} ondas — sobreviva com um só fôlego!` : "⚔️ A batalha começa! A ressonância flui…"], turn: null, over: false, win: false, fx: [], choice: null, summonFx: null };
   });
   const [target, setTarget] = useState(0);
   useEffect(() => { const al = state.enemies.filter((e) => e.alive); if (al.length && target >= al.length) setTarget(0); }, [state.enemies, target]);
@@ -3501,6 +3993,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
   const holdTimer = useRef(null);
   const holdingRef = useRef(false);
   const [previewKind, setPreviewKind] = useState(null);
+  const [inspectUid, setInspectUid] = useState(null); // clique num personagem → painel de status/buffs
   const current = state.turn;
 
   useEffect(() => {
@@ -3510,7 +4003,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
     if (current.auto || current.isSummon) { const t = setTimeout(() => autoAct(current.uid), 700); return () => clearTimeout(t); }
   }, [current, state.over]); // eslint-disable-line
   useEffect(() => { if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight; }, [state.log]);
-  useEffect(() => { if (state.over) { const t = setTimeout(() => onEnd({ win: state.win, turns: state.heroTurns }), 1500); return () => clearTimeout(t); } }, [state.over]); // eslint-disable-line
+  useEffect(() => { if (state.over) { const t = setTimeout(() => onEnd({ win: state.win, turns: state.heroTurns, heroesHp: state.heroes.filter(h => !h.isSummon).map(h => ({ id: h.id, hpPct: Math.max(0, h.hp / Math.max(1, h.maxHp)), alive: h.alive })) }), 1500); return () => clearTimeout(t); } }, [state.over]); // eslint-disable-line
 
   function advance() {
     setState((s) => {
@@ -3608,7 +4101,17 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       refreshKaibaBuffs(s);
       // Frieren C4: DEF -15% on all enemies when ult energy is full
       if (u.id === "frieren" && u.stFlags?.frC4 && u.energy >= u.energyMax) {
-        aliveEnemies(s).forEach(e => { if (!e.debuffs.some(d => d.name === "AuraOculta")) e.debuffs.push({ stat: "def", value: -15, turns: 2, name: "AuraOculta" }); });
+        aliveEnemies(s).forEach(e => {
+          const existingAura = e.debuffs.find(d => d.name === "AuraOculta");
+          if (existingAura) { existingAura.value = -20; existingAura.turns = Math.max(existingAura.turns, 2); }
+          else e.debuffs.push({ stat: "def", value: -20, turns: 2, name: "AuraOculta" });
+        });
+        u.energy = Math.min(u.energyMax, u.energy + 8);
+      }
+      // Kirara C4: team dmgReduce while Kirara has shield active
+      if (u.id === "kirara" && u.stFlags?.kirC4 && u.shield > 0) {
+        const kAllies = s.heroes.filter(h => h.alive);
+        kAllies.forEach(a => { if (!a.buffs.some(b => b.name === "GuardiaoCos")) a.buffs.push({ stat: "dmgReduce", value: 15, turns: 2, name: "GuardiaoCos" }); });
       }
       const fx = s.fx, sk = u.skill, allies = s.heroes.filter((h) => h.alive), enemy = targetEnemy(s);
       const f = u.stFlags || {};
@@ -3635,14 +4138,17 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       }
       // ────────────────────────────────────────────────────────────────────
       const ampS = u.ampSkill || 1, ampU = u.ampUlt || 1, ampB = u.ampBasic || 1;
-      const hb = 1 + (u.base.healBonus || 0) / 100;
+      const hb = 1.45 * (1 + (u.base.healBonus || 0) / 100); // +45% base de cura global
       const healMul = (f.healPlus ? 1.3 : 1) * (f.pRegen ? 1.25 : 1);
-      const shB = hb * (1 + (u.weapon?.shieldBonus || 0) / 100) * (f.shieldPlus ? 1.3 : 1) * (f.pBulwark ? 1.25 : 1);
+      const shB = hb * (1 + ((u.weapon?.shieldBonus || 0) + (f.setMuralha2 ? 30 : 0)) / 100) * ((f.shieldPlus || f.kirC2) ? 1.3 : 1) * (f.pBulwark ? 1.25 : 1) * (u.tSkill || 1);
       const enGain = (n) => Math.round(n * (1 + (effStat(u, "energyRegen") || 0) / 100));
       const doHeal = (tgt, amt) => { const done = healUnit(tgt, Math.round(amt * healMul), fx); if (f.healShield) tgt.shield += Math.round(done * 0.3); };
       let msg = "";
 
       if (kind === "basic") {
+        // Glacies Stasis: usar o Ataque Básico quebra 1 camada de gelo (saída segura), com leve dano de estilhaço
+        { const gIdx = u.dots.findIndex(d => d.type === "freeze" || d.type === "geada");
+          if (gIdx >= 0) { u.dots.splice(gIdx, 1); const chip = Math.max(1, Math.round(u.maxHp * 0.03)); u.hp = Math.max(1, u.hp - chip); fx.push({ uid: u.uid, txt: "❄️ gelo quebrado (-" + chip + ")", dot: "freeze", id: Math.random() }); } }
         let miyDone = false;
         if (u.id === "miyabi" && (f.miPostura || f.miResidual || f.miDetonate)) { msg = miyabiBasicAttack(s, u, enemy, fx, ampB); miyDone = true; }
         if (!miyDone && u.id === "soifon") { msg = soiFonBasicAttack(s, u, enemy, fx, ampB); miyDone = true; }
@@ -3670,11 +4176,25 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           msg = `🛡️ ${u.name} dispara Garuru Cannon em ${enemy.name} — ${r.dmg} de Dano de Vírus${r.crit ? " (CRÍTICO!)" : ""}.${extra}`;
           miyDone = true;
         }
+        if (!miyDone && u.id === "athena" && enemy) {
+          const r = dealDamage(u, enemy, (sk.basicMul || 90) * u.tBasic * ampB, fx, { el: "Holy" });
+          let athExtra = "";
+          // Rastro II · Luz Consagrada: no Modo Aprimorado, o básico cura o time em 15% do dano
+          if (f.athII && u.athEnhanced && r.dmg > 0) {
+            const hAmt = Math.round(r.dmg * 0.15);
+            s.heroes.filter(h => h.alive && !h.isSummon).forEach(h => healUnit(h, hAmt, fx));
+            athExtra = ` ✨ Luz Consagrada cura o time em ${hAmt}.`;
+          }
+          msg = `🕊️ ${u.name} usa Julgamento Divino em ${enemy.name} — ${r.dmg} de Dano Holy${r.crit ? " (CRÍTICO!)" : ""}.${athExtra}`;
+          miyDone = true;
+        }
         if (!miyDone && enemy && sk.basicMul) { const r = dealDamage(u, enemy, sk.basicMul * u.tBasic * ampB, fx); msg = `${u.name} usa Ataque Básico em ${enemy.name} — ${r.dmg} de dano${r.crit ? " (CRÍTICO!)" : ""}.`; }
         if (f.kcAdvance) { const ds = aliveDragons(s, u.uid); ds.forEach((d) => { d.av = Math.max(0.1, d.av * 0.65); }); if (ds.length) msg += ` Os ${ds.length} dragões avançam na linha do tempo!`; }
+        if (u.id === "lancer" && f.lancerTempestade) { u.buffs = u.buffs.filter(b => b.name !== "Tempestade de Lanças"); u.buffs.push({ stat: "dmgBonus", value: 20, turns: 1, name: "Tempestade de Lanças" }); msg += " ⚡ Tempestade de Lanças: +20% no próximo golpe."; }
         if (f.uraAdvance && u.id === "uraraka") { u.av = Math.max(0.1, u.av * 0.85); msg += " Uraraka avança na linha do tempo (Zero G)!"; }
         s.sp = Math.min(5, s.sp + 1); u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enBasic || 15));
       } else if (kind === "skill") {
+        if (u.id === "uraraka" && sk.uraSkill) { s.choice = { uid: u.uid, kind: "uraraka" }; return s; }
         s.sp -= 1; u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enSkill || 22));
         if (u.id === "miyabi" && f.miC2 && enemy && (enemy.dots || []).some((d) => d.type === "freeze" || d.type === "geada")) s.sp = Math.min(5, s.sp + 1); // C2: vs Congelado não gasta PH
         const sMul = u.tSkill * ampS;
@@ -3746,13 +4266,94 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           if (u.weapon?.id === "ferrao_borboleta") u.sfWpnCharges = Math.min(5, (u.sfWpnCharges || 0) + 1);
           msg = `🦋 ${u.name} usa Nigeki Kessatsu em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " (CRÍTICO!)" : ""}! [Ferrão da Morte] marcado por 3 turnos — follow-ups de aliados Eletro ativarão golpes de acompanhamento!`;
         }
-        else if (u.id === "omegamon" && sk.omgSkill) {
+        else if (u.id === "wonderofyou" && sk.wooSkill) {
+            const sMul = u.tSkill * ampS;
+            const wooEnemies = aliveEnemies(s);
+            let wooTot = 0, wooCrit = false;
+            const debuffDur = f.wooE2 ? 9999 : 3; // E2: debuffs permanentes
+            const e1Mul = f.wooE1 ? 1.2 : 1; // E1: +20% potência
+            wooEnemies.forEach((e) => {
+              const r = dealDamage(u, e, (sk.skillMul || 210) * sMul / Math.max(1, wooEnemies.length * 0.6), fx, { el: "Chaos" });
+              wooTot += r.dmg; if (r.crit) wooCrit = true;
+              // E1: se já existe, renova e estende +1 turno (máx 6); senão aplica
+              const addOrExtend = (nm, db) => {
+                const ex = e.debuffs.find(d => d.name === nm);
+                if (ex) { ex.turns = f.wooE1 ? Math.min(6, ex.turns + 1) : Math.max(ex.turns, debuffDur); }
+                else e.debuffs.push(db);
+              };
+              addOrExtend("Miss da Calamidade", { stat: "missChance", value: Math.round(20 * e1Mul), turns: debuffDur, name: "Miss da Calamidade" });
+              addOrExtend("Vuln", { stat: "vuln", value: Math.round(18 * e1Mul), turns: debuffDur, name: "Vuln" });
+              addOrExtend("Atraso Fatal", { stat: "spd", value: -Math.round(12 * e1Mul), pct: true, turns: debuffDur, name: "Atraso Fatal" });
+              addOrExtend("Colapso de Atributos", { stat: "def", value: -Math.round(15 * e1Mul), pct: true, turns: debuffDur, name: "Colapso de Atributos" });
+              if (f.wooA2) addOrExtend("Marca da Calamidade", { stat: "vuln", value: 12, turns: debuffDur, name: "Marca da Calamidade" }); // A2: +12% de dano de todas as fontes
+            });
+            const dmgBonusVal = Math.round(18 * e1Mul);
+            allies.forEach((a) => {
+              const ex = a.buffs.find(b => b.name === "Bênção da Calamidade");
+              if (ex) { if (f.wooE1) ex.turns = Math.min(6, ex.turns + 1); ex.value = Math.max(ex.value, dmgBonusVal); }
+              else a.buffs.push({ stat: "dmgBonus", value: dmgBonusVal, turns: 3, name: "Bênção da Calamidade" });
+            });
+            msg = `🌑 ${u.name} conjura Calamidade Inevitável — ${wooTot} de Dano Chaos${wooCrit ? " (CRÍTICO!)" : ""}! 4 debuffs exclusivos${f.wooE2 ? " PERMANENTES" : ` por ${debuffDur}t`}: Miss +${Math.round(20*e1Mul)}%, Vuln +${Math.round(18*e1Mul)}%, VEL -${Math.round(12*e1Mul)}%, DEF -${Math.round(15*e1Mul)}%.${f.wooE1 ? " [E1: buffs/debuffs existentes estendidos]" : ""}`;
+          }
+          else if (u.id === "athena" && sk.athSkill) {
+            const target = ally || enemy; // no modo cura, escolhe aliado; fallback para dano se necessário
+            const healTargets = allies.filter((a) => a.alive);
+            const lowest = healTargets.slice().sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0];
+            if (u.athEnhanced) {
+              // Golpe do Santuário: 120% do ATK + 80% da VEL atual (convertido em multiplicador equivalente)
+              const _atk = Math.max(1, effStat(u, "atk"));
+              const _spdVal = effStat(u, "spd");
+              const finalMul = (120 + (0.8 * _spdVal / _atk) * 100) * u.tSkill * ampS;
+              const aEnemies = aliveEnemies(s);
+              let aTot = 0, aCrit = false;
+              aEnemies.forEach((e) => { const r = dealDamage(u, e, finalMul, fx, { el: "Holy" }); aTot += r.dmg; if (r.crit) aCrit = true; const ex = e.debuffs.find(d => d.name === "HolyRES↓"); if (ex) { ex.value = -20; ex.turns = 2; } else e.debuffs.push({ stat: "elemRes", value: -20, turns: 2, name: "HolyRES↓" }); });
+              msg = `🕊️ ${u.name} usa Golpe do Santuário (120% ATK + 80% VEL) em área — ${aTot} de Dano Holy${aCrit ? " (CRÍTICO!)" : ""}! RES Holy -20% por 2 turnos.`;
+            } else if (lowest) {
+              // Bênção do Santuário: cura baseada em ATK + DEF, escala com nível da Perícia (C3) e amps
+              let healAmt = Math.round((effStat(u, "atk") + effStat(u, "def")) * ((sk.skillMul || 130) / 100) * u.tSkill * ampS);
+              // Cetro (Fluxo de Atena): VEL > 140 → toda a cura +24%
+              const _athSpd0 = u.weapon?.buff?.spdThreshold;
+              const _athSpdActive = _athSpd0 && effStat(u, "spd") > _athSpd0.spd;
+              if (_athSpdActive && _athSpd0.healBonus) healAmt = Math.round(healAmt * (1 + _athSpd0.healBonus / 100));
+              const _priorHp = lowest.hp;
+              healUnit(lowest, healAmt, fx);
+              const _overHeal = Math.max(0, healAmt - (lowest.maxHp - _priorHp));
+              // Cetro da Autoridade Celestial: Fluxo de Atena — cura excedente vira Escudo integral quando VEL > 140
+              if (_overHeal > 0 && _athSpdActive && _athSpd0.overHealShield) {
+                lowest.shield = (lowest.shield || 0) + _overHeal; fx.push({ uid: lowest.uid, txt: "🛡️+" + _overHeal, heal: true, id: Math.random() });
+              } else if (_overHeal > 0 && f.athI) {
+                // Rastro I · Guardiã das Casas: excedente vira escudo de 50% do valor
+                const shI = Math.round(_overHeal * 0.5);
+                lowest.shield = (lowest.shield || 0) + shI; fx.push({ uid: lowest.uid, txt: "🛡️+" + shI, heal: true, id: Math.random() });
+              }
+              lowest.buffs = lowest.buffs.filter((b) => b.name !== "Armadura de Luz");
+              lowest.buffs.push({ stat: "dmgReduce", value: 15, turns: 2 + (f.athC2 ? 1 : 0), name: "Armadura de Luz" });
+              const echoTargets = healTargets.filter((a) => a.uid !== lowest.uid);
+              let echoAmt = Math.round(healAmt * 0.5);
+              echoTargets.forEach((a) => { const amt = (a.hp / a.maxHp) < 0.5 ? echoAmt * 2 : echoAmt; healUnit(a, amt, fx); });
+              if (f.athC4 && (lowest.hp / lowest.maxHp) < 0.5) lowest.energy = Math.min(lowest.energyMax, lowest.energy + 15);
+              msg = `🕊️ ${u.name} usa Bênção das Sete Casas em ${lowest.name} — cura ${healAmt} de HP (ATK+DEF) e concede Armadura de Luz (-15% de dano recebido)!${_athSpdActive ? " ✨(Fluxo de Atena ativo)" : ""} Eco da Justiça cura os demais aliados.`;
+              // Cetro: Proteção Zodiacal (CRIT DMG no alvo curado) + Graça do Olimpo (ATK fixo em Athena)
+              if (u.weapon?.buff?.athWeapon && u.weapon.buff.onSkill) {
+                const _onSk = u.weapon.buff.onSkill;
+                const _zodSt = lowest.buffs.filter(b => b.name === "ZodiacalDmg").length;
+                if (_zodSt < (_onSk.maxStacks || 3)) lowest.buffs.push({ stat: "critDmg", value: _onSk.critDmgPerStack || 12, pct: false, turns: 9999, name: "ZodiacalDmg" });
+                const _graceSt = u.buffs.filter(b => b.name === "GraçaOlimpo").length;
+                if (_graceSt < (_onSk.maxAtkStacks || 3)) u.buffs.push({ stat: "atk", value: _onSk.atkPerStack || 400, pct: false, turns: 9999, name: "GraçaOlimpo" });
+                msg += ` [Cetro: +${_onSk.critDmgPerStack}% CRIT em ${lowest.name}, +${_onSk.atkPerStack} ATQ]`;
+              }
+            }
+          }
+          else if (u.id === "omegamon" && sk.omgSkill) {
           const sMul = u.tSkill * ampS;
           const red = 62 + (f.omgContagio ? 28 : 0); // 62% redirect + 28% extra resist
           allies.forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Protocolo"); a.buffs.push({ stat: "dmgReduce", value: red, turns: 2, name: "Protocolo" }); if (f.omgC2) a.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "Contágio+" }); });
           const sh = Math.round(u.maxHp * 0.42); u.shield = Math.max(u.shield, sh);
-          if (enemy) { const r = dealDamage(u, enemy, (sk.skillMul || 120) * sMul, fx, { el: "Virus" }); msg = `🛡️ ${u.name} ativa Protocolo de Infecção — o time recebe -${red}% de dano por 2 turnos e ele ergue um Escudo de Dados de ${sh}. Atinge ${enemy.name} por ${r.dmg} de Dano de Vírus${r.crit ? " (CRÍTICO!)" : ""}.`; }
-          else msg = `🛡️ ${u.name} ativa Protocolo de Infecção — -${red}% de dano ao time e Escudo de Dados de ${sh}.`;
+          // Omegamon agora concede escudo ao time todo (não só a si mesmo)
+          const teamSh = Math.round(u.maxHp * 0.22);
+          allies.forEach((a) => { if (a.uid !== u.uid) a.shield = (a.shield || 0) + teamSh; });
+          if (enemy) { const r = dealDamage(u, enemy, (sk.skillMul || 120) * sMul, fx, { el: "Virus" }); msg = `🛡️ ${u.name} ativa Protocolo de Infecção — o time recebe -${red}% de dano por 2 turnos. Omegamon ergue Escudo de Dados de ${sh} e protege aliados com +${teamSh} de escudo cada. Atinge ${enemy.name} por ${r.dmg} de Dano de Vírus${r.crit ? " (CRÍTICO!)" : ""}.`; }
+          else msg = `🛡️ ${u.name} ativa Protocolo de Infecção — -${red}% de dano ao time, Escudo de Dados de ${sh} e +${teamSh} de escudo para todos os aliados.`;
         }
         else if (u.id === "lancer" && sk.lancerSkill) {
           u.lancerDodges = (u.lancerDodges || 0) + 2;
@@ -3771,13 +4372,6 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           if ((is73 || f.nanamCritEnergy) && (is73)) u.energy = Math.min(u.energyMax, u.energy + 10);
           msg = `💼 ${u.name} usa Razão 7:3 em ${enemy.name} — ${r.dmg} de dano${is73 ? " — PROPORÇÃO 7:3: CRÍTICO GARANTIDO!" : r.crit ? " (CRÍTICO!)" : ""}.`;
         }
-        else if (u.id === "uraraka" && sk.uraSkill) {
-          const buffTarget = allies.filter(a => a.uid !== u.uid && !a.isSummon)[0] || u;
-          const atkPct = f.uraC1 ? 25 : 20;
-          applyBuff([buffTarget], { atk: atkPct, spd: 10, turns: 2 }, "Zero Gravity", fx, u);
-          msg = `🎈 ${u.name} usa Zero Gravity em ${buffTarget.name} — +${atkPct}% ATK e +10 VEL por 2 turnos!`;
-          if (f.uraC2) { u.shield = (u.shield || 0) + Math.round(u.maxHp * 0.10); msg += ` Escudo Orbital: +${Math.round(u.maxHp * 0.10)} de escudo.`; }
-        }
         else if (sk.skillMul && enemy) {
           const onSkillHit = (e, r) => {
             if (!r.crit) return;
@@ -3789,17 +4383,40 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           else { const r = dealDamage(u, enemy, sk.skillMul * sMul, fx); onSkillHit(enemy, r); msg = `${u.name} usa Habilidade em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}.`; if (f.extraSkillHit) { const r2 = dealDamage(u, enemy, sk.skillMul * sMul * 0.4, fx); onSkillHit(enemy, r2); msg += ` Corte extra de ${r2.dmg}.`; } }
           if (f.miC3) { u.ritmoStacks = Math.min(3, (u.ritmoStacks || 0) + 1); u.buffs = u.buffs.filter((b) => b.name !== "Ritmo"); u.buffs.push({ stat: "atk", value: 20 * u.ritmoStacks, pct: true, turns: 99, name: "Ritmo" }); msg += ` Ritmo da Nevasca x${u.ritmoStacks} (+${20 * u.ritmoStacks}% ATK).`; }
         }
-        if (sk.skillDot && enemy) { applyDot(sk.aoe ? aliveEnemies(s) : [enemy], sk.skillDot, u, fx); msg += ` Aplica ${DOT_INFO[sk.skillDot.type]?.n || "DoT"}.`; }
+        if (sk.skillDot && enemy) {
+          const _dotTargets = sk.aoe ? aliveEnemies(s) : [enemy];
+          const _dotCfg = (u.id === "nami" && f.namiC1 && sk.skillDot.type === "cyclone") ? { ...sk.skillDot, turns: 3 } : sk.skillDot;
+          applyDot(_dotTargets, _dotCfg, u, fx);
+          if (u.id === "nami" && f.namiSlowCyclone && sk.skillDot.type === "cyclone") { _dotTargets.forEach(e => { if (!e.debuffs.some(d => d.name === "Ciclone Lento")) e.debuffs.push({ stat: "spd", value: -10, pct: true, turns: _dotCfg.turns, name: "Ciclone Lento" }); }); }
+          msg += ` Aplica ${DOT_INFO[sk.skillDot.type]?.n || "DoT"}${u.id === "nami" && f.namiC1 ? " (3 turnos)" : ""}${u.id === "nami" && f.namiSlowCyclone ? " + VEL -10%" : ""}.`;
+        }
         if (sk.skillBuff) { const tg = sk.skillBuff.all ? allies : [u]; applyBuff(tg, sk.skillBuff, u.name, fx, u); if (u.weapon?.buff?.onBuff) applyBuff(tg, u.weapon.buff.onBuff, u.weapon.name, fx, u); msg = `${u.name} fortalece ${sk.skillBuff.all ? "o time (ATK/CRIT↑)" : "a si (ATK/CRIT↑)"}.`; }
         if (sk.skillDebuff && enemy) { applyDebuff([enemy], sk.skillDebuff, u.weapon?.extraDefDown, u); msg = `${u.name} reduz a DEF e aplica vulnerabilidade em ${enemy.name}.`; }
         if (f.defShredHit && enemy) applyDebuff([enemy], { defDown: 12, turns: 2 }, 0, u);
         if (sk.heal) { const tgt = allies.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0]; doHeal(tgt, (effStat(u, "atk") * sk.heal.mul / 100 + sk.heal.flat) * hb * ampS); msg = `${u.name} cura ${tgt.name}.`; }
-        if (sk.shield) { const sh = Math.round((effStat(u, "def") * sk.shield.defMul / 100 + sk.shield.flat) * shB * ampS); u.shield += sh; msg = `${u.name} ergue um escudo de ${sh} e provoca os inimigos.`; }
-        if (u.weapon?.buff?.onSkill) { applyBuff([u], u.weapon.buff.onSkill, u.weapon.name, fx, u); msg += ` [${u.weapon.name}]`; }
+        if (sk.shield) {
+          const sh = Math.round((effStat(u, "def") * sk.shield.defMul / 100 + sk.shield.flat) * shB * ampS);
+          u.shield += sh;
+          if (f.kirC1) {
+            const teamSh = Math.round(sh * 0.80);
+            allies.forEach((a) => { if (a.uid !== u.uid) a.shield = (a.shield || 0) + teamSh; });
+            if (f.kirC2) { const weakest = allies.slice().sort((a,b) => (a.shield||0) - (b.shield||0))[0]; if (weakest) { weakest.buffs = weakest.buffs.filter(b => b.name !== "GdDefBoost"); weakest.buffs.push({ stat: "def", value: 15, pct: true, turns: 2, name: "GdDefBoost" }); } }
+            msg = `💫 ${u.name} projeta [Aura Estelar] — escudo de ${sh} em si e +${teamSh} a TODO o time! Provocação ativa.`;
+          } else {
+            if (f.kirC2) { const weakest = allies.slice().sort((a,b) => (a.shield||0) - (b.shield||0))[0]; if (weakest) { weakest.buffs = weakest.buffs.filter(b => b.name !== "GdDefBoost"); weakest.buffs.push({ stat: "def", value: 15, pct: true, turns: 2, name: "GdDefBoost" }); } }
+            msg = `${u.name} ergue um escudo de ${sh} e provoca os inimigos.`;
+          }
+        }
+        if (u.weapon?.buff?.onSkill && !u.weapon?.buff?.athWeapon) { applyBuff([u], u.weapon.buff.onSkill, u.weapon.name, fx, u); msg += ` [${u.weapon.name}]`; }
         if (sk.energyGift) { const t = allies.filter((a) => a.uid !== u.uid && !a.isSummon)[0]; if (t) { t.energy = Math.min(t.energyMax, t.energy + sk.energyGift); msg += ` Doa ${sk.energyGift} de energia a ${t.name}.`; } }
       } else if (kind === "ult") {
-        if (u.energy < u.energyMax) return s;
+        // Athena C6: pode reabrir a seleção das 7 Casas a cada 2 turnos sem custo de energia
+        const _athFreeUlt = u.id === "athena" && u.stFlags?.athC6 && s._athHouseActive && (u._athC6Cd || 0) <= 0;
+        if (u.energy < u.energyMax && !_athFreeUlt) return s;
         if (u.id === "kaiba") { if (aliveDragons(s, u.uid).length >= 3) { s.choice = { uid: u.uid }; return s; } else { return s; } } // Suprema só com 3 dragões
+        if (u.id === "kirara" && (u.stFlags?.kirC4)) { u.energy = Math.min(u.energyMax, u.energy + 20); } // C4: recupera 20 energia ao usar ult
+        if (u.id === "frieren" && u.stFlags?.frC6) { s.choice = { uid: u.uid, kind: "frieren" }; return s; } // C6: jogador escolhe a forma da Suprema
+        if (u.id === "athena" && sk.athUlt) { s.choice = { uid: u.uid, kind: "athena" }; return s; } // jogador escolhe quem recebe a Casa Extra antes de aplicar os buffs
         if (u.id === "soifon" && sk.sfUlt) {
           u.energy = enGain(5);
           if (enemy) {
@@ -3817,7 +4434,35 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
             if (!enemy.alive && f.sfC6) { u.energy = u.energyMax; u.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); }
             msg = `💥🦋 JAKUHŌ RAIKŌBEN! ${u.name} dispara o míssil definitivo em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " CRÍTICO!" : ""}!${fmMarks ? ` (+${fmMarks * 15}% de marcas!)` : ""} Zona de Condução por ${zonaTurns} turno(s)!${f.sfC4 ? " +10% CRIT ao time!" : ""}`;
           }
-        } else if (u.id === "ryoshu" && sk.ryoUlt) {
+        } else if (u.id === "wonderofyou" && sk.wooUlt) {
+            u.energy = enGain(5);
+            const wooEnemies = aliveEnemies(s);
+            let wooTot = 0, wooCrit = false;
+            const debuffDurUlt = (f.wooE2 || f.wooE6) ? 9999 : 4; // E2/E6: permanente
+            const mulX = f.wooE6 ? 2 : 1;
+            wooEnemies.forEach((e) => {
+              const r = dealDamage(u, e, (sk.ultMul || 400) * (u.tUlt || 1) * ampU / Math.max(1, wooEnemies.length * 0.55), fx, { el: "Chaos" });
+              wooTot += r.dmg; if (r.crit) wooCrit = true;
+              // Renova debuffs (remove antigos, reaplica com nova duração/potência)
+              ["Miss da Calamidade","Vuln","Atraso Fatal","Colapso de Atributos"].forEach(nm => e.debuffs = e.debuffs.filter(d => d.name !== nm));
+              e.debuffs.push({ stat: "missChance", value: 20 * mulX, turns: debuffDurUlt, name: "Miss da Calamidade" });
+              e.debuffs.push({ stat: "vuln", value: 18 * mulX, turns: debuffDurUlt, name: "Vuln" });
+              e.debuffs.push({ stat: "spd", value: -12 * mulX, pct: true, turns: debuffDurUlt, name: "Atraso Fatal" });
+              e.debuffs.push({ stat: "def", value: -15 * mulX, pct: true, turns: debuffDurUlt, name: "Colapso de Atributos" });
+              if (f.wooA2 && !e.debuffs.some(d => d.name === "Marca da Calamidade")) e.debuffs.push({ stat: "vuln", value: 12, turns: debuffDurUlt, name: "Marca da Calamidade" });
+            });
+            if (f.wooE1) u._wooRetal = { turns: 2 };
+            // E4: bônus dinâmicos por buffs/debuffs ativos
+            if (f.wooE4) {
+              const uBStats = new Set(s.heroes.flatMap(h => h.buffs.map(b => b.stat))).size;
+              const wooDebuffs = new Set(wooEnemies.flatMap(e => e.debuffs.filter(d => ["Miss da Calamidade","Vuln","Atraso Fatal","Colapso de Atributos"].includes(d.name)).map(d => d.name))).size;
+              if (uBStats > 0) { u.buffs.push({ stat: "dmgBonus", value: uBStats * 6, turns: 2, name: "E4-Buffs" }); u.buffs.push({ stat: "defPen", value: uBStats * 4, pct: false, turns: 2, name: "E4-Pen" }); u.buffs.push({ stat: "spd", value: uBStats * 3, pct: false, turns: 2, name: "E4-Spd" }); }
+              if (wooDebuffs > 0) wooEnemies.forEach(e => e.debuffs.push({ stat: "vuln", value: wooDebuffs * 8, turns: 2, name: "E4-Vuln" }));
+            }
+            // E6: ativa Julgamento da Calamidade para todas as ações inimigas
+            if (f.wooE6) s._wooJudgment = { uid: u.uid };
+            msg = `☠️ LEI DA CALAMIDADE ABSOLUTA! ${u.name} — ${wooTot} de Dano Chaos${wooCrit ? " (CRÍTICO!)" : ""}! Debuffs ${(f.wooE2||f.wooE6) ? "PERMANENTES" : `por ${debuffDurUlt}t`}${f.wooE6 ? ", intensidade×2, JULGAMENTO DA CALAMIDADE ativado!" : f.wooE4 ? ` [E4: bônus dinâmicos aplicados!]` : ""}!`;
+          } else if (u.id === "ryoshu" && sk.ryoUlt) {
           u.energy = enGain(5);
           const sMul = u.tUlt * ampU;
           const drainable = allies.filter(a => a.uid !== u.uid && !a.isSummon && a.alive);
@@ -3874,7 +4519,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
             if (origCR !== null) u.base.critRate = origCR;
             if (f.frC2 && enems.length > 1) enems.filter(e => e.uid !== mainT.uid && e.alive).forEach(e => dealDamage(u, e, (sk.ultMul || 500) * sMul * 0.5, fx, { el: "Holy" }));
             if (!mainT.boss && f.frC6 && mainT.hp / mainT.maxHp < 0.30) { mainT.hp = 0; mainT.alive = false; fx.push({ uid: mainT.uid, txt: "APAGADO!", crit: true, id: Math.random() }); }
-            if (f.frC4) enems.forEach(e => { if (!e.debuffs.some(d => d.name === "AuraOculta")) e.debuffs.push({ stat: "def", value: -15, turns: 3, name: "AuraOculta" }); });
+            if (f.frC4) enems.forEach(e => { const exA = e.debuffs.find(d => d.name === "AuraOculta"); if (exA) { exA.value = -20; exA.turns = Math.max(exA.turns, 3); } else e.debuffs.push({ stat: "def", value: -20, turns: 3, name: "AuraOculta" }); });
             msg = "ZOLTRAAK! " + u.name + " dispara o feixe colossal em " + mainT.name + " — " + rz.dmg + " de Dano Holy" + (rz.crit ? " CRÍTICO!" : "") + "!" + (isChaosVirus ? " Crit Garantido + ignora Escudos!" : "") + (f.frC2 ? " Refração em adjacentes!" : "");
           } else if (ultChoice === "reaction") {
             const dmgMul = 1 + pts * 0.3;
@@ -3948,10 +4593,20 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         if (f.setFire4) u.buffs.push({ stat: "atk", value: 8, pct: true, turns: 2, name: "Brasa" });
         if (sk.ultDot && enemy) { applyDot(sk.ultAoe ? aliveEnemies(s) : [enemy], sk.ultDot, u, fx); }
         if (sk.dragonStrike) { const dragon = aliveDragons(s, u.uid)[0]; if (dragon && enemy) { const r = dealDamage(dragon, enemy, sk.dragonStrike, fx, { el: "Eletro" }); msg += ` ${dragon.name} ataca por ${r.dmg}.`; } }
-        if (sk.ultBuff) { applyBuff(allies, { ...sk.ultBuff, turns: Math.round(sk.ultBuff.turns * ampU) }, u.name, fx, u); msg += ` Fortalece o time.`; }
-        if (sk.ultDebuff) { applyDebuff(aliveEnemies(s), sk.ultDebuff, 0, u); msg += ` Inimigos ficam vulneráveis.`; }
-        if (sk.ultHeal) { allies.forEach((a) => doHeal(a, (effStat(u, "atk") * sk.ultHeal.mul / 100 + sk.ultHeal.flat) * hb * ampU * (f.pMedic ? 1.25 : 1))); msg = msg ? msg + " Cura toda a equipe." : `💥 ${u.name} cura toda a equipe.`; }
-        if (sk.ultShield) { allies.forEach((a) => (a.shield += Math.round((effStat(u, "def") * sk.ultShield.defMul / 100 + sk.ultShield.flat) * shB * ampU))); msg += ` Escuda a equipe.`; }
+        if (sk.ultBuff) { const _ub = { ...sk.ultBuff, turns: Math.round(sk.ultBuff.turns * ampU) + (u.id === "uraraka" && f.uraC4 ? 1 : 0) }; applyBuff(allies, _ub, u.name, fx, u); msg += ` Fortalece o time${u.id === "uraraka" && f.uraC4 ? " [C4: 3 turnos]" : ""}.`; }
+        if (sk.ultDebuff) { const _ud = { ...sk.ultDebuff, defDown: (sk.ultDebuff.defDown === 15 && u.id === "nanami" && f.nanamC2) ? 20 : sk.ultDebuff.defDown }; applyDebuff(aliveEnemies(s), _ud, 0, u); msg += ` Inimigos ficam vulneráveis${u.id === "nanami" && f.nanamC2 ? " [C2: DEF -20%]" : ""}.`; }
+        if (sk.ultHeal) { allies.forEach((a) => doHeal(a, (effStat(u, "atk") * sk.ultHeal.mul / 100 + sk.ultHeal.flat) * hb * ampU * (u.tUlt || 1) * (f.pMedic ? 1.25 : 1))); msg = msg ? msg + " Cura toda a equipe." : `💥 ${u.name} cura toda a equipe.`; }
+        if (sk.ultShield) {
+          const ultShVal = Math.round((effStat(u, "def") * sk.ultShield.defMul / 100 + sk.ultShield.flat) * shB * ampU * (u.tUlt || 1));
+          allies.forEach((a) => (a.shield += ultShVal));
+          msg += ` Escuda a equipe.`;
+          if (f.kirC6) {
+            const bonusSh = Math.round(ultShVal * 0.50);
+            allies.forEach((a) => { a.shield += bonusSh; });
+            applyBuff(allies, { dmgBonus: 25, all: true, turns: 2 }, u.name, fx, u);
+            msg += ` 💫 [Muralha Estelar Absoluta] +${bonusSh} escudo extra a todos e +25% Bônus de Dano ao time por 2 turnos!`;
+          }
+        }
         if (f.vulnUlt) { applyDebuff(aliveEnemies(s), { vuln: 25, turns: 2 }, 0, u); msg += ` (Juízo: +25% vulnerabilidade)`; }
         if (f.cleanseUlt) { allies.forEach((a) => { if (a.debuffs.length) a.debuffs.shift(); }); msg += ` (Remove debuffs)`; }
         if (f.ultDmgBuff) { applyBuff(allies, { dmgBonus: 20, all: true, turns: 2 }, u.name, fx, u); msg += ` (+20% dano à equipe)`; }
@@ -3967,6 +4622,40 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       s.sfFollowThisTurn = 0;
       checkSoiFonFollowup(s, u, s.fx);
       checkNamiFollowup(s, u, s.fx);
+      // C2 Athena: Lei da Inércia — avança AV de Athena quando aliado sob 7 Casas age
+      { const athC2h = s.heroes.find(h => h.id === "athena" && h.alive && h.stFlags?.athC2 && h.uid !== u.uid);
+        if (athC2h && s._athHouseActive && u.buffs.some(b => b.name === "Bênção do Olimpo")) {
+          athC2h.av = Math.max(0.01, athC2h.av * 0.85); // 15% de avanço
+        } }
+      // Athena: contagem do Modo Aprimorado (expira após 2-3 turnos dela) + cooldown do C6
+      if (u.id === "athena") {
+        if (u.athEnhanced) { u._athEnhancedTurns = (u._athEnhancedTurns || 0) - 1; if (u._athEnhancedTurns <= 0) { u.athEnhanced = false; pushLog(s, "🕊️ O Modo Aprimorado de " + u.name + " termina — a Perícia volta a curar."); } }
+        if ((u._athC6Cd || 0) > 0) u._athC6Cd -= 1;
+      }
+      // 7 Casas: desativa a flag quando nenhum aliado tem mais o buff (não-C6)
+      if (s._athHouseActive && !s.heroes.some(h => h.alive && h.buffs.some(b => b.name === "Bênção do Olimpo"))) s._athHouseActive = false;
+      applyMutPostAction(s, u); // mutadores do Abismo
+      // Wonder of You — Rastros A4/A6
+      { const woo = s.heroes.find(h => h.id === "wonderofyou" && h.alive);
+        const WOO_DEBUFFS = ["Miss da Calamidade","Vuln","Atraso Fatal","Colapso de Atributos"];
+        if (woo) {
+          // A4: fim do turno da WoY — se algum inimigo tiver 2+ debuffs dela, +10 energia
+          if (u.uid === woo.uid && woo.stFlags?.wooA4) {
+            const anyTwo = s.enemies.some(e => e.alive && e.debuffs.filter(d => WOO_DEBUFFS.includes(d.name)).length >= 2);
+            if (anyTwo) { woo.energy = Math.min(woo.energyMax, woo.energy + 10); }
+          }
+          // A6: inimigo que perdeu todos os debuffs dela por expiração sofre explosão residual de 120% ATK
+          if (woo.stFlags?.wooA6) {
+            s.enemies.forEach(e => {
+              const cnt = e.debuffs.filter(d => WOO_DEBUFFS.includes(d.name)).length;
+              if (e.alive && e._wooHadDebuffs && cnt === 0) {
+                const r6 = dealDamage(woo, e, 120, s.fx, { el: "Chaos" });
+                pushLog(s, "☄️ [A6] Explosão residual da Calamidade atinge " + e.name + " — " + r6.dmg + " de Dano Chaos!");
+              }
+              e._wooHadDebuffs = cnt > 0;
+            });
+          }
+        } }
       s.hitFx = { el: u.element, big: kind === "ult" || sk.ultAoe || (kind === "skill" && sk.aoe), support: !fx.some((x) => !x.heal && !x.dot), id: Math.random() };
       pushLog(s, msg || `${u.name} se prepara.`); s = checkEnd(s); s.turn = null; return s;
     });
@@ -4011,6 +4700,102 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
     });
   }
 
+  function resolveFrierenUlt(which) {
+    setState((s0) => {
+      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null };
+      const u = s.heroes.find((h) => h.id === "frieren" && h.alive); if (!u) { s.turn = null; return s; }
+      const fx = s.fx, sk = u.skill, allies = s.heroes.filter((h) => h.alive), enems = aliveEnemies(s), mainT = targetEnemy(s);
+      const f = u.stFlags || {}, ampU = u.ampUlt || 1;
+      const sMul = u.tUlt * ampU;
+      const pts = u._frPoints || 0;
+      u.energy = Math.round(5 * (1 + (effStat(u, "energyRegen") || 0) / 100));
+      let msg = "";
+      if (which === "zoltraak" && mainT) {
+        const isChaosVirus = mainT.element === "Chaos" || mainT.element === "Virus";
+        let origCR = null;
+        if (isChaosVirus || f.frZoltraak) { origCR = u.base.critRate; u.base = { ...u.base, critRate: 200 }; }
+        const defP = (isChaosVirus && f.frZoltraak) ? 100 : 100; // C6 sempre ignora 100% DEF
+        const rz = dealDamage(u, mainT, (sk.ultMul || 500) * sMul, fx, { el: "Holy", pierceShield: isChaosVirus, defPen: defP });
+        if (origCR !== null) u.base.critRate = origCR;
+        if (f.frC2 && enems.length > 1) enems.filter(e => e.uid !== mainT.uid && e.alive).forEach(e => dealDamage(u, e, (sk.ultMul || 500) * sMul * 0.5, fx, { el: "Holy" }));
+        if (!mainT.boss && mainT.hp / mainT.maxHp < 0.30) { mainT.hp = 0; mainT.alive = false; fx.push({ uid: mainT.uid, txt: "APAGADO!", crit: true, id: Math.random() }); }
+        if (f.frC4) enems.forEach(e => { const exA = e.debuffs.find(d => d.name === "AuraOculta"); if (exA) { exA.value = -20; exA.turns = 3; } else e.debuffs.push({ stat: "def", value: -20, turns: 3, name: "AuraOculta" }); });
+        msg = "✨ ZOLTRAAK [Escolha Milenar]! " + u.name + " dispara o feixe absoluto em " + mainT.name + " — " + rz.dmg + " de Dano Holy (ignora 100% DEF!)" + (rz.crit ? " CRÍTICO!" : "") + "!" + (f.frC2 ? " Refração em adjacentes!" : "");
+      } else if (which === "reaction") {
+        const dmgMul = 1 + pts * 0.3;
+        u._frPoints = 0; u._frPointTypes = [];
+        let tot3 = 0;
+        enems.forEach(e => { const r = dealDamage(u, e, (sk.ultMul || 500) * sMul * dmgMul * 0.6, fx, { el: "Holy" }); tot3 += r.dmg; if (pts >= 3) e.debuffs.push({ stat: "spd", value: -15, pct: true, turns: 2, name: "Nevasca" }); });
+        if (u.weapon?.buff?.frTeamBonus) allies.forEach(a => a.buffs.push({ stat: "dmgBonus", value: 15, turns: 1, name: "CajadoReacao" }));
+        msg = "⚗️ REAÇÃO DE CAMPO [Escolha Milenar]! " + u.name + " libera " + pts + " pontos de elemento — " + tot3 + " de dano em área (×" + dmgMul.toFixed(1) + ")!" + (pts >= 3 ? " Inimigos ficam lentos!" : "");
+      } else {
+        u._frPoints = Math.max(0, pts - 2);
+        const healAmt = Math.round(0.25 * u.maxHp); // C6: cura 25% HP (melhorado de 20%)
+        allies.forEach(a => { healUnit(a, healAmt, fx); a.debuffs = []; a.buffs.push({ stat: "dmgReduce", value: 15, turns: 3, name: "CampoFlores" }); });
+        if (f.frFlowers) allies.forEach(a => { a.hp = Math.min(a.maxHp, a.hp + Math.round(a.maxHp * 0.15)); a.buffs.push({ stat: "dmgBonus", value: 10, turns: 2, name: "FloraEterna" }); });
+        msg = "🌸 MAGIA DE FLORES [Escolha Milenar]! " + u.name + " faz nascer flores — o time é curado em " + healAmt + " (25% HP), debuffs removidos e +15% resistência por 3 turnos!";
+      }
+      if (f.setHorizonte4) {
+        const extraBonus = Math.min(20, (u._frPoints || 0) * 5);
+        allies.forEach(a => { a.buffs.push({ stat: "dmgBonus", value: 15 + extraBonus, turns: 2, name: "HorizonteUlt" }); a.buffs.push({ stat: "critDmg", value: 12, turns: 2, name: "HorizonteCrit" }); });
+        msg += (extraBonus > 0 ? " [Além do Horizonte] +15%+" + extraBonus + "% Dano Bônus e +12% CRIT DMG ao time!" : " [Além do Horizonte] +15% Dano Bônus e +12% CRIT DMG ao time!");
+      }
+      tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
+    });
+  }
+
+  function resolveAthenaUlt(chosenUid) {
+    setState((s0) => {
+      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null };
+      const u = s.heroes.find((h) => h.id === "athena" && h.alive); if (!u) { s.turn = null; return s; }
+      const fx = s.fx, f = u.stFlags || {};
+      const allies = s.heroes.filter((h) => h.alive);
+      const _wasFree = f.athC6 && u.energy < u.energyMax; // recast gratuito do C6 (não zera energia)
+      if (!_wasFree) u.energy = Math.round(5 * (1 + (effStat(u, "energyRegen") || 0) / 100));
+      if (f.athC6) u._athC6Cd = 2; // próxima reabertura gratuita em 2 turnos de Athena
+      const houseTarget = allies.find((a) => a.uid === chosenUid) || allies.filter(a => a.alive).sort((a, b) => (b.atk || 0) - (a.atk || 0))[0] || u;
+      u.athEnhanced = true; u._athEnhancedTurns = f.athC6 ? 3 : 2;
+      const houseTurns = f.athC6 ? 9999 : 3; // C6: auras permanentes
+      allies.forEach((a) => {
+        a.buffs = a.buffs.filter((b) => b.name !== "Bênção do Olimpo");
+        a.buffs.push({ stat: "spd", value: 30, pct: true, turns: houseTurns, name: "Bênção do Olimpo" });
+        a.buffs.push({ stat: "def", value: 30, pct: true, turns: houseTurns, name: "Bênção do Olimpo" });
+        a.buffs.push({ stat: "critRate", value: 20, turns: houseTurns, name: "Bênção do Olimpo" });
+      });
+      // C1: alvo escolhido pelo jogador recebe buffs em dobro
+      if (f.athC1) {
+        houseTarget.buffs.push({ stat: "spd", value: 30, pct: true, turns: houseTurns, name: "Casa Extra" });
+        houseTarget.buffs.push({ stat: "def", value: 30, pct: true, turns: houseTurns, name: "Casa Extra" });
+        houseTarget.buffs.push({ stat: "critRate", value: 20, turns: houseTurns, name: "Casa Extra" });
+      }
+      if (f.athIII && !u._athIIIUsed) { houseTarget.av = 0; u._athIIIUsed = true; }
+      s._athHouseActive = true; // flag para C2/C4
+      let msg = `🕊️✨ JULGAMENTO DO OLIMPO! ${u.name} invoca as Sete Casas — todo o time recebe +30% VEL, +30% DEF e +20% CRIT${f.athC6 ? " PERMANENTES (C6!)" : ` por 3 turnos`}! ${u.name} entra no Modo Aprimorado por ${u._athEnhancedTurns} turnos. ${houseTarget.name} foi escolhido(a) como Guardião(ã) das Sete Casas${f.athC1 ? " — recebe os buffs em dobro!" : "!"}`;
+      tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
+    });
+  }
+
+  function resolveUrarakaSkill(chosenUid) {
+    setState((s0) => {
+      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null };
+      const u = s.heroes.find((h) => h.id === "uraraka" && h.alive); if (!u) { s.turn = null; return s; }
+      const fx = s.fx, sk = u.skill, f = u.stFlags || {};
+      const allies = s.heroes.filter((h) => h.alive);
+      s.sp -= 1; u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enSkill || 22));
+      const buffTarget = allies.find((a) => a.uid === chosenUid) || allies.filter(a => a.uid !== u.uid && !a.isSummon)[0] || u;
+      const atkPct = f.uraC1 ? 25 : 20;
+      applyBuff([buffTarget], { atk: atkPct, spd: 10, turns: 2 }, "Zero Gravity", fx, u);
+      if (f.uraDelayEnemies) buffTarget._uraDelayFlag = true; // Rastro: inimigos que atacarem este aliado são atrasados 8%
+      let msg = `🎈 ${u.name} usa Zero Gravity em ${buffTarget.name} — +${atkPct}% ATK e +10 VEL por 2 turnos!`;
+      if (f.uraC6 && buffTarget.energyMax) { buffTarget.energy = Math.min(buffTarget.energyMax, buffTarget.energy + 10); msg += ` [C6] +10 de Energia para ${buffTarget.name}!`; }
+      if (f.uraC2) { u.shield = (u.shield || 0) + Math.round(u.maxHp * 0.10); msg += ` Escudo Orbital: +${Math.round(u.maxHp * 0.10)} de escudo.`; }
+      tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
+    });
+  }
+
   function autoAct(uid) {
     setState((s0) => {
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
@@ -4042,9 +4827,45 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         if (isFinite(u.life)) { u.life -= 1; if (u.life <= 0) { u.alive = false; msg += ` ${u.name} se dissipa.`; } }
       } else {
         const role = u.roleKey;
-        if (role === "healer" && (sk.heal || sk.ultHeal)) { const tgt = allies.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0]; const h = sk.heal || { mul: 80, flat: 300 }; healUnit(tgt, Math.round(effStat(u, "atk") * h.mul / 100 + h.flat), fx); msg = `${u.name} cura ${tgt.name}`; }
+        if (role === "healer" && (sk.heal || sk.ultHeal)) {
+          const tgt = allies.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+          const h = sk.heal || sk.ultHeal || { mul: 120, flat: 600 }; // fallback aumentado
+          const _tHeal = sk.ultHeal && !sk.heal ? u.tUlt : u.tSkill;
+          const _athSpd = u.weapon?.buff?.spdThreshold;
+          const _athSpdActive = _athSpd && effStat(u, "spd") > _athSpd.spd;
+          const _spdHealBonus = _athSpdActive ? (1 + _athSpd.healBonus / 100) : 1;
+          const _autoHealBoost = 1.35; // boost global para curandeiros automáticos
+          const _rawHealAmt = Math.round((effStat(u, "atk") * h.mul / 100 + h.flat) * _tHeal * _spdHealBonus * _autoHealBoost);
+          const _priorHp = tgt.hp;
+          healUnit(tgt, _rawHealAmt, fx);
+          // Cetro: excesso de cura vira escudo quando VEL > 140
+          if (_athSpdActive && u.weapon?.buff?.spdThreshold?.overHealShield) {
+            const _overHeal = Math.max(0, _rawHealAmt - (tgt.maxHp - _priorHp));
+            if (_overHeal > 0) { tgt.shield = (tgt.shield || 0) + _overHeal; fx.push({ uid: tgt.uid, txt: "🛡️+" + _overHeal, heal: true, id: Math.random() }); }
+          }
+          msg = `${u.name} cura ${tgt.name}${_athSpdActive ? " ✨(Fluxo de Atena ativo)" : ""}`;
+          if (u.weapon?.buff?.athWeapon && u.weapon.buff.onSkill) {
+            const _onSk = u.weapon.buff.onSkill;
+            const _zodSt = tgt.buffs.filter(b => b.name === "ZodiacalDmg").length;
+            if (_zodSt < (_onSk.maxStacks || 3)) tgt.buffs.push({ stat: "critDmg", value: _onSk.critDmgPerStack || 12, pct: false, turns: 9999, name: "ZodiacalDmg" });
+            const _graceSt = u.buffs.filter(b => b.name === "GraçaOlimpo").length;
+            if (_graceSt < (_onSk.maxAtkStacks || 3)) u.buffs.push({ stat: "atk", value: _onSk.atkPerStack || 400, pct: false, turns: 9999, name: "GraçaOlimpo" });
+            msg += ` [Cetro: +${_onSk.critDmgPerStack}% CRIT em ${tgt.name}, +${_onSk.atkPerStack} ATQ]`;
+          }
+        }
         else if (role === "buffer" && sk.skillBuff) { applyBuff(allies, sk.skillBuff, u.name, fx, u); msg = `${u.name} fortalece o time`; }
-        else if (role === "shield" && sk.shield) { const tgt = allies.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0]; tgt.shield += Math.round(effStat(u, "def") * (sk.shield.defMul / 100) + sk.shield.flat); msg = `${u.name} escuda ${tgt.name}`; }
+        else if (role === "shield" && sk.shield) {
+          const shBa = 1 + ((u.weapon?.shieldBonus || 0) + (f.setMuralha2 ? 30 : 0)) / 100;
+          const shVal = Math.round((effStat(u, "def") * (sk.shield.defMul / 100) + sk.shield.flat) * shBa * (u.tSkill || 1));
+          if (u.stFlags?.kirC1) {
+            allies.forEach((a) => { a.shield = (a.shield || 0) + (a.uid === u.uid ? shVal : Math.round(shVal * 0.80)); });
+            msg = `${u.name} escuda todo o time`;
+          } else {
+            const tgt = allies.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+            tgt.shield += shVal;
+            msg = `${u.name} escuda ${tgt.name}`;
+          }
+        }
         else if (role === "debuffer" && sk.skillDebuff && enemies[0]) { applyDebuff([enemies[0]], sk.skillDebuff, 0, u); if (sk.skillDot) applyDot([enemies[0]], sk.skillDot, u, fx); if (sk.skillMul) dealDamage(u, enemies[0], sk.skillMul, fx); msg = `${u.name} enfraquece o inimigo`; }
         else { const tgt = enemies.slice().sort((a, b) => b.hp - a.hp)[0]; if (tgt) { const full = u.energyMax && u.energy >= u.energyMax; if (full && sk.ultMul) { u.energy = 0; if (sk.ultAoe) enemies.forEach((e) => dealDamage(u, e, sk.ultMul, fx)); else dealDamage(u, tgt, sk.ultMul, fx); msg = `💥 ${u.name} usa Ultimate!`; } else { const m = sk.skillMul || sk.basicMul || 100; if (sk.aoe && sk.skillMul) enemies.forEach((e) => dealDamage(u, e, m, fx)); else dealDamage(u, tgt, m, fx); if (sk.skillDot) applyDot(sk.aoe ? enemies : [tgt], sk.skillDot, u, fx); u.energy = Math.min(u.energyMax, u.energy + 22); msg = `${u.name} ataca ${tgt.name}`; } } }
       }
@@ -4062,6 +4883,19 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
       const fx = s.fx; u.actCount++;
       refreshKaibaBuffs(s);
+      // E6 Wonder of You: Julgamento da Calamidade dispara ANTES de toda ação inimiga
+      if (s._wooJudgment) {
+        const wooH = s.heroes.find(h => h.uid === s._wooJudgment.uid && h.alive);
+        if (wooH) {
+          const jDmg = Math.round(effStat(wooH, "atk") * 6.5);
+          u.hp = u.boss ? Math.max(1, u.hp - jDmg) : Math.max(0, u.hp - jDmg);
+          if (!u.boss && u.hp <= 0) u.alive = false;
+          fx.push({ uid: u.uid, txt: jDmg + "!", crit: true, el: "Chaos", id: Math.random() });
+          u.av = (u.av || 1000) * 1.4; // atraso 40%
+          pushLog(s, `☠️ JULGAMENTO DA CALAMIDADE recai sobre ${u.name}! ${jDmg} de Dano Quântico (E6 WoY) + atraso 40%!`);
+          s = checkEnd(s); if (s.over) { s.turn = null; return s; }
+        } else { s._wooJudgment = null; } // WoY derrotada — desativa
+      }
       const allAllies = s.heroes.filter((h) => h.alive);
       const realHeroes = allAllies.filter((h) => !h.isSummon);
       const targetable = realHeroes.length ? realHeroes : allAllies;
@@ -4072,86 +4906,240 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
 
       const pickTarget = () => {
         if (taunter) return taunter;
-        const healer = targetable.find((h) => h.roleKey === "healer");
-        const carry = targetable.slice().sort((a, b) => effStat(b, "atk") - effStat(a, "atk"))[0];
-        const weakest = targetable.slice().sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
-        const r = Math.random();
-        if (healer && r < 0.32) return healer;        // negar sustento
-        if ((u.boss || r < 0.45)) return carry;        // ameaçar o DPS
-        return weakest;                                 // finalizar o mais fraco
+        // 25% por membro vivo — distribuição igual, sem preferência por healer ou carry
+        return targetable[Math.floor(Math.random() * targetable.length)];
       };
 
       // Tower Boss special mechanics
       if (u.alive && u.boss && u.bossKind === "aizen") {
         const hpPct = u.hp / u.maxHp;
-        if (!u.aiBankai && hpPct <= 0.70) { u.aiBankai = true; u.hp = Math.min(u.maxHp, u.hp + Math.round(u.maxHp * 0.15)); u.base = { ...u.base, atk: Math.round(u.base.atk * 1.4), def: Math.round(u.base.def * 1.5) }; pushLog(s, `🌌 AIZEN entra em BANKAI — Kyōka Suigetsu! Restaura 15% HP, ATK×1.4, DEF×1.5. Ataques não têm mais 40% de chance de errar!`); }
-        if (!u.aiTranscend && hpPct <= 0.30) { u.aiTranscend = true; u.res = [...(u.res || []), "Vento", "Glacial"]; u.base.spd = Math.round(u.base.spd * 1.3); pushLog(s, `✨ AIZEN transcende! Resistência total e VEL ×1.3 — ele é invencível!`); }
+        if (!u.aiBankai && hpPct <= 0.70) {
+          u.aiBankai = true;
+          u.hp = Math.min(u.maxHp, u.hp + Math.round(u.maxHp * 0.15));
+          u.base = { ...u.base, atk: Math.round(u.base.atk * 1.4), def: Math.round(u.base.def * 1.5) };
+          allAllies.forEach(h => h.debuffs.push({ stat: "missChance", value: 35, turns: 2, name: "Ilusão Perfeita" }));
+          pushLog(s, `🌌 AIZEN — BANKAI: Kyōka Suigetsu! Restaura 15% HP, ATK×1.4, DEF×1.5. Ilusão Perfeita: chance de miss +35% no time por 2 turnos!`);
+        }
+        if (!u.aiTranscend && hpPct <= 0.30) {
+          u.aiTranscend = true;
+          u.res = [...(u.res || []), "Vento", "Glacial"];
+          u.base.spd = Math.round(u.base.spd * 1.3);
+          allAllies.forEach(h => { h.debuffs.push({ stat: "def", value: -25, pct: true, turns: 3, name: "Transcendência" }); h.energy = Math.max(0, (h.energy || 0) - 20); });
+          pushLog(s, `✨ AIZEN — TRANSCENDÊNCIA! VEL×1.3, +RES Vento/Glacial. Time: DEF -25% por 3 turnos e perde 20 de Energia!`);
+        }
+        // Kurohitsugi: a cada 4 ações no Bankai
+        if (u.aiBankai && u.actCount > 0 && u.actCount % 4 === 0) {
+          let tot = 0;
+          allAllies.forEach(h => { tot += dealDamage(u, h, 115 * rage, fx, { el: "Holy" }).dmg; h.debuffs.push({ stat: "spd", value: -15, pct: true, turns: 2, name: "Kurohitsugi" }); });
+          pushLog(s, `⬛ KUROHITSUGI! ${u.name} encerra o time no caixão negro — ${tot} Dano Holy em área + VEL -15% por 2 turnos!`); s = checkEnd(s); s.turn = null; return s;
+        }
       }
       if (u.alive && u.boss && u.bossKind === "sukuna") {
         const hpPct = u.hp / u.maxHp;
-        if (!u.suRCT && hpPct <= 0.50) { u.suRCT = true; const heal = Math.round(u.maxHp * 0.20); u.hp = Math.min(u.maxHp, u.hp + heal); pushLog(s, `🩸 SUKUNA ativa Técnica Cursista Reversa — restaura ${heal} HP (20%)!`); }
-        if (!u.su10shadows && hpPct <= 0.25) { u.su10shadows = true; u.base = { ...u.base, atk: Math.round(u.base.atk * 1.6), def: Math.round(u.base.def * 1.3) }; pushLog(s, `👁️ SUKUNA invoca as 10 Sombras! ATK×1.6, DEF×1.3!`); }
-        if (u.actCount % 5 === 0 && u.actCount > 0) {
+        if (!u.suRCT && hpPct <= 0.50) {
+          u.suRCT = true;
+          const heal = Math.round(u.maxHp * 0.20); u.hp = Math.min(u.maxHp, u.hp + heal);
+          const t1 = pickTarget();
+          if (t1) { dealDamage(u, t1, 160 * rage, fx, {}); t1.debuffs.push({ stat: "def", value: -35, pct: true, turns: 3, name: "Desmembramento" }); }
+          pushLog(s, `🩸 SUKUNA — TÉCNICA CURSISTA REVERSA! Restaura ${heal} HP. DESMEMBRAMENTO em ${t1?.name || "alvo"}: DEF -35% por 3 turnos!`);
+        }
+        if (!u.su10shadows && hpPct <= 0.25) {
+          u.su10shadows = true;
+          u.base = { ...u.base, atk: Math.round(u.base.atk * 1.6), def: Math.round(u.base.def * 1.3) };
+          allAllies.forEach(h => h.debuffs.push({ stat: "vuln", value: 25, turns: 99, name: "10 Sombras" }));
+          pushLog(s, `👁️ SUKUNA — 10 SOMBRAS MALDITAS! ATK×1.6, DEF×1.3. Time: Maldição Permanente +25% dano recebido!`);
+        }
+        // Domínio Expandido a cada 4 ações
+        if (u.actCount % 4 === 0 && u.actCount > 0) {
           allAllies.forEach(h => { h.debuffs.push({ stat: "vuln", value: 30, turns: 3, name: "Domínio" }); h.debuffs.push({ stat: "def", value: -30, pct: true, turns: 3, name: "Malrep" }); });
-          let tot2 = 0; allAllies.forEach(h => { tot2 += dealDamage(u, h, 220 * rage, fx).dmg; }); pushLog(s, `🔴 SUKUNA expande o DOMÍNIO AMALDIÇOADO! ${tot2} dano em todos + 30% VULN + -30% DEF por 3 turnos!`); s = checkEnd(s); s.turn = null; return s;
+          let tot2 = 0; allAllies.forEach(h => { tot2 += dealDamage(u, h, 90 * rage, fx).dmg; });
+          pushLog(s, `🔴 DOMÍNIO EXPANDIDO! ${tot2} Dano Chaos em área + 30% VULN + DEF -30% por 3 turnos!`); s = checkEnd(s); s.turn = null; return s;
+        }
+        // Hollow Purple a cada 7 ações
+        if (u.actCount % 7 === 0 && u.actCount > 0) {
+          const mainTgt = pickTarget();
+          if (mainTgt) {
+            const hpDmg = Math.round(mainTgt.maxHp * 0.45);
+            mainTgt.hp = Math.max(mainTgt.boss ? 1 : 0, mainTgt.hp - hpDmg);
+            if (!mainTgt.boss && mainTgt.hp <= 0) mainTgt.alive = false;
+            fx.push({ uid: mainTgt.uid, txt: "HOLLOW PURPLE!", crit: true, el: "Chaos", id: Math.random() });
+            mainTgt.debuffs.push({ stat: "atk", value: -40, pct: true, turns: 2, name: "Desintegração" });
+            pushLog(s, `💜 HOLLOW PURPLE! ${u.name} aniquila ${mainTgt.name} — ${hpDmg} de dano absoluto (45% HP máx) + ATK -40% por 2 turnos!`);
+            s = checkEnd(s); s.turn = null; return s;
+          }
         }
       }
       if (u.alive && u.boss && u.bossKind === "godkaiba") {
         const hpPct = u.hp / u.maxHp;
-        if (!u.gkObelisco && hpPct <= 0.50) { u.gkObelisco = true; u.base = { ...u.base, atk: Math.round(u.base.atk * 1.5), def: Math.round(u.base.def * 1.3) }; u.res = [...(u.res || []), "Holy"]; pushLog(s, `⚡ GOD KAIBA entra na FASE DO OBELISCO! ATK×1.5, DEF×1.3, resiste Holy!`); }
+        if (!u.gkSlifer && hpPct <= 0.75) {
+          u.gkSlifer = true;
+          u.base = { ...u.base, atk: Math.round(u.base.atk * 1.15), spd: Math.round(u.base.spd * 1.1) };
+          pushLog(s, `🐉 GOD KAIBA invoca o DRAGÃO DO TROVÃO! ATK×1.15, VEL×1.1. A batalha acelera!`);
+        }
+        if (!u.gkObelisco && hpPct <= 0.50) {
+          u.gkObelisco = true;
+          u.base = { ...u.base, atk: Math.round(u.base.atk * 1.35), def: Math.round(u.base.def * 1.3) };
+          u.res = [...(u.res || []), "Holy"];
+          u.shield = (u.shield || 0) + Math.round(u.maxHp * 0.25);
+          allAllies.forEach(h => h.debuffs.push({ stat: "vuln", value: 20, turns: 99, name: "Radiação Obelisco" }));
+          pushLog(s, `⚡ GOD KAIBA — FASE DO OBELISCO! ATK×1.35, DEF×1.3, Escudo +25% HP, resiste Holy. Time: +20% dano recebido permanente!`);
+        }
+        // Punho do Destino a cada 3 ações
         if (u.actCount % 3 === 0 && u.actCount > 0) {
-          let tot2 = 0; allAllies.forEach(h => { tot2 += dealDamage(u, h, 160 * rage, fx, { el: "Eletro" }).dmg; h.debuffs.push({ stat: "atk", value: -20, pct: true, turns: 2, name: "Supressão" }); }); pushLog(s, `⚡ PUNHO DO DESTINO! ${tot2} dano Eletro em área + ATK↓20% por 2 turnos!`); s = checkEnd(s); s.turn = null; return s;
+          let tot2 = 0; allAllies.forEach(h => { tot2 += dealDamage(u, h, 105 * rage, fx, { el: "Eletro" }).dmg; h.debuffs.push({ stat: "atk", value: -20, pct: true, turns: 2, name: "Supressão" }); });
+          pushLog(s, `⚡ PUNHO DO DESTINO! ${tot2} Dano Eletro em área + ATK -20% por 2 turnos!`); s = checkEnd(s); s.turn = null; return s;
+        }
+        // Raio Oblíquo a cada 6 ações
+        if (u.actCount % 6 === 0 && u.actCount > 0) {
+          const hvy = allAllies.slice().sort((a,b) => effStat(b,"atk")-effStat(a,"atk"))[0];
+          if (hvy) { const r1 = dealDamage(u, hvy, 155 * rage, fx, { el:"Eletro", defPen:25 }); pushLog(s, `⚡ RAIO OBLÍQUO! ${u.name} foca ${hvy.name} com raio de alta tensão — ${r1.dmg} (ignora 25% DEF)!`); s = checkEnd(s); s.turn = null; return s; }
         }
       }
       // BOSS RUSH MECHANICS
       if (u.alive && u.boss && u.bossKind === "byakuya") {
         const bankai = u.hp / u.maxHp < 0.5;
+        // Fase 3: abaixo de 20% HP — Dispersão Final
+        if (!u._byFinalPhase && u.hp / u.maxHp < 0.20) {
+          u._byFinalPhase = true;
+          u.base = { ...u.base, atk: Math.round(u.base.atk * 1.35) };
+          u.res = [...(u.res || []), "Eletro"];
+          pushLog(s, "🌸 BYAKUYA — DISPERSÃO FINAL! As pétalas de gelo se tornam poeira de diamante. ATK×1.35, resiste Eletro!");
+        }
         if (u.actCount % 3 === 0 && u.actCount > 0) {
+          // Senbonzakura consome Marcas de Pétala acumuladas nos alvos
           let tot = 0;
           allAllies.forEach(function(h) {
+            const petalStacks = (h._byPetal || 0);
             const hasBleed = (h.dots||[]).some(function(d){return d.type==="bleed";});
-            const mul = 200 * rage * (bankai ? 1.35 : 1) * (hasBleed ? 1.3 : 1);
+            const petalBonus = 1 + 0.25 * petalStacks;
+            const mul = 130 * rage * (bankai ? 1.35 : 1) * (hasBleed ? 1.3 : 1) * petalBonus;
             tot += dealDamage(u, h, mul, fx, { el: "Holy" }).dmg;
             if (bankai && h.alive) h.debuffs.push({ stat: "def", value: -20, pct: true, turns: 2, name: "Petala" });
+            h._byPetal = 0; // consome as marcas
           });
-          msg = "SENBONZAKURA KAGEYOSHI! " + u.name + " desencadeia mil petalas - " + tot + " de dano total" + (bankai ? " (BANKAI!)" : "") + "!";
+          msg = "🌸 SENBONZAKURA KAGEYOSHI! " + u.name + " desencadeia mil pétalas — " + tot + " de dano total" + (bankai ? " (BANKAI!)" : "") + "! Marcas consumidas!";
         } else if (!msg) {
           const t = pickTarget();
-          if (t) { const r = dealDamage(u, t, 110 * rage, fx, { el: "Holy" }); msg = u.name + " ataca " + t.name + " com petalas - " + r.dmg + (r.crit ? " (CRITICO!)" : "") + "."; }
+          if (t) {
+            const r = dealDamage(u, t, 110 * rage, fx, { el: "Holy" });
+            t._byPetal = Math.min(3, (t._byPetal || 0) + 1); // aplica Marca de Pétala
+            if (bankai && t.alive) t.dots.push({ type: "bleed", dmg: Math.round(effStat(u, "atk") * 0.18), turns: 2 });
+            msg = u.name + " marca " + t.name + " com uma Pétala (" + (t._byPetal) + "/3) — " + r.dmg + (r.crit ? " CRÍTICO!" : "") + (bankai ? " [Sangramento]" : "") + ".";
+          }
         }
-      } else if (u.alive && u.boss && u.bossKind === "sukuna") {
-        const hpPctS = u.hp / u.maxHp;
-        if (!u._sukDom70 && hpPctS <= 0.70) { u._sukDom70 = true; allAllies.forEach(function(h){ h.debuffs.push({ stat: "def", value: -30, pct: true, turns: 3, name: "Dominio" }); h.debuffs.push({ stat: "vuln", value: 30, turns: 3, name: "Dominio" }); }); pushLog(s, "SUKUNA expande o DOMINIO AMALDICAO! -30% DEF e +30% Vuln!"); }
-        if (!u._sukDom40 && hpPctS <= 0.40) { u._sukDom40 = true; allAllies.forEach(function(h){ h.debuffs.push({ stat: "def", value: -30, pct: true, turns: 3, name: "Dominio2" }); h.debuffs.push({ stat: "vuln", value: 30, turns: 3, name: "Dominio2" }); }); pushLog(s, "SUKUNA expande o DOMINIO NOVAMENTE! Todos enfraquecidos!"); }
-        if (u.actCount > 0 && u.actCount % 5 === 0 && u.shield === 0) { u.shield = 200000; pushLog(s, "Sukuna reconstroi a [Tecnica Maldita]! Escudo de 200.000 HP! Use Virus/Hazard Digital!"); }
-        if (u.actCount % 2 === 0 && u.actCount > 0) {
-          const t = pickTarget();
-          if (t) { const r = dealDamage(u, t, 180 * rage, fx, { defPen: 30 }); msg = "SUKUNA usa CLEAVE em " + t.name + " - " + r.dmg + " de dano!" + (r.crit ? " CRITICO!" : ""); }
-        } else if (!msg) {
-          const t = pickTarget();
-          if (t) { const r = dealDamage(u, t, 120 * rage, fx); msg = u.name + " ataca " + t.name + " - " + r.dmg + (r.crit ? " (CRITICO!)" : "") + "."; }
+      } else if (u.alive && u.boss && u.bossKind === "espiral_lord") {
+        // ── Mecânica 1: Escudo Selado (75% e 40% de HP) ──
+        const hpPctEsp = u.hp / u.maxHp;
+        if (!u._espShield1 && hpPctEsp <= 0.75) {
+          u._espShield1 = true; u._espShieldUp = true;
+          u.shield = (u.shield || 0) + Math.round(u.maxHp * 0.25);
+          pushLog(s, "🔮 ESCUDO SELADO! O Soberano da Espiral se envolve numa barreira arcana — ele NÃO PODE ATACAR enquanto o escudo existir. Destruam-no: ao quebrar, ele perde 15% do HP máximo!");
         }
-      } else if (u.alive && u.boss && u.bossKind === "frieren") {
+        if (!u._espShield2 && hpPctEsp <= 0.40) {
+          u._espShield2 = true; u._espShieldUp = true;
+          u.shield = (u.shield || 0) + Math.round(u.maxHp * 0.25);
+          pushLog(s, "🔮 SEGUNDO ESCUDO SELADO! A barreira arcana retorna — quebrem-na para arrancar mais 15% do HP do Soberano!");
+        }
+        // Escudo quebrado → perde 15% do HP máximo
+        if (u._espShieldUp && (u.shield || 0) <= 0) {
+          u._espShieldUp = false;
+          const loss = Math.round(u.maxHp * 0.15);
+          u.hp = Math.max(1, u.hp - loss);
+          fx.push({ uid: u.uid, txt: String(loss) + "!", crit: true, id: Math.random(), el: "Chaos" });
+          pushLog(s, "💥 O ESCUDO SELADO É DESTRUÍDO! A energia contida explode para dentro — o Soberano perde " + loss + " de HP (15% do máximo)!");
+        }
+        // Com escudo ativo: não ataca, apenas canaliza
+        if (u._espShieldUp && (u.shield || 0) > 0) {
+          msg = "🔮 O Soberano da Espiral canaliza energia dentro do Escudo Selado (" + u.shield + ") — incapaz de atacar!";
+        } else {
+          // ── Mecânica 2: Roleta das Correntes (a cada 5 ações) ──
+          if (u.actCount % 5 === 0 && u.actCount > 0) {
+            const chainables = allAllies.filter(h => h.alive && !h.isSummon && !(h.debuffs || []).some(d => d.name === "Correntes da Espiral"));
+            if (chainables.length) {
+              const victim = chainables[Math.floor(Math.random() * chainables.length)];
+              victim.debuffs.push({ stat: "mark", value: 0, turns: 2, name: "Correntes da Espiral" });
+              victim.av = (victim.av || 1) + 2 * (10000 / Math.max(1, effStat(victim, "spd"))); // atrasa ~2 turnos
+              s.espRoulette = { targetUid: victim.uid, id: Math.random() };
+              pushLog(s, "⛓️ ROLETA DAS CORRENTES! A roleta gira sobre a equipe... e para em " + victim.name + "! Correntes espirais o(a) prendem — sem agir por 2 turnos!");
+              s = checkEnd(s); s.turn = null; return s;
+            }
+          }
+          // Ataque padrão pesado
+          if (u.actCount % 3 === 0 && u.actCount > 0) {
+            let totEsp = 0; allAllies.forEach(h => { totEsp += dealDamage(u, h, 95 * rage, fx, { el: u.element }).dmg; if (h.alive) applyDot([h], { type: "aero", mul: 16, turns: 3 }, u, fx); });
+            msg = "🌀 COLAPSO DA ESPIRAL! O Soberano varre a arena — " + totEsp + " de dano em área + 1 acúmulo de Aero Sunder em todos!";
+          } else if (!msg) {
+            const t = pickTarget();
+            if (t) { const r = dealDamage(u, t, 125 * rage, fx, { el: u.element }); msg = u.name + " esmaga " + t.name + " — " + r.dmg + (r.crit ? " (CRÍTICO!)" : "") + "."; }
+          }
+        }
+      } else if (u.alive && u.boss && (u.bossKind === "frieren" || u.bossKind === "frieren_boss")) {
         if (!u.counterSpell) u.counterSpell = 0;
         u.counterSpell += 1;
         if (u.counterSpell >= 3) {
           u.counterSpell = 0;
           const t = pickTarget();
-          if (t) { t.debuffs.push({ stat: "spd", value: -9999, pct: false, turns: 1, name: "Paralisia" }); pushLog(s, "CONTRA-FEITCO! " + t.name + " esta paralisado por 1 turno!"); }
+          if (t) {
+            // Talento da Athena (Eco da Justiça): imune a Controle de Grupo enquanto as 7 Casas estiverem ativas
+            if (t.id === "athena" && s._athHouseActive) { pushLog(s, "✟ Resistência das Casas! " + t.name + " é IMUNE ao Contra-Feitiço enquanto as 7 Casas estiverem ativas!"); }
+            else { t.debuffs.push({ stat: "spd", value: -9999, pct: false, turns: 1, name: "Paralisia" }); pushLog(s, "CONTRA-FEITCO! " + t.name + " esta paralisado por 1 turno!"); }
+          }
         }
         if (!u._frierenForbidden && u.hp / u.maxHp < 0.30) {
           u._frierenForbidden = true;
+          u._frManaPool = 80000; // Reserva de Mana: limite total de auto-cura pós-Magia Proibida
           allAllies.forEach(function(h){ if (h.alive) h.dots.push({ type: "freeze", dmg: Math.round(effStat(u,"atk")*0.25), turns: 2 }); });
-          const heal = Math.round(u.maxHp * 0.05); u.hp = Math.min(u.maxHp, u.hp + heal);
-          pushLog(s, "MAGIA PROIBIDA! Frieren recupera " + heal + " HP e congela todos os aliados!");
+          const heal = Math.round(u.maxHp * 0.08); u.hp = Math.min(u.maxHp, u.hp + heal);
+          // Fase final: Frieren fica mais agressiva (Magia Acumulada)
+          u.base = { ...u.base, atk: Math.round(u.base.atk * 1.25), spd: Math.round(u.base.spd * 1.15) };
+          pushLog(s, "🔮 MAGIA PROIBIDA! Frieren libera mil anos de feitiços acumulados — restaura " + heal + " HP (+8%), congela todos e ganha ATK×1.25 + VEL×1.15! (Reserva de Mana: 80.000 de auto-cura restante)");
+        }
+        // Pós-Magia Proibida: cada ataque básico cura Frieren, limitado pela Reserva de Mana (80k no total)
+        if (u._frierenForbidden && !msg && (u._frManaPool || 0) > 0) {
+          const selfHeal = Math.min(u._frManaPool, Math.round(u.maxHp * 0.06));
+          u._frManaPool -= selfHeal;
+          u.hp = Math.min(u.maxHp, u.hp + selfHeal);
+          fx.push({ uid: u.uid, txt: "+" + selfHeal, heal: true, id: Math.random() });
+          if (u._frManaPool <= 0) pushLog(s, "💨 A Reserva de Mana de Frieren se esgotou — ela não consegue mais se regenerar!");
         }
         if (u.actCount % 4 === 0 && u.actCount > 0) {
           let tot = 0;
-          for (let wi = 0; wi < 7; wi++) { const t = pickTarget(); if (t && t.alive) tot += dealDamage(u, t, 80 * rage, fx, { el: "Glacial" }).dmg; }
-          msg = "GRACA DAS FADAS! Frieren lanca 7 ondas magicas - " + tot + " de Dano Glacial total!";
+          for (let wi = 0; wi < 7; wi++) { const t = pickTarget(); if (t && t.alive) tot += dealDamage(u, t, 55 * rage, fx, { el: "Glacial" }).dmg; }
+          msg = "🔮 GRAÇA DAS FADAS! Frieren lança 7 ondas mágicas — " + tot + " de Dano Glacial total!";
         } else if (!msg) {
           const t = pickTarget();
-          if (t) { const r = dealDamage(u, t, 100 * rage, fx, { el: "Glacial" }); msg = u.name + " conjura feitco em " + t.name + " - " + r.dmg + (r.crit ? " (CRITICO!)" : "") + "."; }
+          if (t) { const r = dealDamage(u, t, 100 * rage, fx, { el: "Glacial" }); msg = u.name + " conjura feitiço em " + t.name + " — " + r.dmg + (r.crit ? " (CRÍTICO!)" : "") + (u._frierenForbidden ? " [auto-cura]" : "") + "."; }
+        }
+      } else if (u.alive && u.boss && u.bossKind === "void_sovereign") {
+        // Fase 2: abaixo de 60% HP — Soberano do Vazio transcende
+        if (!u._voidPhase2 && u.hp / u.maxHp < 0.60) {
+          u._voidPhase2 = true;
+          u.base = { ...u.base, atk: Math.round(u.base.atk * 1.35), def: Math.round(u.base.def * 1.2), spd: Math.round(u.base.spd * 1.2) };
+          u.res = [...(u.res || []), "Fogo"];
+          // Anula todos os buffs do time
+          allAllies.forEach(h => { h.buffs = h.buffs.filter(b => b.turns >= 9999); }); // mantém só permanentes (C6)
+          pushLog(s, `🌑 SOBERANO DO VAZIO — FASE 2: ECLIPSE TOTAL! ATK×1.35, DEF×1.2, VEL×1.2, resiste Fogo. TODOS OS BUFFS TEMPORÁRIOS DO TIME SÃO ANULADOS PELO VAZIO!`);
+        }
+        // Pulso do Vazio a cada 3 ações — dano + remove 1 buff aleatório
+        if (u.actCount % 3 === 0 && u.actCount > 0) {
+          let tot = 0;
+          allAllies.forEach(h => {
+            tot += dealDamage(u, h, 100 * rage, fx, { el: "Chaos" }).dmg;
+            if (h.buffs.length > 0) h.buffs.splice(Math.floor(Math.random() * h.buffs.length), 1);
+          });
+          pushLog(s, `🌑 PULSO DO VAZIO! ${tot} de Dano Chaos em área + 1 buff removido de cada aliado pelo Vazio!`); s = checkEnd(s); s.turn = null; return s;
+        }
+        // Fragmentação da Realidade a cada 6 ações — dano massivo + penalidade de energia
+        if (u.actCount % 6 === 0 && u.actCount > 0) {
+          let tot = 0;
+          allAllies.forEach(h => {
+            tot += dealDamage(u, h, 145 * rage, fx, { el: "Chaos", defPen: 30 }).dmg;
+            // Fulgur Resonance leve no alvo do Cleave (pós-rebalance: dot suave, drena energia se ele apanhar de multi-hit)
+            if (h.alive && !h.dots.some(d => d.type === "fulgur")) applyDot([h], { type: "fulgur", mul: 22, turns: 2 }, u, fx);
+            h.debuffs.push({ stat: "atk", value: -30, pct: true, turns: 2, name: "VazioFragmento" });
+            h.energy = Math.max(0, (h.energy || 0) - 25);
+          });
+          pushLog(s, `🌀 FRAGMENTAÇÃO DA REALIDADE! ${tot} Dano Chaos total (ignora 30% DEF) + ATK -30% por 2 turnos + todos perdem 25 de Energia!`); s = checkEnd(s); s.turn = null; return s;
         }
       } else if (u.elite && u.actCount === 1) {
         u.buffs.push({ stat: "atk", value: 35, pct: true, turns: 99, name: "Fúria" });
@@ -4163,7 +5151,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         u.shield += Math.round(u.maxHp * 0.18); const t = pickTarget(); const r = t ? dealDamage(u, t, 135 * rage, fx) : { dmg: 0 };
         msg = `🗿 ${u.name} cristaliza uma carapaça (escudo) e esmaga ${t ? t.name : ""} por ${r.dmg}!`;
       } else if (u.boss && (u.actCount % 3 === 0 || (enraged && u.actCount % 2 === 0))) {
-        let tot = 0; allAllies.forEach((h) => { tot += dealDamage(u, h, 72 * rage, fx).dmg; });
+        let tot = 0; allAllies.forEach((h) => { tot += dealDamage(u, h, 48 * rage, fx).dmg; });
         realHeroes.forEach((h) => h.debuffs.push({ stat: "def", value: -25, pct: true, turns: 2, name: "DEF↓" }));
         msg = `💥 ${u.name} desfere um ataque DEVASTADOR em área — ${tot} de dano total e reduz a DEF de todos!${enraged ? " (ENFURECIDO!)" : ""}`;
       } else if (u.boss && u.actCount % 5 === 0) {
@@ -4176,6 +5164,20 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         const t = pickTarget();
         if (t) { const r = dealDamage(u, t, 100 * rage, fx); msg = `${u.name} ataca ${t.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}.`; }
       }
+      // C4 Athena: Justiça Retributiva — inimigo que atinge aliado sob 7 Casas recebe DEF↓ e Dano Holy
+      { const athC4h = s.heroes.find(h => h.id === "athena" && h.alive && h.stFlags?.athC4 && s._athHouseActive);
+        if (athC4h) {
+          const houseHeroHit = s.heroes.find(h => h.alive && h.buffs.some(b => b.name === "Bênção do Olimpo") && s.fx.some(x => x.uid === h.uid && !x.heal && !x.dot));
+          if (houseHeroHit) {
+            if (!u.debuffs.some(d => d.name === "JulgSantuário")) u.debuffs.push({ stat: "def", value: -20, pct: true, turns: 2, name: "JulgSantuário" });
+            if (u.boss) {
+              const holyDmg = Math.round(effStat(athC4h, "spd") * 10);
+              u.hp = Math.max(1, u.hp - holyDmg);
+              s.fx.push({ uid: u.uid, txt: String(holyDmg), el: "Holy", id: Math.random() });
+              pushLog(s, `✟ [C4 Atena] Justiça Retributiva! ${athC4h.name} condena ${u.name} — ${holyDmg} de Dano Holy puro + DEF -20% por 2 turnos!`);
+            }
+          }
+        } }
       { const omg = s.heroes.find((h) => h.id === "omegamon" && h.alive);
         if (omg) {
           let hits = 0; s.heroes.forEach((h) => { if (h._omgHit) { hits += h._omgHit; h._omgHit = 0; } });
@@ -4190,6 +5192,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           }
         } }
       tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      applyMutPostAction(s, u); // mutadores do Abismo
       s.hitFx = { el: u.element, big: u.boss && (u.actCount % 3 === 0 || (enraged && u.actCount % 2 === 0)), enemy: true, id: Math.random() };
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
@@ -4197,7 +5200,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
 
   const isHeroTurn = current && current.side === "H" && !current.auto && !current.isSummon;
   const activeHero = isHeroTurn ? state.heroes.find((h) => h.uid === current.uid) : null;
-  const canUlt = activeHero && activeHero.energyMax && activeHero.energy >= activeHero.energyMax && (activeHero.id !== "kaiba" || aliveDragons(state, activeHero.uid).length >= 3);
+  const canUlt = activeHero && activeHero.energyMax && (activeHero.energy >= activeHero.energyMax || (activeHero.id === "athena" && activeHero.stFlags?.athC6 && state._athHouseActive && (activeHero._athC6Cd || 0) <= 0)) && (activeHero.id !== "kaiba" || aliveDragons(state, activeHero.uid).length >= 3);
   const stageEl = (current ? ELEMENTS[current.element] : null) || ELEMENTS.Holy;
 
   return (
@@ -4215,7 +5218,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         {/* inimigos */}
         <div className="flex gap-2" style={{ flexWrap: "wrap" }}>
           {state.enemies.map((e, i) => { const al = aliveEnemies(state); const isTarget = al[target]?.uid === e.uid; const eel = ELEMENTS[e.element] || { color: C.line, glyph: "✦" }; return (
-            <button key={e.uid} disabled={!e.alive} onClick={() => { const idx = al.findIndex((x) => x.uid === e.uid); if (idx >= 0) setTarget(idx); }}
+            <button key={e.uid} disabled={!e.alive} onClick={() => { const idx = al.findIndex((x) => x.uid === e.uid); if (idx >= 0) { if (isTarget) setInspectUid(e.uid); else setTarget(idx); } }}
               style={{ flex: 1, minWidth: 96, position: "relative", opacity: e.alive ? 1 : 0.3, border: `2px solid ${isTarget && e.alive ? C.bad : C.line}`, borderRadius: 12, padding: 8, background: e.boss ? "linear-gradient(180deg,#2a1020,#160a16)" : C.panel, boxShadow: isTarget && e.alive ? `0 0 14px ${C.bad}66` : "none" }}>
               <FX fx={state.fx} uid={e.uid} />
               <div className="flex items-center justify-between" style={{ marginBottom: 2 }}>
@@ -4237,6 +5240,97 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         {state.summonFx && <SummonFx data={state.summonFx} />}
         {state.hitFx && <AttackFx data={state.hitFx} />}
 
+        {/* ROLETA DAS CORRENTES — overlay do Soberano da Espiral */}
+        {state.espRoulette && (() => {
+          const vict = state.heroes.find(h => h.uid === state.espRoulette.targetUid);
+          return (
+            <div key={state.espRoulette.id} style={{ position: "fixed", inset: 0, zIndex: 90, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(4,3,12,0.82)", animation: "srBadge .4s both" }} onClick={() => setState(s0 => ({ ...s0, espRoulette: null }))}>
+              <style dangerouslySetInnerHTML={{ __html: `@keyframes espSpin{from{transform:rotate(0)}to{transform:rotate(1080deg)}}@keyframes espChain{0%{opacity:0;transform:scale(2.4)}60%{opacity:1;transform:scale(0.95)}100%{opacity:1;transform:scale(1)}}` }} />
+              <div style={{ textAlign: "center" }}>
+                <div style={{ ...ORB, fontSize: 16, fontWeight: 900, color: "#B98BFF", letterSpacing: 3, marginBottom: 14 }}>⛓️ ROLETA DAS CORRENTES ⛓️</div>
+                <div style={{ position: "relative", width: 120, height: 120, margin: "0 auto 14px" }}>
+                  <div style={{ position: "absolute", inset: -10, borderRadius: "50%", border: "3px dashed #B98BFF88", animation: "espSpin 2.2s cubic-bezier(.2,.8,.3,1) both" }} />
+                  {vict && <div style={{ position: "absolute", inset: 10, display: "flex", alignItems: "center", justifyContent: "center" }}><Avatar ch={vict} size={90} ring="#B98BFF" /></div>}
+                  <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 64, animation: "espChain 2.4s .3s both", pointerEvents: "none" }}>⛓️</div>
+                </div>
+                <div className="flex gap-2" style={{ justifyContent: "center", marginBottom: 12 }}>
+                  {state.heroes.filter(h => h.alive && !h.isSummon).map(h => (
+                    <div key={h.uid} style={{ opacity: h.uid === state.espRoulette.targetUid ? 1 : 0.35, filter: h.uid === state.espRoulette.targetUid ? "none" : "grayscale(1)" }}>
+                      <Avatar ch={h} size={40} ring={h.uid === state.espRoulette.targetUid ? "#B98BFF" : C.line} />
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontSize: 13, color: C.text, fontWeight: 700 }}>{vict ? vict.name : "?"} foi acorrentado(a) — sem agir por 2 turnos!</div>
+                <div style={{ fontSize: 11, color: C.mute, marginTop: 8 }}>(toque para fechar)</div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* INSPETOR — clique num personagem para ver status, buffs e origem */}
+        {inspectUid && (() => {
+          const iu = state.heroes.find(h => h.uid === inspectUid) || state.enemies.find(e => e.uid === inspectUid);
+          if (!iu) return null;
+          const iel = ELEMENTS[iu.element] || { color: C.line };
+          const statRow = (lbl, v, base) => (
+            <div className="flex items-center justify-between" style={{ fontSize: 12, padding: "3px 0", borderBottom: `1px solid ${C.line}55` }}>
+              <span style={{ color: C.mute }}>{lbl}</span>
+              <span style={{ fontWeight: 700 }}>{v}{base != null && Math.round(v) !== Math.round(base) ? <span style={{ color: v > base ? C.good : C.bad, fontSize: 10 }}> ({v > base ? "+" : ""}{Math.round(v - base)})</span> : null}</span>
+            </div>
+          );
+          const effLine = (b, isBuff) => (
+            <div style={{ fontSize: 11, padding: "5px 8px", borderRadius: 8, background: isBuff ? "#0d2317" : "#2a0f18", border: `1px solid ${isBuff ? C.good : C.bad}44`, marginBottom: 4 }}>
+              <div style={{ fontWeight: 700, color: isBuff ? C.good : "#FF8FA0" }}>{b.name || (isBuff ? "Buff" : "Debuff")}</div>
+              <div style={{ color: C.mute }}>
+                {STAT_LABEL[b.stat] || b.stat}: <b style={{ color: C.text }}>{b.value > 0 && isBuff ? "+" : ""}{b.value}{b.pct ? "%" : (["atk","hp","def","spd"].includes(b.stat) ? "" : "%")}</b>
+                {" · "}{b.turns >= 99 ? "permanente" : `${b.turns} turno(s)`}
+              </div>
+            </div>
+          );
+          return (
+            <div style={{ position: "fixed", inset: 0, zIndex: 95, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(4,3,12,0.78)", padding: 16 }} onClick={() => setInspectUid(null)}>
+              <div onClick={(ev) => ev.stopPropagation()} style={{ width: "100%", maxWidth: 360, maxHeight: "82vh", overflowY: "auto", background: C.panel, border: `2px solid ${iel.color}77`, borderRadius: 16, padding: 14, boxShadow: `0 0 30px ${iel.color}33` }}>
+                <div className="flex items-center gap-3" style={{ marginBottom: 10 }}>
+                  {iu.side === "enemy" ? <EnemyAvatar e={iu} size={48} /> : <Avatar ch={iu} size={48} ring={iel.color} />}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 800, fontSize: 15 }}>{iu.name}</div>
+                    <div style={{ fontSize: 11, color: iel.color }}>{(ELEMENTS[iu.element]?.glyph || "✦")} {iu.element} · Nv {iu.level || "?"}{iu.boss ? " · CHEFE" : ""}</div>
+                  </div>
+                  <button onClick={() => setInspectUid(null)} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.mute, borderRadius: 8, padding: "4px 10px", cursor: "pointer" }}>✕</button>
+                </div>
+                <div style={{ marginBottom: 10 }}>
+                  {statRow("HP", `${Math.round(iu.hp)} / ${iu.maxHp}`)}
+                  {(iu.shield || 0) > 0 && statRow("🛡 Escudo", Math.round(iu.shield))}
+                  {statRow("ATK", Math.round(effStat(iu, "atk")), iu.base?.atk)}
+                  {statRow("DEF", Math.round(effStat(iu, "def")), iu.base?.def)}
+                  {statRow("VEL", Math.round(effStat(iu, "spd")), iu.base?.spd)}
+                  {statRow("Taxa de CRIT", Math.round(effStat(iu, "critRate")) + "%", iu.base?.critRate)}
+                  {statRow("CRIT DMG", Math.round(effStat(iu, "critDmg")) + "%", iu.base?.critDmg)}
+                  {iu.energyMax > 0 && statRow("⚡ Energia", `${Math.round(iu.energy)} / ${iu.energyMax}`)}
+                </div>
+                {(iu.buffs || []).length > 0 && <div style={{ marginBottom: 8 }}>
+                  <div style={{ ...ORB, fontSize: 11, fontWeight: 800, color: C.good, letterSpacing: 1, marginBottom: 6 }}>▲ BUFFS ({iu.buffs.length})</div>
+                  {iu.buffs.map((b, i) => <div key={i}>{effLine(b, true)}</div>)}
+                </div>}
+                {(iu.debuffs || []).length > 0 && <div style={{ marginBottom: 8 }}>
+                  <div style={{ ...ORB, fontSize: 11, fontWeight: 800, color: "#FF8FA0", letterSpacing: 1, marginBottom: 6 }}>▼ DEBUFFS ({iu.debuffs.length})</div>
+                  {iu.debuffs.map((b, i) => <div key={i}>{effLine(b, false)}</div>)}
+                </div>}
+                {(iu.dots || []).length > 0 && <div>
+                  <div style={{ ...ORB, fontSize: 11, fontWeight: 800, color: "#FFB86B", letterSpacing: 1, marginBottom: 6 }}>☠ EFEITOS CONTÍNUOS (DoT)</div>
+                  {iu.dots.map((d, i) => <div key={i} style={{ fontSize: 11, padding: "5px 8px", borderRadius: 8, background: "#2a1a0d", border: "1px solid #FFB86B44", marginBottom: 4 }}>
+                    <b style={{ color: DOT_INFO[d.type]?.c || "#FFB86B" }}>{DOT_INFO[d.type]?.n || d.type}</b>
+                    <span style={{ color: C.mute }}> · {d.dmg} de dano/turno · {d.turns} turno(s)</span>
+                  </div>)}
+                </div>}
+                {(iu.buffs || []).length === 0 && (iu.debuffs || []).length === 0 && (iu.dots || []).length === 0 &&
+                  <div style={{ fontSize: 12, color: C.mute, textAlign: "center", padding: "8px 0" }}>Nenhum efeito ativo.</div>}
+                <div style={{ fontSize: 10, color: C.dim, marginTop: 8, textAlign: "center" }}>O nome de cada efeito indica sua origem (habilidade, arma, constelação ou inimigo).</div>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* log */}
         <div ref={logRef} style={{ background: `${C.bg1}cc`, border: `1px solid ${C.line}`, borderRadius: 12, padding: 10, height: 96, overflowY: "auto", fontSize: 12, color: C.mute }}>
           {state.log.map((l, i) => <div key={i} style={{ marginBottom: 2 }}>{l}</div>)}
@@ -4247,7 +5341,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
         {state.sfZona && <div style={{ textAlign: "center", fontSize: 11, color: ELEMENTS["Vento"]?.color || "#7CFFB0", fontWeight: 700, padding: "2px 0" }}>🦋 Zona de Condução ativa ({state.sfZona.turns}) — Follow-ups e CRIT amplificados!</div>}
         <div className="flex gap-2" style={{ flexWrap: "wrap" }}>
           {state.heroes.map((h) => { const active = current && current.uid === h.uid; const el = ELEMENTS[h.element] || { color: C.line }; const full = !h.isSummon && h.energyMax > 0 && h.energy >= h.energyMax; return (
-            <div key={h.uid} style={{ flex: 1, minWidth: 112, position: "relative", opacity: h.alive ? 1 : 0.35, border: `2px solid ${active ? C.gold : el.color + "55"}`, borderRadius: 12, padding: 8, background: C.panel, boxShadow: active ? `0 0 16px ${C.gold}55` : "none" }}>
+            <div key={h.uid} onClick={() => setInspectUid(h.uid)} style={{ flex: 1, minWidth: 112, position: "relative", opacity: h.alive ? 1 : 0.35, border: `2px solid ${active ? C.gold : el.color + "55"}`, borderRadius: 12, padding: 8, background: C.panel, boxShadow: active ? `0 0 16px ${C.gold}55` : "none", cursor: "pointer" }}>
               <FX fx={state.fx} uid={h.uid} />
               <div className="flex items-center gap-2">
                 <CombatPortrait h={h} size={40} active={active} />
@@ -4284,19 +5378,70 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
           </div>
         ) : state.choice ? (
           <div>
-            <div style={{ textAlign: "center", ...ORB, fontWeight: 800, fontSize: 14, color: C.gold, marginBottom: 8 }}>3 DRAGÕES EM CAMPO — ESCOLHA A INVOCAÇÃO SUPREMA</div>
-            <div className="flex gap-3" style={{ justifyContent: "center", flexWrap: "wrap" }}>
-              {[{ k: "obelisk", id: "obelisk", emoji: "🗿", name: "Obelisco, o Atormentador", desc: "Tributa os 3 dragões: explosão SAGRADA (Holy) massiva em área agora + Obelisco luta 2 turnos com dano bruto altíssimo." },
-                { k: "ultimate", id: "ultimate", emoji: "🐲", name: "Dragão Branco Definitivo", desc: "Funde os 3 Blue-Eyes: dragão independente por 5 turnos com dano Elétrico + Glacial a cada ataque." }].map((opt) => (
-                <button key={opt.k} onClick={() => resolveKaibaUlt(opt.k)}
-                  style={{ flex: 1, minWidth: 150, maxWidth: 230, textAlign: "left", border: `2px solid ${C.gold}77`, borderRadius: 14, padding: 10, background: "linear-gradient(180deg,#1a1530,#0f0b22)", cursor: "pointer", boxShadow: `0 0 16px ${C.gold}22` }}>
-                  <div className="flex items-center gap-2" style={{ marginBottom: 6 }}>
-                    <Avatar ch={{ id: opt.id, element: opt.k === "obelisk" ? "Holy" : "Eletro", avatar: opt.emoji }} size={42} ring={C.gold} />
-                    <span style={{ ...ORB, fontWeight: 800, fontSize: 13, color: C.gold }}>{opt.name}</span>
-                  </div>
-                  <div style={{ fontSize: 11, color: C.mute, lineHeight: 1.4 }}>{opt.desc}</div>
-                </button>))}
-            </div>
+            {state.choice.kind === "frieren" ? (
+              <>
+                <div style={{ textAlign: "center", ...ORB, fontWeight: 800, fontSize: 14, color: "#C8E6C9", marginBottom: 8 }}>✨ GRIMÓRIO MILENAR — ESCOLHA A FORMA DA SUPREMA</div>
+                <div className="flex gap-2" style={{ justifyContent: "center", flexWrap: "wrap" }}>
+                  {[
+                    { k: "zoltraak", emoji: "✨", name: "Zoltraak", col: "#FFE08A", desc: "Feixe anti-magia focado. Ignora 100% da DEF, Crit Garantido contra Chaos/Vírus. Mata inimigos comuns <30% HP." },
+                    { k: "reaction", emoji: "⚗️", name: "Reação de Campo", col: "#6FE3FF", desc: "Libera todos os Pontos de Elemento em explosão AoE. Dano ×(1+pts×0.3). Precisa de ≥1 ponto para potência máxima." },
+                    { k: "flowers", emoji: "🌸", name: "Magia de Flores", col: "#A8E6CF", desc: "Cura o time em 25% do HP máx de Frieren, remove todos os debuffs e concede +15% resistência por 3 turnos." },
+                  ].map((opt) => (
+                    <button key={opt.k} onClick={() => resolveFrierenUlt(opt.k)}
+                      style={{ flex: 1, minWidth: 130, maxWidth: 200, textAlign: "left", border: `2px solid ${opt.col}77`, borderRadius: 14, padding: 10, background: "linear-gradient(180deg,#101a14,#080f0a)", cursor: "pointer", boxShadow: `0 0 16px ${opt.col}22` }}>
+                      <div className="flex items-center gap-2" style={{ marginBottom: 6 }}>
+                        <span style={{ fontSize: 28 }}>{opt.emoji}</span>
+                        <span style={{ ...ORB, fontWeight: 800, fontSize: 12, color: opt.col }}>{opt.name}</span>
+                      </div>
+                      <div style={{ fontSize: 10, color: C.mute, lineHeight: 1.4 }}>{opt.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : state.choice.kind === "athena" ? (
+              <>
+                <div style={{ textAlign: "center", ...ORB, fontWeight: 800, fontSize: 14, color: "#FFE9A8", marginBottom: 8 }}>🕊️✨ JULGAMENTO DO OLIMPO — ESCOLHA O(A) GUARDIÃO(Ã) DAS SETE CASAS</div>
+                <div className="flex gap-2" style={{ justifyContent: "center", flexWrap: "wrap" }}>
+                  {state.heroes.filter((h) => h.alive && !h.isSummon).map((h) => (
+                    <button key={h.uid} onClick={() => resolveAthenaUlt(h.uid)}
+                      style={{ minWidth: 96, textAlign: "center", border: `2px solid ${C.gold}77`, borderRadius: 14, padding: 10, background: "linear-gradient(180deg,#241d3a,#120e22)", cursor: "pointer", boxShadow: `0 0 16px ${C.gold}22` }}>
+                      <Avatar ch={h} size={42} ring={C.gold} />
+                      <div style={{ ...ORB, fontWeight: 800, fontSize: 11, color: C.gold, marginTop: 6 }}>{h.name}</div>
+                    </button>
+                  ))}
+                </div>
+                <div style={{ textAlign: "center", fontSize: 10, color: C.mute, marginTop: 8 }}>Todo o time recebe +30% VEL / +30% DEF / +20% CRIT. O(A) escolhido(a) ganha os bônus especiais da Ultimate.</div>
+              </>
+            ) : state.choice.kind === "uraraka" ? (
+              <>
+                <div style={{ textAlign: "center", ...ORB, fontWeight: 800, fontSize: 14, color: "#B9F3D8", marginBottom: 8 }}>🎈 ZERO GRAVITY — ESCOLHA QUEM RECEBE O BUFF</div>
+                <div className="flex gap-2" style={{ justifyContent: "center", flexWrap: "wrap" }}>
+                  {state.heroes.filter((h) => h.alive && !h.isSummon && h.id !== "uraraka").map((h) => (
+                    <button key={h.uid} onClick={() => resolveUrarakaSkill(h.uid)}
+                      style={{ minWidth: 96, textAlign: "center", border: `2px solid ${C.good}77`, borderRadius: 14, padding: 10, background: "linear-gradient(180deg,#16281f,#0a140f)", cursor: "pointer", boxShadow: `0 0 16px ${C.good}22` }}>
+                      <Avatar ch={h} size={42} ring={C.good} />
+                      <div style={{ ...ORB, fontWeight: 800, fontSize: 11, color: C.good, marginTop: 6 }}>{h.name}</div>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ textAlign: "center", ...ORB, fontWeight: 800, fontSize: 14, color: C.gold, marginBottom: 8 }}>3 DRAGÕES EM CAMPO — ESCOLHA A INVOCAÇÃO SUPREMA</div>
+                <div className="flex gap-3" style={{ justifyContent: "center", flexWrap: "wrap" }}>
+                  {[{ k: "obelisk", id: "obelisk", emoji: "🗿", name: "Obelisco, o Atormentador", desc: "Tributa os 3 dragões: explosão SAGRADA (Holy) massiva em área agora + Obelisco luta 2 turnos com dano bruto altíssimo." },
+                    { k: "ultimate", id: "ultimate", emoji: "🐲", name: "Dragão Branco Definitivo", desc: "Funde os 3 Blue-Eyes: dragão independente por 5 turnos com dano Elétrico + Glacial a cada ataque." }].map((opt) => (
+                    <button key={opt.k} onClick={() => resolveKaibaUlt(opt.k)}
+                      style={{ flex: 1, minWidth: 150, maxWidth: 230, textAlign: "left", border: `2px solid ${C.gold}77`, borderRadius: 14, padding: 10, background: "linear-gradient(180deg,#1a1530,#0f0b22)", cursor: "pointer", boxShadow: `0 0 16px ${C.gold}22` }}>
+                      <div className="flex items-center gap-2" style={{ marginBottom: 6 }}>
+                        <Avatar ch={{ id: opt.id, element: opt.k === "obelisk" ? "Holy" : "Eletro", avatar: opt.emoji }} size={42} ring={C.gold} />
+                        <span style={{ ...ORB, fontWeight: 800, fontSize: 13, color: C.gold }}>{opt.name}</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: C.mute, lineHeight: 1.4 }}>{opt.desc}</div>
+                    </button>))}
+                </div>
+              </>
+            )}
           </div>
         ) : isHeroTurn ? (() => { const nm = skillNamesOf(activeHero.id); const kaiba3 = activeHero.id === "kaiba" && aliveDragons(state, activeHero.uid).length >= 3;
           const _kindLabel = { basic: "Ataque Básico", skill: "Perícia · 1 PH", ult: "Ultimate" };
@@ -4445,7 +5590,7 @@ async function fetchRandomAlly() {
 }
 function defaultAlly() { const o = { id: "yoruichi", level: 70, eidolon: 2, weapon: "thunderclaws", relics: EMPTY_RELICS() }; const st = computeStats(o); return { player: "Aliada IA", name: "Yoruichi", avatar: CHAR_MAP.yoruichi.avatar, element: "Eletro", role: "dps", rarity: 5, level: 70, eidolon: 2, stats: st, skill: CHAR_MAP.yoruichi.skill }; }
 
-function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, flash, setBattle }) {
+function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, setRelicMats, flash, setBattle }) {
   const [setName, setSetName] = useState(RELIC_SET_NAMES[0]);
   const [ally, setAlly] = useState(null);
   useEffect(() => { (async () => setAlly((await fetchRandomAlly()) || defaultAlly()))(); }, []);
@@ -4458,7 +5603,9 @@ function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, flash, setBatt
       if (res.win) {
         const n = 2 + Math.floor(Math.random() * 3), drops = [];
         for (let i = 0; i < n; i++) { drops.push(makeRelic(Math.floor(Math.random() * 6), setName)); }
-        setRelicInv((p) => [...p, ...drops]); flash(`Domínio limpo! +${drops.length} relíquias`, C.good);
+        setRelicInv((p) => [...p, ...drops]);
+        setRelicMats((v) => v + 12);
+        flash(`Domínio limpo! +${drops.length} relíquias · +12 🔷 Matéria de Relíquia`, C.good);
       } else flash("O domínio resistiu…", C.bad);
     };
     setBattle({ context: "coop", encounter: { level: 45, count: 3, boss: true }, ally, onResolve });
@@ -5271,77 +6418,832 @@ const MAIL_PKG = [
   { icon: "🔷", label: "Matéria de Relíquia",       value: "100" },
 ];
 
-function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, mail3Claimed, setMail3Claimed, mail3CharPicked, setMail3CharPicked, mail4Claimed, setMail4Claimed, setJade, setExpItems, setWeaponMats, setRelicMats, setOwned, setOwnedWeapons, flash }) {
-  const MAIL2_UNLOCK = new Date("2026-07-03T00:00:00Z").getTime(); // liberado desde 03/Jul
-  const [now, setNow] = React.useState(Date.now());
-  React.useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
-  const mail2Remaining = Math.max(0, MAIL2_UNLOCK - now);
-  const mail2Unlocked = mail2Remaining === 0;
+/* ==========================================================================
+   ABISMO DE DADOS — roguelike de labirinto: draft, permadeath, mutadores, glitches
+   ========================================================================== */
+const ABISMO_GLITCH_INFO = {
+  patch:      { n: "Patch de Segurança", r: "🟢", desc: "Aliados começam cada batalha com Escudo de 10% do HP Máx." },
+  bateria:    { n: "Bateria Auxiliar", r: "🟢", desc: "Aliados começam com +20 de Energia do Supremo." },
+  lente:      { n: "Lente de Aumento", r: "🟢", desc: "+15% de Taxa Crítica para o time." },
+  sanguefrio: { n: "Sangue-Frio", r: "🔵", desc: "Derrotar um inimigo cura 5% do HP Máx do atacante." },
+  contrato:   { n: "Contrato de Troca Equivalente", r: "🟣", desc: "+80% de CRIT DMG, mas todas as curas são reduzidas pela metade." },
+  troia:      { n: "Cavalo de Troia", r: "🔴", desc: "Cada ataque acumula +10% de Dano Final (máx +100%). Penalidade: o Draft fica BLOQUEADO pelo resto da run." },
+};
+const ABISMO_META_INFO = [
+  { id: "draft4",  n: "Módulo de Expansão de Draft", cost: 300, desc: "O Draft oferece 4 opções em vez de 3." },
+  { id: "reroll",  n: "Dados Viciados", cost: 250, desc: "1 reroll grátis de Draft por run." },
+  { id: "sanct70", n: "Santuário Aprimorado", cost: 200, desc: "Santuários curam 70% do HP (em vez de 50%)." },
+  { id: "bolsos",  n: "Bolsos Profundos", cost: 150, desc: "Começa cada run com +100 de Ouro." },
+  { id: "uti",     n: "Vagas na UTI", cost: 400, desc: "1 golpe fatal por batalha é reduzido a 1 de HP (o aliado sobrevive)." },
+];
+function AbismoDados({ run, setRun, frags, setFrags, meta, setMeta, firstClears, weekly, owned, ownedMap, images, startAbismo, abismoBattle, abismoCashout, flash }) {
+  const [draftOpts, setDraftOpts] = React.useState(null);
+  const [eventNode, setEventNode] = React.useState(null);
+  function rollDraft(r) {
+    const pool = owned.map(o => o.id).filter(id => !r.team.includes(id) && !r.dead.includes(id));
+    const n = meta.draft4 ? 4 : 3;
+    const opts = [];
+    const cp = [...pool];
+    while (opts.length < n && cp.length) opts.push(cp.splice(Math.floor(Math.random() * cp.length), 1)[0]);
+    return opts;
+  }
+  function openDraft() { setDraftOpts(rollDraft(run)); }
+  function pickDraft(id) {
+    setRun(r => ({ ...r, team: id ? [...r.team, id] : r.team, pendingDraft: false }));
+    setDraftOpts(null);
+    if (id) flash(`⚔️ ${CHAR_MAP[id]?.name} entra na equipe!`, C.gold);
+  }
+  function enterNode(kind) {
+    if (kind === "combate" || kind === "elite" || kind === "boss") { abismoBattle(kind); return; }
+    if (kind === "santuario") {
+      setRun(r => {
+        const hp = { ...r.hpMap }; const cure = meta.sanct70 ? 0.70 : 0.50;
+        r.team.forEach(id => { hp[id] = Math.min(1, (hp[id] ?? 1) + cure); });
+        flash(`⛪ Santuário: o time recupera ${Math.round(cure * 100)}% do HP.`, C.good);
+        const nx = r.floor + 1;
+        return { ...r, hpMap: hp, floor: nx, points: r.points + 5, nodeOptions: ["combate", nx % 3 === 0 ? "evento" : "elite"] };
+      });
+      return;
+    }
+    if (kind === "evento") {
+      setEventNode(Math.random() < 0.5 ? "comerciante" : "poco");
+    }
+  }
+  function resolveEvent(choice) {
+    const ev = eventNode; setEventNode(null);
+    setRun(r0 => {
+      const r = { ...r0, hpMap: { ...r0.hpMap }, glitches: [...r0.glitches], team: [...r0.team], dead: [...r0.dead] };
+      if (ev === "comerciante") {
+        if (choice === "A") {
+          const dps = r.team.slice().sort((a, b) => (CHAR_MAP[b]?.atk || 0) - (CHAR_MAP[a]?.atk || 0))[0];
+          r.hpMap[dps] = Math.max(0.05, (r.hpMap[dps] ?? 1) - 0.30);
+          const leg = ["troia", "contrato"].filter(g => !r.glitches.includes(g));
+          if (leg.length) { const g = leg[Math.floor(Math.random() * leg.length)]; r.glitches.push(g); flash(`🩸 ${CHAR_MAP[dps]?.name} sacrifica 30% do HP... e ganha ${ABISMO_GLITCH_INFO[g].n}!`, "#B98BFF"); }
+          else flash("🩸 O sacrifício foi feito, mas o terminal não tinha mais nada a oferecer...", C.bad);
+        } else if (choice === "B" && r.dead.length) {
+          const rev = r.dead.shift(); r.team.push(rev); r.hpMap[rev] = 1; r.gold = Math.ceil(r.gold / 2);
+          flash(`✨ ${CHAR_MAP[rev]?.name} retorna dos mortos com HP cheio! (-50% do Ouro)`, C.gold);
+        }
+      } else if (ev === "poco") {
+        if (choice === "A") { r.team.forEach(id => r.hpMap[id] = 1); r.curse = 3; flash("💧 Cura total! Mas os Pesos de Chumbo (-15 VEL) pesam por 3 combates...", "#6FE3FF"); }
+        else if (choice === "B") { r.team.forEach(id => r.hpMap[id] = Math.max(0.05, (r.hpMap[id] ?? 1) - 0.20)); if (!r.glitches.includes("lente")) r.glitches.push("lente"); flash("⚔️ A arma banhada brilha (+15% CRIT pela run), mas custou 20% do HP do time.", C.bad); }
+      }
+      const nx = r.floor + 1;
+      return { ...r, floor: nx, points: r.points + 5, nodeOptions: ["combate", nx % 2 === 0 ? "elite" : "santuario"] };
+    });
+  }
+  const wkGems = weekly.gems || 0;
+  const NODE_UI = { combate: ["⚔️", "Combate", "Luta padrão · +10 pts · +8🧬"], elite: ["💀", "Elite", "Difícil · +15 pts · +15🧬 · DRAFT ao vencer"], boss: ["👹", "CHEFE DO SETOR", "Núcleo do Abismo · +30 pts · +40🧬 · Glitch quase garantido"], evento: ["❓", "Anomalia", "Escolha de alto risco (RPG de texto)"], santuario: ["⛪", "Santuário", (meta.sanct70 ? "Cura 70%" : "Cura 50%") + " do HP do time"] };
+  return <div className="flex flex-col gap-4">
+    <Panel glow="#B98BFF">
+      <div style={{ ...ORB, fontWeight: 900, fontSize: 20, color: "#B98BFF" }}>🕳️ O Abismo de Dados</div>
+      <div style={{ fontSize: 12, color: C.mute, lineHeight: 1.6, marginTop: 4 }}>Roguelike de sobrevivência: draft dinâmico, HP persistente e <b>permadeath</b>. Cada andar tem um Mutador do Caos. Gemas: 160💎 únicas a cada 10 andares (first clear) + até <b>800💎/semana</b> em Pontos de Exploração. Fragmentos 🧬 nunca viram gemas.</div>
+      <div style={{ fontSize: 11, color: C.dim, marginTop: 6 }}>🧬 {frags} Fragmentos · 💎 semanais: {wkGems}/800 · First clears: {firstClears.length ? firstClears.join(", ") : "nenhum"}</div>
+    </Panel>
+    {!run ? <>
+      <Panel><Btn kind="primary" style={{ width: "100%", padding: "14px 0", fontSize: 16, fontWeight: 900 }} onClick={startAbismo}>🕳️ INICIAR NOVA RUN</Btn>
+        <div style={{ fontSize: 11, color: C.mute, marginTop: 8, textAlign: "center" }}>Você começa com 1 Pioneiro(a) aleatório(a) do seu elenco. Recrute nos Drafts após Elites e Chefes.</div></Panel>
+      <Panel glow={C.gold}>
+        <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 8 }}>🖥️ Mainframe — Meta-progressão permanente</div>
+        {ABISMO_META_INFO.map(m => <div key={m.id} className="flex items-center justify-between" style={{ gap: 10, padding: "8px 0", borderBottom: `1px solid ${C.line}55` }}>
+          <div style={{ flex: 1 }}><b style={{ fontSize: 13 }}>{m.n}</b><div style={{ fontSize: 11, color: C.mute }}>{m.desc}</div></div>
+          {meta[m.id] ? <span style={{ color: C.good, fontWeight: 800, fontSize: 12 }}>✓ ATIVO</span> :
+            <Btn kind={frags >= m.cost ? "primary" : "soft"} disabled={frags < m.cost} onClick={() => { setFrags(f => f - m.cost); setMeta(mm => ({ ...mm, [m.id]: true })); flash("🖥️ Mainframe: " + m.n + " instalado!", C.gold); }}>{m.cost}🧬</Btn>}
+        </div>)}
+      </Panel>
+    </> : <>
+      <Panel glow="#B98BFF">
+        <div className="flex items-center justify-between">
+          <div style={{ ...ORB, fontWeight: 900, fontSize: 17 }}>Andar <span style={{ color: "#B98BFF" }}>{run.floor}</span></div>
+          <div style={{ fontSize: 12, color: C.mute }}>🪙 {run.gold} · pts {run.points} · 🧬 {run.frags || 0}</div>
+        </div>
+        <div className="flex gap-2" style={{ marginTop: 10, flexWrap: "wrap" }}>
+          {run.team.map(id => { const hp = Math.round((run.hpMap[id] ?? 1) * 100); return <div key={id} style={{ textAlign: "center", minWidth: 64 }}>
+            <Avatar ch={ownedMap[id]} size={44} ring={hp > 50 ? C.good : hp > 25 ? C.gold : C.bad} />
+            <div style={{ fontSize: 10, fontWeight: 700, marginTop: 2 }}>{CHAR_MAP[id]?.name}</div>
+            <div style={{ fontSize: 10, color: hp > 50 ? C.good : C.bad }}>{hp}% HP</div>
+          </div>; })}
+          {run.dead.map(id => <div key={id} style={{ textAlign: "center", minWidth: 64, opacity: 0.35, filter: "grayscale(1)" }}>
+            <Avatar ch={ownedMap[id]} size={44} ring={C.line} /><div style={{ fontSize: 10, marginTop: 2 }}>☠️ {CHAR_MAP[id]?.name}</div>
+          </div>)}
+        </div>
+        {run.glitches.length > 0 && <div style={{ marginTop: 10, fontSize: 11 }}>
+          {run.glitches.map(g => <div key={g} style={{ color: C.mute, padding: "2px 0" }}>{ABISMO_GLITCH_INFO[g].r} <b style={{ color: C.text }}>{ABISMO_GLITCH_INFO[g].n}</b> — {ABISMO_GLITCH_INFO[g].desc}</div>)}
+        </div>}
+        {run.curse > 0 && <div style={{ fontSize: 11, color: "#6FE3FF", marginTop: 6 }}>⚗️ Pesos de Chumbo: -15 VEL por mais {run.curse} combate(s)</div>}
+      </Panel>
+      {run.pendingDraft && !draftOpts && <Panel glow={C.gold}>
+        <div style={{ ...ORB, fontWeight: 800, fontSize: 14, marginBottom: 6 }}>🎴 DRAFT DISPONÍVEL — recrute 1 aliado</div>
+        <Btn kind="primary" style={{ width: "100%" }} onClick={openDraft}>Abrir opções de recrutamento</Btn>
+      </Panel>}
+      {draftOpts && <Panel glow={C.gold}>
+        <div style={{ ...ORB, fontWeight: 800, fontSize: 14, marginBottom: 8 }}>Escolha seu recruta:</div>
+        <div className="flex gap-2" style={{ flexWrap: "wrap" }}>
+          {draftOpts.map(id => <button key={id} onClick={() => pickDraft(id)} style={{ textAlign: "center", minWidth: 84, border: `2px solid ${C.gold}66`, borderRadius: 14, padding: 10, background: C.panelHi, cursor: "pointer" }}>
+            <Avatar ch={ownedMap[id]} size={48} ring={C.gold} />
+            <div style={{ fontSize: 11, fontWeight: 800, marginTop: 4 }}>{CHAR_MAP[id]?.name}</div>
+            <div style={{ fontSize: 9, color: C.mute }}>{CHAR_MAP[id]?.role === "healer" ? "💚 Cura" : CHAR_MAP[id]?.role === "shield" ? "🛡️ Tanque" : CHAR_MAP[id]?.role === "buffer" ? "✨ Suporte" : "⚔️ DPS"}</div>
+          </button>)}
+        </div>
+        <div className="flex gap-2" style={{ marginTop: 8 }}>
+          {meta.reroll && !run.rerollUsed && <Btn kind="soft" onClick={() => { setRun(r => ({ ...r, rerollUsed: true })); setDraftOpts(rollDraft({ ...run, rerollUsed: true })); }}>🎲 Reroll (grátis, 1×)</Btn>}
+          <Btn kind="soft" onClick={() => pickDraft(null)}>Recusar todos</Btn>
+        </div>
+      </Panel>}
+      {eventNode && <Panel glow="#B98BFF">
+        {eventNode === "comerciante" ? <>
+          <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🎭 O Comerciante Clandestino</div>
+          <div style={{ fontSize: 12, color: C.mute, fontStyle: "italic", marginBottom: 10 }}>"Um terminal piscando no escuro oferece poder em troca da sua força vital."</div>
+          <div className="flex flex-col gap-2">
+            <Btn kind="soft" onClick={() => resolveEvent("A")}>A · Sacrificar 30% do HP do seu DPS por 1 Glitch Lendário</Btn>
+            <Btn kind="soft" disabled={!run.dead.length} onClick={() => resolveEvent("B")}>B · Dar 50% do Ouro para reviver um aliado morto{!run.dead.length ? " (ninguém morreu)" : ""}</Btn>
+            <Btn kind="soft" onClick={() => resolveEvent("C")}>C · Ignorar e seguir em frente</Btn>
+          </div>
+        </> : <>
+          <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🎭 O Poço de Dados Corrompido</div>
+          <div style={{ fontSize: 12, color: C.mute, fontStyle: "italic", marginBottom: 10 }}>"Uma fonte de dados pura... mas com um leve tom de ferrugem."</div>
+          <div className="flex flex-col gap-2">
+            <Btn kind="soft" onClick={() => resolveEvent("A")}>A · Beber: cura 100% do time, mas -15 VEL por 3 combates</Btn>
+            <Btn kind="soft" onClick={() => resolveEvent("B")}>B · Banhar a arma: +15% CRIT pela run, mas -20% do HP atual do time</Btn>
+            <Btn kind="soft" onClick={() => resolveEvent("C")}>C · Ignorar</Btn>
+          </div>
+        </>}
+      </Panel>}
+      {!run.pendingDraft && !draftOpts && !eventNode && <Panel>
+        <div style={{ ...ORB, fontWeight: 800, fontSize: 14, marginBottom: 8 }}>🗺️ Escolha sua rota — Andar {run.floor}{run.floor % 10 === 0 ? " · SETOR DE CHEFE" : ""}</div>
+        <div className="flex flex-col gap-2">
+          {run.nodeOptions.map((nd, i) => <Btn key={i} kind={nd === "boss" ? "primary" : "soft"} style={{ textAlign: "left", padding: "12px 14px" }} onClick={() => enterNode(nd)}>
+            <b>{NODE_UI[nd][0]} {NODE_UI[nd][1]}</b><div style={{ fontSize: 11, color: nd === "boss" ? "#FFD9A0" : C.mute, fontWeight: 400 }}>{NODE_UI[nd][2]}</div>
+          </Btn>)}
+        </div>
+        <Btn kind="soft" style={{ width: "100%", marginTop: 10 }} onClick={() => abismoCashout(run, false)}>🏁 Encerrar a run e resgatar recompensas</Btn>
+      </Panel>}
+    </>}
+  </div>;
+}
 
-  function fmtCountdown(ms) {
-    const s = Math.floor(ms / 1000);
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const sec = s % 60;
-    if (h > 0) return h + "h " + String(m).padStart(2,"0") + "m " + String(sec).padStart(2,"0") + "s";
-    return String(m).padStart(2,"0") + "m " + String(sec).padStart(2,"0") + "s";
+/* ==========================================================================
+   ESPIRAL — Modo de endgame: 2 times, fraquezas aleatórias, reset semanal
+   ========================================================================== */
+const ESPIRAL_DIFFS = [
+  { id: "normal",  label: "Normal",    color: "#43A047", gem: 2000,  waves: 1, level: 60,  desc: "1 onda por metade — Introdução ao Espiral." },
+  { id: "hard",    label: "Difícil",   color: "#F9A825", gem: 4000,  waves: 2, level: 75,  desc: "2 ondas por metade — Inimigos mais agressivos." },
+  { id: "extreme", label: "Extremo",   color: "#EF6C00", gem: 6000,  waves: 3, level: 85,  desc: "3 ondas por metade — Chefes com mecânicas exclusivas." },
+  { id: "apex",    label: "Ápice",     color: "#C62828", gem: 10000, waves: 4, level: 95,  desc: "4 ondas por metade — O limite da ressonância. 10.000💎 na 1ª conquista semanal." },
+];
+const ESPIRAL_WEEK_MS = 7 * 24 * 3600 * 1000;
+
+function Espiral({ owned, team, ownedMap, espiralClearedAt, espiralWeekSeed, espiralWeaknesses, startEspiral, images, flash }) {
+  const [diff, setDiff] = useState("normal");
+  const [teamA, setTeamA] = useState([]);
+  const [teamB, setTeamB] = useState([]);
+  const [tab, setTab] = useState("setup"); // "setup" | "info"
+
+  const seed = espiralWeekSeed();
+  const { weakA, weakB } = espiralWeaknesses(seed);
+  const cfg = ESPIRAL_DIFFS.find(d => d.id === diff);
+
+  // Reset semanal: limpa flags de limpeza antigas
+  const weekKey = seed;
+  const clearedA = !!espiralClearedAt[diff + "_" + weekKey];
+  const msUntilReset = (() => {
+    const now = new Date();
+    const jan1 = new Date(now.getFullYear(), 0, 1);
+    const dayOfYear = Math.floor((now - jan1) / 86400000);
+    const daysUntilMonday = (8 - now.getDay()) % 7 || 7;
+    return daysUntilMonday * 24 * 3600 * 1000 - (now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()) * 1000;
+  })();
+
+  const allIds = owned.map(o => o.id);
+  const usedA = new Set(teamA);
+  const usedB = new Set(teamB);
+
+  function toggleSlot(id, which) {
+    if (which === "A") {
+      if (usedB.has(id)) { flash("Esse personagem já está no Time B.", "#ff8800"); return; }
+      if (usedA.has(id)) { setTeamA(p => p.filter(x => x !== id)); }
+      else if (teamA.length < 4) { setTeamA(p => [...p, id]); }
+      else { flash("Time A já tem 4 personagens.", "#ff8800"); }
+    } else {
+      if (usedA.has(id)) { flash("Esse personagem já está no Time A.", "#ff8800"); return; }
+      if (usedB.has(id)) { setTeamB(p => p.filter(x => x !== id)); }
+      else if (teamB.length < 4) { setTeamB(p => [...p, id]); }
+      else { flash("Time B já tem 4 personagens.", "#ff8800"); }
+    }
   }
 
+  function launch() {
+    if (teamA.length < 1 || teamB.length < 1) { flash("Cada time precisa de pelo menos 1 personagem.", "#ff8800"); return; }
+    startEspiral(diff, teamA, teamB);
+  }
+
+  // Auto-fill de times padrão do jogador na montagem
+  useEffect(() => {
+    if (teamA.length === 0 && team.length > 0) setTeamA(team.slice(0, Math.min(4, team.length)));
+  }, []); // eslint-disable-line
+
+  const halfHours = Math.max(0, Math.ceil(msUntilReset / 3600000));
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      {/* Header */}
+      <Panel glow="#7B5FFF" style={{ textAlign: "center", padding: "18px 16px" }}>
+        <div style={{ ...ORB, fontSize: 26, fontWeight: 900, letterSpacing: 2, color: "#a78bff", textShadow: "0 0 32px #7B5FFF88" }}>🌀 ESPIRAL</div>
+        <div style={{ fontSize: 12, color: C.mute, marginTop: 4, lineHeight: 1.6 }}>
+          Modo de End-Game · 2 times, fraquezas aleatórias por semana, reset toda segunda-feira<br />
+          <span style={{ color: "#a78bff" }}>Fraquezas desta semana:</span>{" "}
+          <b style={{ color: "#7CFFB0" }}>Time A: {weakA.map(e => ELEMENTS[e]?.glyph + " " + e).join(", ")}</b>{" · "}
+          <b style={{ color: "#86d8ff" }}>Time B: {weakB.map(e => ELEMENTS[e]?.glyph + " " + e).join(", ")}</b>
+        </div>
+        <div style={{ fontSize: 11, color: C.dim, marginTop: 6 }}>Reset em ~{halfHours}h</div>
+      </Panel>
+
+      {/* Dificuldade */}
+      <div className="flex gap-2" style={{ flexWrap: "wrap" }}>
+        {ESPIRAL_DIFFS.map(d => {
+          const clr = d.color;
+          const wkCleared = !!espiralClearedAt[d.id + "_" + weekKey];
+          return (
+            <button key={d.id} onClick={() => setDiff(d.id)}
+              style={{ flex: 1, minWidth: 100, border: `2px solid ${diff === d.id ? clr : C.line}`, borderRadius: 14, padding: "10px 8px", background: diff === d.id ? clr + "20" : C.panel, cursor: "pointer", transition: "all .2s", position: "relative" }}>
+              <div style={{ fontWeight: 800, fontSize: 13, color: clr }}>{d.label}</div>
+              <div style={{ fontSize: 10, color: C.mute, marginTop: 2 }}>Nv {d.level} · {d.waves}× onda</div>
+              <div style={{ fontSize: 10, color: "#e8c97a", marginTop: 2 }}>{wkCleared ? "✓ Limpo" : d.gem + "💎 (1ª vez)"}</div>
+            </button>
+          );
+        })}
+      </div>
+
+      {cfg && <Panel style={{ fontSize: 12, color: C.mute, padding: "10px 14px" }}>{cfg.desc}</Panel>}
+
+      {/* Seleção de times */}
+      <div style={{ fontSize: 12, color: C.mute, marginBottom: -6 }}>
+        Selecione até 4 personagens para cada time (sem sobreposição). Clique num personagem para alternar entre os times.
+      </div>
+
+      {/* Slots de time */}
+      <div className="flex gap-2">
+        {[["A", teamA, weakA, "#7CFFB0"], ["B", teamB, weakB, "#86d8ff"]].map(([lbl, tm, weak, clr]) => (
+          <Panel key={lbl} style={{ flex: 1, padding: 12 }}>
+            <div style={{ fontWeight: 800, fontSize: 13, color: clr, marginBottom: 6 }}>
+              Time {lbl} · <span style={{ fontSize: 11, fontWeight: 400, color: C.mute }}>Fraqueza: {weak.map(e => ELEMENTS[e]?.glyph + " " + e).join(", ")}</span>
+            </div>
+            <div className="flex gap-1" style={{ flexWrap: "wrap", marginBottom: 8, minHeight: 44 }}>
+              {tm.length === 0
+                ? <div style={{ fontSize: 11, color: C.dim }}>Nenhum selecionado</div>
+                : tm.map(id => {
+                    const ch = CHAR_MAP[id]; const o = ownedMap[id];
+                    const el = ch ? ELEMENTS[ch.element] : { color: C.line };
+                    const imgUrl = images && images[id];
+                    return (
+                      <div key={id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 10, overflow: "hidden", border: `2px solid ${el.color}`, background: `radial-gradient(circle at 30% 25%, ${el.color}30, ${C.panelHi})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
+                          {imgUrl ? <img src={imgUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span>{ch?.avatar || "?"}</span>}
+                        </div>
+                        <div style={{ fontSize: 9, color: C.mute, maxWidth: 40, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ch?.name || id}</div>
+                      </div>
+                    );
+                  })}
+            </div>
+            <div style={{ fontSize: 10, color: C.dim }}>{tm.length}/4 personagens</div>
+          </Panel>
+        ))}
+      </div>
+
+      {/* Grade de personagens */}
+      <Panel style={{ padding: 12 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Selecionar personagens</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(64px, 1fr))", gap: 6 }}>
+          {allIds.map(id => {
+            const ch = CHAR_MAP[id]; const o = ownedMap[id];
+            const el = ch ? ELEMENTS[ch.element] : { color: C.line };
+            const inA = usedA.has(id); const inB = usedB.has(id);
+            const imgUrl = images && images[id];
+            return (
+              <div key={id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                <div style={{ position: "relative" }}>
+                  <div onClick={() => toggleSlot(id, "A")} style={{ width: 44, height: 44, borderRadius: 10, overflow: "hidden", border: `2px solid ${inA ? "#7CFFB0" : inB ? "#86d8ff" : el.color + "66"}`, background: `radial-gradient(circle at 30% 25%, ${el.color}22, ${C.panelHi})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, cursor: "pointer", opacity: 1 }}>
+                    {imgUrl ? <img src={imgUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span>{ch?.avatar || "?"}</span>}
+                  </div>
+                  {inA && <div style={{ position: "absolute", top: -4, right: -4, background: "#7CFFB0", borderRadius: 99, width: 14, height: 14, fontSize: 8, color: "#000", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>A</div>}
+                  {inB && <div style={{ position: "absolute", top: -4, right: -4, background: "#86d8ff", borderRadius: 99, width: 14, height: 14, fontSize: 8, color: "#000", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>B</div>}
+                </div>
+                <div style={{ fontSize: 8, color: C.mute, maxWidth: 48, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textAlign: "center" }}>{ch?.name || id}</div>
+                {/* B toggle */}
+                {inA && <button onClick={() => toggleSlot(id, "B")} style={{ fontSize: 8, background: "#86d8ff22", border: "1px solid #86d8ff66", borderRadius: 6, color: "#86d8ff", padding: "1px 4px", cursor: "pointer" }}>→B</button>}
+                {inB && <button onClick={() => toggleSlot(id, "A")} style={{ fontSize: 8, background: "#7CFFB022", border: "1px solid #7CFFB066", borderRadius: 6, color: "#7CFFB0", padding: "1px 4px", cursor: "pointer" }}>→A</button>}
+                {!inA && !inB && (
+                  <div className="flex gap-1">
+                    <button onClick={() => toggleSlot(id, "A")} style={{ fontSize: 7, background: "#7CFFB015", border: "1px solid #7CFFB044", borderRadius: 4, color: "#7CFFB0", padding: "1px 3px", cursor: "pointer" }}>A</button>
+                    <button onClick={() => toggleSlot(id, "B")} style={{ fontSize: 7, background: "#86d8ff15", border: "1px solid #86d8ff44", borderRadius: 4, color: "#86d8ff", padding: "1px 3px", cursor: "pointer" }}>B</button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
+
+      {/* Botão de lançar */}
+      <Btn onClick={launch} style={{ width: "100%", fontSize: 16, padding: "14px 0", background: `linear-gradient(135deg, #7B5FFF, #4a2fa0)`, color: "#fff" }}>
+        🌀 Iniciar Espiral — {cfg?.label} (Time A primeiro)
+      </Btn>
+
+      {/* Recompensas */}
+      <Panel style={{ padding: 12 }}>
+        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Recompensas semanais</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {ESPIRAL_DIFFS.map(d => {
+            const wkStars = espiralClearedAt[d.id + "_" + weekKey] || 0;
+            const starStr = wkStars >= 3 ? "⭐⭐⭐" : wkStars >= 2 ? "⭐⭐☆" : wkStars >= 1 ? "⭐☆☆" : null;
+            return (
+              <div key={d.id} className="flex items-center justify-between" style={{ padding: "6px 10px", borderRadius: 10, background: wkStars > 0 ? d.color + "18" : C.panelHi, border: `1px solid ${wkStars > 0 ? d.color : C.line}` }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <span style={{ fontWeight: 700, color: d.color, fontSize: 12 }}>{d.label}</span>
+                  {starStr ? <span style={{ fontSize: 11 }}>{starStr}</span> : <span style={{ fontSize: 10, color: C.mute }}>Não concluído</span>}
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 12, color: "#e8c97a" }}>{d.gem.toLocaleString()}💎</div>
+                  <div style={{ fontSize: 10, color: C.dim }}>3★ = full · 2★ = 60% · 1★ = 30%</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+/* ==========================================================================
+   ROLETA RUSSA — O ÚLTIMO PACTO
+   ========================================================================== */
+function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared, nextRouletteClaimAt, setNextRouletteClaimAt }) {
+  const ST = [
+    { b:1, reward:300,  name:"O Convite",       color:"#43A047", risk:"1 de 6",
+      pre:  "...Então você aceitou o convite.\nCurioso. Ou desesperado?",
+      safe: "Sorte de iniciante. Não confunda com destino.",
+      dead: "O gatilho escolheu. Eu apenas observo. Como sempre." },
+    { b:1, reward:400,  name:"A Confiança",      color:"#7CB342", risk:"1 de 6",
+      pre:  "Sobreviveu.\n*gira o cilindro novamente, sem hesitar*\nVamos ver se foi sorte.",
+      safe: "Duas vezes... O vazio parece gostar de você hoje.",
+      dead: "A segunda câmara tinha seu nome desde o início." },
+    { b:2, reward:500,  name:"A Traição",        color:"#F9A825", risk:"2 de 6",
+      pre:  "*desliza uma segunda bala lentamente*\nEstava ficando monótono com apenas uma.",
+      safe: "2 em 6 e você ainda respira. Genuinamente impressionante.",
+      dead: "A segunda bala sempre soube aonde ia.\nEla tem memória longa." },
+    { b:3, reward:600,  name:"O Abismo",         color:"#EF6C00", risk:"3 de 6",
+      pre:  "*carrega a terceira*\nMetade. Exatamente metade.\nAcho isso... poético.",
+      safe: "...Você está me irritando.\nIsso não costuma acontecer.",
+      dead: "Metade das chances eram suas.\nVocê encontrou a parte errada." },
+    { b:4, reward:900,  name:"Ponto de Quebra",  color:"#C62828", risk:"4 de 6",
+      pre:  "4 câmaras carregadas. Apenas 2 livres.\n*a máscara sorri sob o véu*\nAinda quer continuar, Sobrevivente?",
+      safe: "Impossível.\nNinguém chegou tão longe em séculos.\nVocê é... diferente. Odeio isso.",
+      dead: "4 chances de morrer. 2 de viver.\nVocê encontrou uma das quatro.\nEra apenas estatística." },
+    { b:1, reward:300,  name:"O Último Pacto",   color:"#AD1457", risk:"1 de 6 ✦",
+      pre:  "*remove cada bala, uma por uma, em silêncio*\n\n...\n\nDeixa eu ser justa.\nUma só.\nQue o Abismo escolha.",
+      safe: "...\n\n*inclina a cabeça lentamente pela primeira vez*\n\nVocê venceu.\n\nEm eras de jogo...\nvocê é o primeiro a honrar o pacto inteiro.\n\nPegue suas gemas, Sobrevivente do Abismo.",
+      dead: "Até no último momento...\no Abismo reclamou o que era seu.\n\nTeria sido uma história bonita." },
+  ];
+
+  const [stIdx, setStIdx]   = useState(0);
+  const [phase, setPhase]   = useState('intro');
+  const [accum, setAccum]   = useState(0);
+  const [rotation, setRotation] = useState(15);
+  const [bpos, setBpos]     = useState([]);
+  const [fired, setFired]   = useState(null);
+  const [ok, setOk]         = useState(null);
+  const [shake, setShake]   = useState(false);
+  const [extraWins, setExtraWins] = useState(0); // rodadas extras (0–3)
+
+  const st = ST[stIdx];
+  const willEarn = accum + st.reward;
+  const stColor  = st.color;
+
+  const isExtraPhase = ['extra_offer','extra_between','extra_npc','extra_dead','extra_jackpot'].includes(phase);
+
+  function doShoot() {
+    if (phase === 'spinning') return;
+    setPhase('spinning'); setFired(null); setBpos([]); setOk(null);
+    // Rodadas extras: sempre 1 bala em 6
+    const bullets = isExtraPhase ? 1 : st.b;
+    const pool = [0,1,2,3,4,5], positions = [];
+    for (let i = 0; i < bullets; i++) { const r = Math.floor(Math.random() * pool.length); positions.push(pool.splice(r,1)[0]); }
+    const fc = Math.floor(Math.random() * 6);
+    const targetR = (360 - fc * 60 + 360) % 360;
+    const delta   = ((targetR - ((rotation % 360) + 360) % 360) + 360) % 360;
+    const newRot  = rotation + (5 + Math.floor(Math.random() * 4)) * 360 + delta;
+    setRotation(newRot);
+    setTimeout(() => {
+      const hit = positions.includes(fc);
+      setBpos(positions); setFired(fc); setOk(!hit);
+      if (hit) {
+        setShake(true);
+        setTimeout(() => {
+          setShake(false);
+          if (!isExtraPhase) {
+            // Perdeu a fase principal: mantém as gemas já conquistadas e bloqueia o modo por 2 dias
+            const COOLDOWN_MS = 2 * 24 * 60 * 60 * 1000;
+            if (accum > 0) setJade((j) => j + accum);
+            setAccum(0);
+            setNextRouletteClaimAt(Date.now() + COOLDOWN_MS);
+          }
+          setPhase(isExtraPhase ? 'extra_dead' : 'dead');
+        }, 1100);
+      } else {
+        if (isExtraPhase) {
+          setExtraWins(w => w + 1);
+          setTimeout(() => setPhase('extra_npc'), 600);
+        } else {
+          setAccum(a => a + st.reward);
+          setTimeout(() => setPhase('npc_talk'), 600);
+        }
+      }
+    }, 2500);
+  }
+
+  function cashout() {
+    const COOLDOWN_MS = 2 * 24 * 60 * 60 * 1000;
+    setJade(j => j + accum); setAccum(0); setNextRouletteClaimAt(Date.now() + COOLDOWN_MS); setPhase('done');
+  }
+
+  function advance() {
+    if (isExtraPhase) {
+      // Depois de ganhar rodada extra
+      if (extraWins >= 3) {
+        setJade(j => j + 800); setPhase('extra_jackpot');
+      } else {
+        setFired(null); setBpos([]); setOk(null); setPhase('extra_between');
+      }
+    } else if (stIdx >= 5) {
+      const now = Date.now();
+      const COOLDOWN_MS = 2 * 24 * 60 * 60 * 1000;
+      if (now >= (nextRouletteClaimAt || 0)) {
+        setJade(j => j + 1200);
+        setNextRouletteClaimAt(now + COOLDOWN_MS);
+        setPhase('victory');
+      } else {
+        setPhase('victory_wait');
+      }
+    } else {
+      setStIdx(s => s + 1); setFired(null); setBpos([]); setOk(null); setPhase('between');
+    }
+  }
+
+  // NPC dialogue — inclui linhas em português para as rodadas extras
+  const extraNpcLines = [
+    "...\n\n*ergue um dedo lentamente*\n\nUma rodada a mais.\nUm disparo a mais.\n1 de 6.\n\nVocê quer tentar o Abismo além do pacto?",
+    "*olha para o cilindro com algo próximo de curiosidade*\n\nDuas vezes além do limite.\nNinguém faz isso.\n\n1 de 6. O Abismo está observando.",
+    "*inclina a cabeça devagar — a primeira vez que você a vê se mover assim*\n\nTrês. Você chegou a três.\nSe sobreviver a este...\n\nEu talvez tenha de rever minha opinião sobre a humanidade.",
+  ];
+  const extraSafeLines = [
+    "*pausa longa*\n\n...Você não está brincando, está?\n\nBem. Mais uma rodada, então.",
+    "*a máscara se move — ela quase sorriu*\n\nDuas vezes sobreviveu além do pacto.\nIsso não acontecia há séculos.\n\nUma última.",
+    "*levanta e inclina a cabeça solenemente*\n\nTrês vezes além do limite.\nVocê venceu o Abismo de dentro.\n\n💎 800 Gemas Extras. Você merece.",
+  ];
+  const npcText = {
+    intro: "Sento-me aqui há eras.\nVocê é o enésimo a sentar nessa cadeira...\n\nMas o primeiro que ainda parece esperançoso.\n\nSeis câmaras. Seis estágios.\nA cada um que vencer, as apostas crescem.\nSe sobreviver a todos os seis... 1200 gemas são suas — mas o Abismo só paga essa recompensa uma vez a cada 2 dias.\n\nSe morrer... você me deve uma história.",
+    between: st.pre,
+    spinning: isExtraPhase ? (extraNpcLines[extraWins] || extraNpcLines[0]) : st.pre,
+    npc_talk: ok ? st.safe : st.dead,
+    dead: st.dead,
+    victory: ST[5].safe + "\n\n*após um silêncio longo*\n\nO pacto foi honrado... mas o Abismo continua aqui.\nSe quiser tentar além do limite — 3 rodadas opcionais, 1 bala em cada — ganhe as 3 e receba 💎 800 extras.",
+    victory_wait: "Você venceu novamente...\nMas o Abismo só paga uma vez a cada dois dias.\n\nVolte quando o cooldown expirar para reclamar suas 1200 gemas.",
+    done: "Uma escolha sábia.\nA saída existe para os prudentes.\n\n*acena levemente*\n\nAté a próxima vez, Sobrevivente.",
+    extra_offer: extraNpcLines[extraWins] || extraNpcLines[0],
+    extra_between: extraWins > 0 ? extraSafeLines[extraWins - 1] : extraNpcLines[0],
+    extra_npc: ok ? (extraSafeLines[extraWins - 1] || "...Impressionante.") : "O Abismo reclamou o que era seu.",
+    extra_dead: "Aqui termina a ousadia.\n\nVocê foi longe além do pacto.\n\n*a Dama de Branco abaixou a cabeça levemente*\n\nFoi uma honra.",
+    extra_jackpot: "*de pé, pela primeira vez em eras*\n\nTrês vezes.\nAlém do pacto.\nAlém do limite.\nAlém do que qualquer um ousou.\n\n💎 800 Gemas Extras. O Abismo reconhece um vencedor.",
+  }[phase] ?? (isExtraPhase ? extraNpcLines[extraWins] || "" : st.pre);
+
+  const npcEmoji = ['intro','between'].includes(phase) ? (stIdx >= 4 ? '🩸' : stIdx >= 2 ? '🎭' : '🤍')
+    : phase === 'dead' || phase === 'extra_dead' ? '💀'
+    : phase === 'victory' || phase === 'extra_jackpot' ? '🫡'
+    : ['extra_offer','extra_between'].includes(phase) ? '🎭'
+    : ok ? '👁️' : '💀';
+
+  const rouletteOnCooldown = Date.now() < (nextRouletteClaimAt || 0);
+    if (rouletteOnCooldown && phase === 'intro') {
+      const hoursLeft = Math.max(0, Math.ceil(((nextRouletteClaimAt || 0) - Date.now()) / 3600000));
+      return (
+        <div style={{ minHeight:320, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:16, textAlign:'center', padding:24 }}>
+          <div style={{ fontSize:52 }}>🎭</div>
+          <div style={{ ...ORB, fontSize:20, color: C.gold, fontWeight:900 }}>O ÚLTIMO PACTO</div>
+          <div style={{ color: C.mute, fontSize:13, lineHeight:1.7 }}>Você já jogou o Pacto recentemente.<br/>O Abismo só permite uma tentativa a cada 2 dias, vença, perca ou saia com as gemas.<br/>Volte em ~{hoursLeft}h para tentar novamente.</div>
+        </div>
+      );
+    }
+
+  return (
+    <div style={{ background:`radial-gradient(ellipse at 50% -15%, ${phase==='dead'?'#B71C1C':stColor}44, #060610 62%)`, minHeight:'85vh', paddingBottom:60 }}>
+      <style dangerouslySetInnerHTML={{ __html:`
+        @keyframes rlShake{0%,100%{transform:translate(0,0)}12%{transform:translate(-9px,6px)}25%{transform:translate(8px,-6px)}37%{transform:translate(-7px,5px)}50%{transform:translate(7px,-4px)}62%{transform:translate(-5px,3px)}75%{transform:translate(5px,-3px)}87%{transform:translate(-3px,2px)}}
+        @keyframes rlPulse{0%,100%{opacity:.65}50%{opacity:1}}
+        @keyframes rlFade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+        @keyframes rlDeathFlash{0%{background:rgba(183,28,28,.55)}60%{background:rgba(183,28,28,.2)}100%{background:transparent}}
+        @keyframes rlWinGlow{0%,100%{box-shadow:0 0 20px ${stColor}44}50%{box-shadow:0 0 55px ${stColor}99,0 0 100px ${stColor}22}}
+        @keyframes rlSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+      `}} />
+
+      {/* DEATH FLASH OVERLAY */}
+      {phase==='dead' && shake && <div style={{ position:'fixed',top:0,left:0,right:0,bottom:0,animation:'rlDeathFlash 1.1s ease-out forwards',pointerEvents:'none',zIndex:9999 }} />}
+
+      {/* HEADER */}
+      <div style={{ padding:'20px 16px 6px', textAlign:'center' }}>
+        <div style={{ ...ORB, fontSize:10, letterSpacing:4, color:stColor, opacity:.85, marginBottom:4 }}>✦ EVENTO PERMANENTE · RECOMPENSA A CADA 2 DIAS ✦</div>
+        <div style={{ ...ORB, fontSize:24, fontWeight:900, color:'#f0f0f8', textShadow:`0 0 32px ${phase==='dead'?'#E53935':stColor}88`, letterSpacing:2 }}>O ÚLTIMO PACTO</div>
+        <div style={{ fontSize:11, color:C.mute, marginTop:2 }}>com <span style={{ color:stColor, fontWeight:700 }}>A Dama de Branco</span></div>
+
+        {/* Stage bar */}
+        <div className="flex gap-1 mt-3" style={{ justifyContent:'center', position:'relative' }}>
+          {ST.map((s,i) => (
+            <div key={i} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:3 }}>
+              {i===stIdx && <div style={{ fontSize:9, color:stColor, ...ORB, fontWeight:800 }}>{i+1}/6</div>}
+              <div style={{ width:34, height:6, borderRadius:4,
+                background: i < stIdx ? s.color : i===stIdx ? stColor : '#1e1e2a',
+                border:`1px solid ${i===stIdx ? stColor+'99' : '#2a2a3a'}`,
+                opacity: i > stIdx ? 0.35 : 1, transition:'all .4s' }} />
+              {i===stIdx && <div style={{ fontSize:8, color:stColor, opacity:.7 }}>{s.risk}</div>}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* CURRENT STAGE NAME */}
+      {phase !== 'dead' && phase !== 'extra_dead' && phase !== 'victory' && phase !== 'victory_wait' && phase !== 'done' && phase !== 'extra_jackpot' && (
+        <div style={{ textAlign:'center', margin:'6px 0 2px' }}>
+          <div style={{ ...ORB, fontSize:15, fontWeight:900, color:stColor, letterSpacing:1 }}>{isExtraPhase ? `RODADA EXTRA ${extraWins+1}/3` : st.name.toUpperCase()}</div>
+        </div>
+      )}
+
+      {/* NPC DIALOGUE */}
+      <div key={phase+stIdx} style={{ margin:'10px 14px', padding:'12px 14px', background:'rgba(6,6,18,.85)', border:`1px solid ${stColor}2a`, borderRadius:14, animation:'rlFade .4s ease' }}>
+        <div className="flex gap-3">
+          <div style={{ flexShrink:0, width:48, height:48, borderRadius:12, background:`linear-gradient(135deg,#10061a,#060410)`, border:`2px solid ${stColor}55`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, boxShadow:`0 0 14px ${stColor}33` }}>{npcEmoji}</div>
+          <div>
+            <div style={{ fontSize:9, color:stColor, ...ORB, fontWeight:800, letterSpacing:2, marginBottom:5 }}>A DAMA DE BRANCO</div>
+            <div style={{ fontSize:12, color:'#ccd', lineHeight:1.65, whiteSpace:'pre-line' }}>{npcText}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── CYLINDER ─── */}
+      {phase !== 'victory' && phase !== 'victory_wait' && phase !== 'done' && (
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', margin:'16px 0 8px', animation:shake?'rlShake 1.1s ease':'none' }}>
+          {/* Pointer */}
+          <div style={{ fontSize:20, color:stColor, lineHeight:1, marginBottom:3, filter:`drop-shadow(0 0 6px ${stColor}88)` }}>▼</div>
+
+          {/* Cylinder */}
+          <div style={{ position:'relative', width:168, height:168 }}>
+            {/* Outer ring glow */}
+            <div style={{ position:'absolute', inset:-4, borderRadius:'50%', border:`2px solid ${stColor}22`, boxShadow:phase==='spinning'?`0 0 40px ${stColor}66,0 0 80px ${stColor}22`:`0 0 16px ${stColor}22`, transition:'box-shadow .6s', pointerEvents:'none' }} />
+
+            {/* Rotating cylinder disk */}
+            <div style={{
+              width:168, height:168, borderRadius:'50%',
+              background:'radial-gradient(circle at 36% 30%, #272730, #0e0e18)',
+              border:`4px solid ${phase==='spinning'?stColor:'#333'}`,
+              transform:`rotate(${rotation}deg)`,
+              transition:phase==='spinning'?'transform 2.5s cubic-bezier(0.10,0.82,0.15,1.0)':'border-color .4s',
+              position:'relative',
+              boxShadow:'0 6px 30px rgba(0,0,0,.9)',
+            }}>
+              {/* Center hub */}
+              <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:24, height:24, borderRadius:'50%', background:'#1a1a22', border:`2px solid ${stColor}55`, zIndex:2 }} />
+
+              {/* 6 Chambers */}
+              {[0,1,2,3,4,5].map(i => {
+                const rad = i * Math.PI / 3;
+                const cx  = 50 + 36 * Math.sin(rad);
+                const cy  = 50 - 36 * Math.cos(rad);
+                const isFired  = fired === i;
+                const hasBullet= bpos.includes(i);
+                const revealed = fired !== null;
+                let bg='#111118', border2='#333', glow2='none', content=null;
+                if (revealed) {
+                  if (isFired && ok)   { bg='#0d2e12'; border2='#43A047'; glow2=`0 0 14px #43A04799`; content=<span style={{fontSize:10,color:'#43A047'}}>○</span>; }
+                  if (isFired && !ok)  { bg='#2a0808'; border2='#E53935'; glow2=`0 0 18px #E5393599`; content=<span style={{fontSize:12}}>🔴</span>; }
+                  if (!isFired && hasBullet) { bg='#1a0606'; border2='#7B0000'; content=<span style={{fontSize:8,color:'#7B0000'}}>●</span>; }
+                }
+                return (
+                  <div key={i} style={{ position:'absolute', left:`${cx}%`, top:`${cy}%`, transform:'translate(-50%,-50%)', width:30, height:30, borderRadius:'50%', background:bg, border:`2px solid ${border2}`, boxShadow:glow2, display:'flex', alignItems:'center', justifyContent:'center', transition:'all .35s' }}>
+                    {content}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Hammer/firing pin at right */}
+            <div style={{ position:'absolute', top:'50%', right:-28, transform:'translateY(-50%)', display:'flex', alignItems:'center', gap:2 }}>
+              <div style={{ width:6, height:14, background:'#444', borderRadius:2 }} />
+              <div style={{ width:20, height:10, background:'linear-gradient(90deg,#555,#333)', borderRadius:'0 4px 4px 0', border:'1px solid #444' }} />
+            </div>
+          </div>
+
+          {/* Chamber status */}
+          <div style={{ marginTop:10, fontSize:11, color:C.mute, minHeight:20, textAlign:'center' }}>
+            {phase==='spinning' && <span style={{ color:stColor, animation:'rlPulse .75s ease infinite' }}>⟳ Girando o cilindro...</span>}
+            {fired!==null && ok  && <span style={{ color:'#43A047', fontWeight:700 }}>✓ Câmara {fired+1} — VAZIA</span>}
+            {fired!==null && !ok && <span style={{ color:'#E53935', fontWeight:700 }}>✗ Câmara {fired+1} — CARREGADA</span>}
+            {phase==='intro' && <span>Pronto para puxar o gatilho?</span>}
+          </div>
+        </div>
+      )}
+
+      {/* ─── REWARD TRACKER ─── */}
+      {phase !== 'victory' && phase !== 'victory_wait' && phase !== 'done' && phase !== 'dead' && !isExtraPhase && (
+        <div style={{ margin:'4px 14px 12px', padding:'10px 14px', background:'rgba(6,6,18,.7)', border:`1px solid ${stColor}22`, borderRadius:12, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <div>
+            <div style={{ fontSize:9, color:C.mute, ...ORB, letterSpacing:1 }}>ACUMULADO</div>
+            <div style={{ fontSize:20, fontWeight:900, color:stColor }}>💎 {accum.toLocaleString()}</div>
+          </div>
+          <div style={{ textAlign:'right' }}>
+            <div style={{ fontSize:9, color:C.mute, ...ORB, letterSpacing:1 }}>SE VENCER ESTE ESTÁGIO</div>
+            <div style={{ fontSize:13, color:'#aaa', fontWeight:700 }}>+{st.reward} → <span style={{ color:stColor }}>💎 {willEarn.toLocaleString()}</span></div>
+            <div style={{ fontSize:9, color:'#555', marginTop:2 }}>bônus por pacto completo: 💎 1200 (a cada 2 dias)</div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── ACTION AREA ─── */}
+      <div style={{ padding:'0 14px', display:'flex', flexDirection:'column', gap:10 }}>
+
+        {/* INTRO */}
+        {phase==='intro' && (
+          <Btn onClick={doShoot} style={{ background:`linear-gradient(135deg,${stColor}cc,${stColor}88)`, border:'none', color:'#fff', fontWeight:900, fontSize:16, letterSpacing:1, padding:'14px 0' }}>
+            🔫  Puxar o Gatilho
+          </Btn>
+        )}
+
+        {/* BETWEEN STAGES (after surviving, before shooting next) */}
+        {phase==='between' && (
+          <>
+            <Btn onClick={doShoot} style={{ background:`linear-gradient(135deg,${stColor}cc,${stColor}88)`, border:'none', color:'#fff', fontWeight:900, fontSize:15, padding:'13px 0' }}>
+              🔫  Continuar — Estágio {stIdx+1}/6
+            </Btn>
+            {accum>0 && (
+              <Btn kind="soft" onClick={cashout} style={{ fontSize:13, color:'#999', padding:'10px 0' }}>
+                📤  Encerrar e Coletar 💎 {accum.toLocaleString()}
+              </Btn>
+            )}
+          </>
+        )}
+
+        {/* AFTER SURVIVING (npc just spoke) */}
+        {phase==='npc_talk' && (
+          <>
+            <Btn onClick={advance} style={{ background:`linear-gradient(135deg,${stColor}cc,${stColor}88)`, border:'none', color:'#fff', fontWeight:900, fontSize:15, padding:'13px 0' }}>
+              {stIdx>=5 ? (Date.now() >= (nextRouletteClaimAt || 0) ? '🏆  Receber 💎 1200 — Você Venceu!' : '🏆  Ver Resultado — Pacto Completo') : `⚔️  Avançar → Estágio ${stIdx+2}/6`}
+            </Btn>
+            {accum>0 && stIdx<5 && (
+              <Btn kind="soft" onClick={cashout} style={{ fontSize:13, color:'#999', padding:'10px 0' }}>
+                📤  Coletar e Sair — 💎 {accum.toLocaleString()}
+              </Btn>
+            )}
+          </>
+        )}
+
+        {/* DEAD */}
+        {phase==='dead' && (
+          <div style={{ textAlign:'center', padding:'24px 8px', animation:'rlFade .5s ease' }}>
+            <div style={{ fontSize:52, marginBottom:10, filter:'drop-shadow(0 0 20px #E5393566)' }}>💀</div>
+            <div style={{ ...ORB, fontSize:22, fontWeight:900, color:'#E53935', textShadow:'0 0 28px #E5393599', letterSpacing:2, marginBottom:10 }}>O ABISMO TE RECLAMOU</div>
+            <div style={{ fontSize:13, color:C.mute, lineHeight:1.7, marginBottom:6 }}>
+              O Último Pacto encerrou aqui.
+            </div>
+            {accum>0 && (
+              <div style={{ fontSize:12, color:'#663030', fontStyle:'italic', marginBottom:16 }}>
+                💎 {accum.toLocaleString()} gemas prometidas... dissoltas no vácuo.
+              </div>
+            )}
+            <div style={{ fontSize:11, color:'#444', fontStyle:'italic', marginTop:8 }}>
+              A Dama de Branco aguarda em silêncio.<br/>O pacto pode ser refeito a qualquer momento.
+            </div>
+          </div>
+        )}
+
+        {/* VICTORY */}
+        {phase==='victory' && (
+          <div style={{ textAlign:'center', padding:'24px 8px', animation:'rlFade .5s ease' }}>
+            <div style={{ fontSize:52, marginBottom:10, filter:`drop-shadow(0 0 20px ${C.gold}66)` }}>🏆</div>
+            <div style={{ ...ORB, fontSize:22, fontWeight:900, color:C.gold, textShadow:`0 0 30px ${C.gold}88`, letterSpacing:2, marginBottom:6 }}>SOBREVIVENTE DO ABISMO</div>
+            <div style={{ fontSize:14, color:'#ddd', marginBottom:4 }}>Você honrou todos os 6 estágios do pacto.</div>
+            <div style={{ fontSize:28, fontWeight:900, color:stColor, margin:'12px 0', filter:`drop-shadow(0 0 16px ${stColor}88)` }}>💎 1200 Gemas</div>
+            <div style={{ fontSize:11, color:'#666', fontStyle:'italic', marginBottom:16 }}>Em eras de jogo, você é o primeiro a vencer.<br/>A Dama de Branco abaixou a cabeça.</div>
+            {/* Botão para rodadas extras opcionais */}
+            <Btn onClick={() => { setExtraWins(0); setFired(null); setBpos([]); setOk(null); setPhase('extra_offer'); }}
+              style={{ background:`linear-gradient(135deg,#4a0e6a,#2a054a)`, border:`1px solid #7b2fc9`, color:'#e0b8ff', fontWeight:900, fontSize:13, padding:'11px 0', marginBottom:6 }}>
+              🎲 Tentar Rodadas Extras (opcional) — 3× 1/6, ganhe 💎 800 bônus
+            </Btn>
+            <div style={{ fontSize:10, color:'#555', fontStyle:'italic' }}>Opcional. Se morrer nas rodadas extras, as 1200 já são suas.</div>
+          </div>
+        )}
+
+        {/* EXTRA OFFER / EXTRA BETWEEN */}
+        {(phase==='extra_offer' || phase==='extra_between') && (
+          <>
+            <div style={{ textAlign:'center', padding:'4px 0 8px' }}>
+              <div style={{ ...ORB, fontSize:12, color:'#b07cff', letterSpacing:2, marginBottom:4 }}>RODADA EXTRA {extraWins+1}/3 — 1 BALA EM 6</div>
+              <div style={{ fontSize:11, color:C.mute }}>Ganhe as 3 rodadas extras para receber 💎 800 adicionais</div>
+            </div>
+            <Btn onClick={doShoot} style={{ background:`linear-gradient(135deg,#4a0e6a,#2a054a)`, border:`1px solid #7b2fc9`, color:'#e0b8ff', fontWeight:900, fontSize:15, padding:'13px 0' }}>
+              🔫 Puxar o Gatilho — Extra {extraWins+1}/3
+            </Btn>
+          </>
+        )}
+
+        {/* EXTRA NPC TALK (sobreviveu a rodada extra) */}
+        {phase==='extra_npc' && (
+          <Btn onClick={advance} style={{ background:`linear-gradient(135deg,#4a0e6a,#2a054a)`, border:`1px solid #7b2fc9`, color:'#e0b8ff', fontWeight:900, fontSize:15, padding:'13px 0' }}>
+            {extraWins >= 3 ? '💎 Receber 800 Gemas — Você Venceu o Abismo!' : `⚔️ Continuar — Rodada Extra ${extraWins+1}/3`}
+          </Btn>
+        )}
+
+        {/* EXTRA DEAD */}
+        {phase==='extra_dead' && (
+          <div style={{ textAlign:'center', padding:'24px 8px', animation:'rlFade .5s ease' }}>
+            <div style={{ fontSize:52, marginBottom:10, filter:'drop-shadow(0 0 20px #9c27b066)' }}>💀</div>
+            <div style={{ ...ORB, fontSize:20, fontWeight:900, color:'#9c27b0', letterSpacing:2, marginBottom:8 }}>O ABISMO TEM PACIÊNCIA INFINITA</div>
+            <div style={{ fontSize:14, color:'#ddd', marginBottom:4 }}>Rodada extra encerrada aqui.</div>
+            <div style={{ fontSize:13, color:'#888', fontStyle:'italic' }}>Suas 1200 gemas do pacto já foram garantidas.<br/>A Dama de Branco acenou levemente.</div>
+          </div>
+        )}
+
+        {/* EXTRA JACKPOT — venceu as 3 rodadas extras */}
+        {phase==='extra_jackpot' && (
+          <div style={{ textAlign:'center', padding:'24px 8px', animation:'rlFade .5s ease' }}>
+            <div style={{ fontSize:52, marginBottom:10, filter:`drop-shadow(0 0 24px #7b2fc966)` }}>👑</div>
+            <div style={{ ...ORB, fontSize:20, fontWeight:900, color:'#b07cff', textShadow:'0 0 30px #7b2fc988', letterSpacing:2, marginBottom:6 }}>MESTRE DO ABISMO</div>
+            <div style={{ fontSize:14, color:'#ddd', marginBottom:4 }}>3 rodadas além do pacto. Ninguém chegou tão longe.</div>
+            <div style={{ fontSize:28, fontWeight:900, color:'#b07cff', margin:'12px 0', filter:'drop-shadow(0 0 16px #7b2fc966)' }}>💎 800 Gemas Extras</div>
+            <div style={{ fontSize:11, color:'#666', fontStyle:'italic' }}>A Dama de Branco ficou de pé pela primeira vez em eras.</div>
+          </div>
+        )}
+
+        {/* VICTORY WAIT (cooldown active) */}
+        {phase==='victory_wait' && (
+          <div style={{ textAlign:'center', padding:'24px 8px', animation:'rlFade .5s ease' }}>
+            <div style={{ fontSize:52, marginBottom:10, filter:`drop-shadow(0 0 20px ${C.gold}66)` }}>⏳</div>
+            <div style={{ ...ORB, fontSize:20, fontWeight:900, color:C.gold, textShadow:`0 0 26px ${C.gold}77`, letterSpacing:2, marginBottom:6 }}>PACTO JÁ RECOMPENSADO</div>
+            <div style={{ fontSize:14, color:'#ddd', marginBottom:4 }}>Você venceu novamente, mas o Abismo só concede as 💎 1200 gemas uma vez a cada 2 dias.</div>
+            <div style={{ fontSize:11, color:'#666', fontStyle:'italic', marginTop:8 }}>Volte quando o cooldown expirar para reclamar a recompensa outra vez.</div>
+          </div>
+        )}
+
+        {/* CASHED OUT */}
+        {phase==='done' && (
+          <div style={{ textAlign:'center', padding:'24px 8px', animation:'rlFade .5s ease' }}>
+            <div style={{ fontSize:44, marginBottom:10 }}>📤</div>
+            <div style={{ ...ORB, fontSize:20, fontWeight:800, color:C.gold, marginBottom:6 }}>Pacto Encerrado</div>
+            <div style={{ fontSize:14, color:'#ddd', lineHeight:1.7 }}>
+              Você coletou <b style={{ color:stColor }}>💎 {accum.toLocaleString()}</b> e se retirou com sabedoria.
+            </div>
+            <div style={{ fontSize:11, color:'#555', fontStyle:'italic', marginTop:10 }}>A Dama de Branco respeita a prudência.</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Correio({ mailClaimed, setMailClaimed, mail4Claimed, setMail4Claimed, mail5Claimed, setMail5Claimed, setJade, setExpItems, setWeaponMats, setRelicMats, setSkillMats, setTagMats, flash }) {
   function claimMail() {
-    setMailClaimed((prev) => {
-      if (prev) { flash("Correio já coletado!", C.bad); return prev; }
-      try { localStorage.setItem('sr_mail1_claimed_v1', '1'); } catch {}
-      setJade((j) => j + 12000);
-      setExpItems((v) => v + 200);
-      setWeaponMats((v) => v + 200);
-      setRelicMats((v) => v + 100);
-      flash("📬 Recompensas coletadas! +12.000💎 +200📘 +200⚙️ +100🔷", C.gold);
-      return true;
-    });
+    if (mailClaimed) { flash("Correio já coletado!", C.bad); return; }
+    // Entrega as recompensas PRIMEIRO, e só então marca como coletado
+    setJade((j) => j + 12000);
+    setExpItems((v) => v + 200);
+    setWeaponMats((v) => v + 200);
+    setRelicMats((v) => v + 100);
+    setMailClaimed(true);
+    try { localStorage.setItem('sr_mail1_claimed_v1', '1'); } catch {}
+    flash("📬 Recompensas coletadas! +12.000💎 +200📘 +200⚙️ +100🔷", C.gold);
   }
 
-  function claimMail2() {
-    if (!mail2Unlocked) { flash("Carta ainda não liberada!", C.bad); return; }
-    setMail2Claimed((prev) => {
-      if (prev) { flash("Correio já coletado!", C.bad); return prev; }
-      try { localStorage.setItem('sr_mail2_claimed_v1', '1'); } catch {}
-      setJade((j) => j + 7000);
-      flash("💎 +7.000 Jade Estelar coletados!", C.gold);
-      return true;
-    });
-  }
 
   function claimMail4() {
-    setMail4Claimed((prev) => {
-      if (prev) { flash("Correio já coletado!", C.bad); return prev; }
-      try { localStorage.setItem('sr_mail4_claimed_v1', '1'); } catch {}
-      setJade((j) => j + 12000);
-      flash("💰 +12.000💎 Jade Estelar coletados!", C.gold);
-      return true;
+    if (mail4Claimed) { flash("Correio já coletado!", C.bad); return; }
+    setWeaponMats((v) => v + 200);
+    setSkillMats((v) => v + 20);
+    setTagMats((m) => {
+      const updated = { ...m };
+      ALL_TAGS.forEach(tag => { updated[tag] = (updated[tag] || 0) + 30; });
+      return updated;
     });
+    setMail4Claimed(true);
+    try { localStorage.setItem('sr_mail4_claimed_v1', '1'); } catch {}
+    flash("📬 Recompensas coletadas! +200⚙️ +20💠 +30🗺️ (todas as tags)", C.gold);
   }
 
-  const [mail3Modal, setMail3Modal] = React.useState(null);
-
-  function confirmMail3(charId) {
-    const entry = BEGINNER_PICK_CHARS.find(x => x.id === charId);
-    if (!entry) return;
-    setMail3Claimed(true);
-    setMail3CharPicked(charId);
-    try { localStorage.setItem('sr_mail3_claimed_v1', '1'); localStorage.setItem('sr_mail3_char_v1', charId); } catch {}
-    setOwned(prev => {
-      if (prev.some(o => o.id === charId)) return prev;
-      return [...prev, normChar({ id: charId, level: 1, eidolon: 0, weapon: entry.wpn, relics: EMPTY_RELICS() })];
-    });
-    setOwnedWeapons(prev => {
-      if (prev.some(w => w.id === entry.wpn)) return prev;
-      return [...prev, { id: entry.wpn, lv: 1 }];
-    });
-    setJade(j => j + 12000);
-    setMail3Modal(null);
-    const cname = CHAR_MAP[charId]?.name || charId;
-    const wname = WEAPON_MAP[entry.wpn]?.name || entry.wpn;
-    flash("✨ " + cname + " + " + wname + " + 12.000💎 chegaram ao seu elenco!", C.gold);
+  function claimMail5() {
+    if (mail5Claimed) { flash("Correio já coletado!", C.bad); return; }
+    setJade((j) => j + 12000);
+    setExpItems((v) => v + 200);
+    setWeaponMats((v) => v + 200);
+    setRelicMats((v) => v + 100);
+    setMail5Claimed(true);
+    try { localStorage.setItem('sr_mail5_claimed_v1', '1'); } catch {}
+    flash("📬 Compensação coletada! +12.000💎 +200📘 +200⚙️ +100🔷", C.gold);
   }
 
   return (
@@ -5381,176 +7283,76 @@ function Correio({ mailClaimed, setMailClaimed, mail2Claimed, setMail2Claimed, m
         </div>
       </Panel>
 
-      <Panel glow={mail2Claimed ? C.mute : mail2Unlocked ? C.gold : "#334"}>
+
+      <Panel glow={mail4Claimed ? C.mute : "#22c55e"}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-          <div style={{ fontSize: 38 }}>{mail2Claimed ? "✉️" : mail2Unlocked ? "💌" : "🔒"}</div>
+          <div style={{ fontSize: 38 }}>{mail4Claimed ? "✉️" : "📦"}</div>
           <div style={{ flex: 1 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-              <div style={{ ...ORB, fontWeight: 800, fontSize: 15 }}>💎 Bônus de Atualização</div>
-              {mail2Claimed && <span style={{ background: C.panelHi, color: C.mute, border: "1px solid " + C.line, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>COLETADO</span>}
-              {!mail2Claimed && !mail2Unlocked && <span style={{ background: "#1a1040", color: "#aaa", border: "1px solid #334", borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>EM BREVE</span>}
-              {!mail2Claimed && mail2Unlocked && <span style={{ background: "#2a1a00", color: C.gold, border: "1px solid " + C.gold, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>DISPONÍVEL</span>}
+              <div style={{ ...ORB, fontWeight: 800, fontSize: 15 }}>⚙️ Pacote de Recursos</div>
+              {mail4Claimed
+                ? <span style={{ background: C.panelHi, color: C.mute, border: "1px solid " + C.line, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>COLETADO</span>
+                : <span style={{ background: "#052e16", color: "#4ade80", border: "1px solid #22c55e", borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>DISPONÍVEL</span>}
             </div>
             <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
-              Recompensa especial do servidor pelos novos conteúdos. Obrigado pelo apoio, Pioneiro ✦
+              Pacote de recursos para impulsionar sua equipe. Inclui materiais de forja, cristais de habilidade e suprimentos de todas as Dungeons de Tag ✦
             </div>
             <div style={{ background: C.panelHi, border: "1px solid " + C.line, borderRadius: 14, padding: 14, marginBottom: 14 }}>
               <div style={{ fontWeight: 700, fontSize: 12, marginBottom: 10, color: C.gold }}>📦 Conteúdo:</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ fontSize: 24, width: 32, textAlign: "center" }}>💎</span>
-                <div style={{ flex: 1, fontWeight: 600 }}>Jade Estelar</div>
-                <span style={{ fontWeight: 800, color: C.gold, fontSize: 16 }}>×7.000</span>
+              <div className="flex flex-col gap-3">
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ fontSize: 24, width: 32, textAlign: "center" }}>⚙️</span>
+                  <div style={{ flex: 1, fontWeight: 600 }}>Engrenagens de Arma</div>
+                  <span style={{ fontWeight: 800, color: C.gold, fontSize: 16 }}>×200</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ fontSize: 24, width: 32, textAlign: "center" }}>💠</span>
+                  <div style={{ flex: 1, fontWeight: 600 }}>Cristais de Habilidade (Rastro)</div>
+                  <span style={{ fontWeight: 800, color: C.gold, fontSize: 16 }}>×20</span>
+                </div>
+                {ALL_TAGS.map((tag) => (
+                  <div key={tag} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <span style={{ fontSize: 24, width: 32, textAlign: "center" }}>🗺️</span>
+                    <div style={{ flex: 1, fontWeight: 600 }}>Mat. Dungeon · {tag}</div>
+                    <span style={{ fontWeight: 800, color: C.gold, fontSize: 16 }}>×30</span>
+                  </div>
+                ))}
               </div>
             </div>
-            {!mail2Claimed && !mail2Unlocked && (
-              <div style={{ background: "#0d0920", border: "1px solid #334", borderRadius: 12, padding: "10px 14px", textAlign: "center", fontSize: 13, color: "#888", marginBottom: 8 }}>
-                ⏳ Disponível em: <b style={{ color: "#b0a0ff" }}>{fmtCountdown(mail2Remaining)}</b>
-              </div>
-            )}
-            <Btn disabled={mail2Claimed || !mail2Unlocked} kind={mail2Claimed ? "soft" : mail2Unlocked ? "primary" : "soft"} style={{ width: "100%", padding: "13px 0", fontSize: 15, fontWeight: 800, letterSpacing: 1 }} onClick={claimMail2}>
-              {mail2Claimed ? "✓ Recompensas já coletadas" : mail2Unlocked ? "💎 Coletar 7.000 Jade" : "🔒 Bloqueado"}
+            <Btn disabled={mail4Claimed} kind={mail4Claimed ? "soft" : "primary"} style={{ width: "100%", padding: "13px 0", fontSize: 15, fontWeight: 800, letterSpacing: 1 }} onClick={claimMail4}>
+              {mail4Claimed ? "✓ Recompensas já coletadas" : "📦 Coletar Recompensas"}
             </Btn>
           </div>
         </div>
       </Panel>
 
-      {/* ── MAIL 3: Pacote do Mochileiro ─────────────────────────────── */}
-      <Panel glow={mail3Claimed ? C.mute : "#F6C95B"}>
+      <Panel glow={mail5Claimed ? C.mute : "#F6C95B"}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-          <div style={{ fontSize: 38 }}>{mail3Claimed ? "✉️" : "🎒"}</div>
+          <div style={{ fontSize: 38 }}>{mail5Claimed ? "✉️" : "🛠️"}</div>
           <div style={{ flex: 1 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-              <div style={{ ...ORB, fontWeight: 800, fontSize: 15 }}>🎒 Pacote do Mochileiro</div>
-              {mail3Claimed
+              <div style={{ ...ORB, fontWeight: 800, fontSize: 15 }}>🛠️ Compensação de Manutenção</div>
+              {mail5Claimed
                 ? <span style={{ background: C.panelHi, color: C.mute, border: "1px solid " + C.line, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>COLETADO</span>
-                : <span style={{ background: "#2a1a00", color: C.gold, border: "1px solid " + C.gold, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>DISPONÍVEL</span>}
+                : <span style={{ background: "#3a2c05", color: C.gold, border: "1px solid " + C.gold, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>DISPONÍVEL</span>}
             </div>
             <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
-              Cada Pioneiro tem uma jornada única. Escolha <b style={{ color: C.text }}>1 personagem</b> para começar ao seu lado — ele vem com sua <b style={{ color: C.gold }}>arma ideal</b> e <b style={{ color: C.gold }}>+12.000 💎 Jade</b>.
-            </div>
-
-            {mail3Claimed ? (
-              <div style={{ background: C.panelHi, border: "1px solid " + C.line, borderRadius: 12, padding: "14px 16px" }}>
-                {(() => {
-                  const cd = CHAR_MAP[mail3CharPicked];
-                  const entry = BEGINNER_PICK_CHARS.find(x => x.id === mail3CharPicked);
-                  const wd = entry && WEAPON_MAP[entry.wpn];
-                  return cd ? (
-                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                      <div style={{ fontSize: 38, lineHeight: 1 }}>{cd.avatar}</div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 800, fontSize: 15, color: C.text }}>{cd.name}</div>
-                        <div style={{ fontSize: 12, color: C.mute }}>{cd.element} · {"★".repeat(cd.rarity)}</div>
-                        {wd && <div style={{ fontSize: 12, color: C.gold, marginTop: 2 }}>⚔️ {wd.name}</div>}
-                      </div>
-                      <span style={{ fontSize: 22, color: "#4ade80" }}>✓</span>
-                    </div>
-                  ) : <div style={{ color: C.mute, fontSize: 13 }}>Personagem escolhido e adicionado ao elenco.</div>;
-                })()}
-              </div>
-            ) : (
-              <>
-                <div style={{ fontWeight: 700, fontSize: 12, color: C.gold, marginBottom: 10 }}>✦ Toque em um personagem para confirmar sua escolha:</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(76px, 1fr))", gap: 8 }}>
-                  {BEGINNER_PICK_CHARS.map(entry => {
-                    const cd = CHAR_MAP[entry.id];
-                    if (!cd) return null;
-                    const isHov = mail3Modal === entry.id;
-                    return (
-                      <button key={entry.id} onClick={() => setMail3Modal(entry.id)}
-                        style={{ background: isHov ? "#1e1040" : C.panelHi, border: "2px solid " + (isHov ? "#7B5CF6" : C.line), borderRadius: 12, padding: "10px 6px 8px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, transition: "all 0.15s", outline: "none" }}>
-                        <div style={{ fontSize: 28, lineHeight: 1 }}>{cd.avatar}</div>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: cd.rarity === 5 ? C.gold : "#a0a0cc", textAlign: "center", lineHeight: 1.2 }}>{cd.name}</div>
-                        <div style={{ fontSize: 9, color: C.mute }}>{"★".repeat(cd.rarity)}</div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </Panel>
-
-      {/* ── Modal de confirmação do Mochileiro ───────────────────────── */}
-      {mail3Modal && (() => {
-        const entry = BEGINNER_PICK_CHARS.find(x => x.id === mail3Modal);
-        const cd = entry && CHAR_MAP[entry.id];
-        const wd = entry && WEAPON_MAP[entry.wpn];
-        if (!cd) return null;
-        return (
-          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.78)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setMail3Modal(null)}>
-            <div style={{ background: C.panel, border: "2px solid #7B5CF6", borderRadius: 22, padding: 26, maxWidth: 360, width: "100%", boxShadow: "0 0 60px #7B5CF660" }} onClick={e => e.stopPropagation()}>
-              {/* Cabeçalho do personagem */}
-              <div style={{ textAlign: "center", marginBottom: 20 }}>
-                <div style={{ fontSize: 60, lineHeight: 1, marginBottom: 8 }}>{cd.avatar}</div>
-                <div style={{ fontWeight: 900, fontSize: 22, color: C.text }}>{cd.name}</div>
-                <div style={{ fontSize: 13, color: C.mute, marginTop: 3 }}>{cd.title}</div>
-                <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 10 }}>
-                  <span style={{ background: "#1a1030", border: "1px solid " + C.line, borderRadius: 8, padding: "3px 12px", fontSize: 12, fontWeight: 700, color: cd.rarity === 5 ? C.gold : "#a0a0ff" }}>{"★".repeat(cd.rarity)}</span>
-                  <span style={{ background: "#1a1030", border: "1px solid " + C.line, borderRadius: 8, padding: "3px 12px", fontSize: 12, fontWeight: 700, color: "#b0e0ff" }}>{cd.element}</span>
-                </div>
-              </div>
-
-              {/* Arma incluída */}
-              {wd && (
-                <div style={{ background: C.panelHi, border: "1px solid " + C.line, borderRadius: 14, padding: "12px 14px", marginBottom: 12 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: C.mute, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>⚔️ Arma incluída</div>
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                    <div style={{ fontSize: 28, lineHeight: 1 }}>🗡️</div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 800, fontSize: 14, color: wd.rarity === 5 ? C.gold : "#b0b0ff" }}>{wd.name} {"★".repeat(wd.rarity)}</div>
-                      <div style={{ fontSize: 11, color: C.mute, marginTop: 4, lineHeight: 1.5 }}>{(wd.passive || "").slice(0, 90)}{(wd.passive || "").length > 90 ? "…" : ""}</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Jade bônus */}
-              <div style={{ background: "rgba(246,201,91,0.08)", border: "1px solid " + C.gold + "44", borderRadius: 12, padding: "10px 14px", marginBottom: 20, display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 22 }}>💎</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: 13, color: C.gold }}>+12.000 Jade Estelar</div>
-                  <div style={{ fontSize: 11, color: C.mute }}>Adicionado automaticamente ao confirmar</div>
-                </div>
-              </div>
-
-              {/* Botões */}
-              <div style={{ display: "flex", gap: 10 }}>
-                <Btn kind="soft" style={{ flex: 1, padding: "12px 0", fontWeight: 700 }} onClick={() => setMail3Modal(null)}>Cancelar</Btn>
-                <Btn kind="primary" style={{ flex: 2, padding: "12px 0", fontWeight: 800, fontSize: 15, background: "linear-gradient(135deg,#7B5CF6,#a855f7)" }} onClick={() => confirmMail3(mail3Modal)}>
-                  ✨ Confirmar Escolha
-                </Btn>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* ── MAIL 4: Recompensa de Expansão ───────────────────────────── */}
-      <Panel glow={mail4Claimed ? C.mute : "#22d3ee"}>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-          <div style={{ fontSize: 38 }}>{mail4Claimed ? "✉️" : "💰"}</div>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-              <div style={{ ...ORB, fontWeight: 800, fontSize: 15 }}>💰 Recompensa de Expansão</div>
-              {mail4Claimed
-                ? <span style={{ background: C.panelHi, color: C.mute, border: "1px solid " + C.line, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>COLETADO</span>
-                : <span style={{ background: "#002a2e", color: "#22d3ee", border: "1px solid #22d3ee", borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>DISPONÍVEL</span>}
-            </div>
-            <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
-              Obrigado por acompanhar a expansão da Torre Estelar e dos novos conteúdos. Aqui está sua recompensa, Pioneiro ✦
+              Devido a um bug, algumas recompensas do Correio foram marcadas como coletadas sem serem entregues. Como pedido de desculpas, aqui está o pacote completo novamente. Obrigado pela paciência, Pioneiro ✦
             </div>
             <div style={{ background: C.panelHi, border: "1px solid " + C.line, borderRadius: 14, padding: 14, marginBottom: 14 }}>
-              <div style={{ fontWeight: 700, fontSize: 12, marginBottom: 10, color: "#22d3ee" }}>📦 Conteúdo:</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ fontSize: 24, width: 32, textAlign: "center" }}>💎</span>
-                <div style={{ flex: 1, fontWeight: 600 }}>Jade Estelar</div>
-                <span style={{ fontWeight: 800, color: C.gold, fontSize: 16 }}>×12.000</span>
+              <div style={{ fontWeight: 700, fontSize: 12, marginBottom: 10, color: C.gold }}>📦 Conteúdo:</div>
+              <div className="flex flex-col gap-3">
+                {MAIL_PKG.map((r, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <span style={{ fontSize: 24, width: 32, textAlign: "center" }}>{r.icon}</span>
+                    <div style={{ flex: 1, fontWeight: 600 }}>{r.label}</div>
+                    <span style={{ fontWeight: 800, color: C.gold, fontSize: 16 }}>×{r.value}</span>
+                  </div>
+                ))}
               </div>
             </div>
-            <Btn disabled={mail4Claimed} kind={mail4Claimed ? "soft" : "primary"} style={{ width: "100%", padding: "13px 0", fontSize: 15, fontWeight: 800, letterSpacing: 1, background: mail4Claimed ? undefined : "linear-gradient(135deg,#0891b2,#22d3ee)" }} onClick={claimMail4}>
-              {mail4Claimed ? "✓ Recompensas já coletadas" : "💎 Coletar 12.000 Jade"}
+            <Btn disabled={mail5Claimed} kind={mail5Claimed ? "soft" : "primary"} style={{ width: "100%", padding: "13px 0", fontSize: 15, fontWeight: 800, letterSpacing: 1 }} onClick={claimMail5}>
+              {mail5Claimed ? "✓ Recompensas já coletadas" : "📦 Coletar Recompensas"}
             </Btn>
           </div>
         </div>
