@@ -102,9 +102,9 @@ const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
 const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon"];     // limitados (pool 50/50): só via rate-up
-const FEATURED_LIMITEDS = ["ryoshu", "frieren", "soifon", "omegamon", "wonderofyou", "athena", "miyabi", "agumon"]; // banners: Ryoshu+Frieren (Jul 5) -> Soi Fon -> Omegamon -> Wonder of You/Athena (05/07/2026 19h)
+const FEATURED_LIMITEDS = ["miyabi", "agumon"]; // banners ativos
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
-const DEFAULT_FEATURED_CHAR = "wonderofyou";
+const DEFAULT_FEATURED_CHAR = "miyabi";
 
 /* ---------- ARMAS ---------- */
 // Valores de atk e stats secundários = nível MÁXIMO (80). Escalam via weaponLevelMul().
@@ -2210,7 +2210,7 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
   const cycleWeapon = (d) => { const i = WEAPON_5_IDS.indexOf(featuredWeapon); setFeaturedWeapon(WEAPON_5_IDS[(i + d + WEAPON_5_IDS.length) % WEAPON_5_IDS.length]); };
   const headColor = isWeapon ? "#B98BFF" : isStd ? C.gold : ELEMENTS[fc.element].color;
   const arrow = { background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 8, color: C.text, width: 28, height: 28, fontWeight: 800 };
-  const charMs = useBannerTimer("char", 6 * 24 * 60 * 60 * 1000); // banner de evento dura 6 dias
+  const charMs = useBannerTimer("char", 7 * 24 * 60 * 60 * 1000); // 1 semana // banner de evento dura 6 dias
   const weaponMs = useBannerTimer("weapon");
   const bannerMs = isChar ? charMs : isWeapon ? weaponMs : null;
 
