@@ -1063,6 +1063,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [mail3CharPicked, setMail3CharPicked] = useState(() => { try { return localStorage.getItem('sr_mail3_char_v1') || null; } catch { return null; } });
   const [mail4Claimed, setMail4Claimed] = useState(() => { try { return localStorage.getItem('sr_mail4_claimed_v1') === '1'; } catch { return false; } });
   const [mail5Claimed, setMail5Claimed] = useState(() => { try { return localStorage.getItem('sr_mail5_claimed_v1') === '1'; } catch { return false; } });
+  const [mail6Claimed, setMail6Claimed] = useState(() => { try { return localStorage.getItem('sr_mail6_claimed_v1') === '1'; } catch { return false; } });
   const [relicMats, setRelicMats] = useState(0);
   const [rouletteCleared, setRouletteCleared] = useState(false);
   const [nextRouletteClaimAt, setNextRouletteClaimAt] = useState(0);
@@ -1101,6 +1102,7 @@ function Game({ email, isAdmin, onLogout }) {
       setDraftRoomCleared(s.draftRoomCleared ?? 0); setDraftClaimedGems(s.draftClaimedGems ?? 0); setDraftBoons(Array.isArray(s.draftBoons) ? s.draftBoons : []);
       setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setMail2Claimed(prev => prev || (s.mail2Claimed ?? false)); setRelicMats(s.relicMats ?? 0); setRouletteCleared(s.rouletteCleared ?? false); setNextRouletteClaimAt(s.nextRouletteClaimAt ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
       setMail3Claimed(prev => prev || (s.mail3Claimed ?? false)); if (s.mail3CharPicked) setMail3CharPicked(prev => prev || s.mail3CharPicked);
+      setMail6Claimed(prev => prev || (s.mail6Claimed ?? false));
       if (s.espiralClearedAt) setEspiralClearedAt(s.espiralClearedAt);
       if (s.abismoRun !== undefined) setAbismoRun(s.abismoRun || null);
       setAbismoFrags(s.abismoFrags ?? 0); setAbismoMeta(s.abismoMeta || {});
@@ -1138,8 +1140,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mail6Claimed });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mail6Claimed]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1647,7 +1649,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} setRelicMats={setRelicMats} flash={flash} setBattle={setBattle} />}
               {screen === "relics" && <RelicsScreen relicInv={relicInv} />}
               {screen === "loja" && <Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} />}
-              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mail4Claimed={mail4Claimed} setMail4Claimed={setMail4Claimed} mail5Claimed={mail5Claimed} setMail5Claimed={setMail5Claimed} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setSkillMats={setSkillMats} setTagMats={setTagMats} flash={flash} />}
+              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mail4Claimed={mail4Claimed} setMail4Claimed={setMail4Claimed} mail5Claimed={mail5Claimed} setMail5Claimed={setMail5Claimed} mail6Claimed={mail6Claimed} setMail6Claimed={setMail6Claimed} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setSkillMats={setSkillMats} setTagMats={setTagMats} flash={flash} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
               {screen === "roleta" && <RouletteEvent jade={jade} setJade={setJade} rouletteCleared={rouletteCleared} setRouletteCleared={setRouletteCleared} nextRouletteClaimAt={nextRouletteClaimAt} setNextRouletteClaimAt={setNextRouletteClaimAt} />}
@@ -4296,7 +4298,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
             msg = `🌑 ${u.name} conjura Calamidade Inevitável — ${wooTot} de Dano Chaos${wooCrit ? " (CRÍTICO!)" : ""}! 4 debuffs exclusivos${f.wooE2 ? " PERMANENTES" : ` por ${debuffDur}t`}: Miss +${Math.round(20*e1Mul)}%, Vuln +${Math.round(18*e1Mul)}%, VEL -${Math.round(12*e1Mul)}%, DEF -${Math.round(15*e1Mul)}%.${f.wooE1 ? " [E1: buffs/debuffs existentes estendidos]" : ""}`;
           }
           else if (u.id === "athena" && sk.athSkill) {
-            const target = ally || enemy; // no modo cura, escolhe aliado; fallback para dano se necessário
+            const target = enemy;
             const healTargets = allies.filter((a) => a.alive);
             const lowest = healTargets.slice().sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0];
             if (u.athEnhanced) {
@@ -5416,7 +5418,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
               <>
                 <div style={{ textAlign: "center", ...ORB, fontWeight: 800, fontSize: 14, color: "#B9F3D8", marginBottom: 8 }}>🎈 ZERO GRAVITY — ESCOLHA QUEM RECEBE O BUFF</div>
                 <div className="flex gap-2" style={{ justifyContent: "center", flexWrap: "wrap" }}>
-                  {state.heroes.filter((h) => h.alive && !h.isSummon && h.id !== "uraraka").map((h) => (
+                  {state.heroes.filter((h) => h.alive && !h.isSummon).map((h) => (
                     <button key={h.uid} onClick={() => resolveUrarakaSkill(h.uid)}
                       style={{ minWidth: 96, textAlign: "center", border: `2px solid ${C.good}77`, borderRadius: 14, padding: 10, background: "linear-gradient(180deg,#16281f,#0a140f)", cursor: "pointer", boxShadow: `0 0 16px ${C.good}22` }}>
                       <Avatar ch={h} size={42} ring={C.good} />
@@ -7207,7 +7209,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared, nex
   );
 }
 
-function Correio({ mailClaimed, setMailClaimed, mail4Claimed, setMail4Claimed, mail5Claimed, setMail5Claimed, setJade, setExpItems, setWeaponMats, setRelicMats, setSkillMats, setTagMats, flash }) {
+function Correio({ mailClaimed, setMailClaimed, mail4Claimed, setMail4Claimed, mail5Claimed, setMail5Claimed, mail6Claimed, setMail6Claimed, setJade, setExpItems, setWeaponMats, setRelicMats, setSkillMats, setTagMats, flash }) {
   function claimMail() {
     if (mailClaimed) { flash("Correio já coletado!", C.bad); return; }
     // Entrega as recompensas PRIMEIRO, e só então marca como coletado
@@ -7244,6 +7246,14 @@ function Correio({ mailClaimed, setMailClaimed, mail4Claimed, setMail4Claimed, m
     setMail5Claimed(true);
     try { localStorage.setItem('sr_mail5_claimed_v1', '1'); } catch {}
     flash("📬 Compensação coletada! +12.000💎 +200📘 +200⚙️ +100🔷", C.gold);
+  }
+
+  function claimMail6() {
+    if (mail6Claimed) { flash("Correio já coletado!", C.bad); return; }
+    setJade((j) => j + 20000);
+    setMail6Claimed(true);
+    try { localStorage.setItem('sr_mail6_claimed_v1', '1'); } catch {}
+    flash("💎 Pacote Especial coletado! +20.000💎", C.gold);
   }
 
   return (
@@ -7353,6 +7363,34 @@ function Correio({ mailClaimed, setMailClaimed, mail4Claimed, setMail4Claimed, m
             </div>
             <Btn disabled={mail5Claimed} kind={mail5Claimed ? "soft" : "primary"} style={{ width: "100%", padding: "13px 0", fontSize: 15, fontWeight: 800, letterSpacing: 1 }} onClick={claimMail5}>
               {mail5Claimed ? "✓ Recompensas já coletadas" : "📦 Coletar Recompensas"}
+            </Btn>
+          </div>
+        </div>
+      </Panel>
+
+      <Panel glow={mail6Claimed ? C.mute : "#B98BFF"}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+          <div style={{ fontSize: 38 }}>{mail6Claimed ? "✉️" : "💎"}</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+              <div style={{ ...ORB, fontWeight: 800, fontSize: 15 }}>💎 Pacote Especial de Diamantes</div>
+              {mail6Claimed
+                ? <span style={{ background: C.panelHi, color: C.mute, border: "1px solid " + C.line, borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>COLETADO</span>
+                : <span style={{ background: "#1a0d33", color: "#B98BFF", border: "1px solid #B98BFF", borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>DISPONÍVEL</span>}
+            </div>
+            <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
+              Pacote extra de Diamantes enviado pelo sistema. Use para invocar seus personagens favoritos no banner atual. Boas lutas, Pioneiro ✦
+            </div>
+            <div style={{ background: C.panelHi, border: "1px solid " + C.line, borderRadius: 14, padding: 14, marginBottom: 14 }}>
+              <div style={{ fontWeight: 700, fontSize: 12, marginBottom: 10, color: C.gold }}>📦 Conteúdo:</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ fontSize: 24, width: 32, textAlign: "center" }}>💎</span>
+                <div style={{ flex: 1, fontWeight: 600 }}>Diamantes</div>
+                <span style={{ fontWeight: 800, color: C.gold, fontSize: 16 }}>×20.000</span>
+              </div>
+            </div>
+            <Btn disabled={mail6Claimed} kind={mail6Claimed ? "soft" : "primary"} style={{ width: "100%", padding: "13px 0", fontSize: 15, fontWeight: 800, letterSpacing: 1 }} onClick={claimMail6}>
+              {mail6Claimed ? "✓ Recompensas já coletadas" : "💎 Coletar 20.000 Diamantes"}
             </Btn>
           </div>
         </div>
