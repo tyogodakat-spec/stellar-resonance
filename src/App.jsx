@@ -4789,6 +4789,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       s.sp -= 1; u.energy = Math.min(u.energyMax, u.energy + Math.round((sk.enSkill || 22) * (1 + (effStat(u, "energyRegen") || 0) / 100)));
       const buffTarget = allies.find((a) => a.uid === chosenUid) || allies.filter(a => a.uid !== u.uid && !a.isSummon)[0] || u;
       const atkPct = f.uraC1 ? 25 : 20;
+      // Não acumula: remove qualquer "Zero Gravity" ativo no alvo antes de aplicar
+      buffTarget.buffs = buffTarget.buffs.filter((b) => b.name !== "Zero Gravity");
       applyBuff([buffTarget], { atk: atkPct, spd: 10, turns: 2 }, "Zero Gravity", fx, u);
       if (f.uraDelayEnemies) buffTarget._uraDelayFlag = true; // Rastro: inimigos que atacarem este aliado são atrasados 8%
       let msg = `🎈 ${u.name} usa Zero Gravity em ${buffTarget.name} — +${atkPct}% ATK e +10 VEL por 2 turnos!`;
