@@ -4760,20 +4760,21 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       u.athEnhanced = true; u._athEnhancedTurns = f.athC6 ? 3 : 2;
       const houseTurns = f.athC6 ? 9999 : 3; // C6: auras permanentes
       allies.forEach((a) => {
+        const isGuardian = a.uid === houseTarget.uid;
+        const mult = (isGuardian && f.athC1) ? 2 : 1;
         a.buffs = a.buffs.filter((b) => b.name !== "Bênção do Olimpo");
-        a.buffs.push({ stat: "spd", value: 30, pct: true, turns: houseTurns, name: "Bênção do Olimpo" });
-        a.buffs.push({ stat: "def", value: 30, pct: true, turns: houseTurns, name: "Bênção do Olimpo" });
-        a.buffs.push({ stat: "critRate", value: 20, turns: houseTurns, name: "Bênção do Olimpo" });
+        a.buffs.push({ stat: "spd",      value: 30 * mult, pct: true, turns: houseTurns, name: "Bênção do Olimpo" });
+        a.buffs.push({ stat: "def",      value: 30 * mult, pct: true, turns: houseTurns, name: "Bênção do Olimpo" });
+        a.buffs.push({ stat: "critRate", value: 20 * mult,             turns: houseTurns, name: "Bênção do Olimpo" });
+        a.buffs.push({ stat: "dmgBonus", value: 20 * mult,             turns: houseTurns, name: "Bênção do Olimpo" });
+        a.buffs.push({ stat: "critDmg",  value: 25 * mult,             turns: houseTurns, name: "Bênção do Olimpo" });
       });
-      // C1: alvo escolhido pelo jogador recebe buffs em dobro
-      if (f.athC1) {
-        houseTarget.buffs.push({ stat: "spd", value: 30, pct: true, turns: houseTurns, name: "Casa Extra" });
-        houseTarget.buffs.push({ stat: "def", value: 30, pct: true, turns: houseTurns, name: "Casa Extra" });
-        houseTarget.buffs.push({ stat: "critRate", value: 20, turns: houseTurns, name: "Casa Extra" });
-      }
       if (f.athIII && !u._athIIIUsed) { houseTarget.av = 0; u._athIIIUsed = true; }
       s._athHouseActive = true; // flag para C2/C4
-      let msg = `🕊️✨ JULGAMENTO DO OLIMPO! ${u.name} invoca as Sete Casas — todo o time recebe +30% VEL, +30% DEF e +20% CRIT${f.athC6 ? " PERMANENTES (C6!)" : ` por 3 turnos`}! ${u.name} entra no Modo Aprimorado por ${u._athEnhancedTurns} turnos. ${houseTarget.name} foi escolhido(a) como Guardião(ã) das Sete Casas${f.athC1 ? " — recebe os buffs em dobro!" : "!"}`;
+      const _guardianLine = f.athC1
+        ? ` ${houseTarget.name} é o(a) GUARDIÃO(Ã) e recebe tudo em DOBRO: +60% VEL, +60% DEF, +40% CRIT, +40% Dano, +50% CRIT DMG!`
+        : ` ${houseTarget.name} é o(a) Guardião(ã) das Sete Casas!`;
+      let msg = `🕊️✨ JULGAMENTO DO OLIMPO! ${u.name} invoca as Sete Casas — todo o time recebe +30% VEL, +30% DEF, +20% CRIT, +20% Dano e +25% CRIT DMG${f.athC6 ? " PERMANENTES (C6!)" : ` por ${houseTurns} turnos`}! ${u.name} entra no Modo Aprimorado por ${u._athEnhancedTurns} turnos.${_guardianLine}`;
       tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
@@ -5412,7 +5413,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
                     </button>
                   ))}
                 </div>
-                <div style={{ textAlign: "center", fontSize: 10, color: C.mute, marginTop: 8 }}>Todo o time recebe +30% VEL / +30% DEF / +20% CRIT. O(A) escolhido(a) ganha os bônus especiais da Ultimate.</div>
+                <div style={{ textAlign: "center", fontSize: 10, color: C.mute, marginTop: 8 }}>Todo o time recebe +30% VEL / +30% DEF / +20% CRIT / +20% Dano / +25% CRIT DMG. O(A) Guardião(ã) escolhido(a) recebe TUDO EM DOBRO se C1 ativo.</div>
               </>
             ) : state.choice.kind === "uraraka" ? (
               <>
