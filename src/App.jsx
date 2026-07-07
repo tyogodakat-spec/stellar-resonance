@@ -1340,15 +1340,6 @@ function Game({ email, isAdmin, onLogout }) {
   // Gera fraquezas elementais da semana — seed baseada no número da semana ISO
   /* ══════════ ABISMO DE DADOS — motor da run ══════════ */
   const ABISMO_MUTS = ["pacto_vidro", "miasma", "espelhos", "frenesi", "chao", "vinganca", "explosao", "escalada", "ventos", "masoquista"];
-  function abismoNodeOptions(floor, seedN) {
-    if (floor % 10 === 0) return ["boss"];
-    const rng = (n) => { const x = Math.sin(seedN * 9301 + floor * 49297 + n * 233) * 43758.5453; return x - Math.floor(x); };
-    const pool = [];
-    pool.push(rng(1) < 0.5 ? "combate" : "elite");
-    pool.push(rng(2) < 0.55 ? "combate" : (rng(3) < 0.5 ? "evento" : "santuario"));
-    if (floor % 5 === 0) pool[1] = "santuario";
-    return [...new Set(pool)].length > 1 ? pool : [pool[0], "evento"];
-  }
   function startAbismo() {
     const pool = owned.map(o => o.id);
     if (!pool.length) { flash("Você precisa de pelo menos 1 personagem!", C.bad); return; }
@@ -1425,7 +1416,7 @@ function Game({ email, isAdmin, onLogout }) {
         if (avail.length) { const g = avail[Math.floor(Math.random() * avail.length)]; r.glitches.push(g); flash("🧩 Glitch adquirido: " + ABISMO_GLITCH_INFO[g].n + "!", "#B98BFF"); }
       }
       // Draft após Elite/Boss (bloqueado pelo Cavalo de Troia)
-      r.pendingDraft = (kind === "elite" || kind === "boss") && !r.glitches.includes("troia") && r.team.length < 4;
+      r.pendingDraft = (kind === "elite" || kind === "boss") && !r.glitches.includes("troia") && r.team.length < 5;
       r.floor += 1;
       r.nodeOptions = abismoNodeOptions(r.floor, r.seed);
       return r;
@@ -6441,6 +6432,15 @@ const ABISMO_META_INFO = [
   { id: "bolsos",  n: "Bolsos Profundos", cost: 150, desc: "Começa cada run com +100 de Ouro." },
   { id: "uti",     n: "Vagas na UTI", cost: 400, desc: "1 golpe fatal por batalha é reduzido a 1 de HP (o aliado sobrevive)." },
 ];
+function abismoNodeOptions(floor, seedN) {
+  if (floor % 10 === 0) return ["boss"];
+  const rng = (n) => { const x = Math.sin(seedN * 9301 + floor * 49297 + n * 233) * 43758.5453; return x - Math.floor(x); };
+  const pool = [];
+  pool.push(rng(1) < 0.5 ? "combate" : "elite");
+  pool.push(rng(2) < 0.55 ? "combate" : (rng(3) < 0.5 ? "evento" : "santuario"));
+  if (floor % 5 === 0) pool[1] = "santuario";
+  return [...new Set(pool)].length > 1 ? pool : [pool[0], "evento"];
+}
 function AbismoDados({ run, setRun, frags, setFrags, meta, setMeta, firstClears, weekly, owned, ownedMap, images, startAbismo, abismoBattle, abismoCashout, flash }) {
   const [draftOpts, setDraftOpts] = React.useState(null);
   const [eventNode, setEventNode] = React.useState(null);
@@ -6466,7 +6466,7 @@ function AbismoDados({ run, setRun, frags, setFrags, meta, setMeta, firstClears,
         r.team.forEach(id => { hp[id] = Math.min(1, (hp[id] ?? 1) + cure); });
         flash(`⛪ Santuário: o time recupera ${Math.round(cure * 100)}% do HP.`, C.good);
         const nx = r.floor + 1;
-        return { ...r, hpMap: hp, floor: nx, points: r.points + 5, nodeOptions: ["combate", nx % 3 === 0 ? "evento" : "elite"] };
+        return { ...r, hpMap: hp, floor: nx, points: r.points + 5, nodeOptions: abismoNodeOptions(nx, r.seed) };
       });
       return;
     }
@@ -6494,7 +6494,7 @@ function AbismoDados({ run, setRun, frags, setFrags, meta, setMeta, firstClears,
         else if (choice === "B") { r.team.forEach(id => r.hpMap[id] = Math.max(0.05, (r.hpMap[id] ?? 1) - 0.20)); if (!r.glitches.includes("lente")) r.glitches.push("lente"); flash("⚔️ A arma banhada brilha (+15% CRIT pela run), mas custou 20% do HP do time.", C.bad); }
       }
       const nx = r.floor + 1;
-      return { ...r, floor: nx, points: r.points + 5, nodeOptions: ["combate", nx % 2 === 0 ? "elite" : "santuario"] };
+      return { ...r, floor: nx, points: r.points + 5, nodeOptions: abismoNodeOptions(nx, r.seed) };
     });
   }
   const wkGems = weekly.gems || 0;
