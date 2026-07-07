@@ -4785,7 +4785,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, flash }) {
       const u = s.heroes.find((h) => h.id === "uraraka" && h.alive); if (!u) { s.turn = null; return s; }
       const fx = s.fx, sk = u.skill, f = u.stFlags || {};
       const allies = s.heroes.filter((h) => h.alive);
-      s.sp -= 1; u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enSkill || 22));
+      s.sp -= 1; u.energy = Math.min(u.energyMax, u.energy + Math.round((sk.enSkill || 22) * (1 + (effStat(u, "energyRegen") || 0) / 100)));
       const buffTarget = allies.find((a) => a.uid === chosenUid) || allies.filter(a => a.uid !== u.uid && !a.isSummon)[0] || u;
       const atkPct = f.uraC1 ? 25 : 20;
       applyBuff([buffTarget], { atk: atkPct, spd: 10, turns: 2 }, "Zero Gravity", fx, u);
