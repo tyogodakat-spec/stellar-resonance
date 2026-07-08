@@ -3728,7 +3728,7 @@ function applyBreakEffect(attacker, defender, el, fx) {
 }
 // ── CAP GLOBAL DE ESCUDO (jogador): 4.000 por personagem. Ao atingir o teto, não é possível
 // adicionar mais escudo até ele zerar por completo (evita empilhamento infinito de escudo).
-const SHIELD_CAP = 5000;
+const SHIELD_CAP = 7000;
 function capShieldAdd(u, amt, customCap) {
   if (!u || amt <= 0) return 0;
   const cap = customCap || SHIELD_CAP;
