@@ -70,7 +70,7 @@ const ROSTER = [
     skill: { basicMul: 95, uraBasic: true, uraSkill: true, skillMul: 0, ultMul: 290, ultAoe: true, ultBuff: { atk: 15, all: true, turns: 2 } } }),
   // ---- T5 PADRÃO (saem ao perder o 50/50 e no banner permanente) ----
   mk({ id: "kirara", name: "Kirara", title: "Encontro Estelar", element: "Chaos", role: "shield", rarity: 5, avatar: "💫", hp: 1360, atk: 560, def: 620, spd: 99, energy: 90, tags: ["Caos", "Guardião", "Escudo", "Provocar"],
-    skill: { basicMul: 80, shield: { defMul: 90, flat: 320 }, taunt: true, ultShield: { defMul: 10, flat: 1300, all: true }, ultBuff: { def: 30, all: true, turns: 2 }, energyGift: 8 } }),
+    skill: { basicMul: 80, shield: { defMul: 90, flat: 320 }, taunt: true, ultShield: { defMul: 10, flat: 2000, all: true }, ultBuff: { def: 30, all: true, turns: 2 }, energyGift: 8 } }),
   mk({ id: "yoruichi", name: "Yoruichi", title: "Deusa do Relâmpago", element: "Eletro", role: "dps", rarity: 5, avatar: "🐈‍⬛", hp: 1040, atk: 800, def: 410, spd: 125, energy: 120, cr: 10, cd: 62, tags: ["Eletro", "DPS", "Velocidade", "Choque"],
     skill: { basicMul: 110, skillMul: 260, skillBuff: { critRate: 20, spd: 12, all: false, turns: 2 }, skillDot: { type: "shock", mul: 45, turns: 2 }, ultMul: 460 } }),
   mk({ id: "kiritsugu", name: "Kiritsugu", title: "Caçador de Magos", element: "Virus", role: "debuffer", rarity: 5, avatar: "🔫", hp: 1080, atk: 725, def: 450, spd: 108, energy: 120, cr: 8, cd: 56, tags: ["Vírus", "Debuffador", "Veneno"],
