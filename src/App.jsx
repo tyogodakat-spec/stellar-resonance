@@ -3657,13 +3657,13 @@ function makeSummon(owner, cfg) {
   // Servos de um Rei (2pç): +10% na taxa de conversão de ATK/VEL herdados do portador pela Invocação
   const convBonus = f.setServos2 ? 1.10 : 1;
   const atkMulFinal = cfg.atkMul * convBonus;
-  const spdFinal = Math.round((cfg.spd || 100) * convBonus);
+  const spdFinal = Math.min(220, Math.round((cfg.spd || 100) * convBonus));
   const atk = effStat(owner, "atk") * atkMulFinal * bonus;
   const hp = Math.round(owner.maxHp * cfg.hpMul);
   // Servos de um Rei (2pç): +15% de Dano causado por Invocações
   const summonDmgBonus = f.setServos2 ? 15 : 0;
   return {
-    uid: cfg.uid, side: "H", id: cfg.imgKey || "summon", name: cfg.name, avatar: cfg.avatar,
+    uid: cfg.uid, side: "H", id: cfg.imgKey || "summon", imgId: cfg.imgKey || null, name: cfg.name, avatar: cfg.avatar,
     element: cfg.elements ? cfg.elements[0] : owner.element, elements: cfg.elements || null,
     roleKey: "summon", isSummon: true, auto: true, kind: cfg.kind, mul: cfg.mul, ownerUid: owner.uid, firstHit: cfg.kind === "dragon",
     level: owner.level, life: cfg.life || Infinity, stFlags: {}, tBasic: 1, tSkill: 1, tUlt: 1,
@@ -4425,8 +4425,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         }
       } }
     { const yoru0 = heroes.find((h) => h.id === "yoruichi"); if (yoru0 && yoru0.stFlags?.yoruT1 && yoru0.energyMax) { yoru0.energy = Math.min(yoru0.energyMax, yoru0.energy + 20); yoru0._yoruT1Uses = 0; } }
-    { const kb0 = heroes.find((h) => h.id === "kaiba"); if (kb0 && kb0.stFlags?.kaibaT1) { const starter = makeSummon(kb0, { uid: "S_" + kb0.uid + "_mon0", name: "Vorse Raider", avatar: "👹", kind: "monster", mul: 260, spd: effStat(kb0, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); starter.cardBleed = 0.5; heroes.push(starter); } }
-    { const kb0 = heroes.find((h) => h.id === "kaiba"); if (kb0 && kb0.stFlags?.kaibaT1) { const mon0 = makeSummon(kb0, { uid: "S_" + kb0.uid + "_mon0", name: "Vorse Raider", avatar: "👹", kind: "monster", mul: 260, spd: effStat(kb0, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); mon0.cardBleed = 0.5; heroes.push(mon0); } }
+    { const kb0 = heroes.find((h) => h.id === "kaiba"); if (kb0 && kb0.stFlags?.kaibaT1) { const starter = makeSummon(kb0, { uid: "S_" + kb0.uid + "_mon0", name: "Vorse Raider", avatar: "👹", imgKey: "card_vorse", kind: "monster", mul: 260, spd: effStat(kb0, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); starter.cardBleed = 0.5; heroes.push(starter); } }
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
     // _sibs: referências dos aliados de cada lado (Fulgur Resonance precisa achar o de menor HP)
     heroes.forEach(h => { h._sibs = heroes; });
@@ -4460,6 +4459,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
   const logRef = useRef(null);
   const holdTimer = useRef(null);
   const holdingRef = useRef(false);
+  const actionLockRef = useRef(0); // debounce: evita disparo duplicado da mesma ação (toque duplo no mobile, race de setState) — CRÍTICO, não remover
   const [previewKind, setPreviewKind] = useState(null);
   const [inspectUid, setInspectUid] = useState(null); // clique num personagem → painel de status/buffs
   const cardHoldTimer = useRef(null);
@@ -4573,6 +4573,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
     setPreviewKind(null);
   }
   function heroAction(kind) {
+    const _now = Date.now();
+    if (_now - actionLockRef.current < 400) return; // ignora disparo duplicado da mesma ação (toque duplo / race de estado)
+    actionLockRef.current = _now;
     setState((s0) => {
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
       const u = findUnit(s, current.uid); if (!u || !u.alive) { s.turn = null; return s; }
@@ -4680,7 +4683,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         { const gIdx = u.dots.findIndex(d => d.type === "freeze" || d.type === "geada");
           if (gIdx >= 0) { u.dots.splice(gIdx, 1); const chip = Math.max(1, Math.round(u.maxHp * 0.03)); u.hp = Math.max(1, u.hp - chip); fx.push({ uid: u.uid, txt: "❄️ gelo quebrado (-" + chip + ")", dot: "freeze", id: Math.random() }); } }
         let miyDone = false;
-        if (u.id === "miyabi" && (f.miPostura || f.miResidual || f.miDetonate)) { msg = miyabiBasicAttack(s, u, enemy, fx, ampB); miyDone = true; }
+        if (u.id === "miyabi") { msg = miyabiBasicAttack(s, u, enemy, fx, ampB); miyDone = true; }
         if (!miyDone && u.id === "soifon") { msg = soiFonBasicAttack(s, u, enemy, fx, ampB); miyDone = true; }
         // Ryoshu basic
         if (!miyDone && u.id === "ryoshu" && enemy) {
@@ -4893,6 +4896,11 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
               else { let totDisc = 0; aliveEnemies(s).forEach(e => { totDisc += dealDamage(u, e, 180 * sMulK, fx, { el: "Eletro" }).dmg; }); msgPre = `🗑️ Descarte! ${totDisc} de Dano Eletro em área. `; }
             }
             u._kaibaLastCat = catOf(cardId);
+            // Se a carta puxada for um Monstro do MESMO tipo que já está em campo, devolve 1 Ponto de Habilidade (não "desperdiça" a puxada)
+            { const curMon = activeMonster(s, u.uid);
+              const cardName = { vorse: "Vorse Raider", kaiser: "Kaiser Sea Horse", saggi: "Saggi, o Clone das Sombras", judge: "Juiz", obelisk: "Obelisco, o Atormentador" }[cardId];
+              if (curMon && cardName && curMon.name === cardName) { s.sp = Math.min(5, s.sp + 1); msgPre += "[Carta repetida — 1 Ponto de Habilidade devolvido!] "; }
+            }
             const destroyOld = () => {
               const monsters = s.heroes.filter(h => h.isSummon && h.kind === "monster" && h.ownerUid === u.uid && h.alive);
               const slotLimit = u.stFlags?.kaibaS3 ? 2 : 1;
@@ -4915,12 +4923,12 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
               s.heroes.push(mon);
               return mon;
             };
-            if (cardId === "vorse") { summonCard("Vorse Raider", "👹", 260, { bleedChance: 0.5 }); msg = msgPre + "🎴 VORSE RAIDER! Monstro de impacto pesado (260% ATK), 50% de chance de Sangramento."; }
-            else if (cardId === "kaiser") { summonCard("Kaiser Sea Horse", "🐴", 180, { onSummonEnergy: 20 }); msg = msgPre + "🎴 KAISER SEA HORSE! Monstro invocado (180% ATK) — +20 de Energia instantânea."; }
-            else if (cardId === "saggi") { summonCard("Saggi, o Clone das Sombras", "👤", 70, { taunt: true }); msg = msgPre + "🎴 SAGGI! Monstro de baixo dano (70% ATK) mas provoca TODOS os inimigos por 2 rodadas."; }
+            if (cardId === "vorse") { summonCard("Vorse Raider", "👹", 260, { bleedChance: 0.5 }, "card_vorse"); msg = msgPre + "🎴 VORSE RAIDER! Monstro de impacto pesado (260% ATK), 50% de chance de Sangramento."; }
+            else if (cardId === "kaiser") { summonCard("Kaiser Sea Horse", "🐴", 180, { onSummonEnergy: 20 }, "card_kaiser"); msg = msgPre + "🎴 KAISER SEA HORSE! Monstro invocado (180% ATK) — +20 de Energia instantânea."; }
+            else if (cardId === "saggi") { summonCard("Saggi, o Clone das Sombras", "👤", 70, { taunt: true }, "card_saggi"); msg = msgPre + "🎴 SAGGI! Monstro de baixo dano (70% ATK) mas provoca TODOS os inimigos por 2 rodadas."; }
             else if (cardId === "judge") {
               destroyOld();
-              const mon = makeSummon(u, { uid: "S_" + u.uid + "_mon" + Math.floor(Math.random() * 1e6), name: "Juiz", avatar: "⚖️", kind: "monster", mul: 200 * (chainX2 ? 2 : 1), spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity });
+              const mon = makeSummon(u, { uid: "S_" + u.uid + "_mon" + Math.floor(Math.random() * 1e6), name: "Juiz", avatar: "⚖️", imgKey: "card_judge", kind: "monster", mul: 200 * (chainX2 ? 2 : 1), spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity });
               mon.judgeSplash = 100; s.heroes.push(mon);
               msg = msgPre + "🎴 JUIZ! Monstro de área (200% ATK no principal, 100% nos adjacentes).";
             }
@@ -5133,7 +5141,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
           const oldMon = activeMonster(s, u.uid);
           if (oldMon) { oldMon.alive = false; if (u.stFlags?.kaibaS1) { u._kaibaGraveyard = u._kaibaGraveyard || []; if (u._kaibaGraveyard.length < 3) u._kaibaGraveyard.push(oldMon.name); } if (u.stFlags?.kaibaT2) { u.energy = Math.min(u.energyMax, u.energy + 15); } }
           u._kaibaBEWCount = (u._kaibaBEWCount || 0) + 1; // S6: rastreia quantos Blue-Eyes passaram pelo campo/Cemitério
-          const dragon = makeSummon(u, { uid: "S_" + u.uid + "_bew" + Math.floor(Math.random() * 1e6), name: "Dragão Branco de Olhos Azuis", avatar: "🐉", kind: "monster", mul: (sk.ultMul || 550) * (u.tUlt || 1) * ampU, spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity });
+          const dragon = makeSummon(u, { uid: "S_" + u.uid + "_bew" + Math.floor(Math.random() * 1e6), name: "Dragão Branco de Olhos Azuis", avatar: "🐉", imgKey: "card_bew", kind: "monster", mul: (sk.ultMul || 550) * (u.tUlt || 1) * ampU, spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity });
           dragon.dragonSplash = 275 * (u.tUlt || 1) * ampU; dragon.dragonVuln = false; dragon.removeBuffsOnHit = true;
           dragon.av = 0.01; // Entrada Triunfal: avança 100% na Ordem de Turnos — age quase imediatamente
           s.heroes.push(dragon);
@@ -5482,6 +5490,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
   }
 
   function playKaibaHandCard(cardIdx, tribute) {
+    const _now = Date.now();
+    if (_now - actionLockRef.current < 400) return;
+    actionLockRef.current = _now;
     setState((s0) => {
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
       const u = s.heroes.find(h => h.id === "kaiba" && h.alive); if (!u) { s.turn = null; return s; }
@@ -5500,6 +5511,12 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         else { let totDisc = 0; aliveEnemies(s).forEach(e => { totDisc += dealDamage(u, e, 180 * sMulK, fx, { el: "Eletro" }).dmg; }); msgPre = `🗑️ Descarte! ${totDisc} de Dano Eletro em área. `; }
       }
       u._kaibaLastActivatedCat = catOf(cardId);
+      // Se a carta ativada da mão for um Monstro do MESMO tipo já em campo, devolve 1 Ponto de Habilidade (exceto em Tributo, que já é de graça)
+      if (!canTribute) {
+        const curMonH = activeMonster(s, u.uid);
+        const cardNameH = { vorse: "Vorse Raider", kaiser: "Kaiser Sea Horse", saggi: "Saggi, o Clone das Sombras", judge: "Juiz", obelisk: "Obelisco, o Atormentador" }[cardId];
+        if (curMonH && cardNameH && curMonH.name === cardNameH) { s.sp = Math.min(5, s.sp + 1); msgPre += "[Carta repetida — 1 Ponto de Habilidade devolvido!] "; }
+      }
       if (canTribute) { monsters.forEach(m => { m.alive = false; if (u.stFlags?.kaibaS1) { u._kaibaGraveyard = u._kaibaGraveyard || []; if (u._kaibaGraveyard.length < 3) u._kaibaGraveyard.push(m.name); } }); u.av = Math.max(0.01, (u.av || 1) * 0.0); }
       const destroyOld = () => {
         const mons = s.heroes.filter(h => h.isSummon && h.kind === "monster" && h.ownerUid === u.uid && h.alive);
@@ -5523,10 +5540,10 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         return mon;
       };
       let msg = "";
-      if (cardId === "vorse") { summonCard("Vorse Raider", "👹", 260, { bleedChance: 0.5 }); msg = msgPre + "🎴 VORSE RAIDER! Monstro de impacto pesado (260% ATK), 50% de chance de Sangramento."; }
-      else if (cardId === "kaiser") { summonCard("Kaiser Sea Horse", "🐴", 180, { onSummonEnergy: 20 }); msg = msgPre + "🎴 KAISER SEA HORSE! Monstro invocado (180% ATK) — +20 de Energia instantânea."; }
-      else if (cardId === "saggi") { summonCard("Saggi, o Clone das Sombras", "👤", 70, { taunt: true }); msg = msgPre + "🎴 SAGGI! Monstro de baixo dano (70% ATK) mas provoca TODOS os inimigos por 2 rodadas."; }
-      else if (cardId === "judge") { destroyOld(); const mon = makeSummon(u, { uid: "S_" + u.uid + "_mon" + Math.floor(Math.random() * 1e6), name: "Juiz", avatar: "⚖️", kind: "monster", mul: 200 * (chainX2 ? 2 : 1), spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); mon.judgeSplash = 100; s.heroes.push(mon); msg = msgPre + "🎴 JUIZ! Monstro de área (200% ATK no principal, 100% nos adjacentes)."; }
+      if (cardId === "vorse") { summonCard("Vorse Raider", "👹", 260, { bleedChance: 0.5 }, "card_vorse"); msg = msgPre + "🎴 VORSE RAIDER! Monstro de impacto pesado (260% ATK), 50% de chance de Sangramento."; }
+      else if (cardId === "kaiser") { summonCard("Kaiser Sea Horse", "🐴", 180, { onSummonEnergy: 20 }, "card_kaiser"); msg = msgPre + "🎴 KAISER SEA HORSE! Monstro invocado (180% ATK) — +20 de Energia instantânea."; }
+      else if (cardId === "saggi") { summonCard("Saggi, o Clone das Sombras", "👤", 70, { taunt: true }, "card_saggi"); msg = msgPre + "🎴 SAGGI! Monstro de baixo dano (70% ATK) mas provoca TODOS os inimigos por 2 rodadas."; }
+      else if (cardId === "judge") { destroyOld(); const mon = makeSummon(u, { uid: "S_" + u.uid + "_mon" + Math.floor(Math.random() * 1e6), name: "Juiz", avatar: "⚖️", imgKey: "card_judge", kind: "monster", mul: 200 * (chainX2 ? 2 : 1), spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); mon.judgeSplash = 100; s.heroes.push(mon); msg = msgPre + "🎴 JUIZ! Monstro de área (200% ATK no principal, 100% nos adjacentes)."; }
       else if (cardId === "obelisk") {
         destroyOld();
         let totOb = 0, purgeCount = 0;
@@ -5748,6 +5765,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
   }
 
   function autoAct(uid) {
+    const _now = Date.now();
+    if (_now - actionLockRef.current < 400) return; // trava contra disparo duplicado (ex: invocação atacando 2x)
+    actionLockRef.current = _now;
     setState((s0) => {
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
       const u = findUnit(s, uid); if (!u || !u.alive) { s.turn = null; return s; }
@@ -5845,6 +5865,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
   }
 
   function enemyAct() {
+    const _now = Date.now();
+    if (_now - actionLockRef.current < 400) return; // trava contra disparo duplicado
+    actionLockRef.current = _now;
     setState((s0) => {
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
       const u = findUnit(s, current.uid); if (!u || !u.alive) { s.turn = null; return s; }
@@ -6966,7 +6989,7 @@ function Admin({ images, setImages, tierList, setTierList, flash, isAdmin, draft
           );
         })}
       </div>}
-      {tab === "chars" && <div className="flex flex-col gap-2">{ROSTER.map((c) => <AdminRow key={c.id} id={c.id} name={`${c.name} · ${c.element} · ${ROLES[c.role].label}`} rarity={c.rarity} fallback={c.avatar} element={c.element} url={images[c.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}<Panel style={{ padding: "10px 12px", marginTop: 4 }}><b style={{ fontSize: 13 }}>🦖 Agumon — Formas de Digievolução</b><p style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>Fotos para cada estágio. O ID correto já está indicado em cada linha.</p></Panel><AdminRow key="agumon_greymon" id="agumon_greymon" name="Greymon · Champion · Fogo" rarity={5} fallback="🦕" element="Fogo" url={images["agumon_greymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><AdminRow key="agumon_metalgreymon" id="agumon_metalgreymon" name="MetalGreymon · Ultimate · Fogo" rarity={5} fallback="🤖" element="Fogo" url={images["agumon_metalgreymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><AdminRow key="agumon_wargreymon" id="agumon_wargreymon" name="WarGreymon · Mega · Fogo" rarity={5} fallback="⚔️" element="Fogo" url={images["agumon_wargreymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><Panel style={{ padding: "10px 12px", marginTop: 4 }}><b style={{ fontSize: 13 }}>🎴 Kaiba — Cartas do Baralho</b><p style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>Fotos pra cada uma das 10 cartas que aparecem na Mão Virtual e na Puxada do Destino.</p></Panel>{Object.entries(KAIBA_CARDS).map(([cid, card]) => <AdminRow key={card.imgId} id={card.imgId} name={`${card.name} · ${card.cat === "monster" ? "Monstro" : card.cat === "magic" ? "Magia" : "Armadilha"}`} rarity={cid === "obelisk" ? 5 : 4} fallback={card.avatar} element="Eletro" url={images[card.imgId] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
+      {tab === "chars" && <div className="flex flex-col gap-2">{ROSTER.map((c) => <AdminRow key={c.id} id={c.id} name={`${c.name} · ${c.element} · ${ROLES[c.role].label}`} rarity={c.rarity} fallback={c.avatar} element={c.element} url={images[c.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}<Panel style={{ padding: "10px 12px", marginTop: 4 }}><b style={{ fontSize: 13 }}>🦖 Agumon — Formas de Digievolução</b><p style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>Fotos para cada estágio. O ID correto já está indicado em cada linha.</p></Panel><AdminRow key="agumon_greymon" id="agumon_greymon" name="Greymon · Champion · Fogo" rarity={5} fallback="🦕" element="Fogo" url={images["agumon_greymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><AdminRow key="agumon_metalgreymon" id="agumon_metalgreymon" name="MetalGreymon · Ultimate · Fogo" rarity={5} fallback="🤖" element="Fogo" url={images["agumon_metalgreymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><AdminRow key="agumon_wargreymon" id="agumon_wargreymon" name="WarGreymon · Mega · Fogo" rarity={5} fallback="⚔️" element="Fogo" url={images["agumon_wargreymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><Panel style={{ padding: "10px 12px", marginTop: 4 }}><b style={{ fontSize: 13 }}>🎴 Kaiba — Cartas do Baralho</b><p style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>Fotos pra cada uma das 10 cartas que aparecem na Mão Virtual e na Puxada do Destino.</p></Panel>{Object.entries(KAIBA_CARDS).map(([cid, card]) => <AdminRow key={card.imgId} id={card.imgId} name={`${card.name} · ${card.cat === "monster" ? "Monstro" : card.cat === "magic" ? "Magia" : "Armadilha"}`} rarity={cid === "obelisk" ? 5 : 4} fallback={card.avatar} element="Eletro" url={images[card.imgId] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}<AdminRow key="card_bew" id="card_bew" name="Dragão Branco de Olhos Azuis · Suprema" rarity={5} fallback="🐉" element="Eletro" url={images["card_bew"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /></div>}
       {tab === "weapons" && <div className="flex flex-col gap-2">{WEAPONS.map((w) => <AdminRow key={w.id} id={w.id} name={`${w.name} · ${ROLES[w.role].label}`} rarity={w.rarity} fallback="🗡️" weapon url={images[w.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "summons" && <div className="flex flex-col gap-2">
         <Panel style={{ padding: 10 }}><p style={{ fontSize: 12, color: C.mute }}>Fotos das invocações do Kaiba. Aparecem no campo de batalha e na tela de escolha do Ultimate.</p></Panel>
