@@ -481,7 +481,7 @@ const CONS = {
       { name: "C3 · Entropy Equilibrium", flag: "aguC3", desc: "Estabilidade de Calor: a perda de 5% de HP por turno do Overclocking Terminal é REMOVIDA. Com Calor acima de 70, em vez de perder vida, Agumon converte 10% do seu ATK em Escudo a cada rodada. Um bruiser de sustentação que vive no vermelho sem medo." },
       { name: "C4 · X-Antibody Synchro", flag: "aguC4", desc: "Sincronia de Combate: +20% de Dano de Fogo e +25% de Dano Crítico permanentes. Além disso, o Supremo (Pepper Breath, Nova Blast, Tera Destroyer ou Gaia Force) causa +200% de dano em TODAS as formas." },
       { name: "C5 · Gaia Singularit-X", flag: "aguC5", desc: "A Supremacia da Gaia Force: se o alvo sobreviver à Gaia Force, recebe RUPTURA DE REALIDADE por 2 rodadas — todo dano recebido (de qualquer fonte do time) ignora completamente a DEF do inimigo (tratado como Dano Verdadeiro). O abridor de portas supremo contra chefes de altíssima DEF." },
-      { name: "C6 · Final Digital Evolution", flag: "aguC6", desc: "A Forma Eterna (Capstone): Agumon já COMEÇA a batalha na forma Greymon. O custo de TamerSP de TODAS as Digievoluções cai a ZERO — só o Calor importa. Ao evoluir para WarGreymon, o MODO X é SEMPRE ativado (a forma imperfeita deixa de existir). Se o WarGreymon derrotar um inimigo em MODO X, o modo é ESTENDIDO até o fim da próxima rodada dele." },
+      { name: "C6 · Final Digital Evolution", flag: "aguC6", desc: "A Forma Eterna (Capstone): Agumon já COMEÇA a batalha na forma Greymon. O Calor NUNCA MAIS SOBE (Perícias deixam de gerar Calor) — Digievoluir passa a depender só do TamerSP, sem janela térmica nenhuma. Ele NUNCA regride para a forma base (Agumon), nem por Meltdown, nem por evolução instável — praticamente impossíveis de acontecer já que o Calor não sobe mais. Ao evoluir para WarGreymon, o MODO X é SEMPRE ativado. Se o WarGreymon derrotar um inimigo em MODO X, o modo é ESTENDIDO até o fim da próxima rodada dele." },
     ],
     athena: [
       { name: "C1 · Arquitetura do Destino", flag: "athC1", desc: "Mudança de kit: a aba de seleção de aliados da Suprema Expansão das 7 Casas ganha o Modo Totalitário. Nesse modo, além de distribuir os buffs normalmente, Athena pode marcar um único aliado como Guardado pelas Casas. O aliado marcado recebe todos os buffs da Suprema em dobro: +60% de VEL, +60% de DEF e +40% de Taxa de CRIT, em vez dos valores padrão. Os demais aliados não marcados ainda recebem os buffs normais (+30% VEL, +30% DEF, +20% CRIT). Isso permite concentrar todo o poder das Casas em um único Hyper-Carry ou garantir que o personagem mais importante do time nunca seja atingido de forma crítica." },
@@ -4593,18 +4593,18 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             const fm = u.agForm || "agumon";
             if (fm === "agumon" && enemy) {
               const r = dealDamage(u, enemy, (sk.skillMul || 165) * u.tSkill * ampS, fx, { breakW: 2, el: "Fogo" });
-              u.agSP = Math.min(aguSPMax(u), (u.agSP || 0) + 25); u.agHeat = Math.min(100, (u.agHeat || 0) + 30);
+              u.agSP = Math.min(aguSPMax(u), (u.agSP || 0) + 25); if (!u.stFlags?.aguC6) u.agHeat = Math.min(100, (u.agHeat || 0) + 30);
               msg = `🔥 Baby Flame em ${enemy.name} — ${r.dmg} de Dano de Fogo${r.crit ? " (CRÍTICO!)" : ""}. [+25 SP · Calor +30 → ${u.agHeat}]`;
             } else if (fm === "greymon") {
               let t2 = 0; aliveEnemies(s).forEach(e => { t2 += dealDamage(u, e, 150 * u.tSkill * ampS, fx, { breakW: 2, el: "Fogo" }).dmg; });
-              u.agHeat = Math.min(100, (u.agHeat || 0) + 40); u.agSP = Math.min(aguSPMax(u), (u.agSP || 0) + 25);
+              if (!u.stFlags?.aguC6) u.agHeat = Math.min(100, (u.agHeat || 0) + 40); u.agSP = Math.min(aguSPMax(u), (u.agSP || 0) + 25);
               const defGain = Math.round((u.agHeat || 0) * 0.6);
               u.buffs = u.buffs.filter(b => b.name !== "Carapaça Térmica"); u.buffs.push({ stat: "def", value: defGain, pct: true, turns: 2, name: "Carapaça Térmica" });
               msg = `🦕 MEGA FLAME em área — ${t2} de Dano de Fogo! Carapaça Térmica: +${defGain}% DEF por 2 rodadas. [Calor → ${u.agHeat}]`;
             } else if (fm === "metalgreymon") {
               const hot = (u.agHeat || 0) > 80;
               let t3 = 0; aliveEnemies(s).forEach(e => { if (e.shield > 0) { e.shield = 0; fx.push({ uid: e.uid, txt: "ESCUDO DESTRUÍDO!", crit: true, id: Math.random() }); } t3 += dealDamage(u, e, 170 * (hot ? 1.5 : 1) * u.tSkill * ampS, fx, { breakW: 2, el: "Fogo" }).dmg; });
-              u.agHeat = Math.min(100, (u.agHeat || 0) + 35); u.agSP = Math.min(aguSPMax(u), (u.agSP || 0) + 25);
+              if (!u.stFlags?.aguC6) u.agHeat = Math.min(100, (u.agHeat || 0) + 35); u.agSP = Math.min(aguSPMax(u), (u.agSP || 0) + 25);
               msg = `🚀 GIGA DESTROYER! Mísseis destroem os escudos — ${t3} de dano${hot ? " (+50% SUPERAQUECIDO!)" : ""}. [Calor → ${u.agHeat}]`;
             } else {
               u.agBrave = 2;
@@ -5001,7 +5001,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         if ((u.agTrident || 0) > 0) u.agTrident -= 1;
         if ((u.agModoX || 0) > 0) { u.agModoX -= 1; u.agHeat = 0; if (u.agModoX <= 0) { u.buffs = u.buffs.filter(b => b.name !== "MODO X"); pushLog(s, "⚙️ O MODO X se encerra — os sistemas do WarGreymon voltam ao normal."); } }
         // Forma imperfeita: dura 1 turno → regride com 1 de HP e 0 SP
-        if ((u.agTempForm || 0) > 0) { u.agTempForm -= 1; if (u.agTempForm <= 0) { aguRevert(u, s, true); } }
+        if ((u.agTempForm || 0) > 0) { u.agTempForm -= 1; if (u.agTempForm <= 0 && !u.stFlags?.aguC6) { aguRevert(u, s, true); } else if (u.agTempForm <= 0) { u.agTempForm = 0; } }
         // Calor > 70: Overclocking (+ATK/+CD até 80%). C3: sem dreno de HP — vira Escudo (10% do ATK/rodada)
         u.buffs = u.buffs.filter(b => b.name !== "Overclocking");
         if ((u.agHeat || 0) > 70 && (u.agModoX || 0) <= 0) {
@@ -5011,11 +5011,11 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
           if (u.stFlags?.aguC3) { const shGain = Math.round(effStat(u, "atk") * 0.10); u.shield = (u.shield || 0) + shGain; fx.push({ uid: u.uid, txt: "🛡️+" + shGain, heal: true, id: Math.random() }); }
           else { const burn5 = Math.round(u.maxHp * 0.05); u.hp = Math.max(1, u.hp - burn5); fx.push({ uid: u.uid, txt: String(burn5), dot: "burn", id: Math.random() }); }
         }
-        // Meltdown a 100 de Calor
-        if ((u.agHeat || 0) >= 100 && (u.agForm || "agumon") !== "agumon") {
+        // Meltdown a 100 de Calor — C6: nunca regride pra forma base, só perde TamerSP e esfria
+        if ((u.agHeat || 0) >= 100 && (u.agForm || "agumon") !== "agumon" && !u.stFlags?.aguC6) {
           aguRevert(u, s, false); u.agSP = Math.round((u.agSP || 0) / 2); u.agHeat = 0;
           pushLog(s, "☢️ MELTDOWN! O núcleo de " + u.name + " colapsa — a evolução desfaz e metade do TamerSP evapora!");
-        } else if ((u.agHeat || 0) >= 100) { u.agHeat = 0; u.agSP = Math.round((u.agSP || 0) / 2); pushLog(s, "☢️ Superaquecimento! Agumon perde metade do TamerSP ao ventilar o núcleo."); }
+        } else if ((u.agHeat || 0) >= 100) { u.agHeat = 0; u.agSP = Math.round((u.agSP || 0) / 2); pushLog(s, (u.stFlags?.aguC6 ? "☢️ Superaquecimento contido! O núcleo é resfriado à força, mas a Forma Eterna mantém " + u.name + " na forma atual — só perde metade do TamerSP." : "☢️ Superaquecimento! Agumon perde metade do TamerSP ao ventilar o núcleo.")); }
       }
       applyMutPostAction(s, u); // mutadores do Abismo
       // Wonder of You — Rastros A4/A6
@@ -5148,7 +5148,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       u.buffs = u.buffs.filter(b => !["Forma: Greymon", "Forma: MetalGreymon", "Forma: WarGreymon", "MODO X"].includes(b.name));
       u.maxHp = u._aguBaseMaxHp; u.hp = Math.min(u.hp, u.maxHp);
       const heatMinX = (formId === "wargreymon" && u.stFlags?.aguC1) ? 75 : F.req.heatMin; // C1: Ignis-X Activation
-      const inWindow = (u.agHeat || 0) >= heatMinX && (u.agHeat || 0) <= (formId === "wargreymon" ? 100 : F.req.heatMax) && (!F.req.needTrident || (u.agTrident || 0) > 0);
+      // C6: o Calor deixa de ser requisito de Digievolução — só o TamerSP importa
+      const inWindow = u.stFlags?.aguC6 || ((u.agHeat || 0) >= heatMinX && (u.agHeat || 0) <= (formId === "wargreymon" ? 100 : F.req.heatMax) && (!F.req.needTrident || (u.agTrident || 0) > 0));
       u.agForm = formId; u.imgId = F.imgId; u.agBrave = 0;
       if (u.stFlags?.setAdapt4) { u.buffs = u.buffs.filter(b => b.name !== "Protocolo de Adaptação"); u.buffs.push({ stat: "defPen", value: 20, turns: 2, name: "Protocolo de Adaptação" }); u.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "Protocolo de Adaptação" }); }
       if (formId === "greymon") {
@@ -5166,7 +5167,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         u.buffs.push({ stat: "dmgBonus", value: 70, turns: 9999, name: "Forma: WarGreymon" });
         if (!u._aguBaseEnergyMax) u._aguBaseEnergyMax = u.energyMax;
         u.energyMax = 250; // Gaia Force exige um núcleo de energia muito maior nesta forma
-        const perfectSync = inWindow || u.stFlags?.aguC6; // C6: o Modo X SEMPRE substitui a forma normal do WarGreymon
+        const perfectSync = inWindow; // C6 já força inWindow=true acima, então o Modo X sempre ativa
         if (perfectSync) {
           u.agModoX = 2; u._aguXHeat = u.agHeat || 0; u.agHeat = 0; // T3: guarda o Calor do momento da evolução p/ escalar penetração
           u.buffs.push({ stat: "critDmg", value: 150, turns: 9999, name: "MODO X" });
@@ -5178,7 +5179,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         }
       }
       // Evolução fora da janela térmica (Greymon/MetalGreymon): forma instável de 1 turno
-      if ((formId === "greymon" || formId === "metalgreymon") && !inWindow) { u.agTempForm = 1; pushLog(s, "⚠️ Calor fora da janela (" + F.reqTxt + ") — a forma é INSTÁVEL e durará 1 turno!"); }
+      if ((formId === "greymon" || formId === "metalgreymon") && !inWindow && !u.stFlags?.aguC6) { u.agTempForm = 1; pushLog(s, "⚠️ Calor fora da janela (" + F.reqTxt + ") — a forma é INSTÁVEL e durará 1 turno!"); }
       s.turn = null; return s;
     });
   }
@@ -5668,7 +5669,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         if ((u.agTrident || 0) > 0) u.agTrident -= 1;
         if ((u.agModoX || 0) > 0) { u.agModoX -= 1; u.agHeat = 0; if (u.agModoX <= 0) { u.buffs = u.buffs.filter(b => b.name !== "MODO X"); pushLog(s, "⚙️ O MODO X se encerra — os sistemas do WarGreymon voltam ao normal."); } }
         // Forma imperfeita: dura 1 turno → regride com 1 de HP e 0 SP
-        if ((u.agTempForm || 0) > 0) { u.agTempForm -= 1; if (u.agTempForm <= 0) { aguRevert(u, s, true); } }
+        if ((u.agTempForm || 0) > 0) { u.agTempForm -= 1; if (u.agTempForm <= 0 && !u.stFlags?.aguC6) { aguRevert(u, s, true); } else if (u.agTempForm <= 0) { u.agTempForm = 0; } }
         // Calor > 70: Overclocking (+ATK/+CD até 80%). C3: sem dreno de HP — vira Escudo (10% do ATK/rodada)
         u.buffs = u.buffs.filter(b => b.name !== "Overclocking");
         if ((u.agHeat || 0) > 70 && (u.agModoX || 0) <= 0) {
@@ -5678,11 +5679,11 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
           if (u.stFlags?.aguC3) { const shGain = Math.round(effStat(u, "atk") * 0.10); u.shield = (u.shield || 0) + shGain; fx.push({ uid: u.uid, txt: "🛡️+" + shGain, heal: true, id: Math.random() }); }
           else { const burn5 = Math.round(u.maxHp * 0.05); u.hp = Math.max(1, u.hp - burn5); fx.push({ uid: u.uid, txt: String(burn5), dot: "burn", id: Math.random() }); }
         }
-        // Meltdown a 100 de Calor
-        if ((u.agHeat || 0) >= 100 && (u.agForm || "agumon") !== "agumon") {
+        // Meltdown a 100 de Calor — C6: nunca regride pra forma base, só perde TamerSP e esfria
+        if ((u.agHeat || 0) >= 100 && (u.agForm || "agumon") !== "agumon" && !u.stFlags?.aguC6) {
           aguRevert(u, s, false); u.agSP = Math.round((u.agSP || 0) / 2); u.agHeat = 0;
           pushLog(s, "☢️ MELTDOWN! O núcleo de " + u.name + " colapsa — a evolução desfaz e metade do TamerSP evapora!");
-        } else if ((u.agHeat || 0) >= 100) { u.agHeat = 0; u.agSP = Math.round((u.agSP || 0) / 2); pushLog(s, "☢️ Superaquecimento! Agumon perde metade do TamerSP ao ventilar o núcleo."); }
+        } else if ((u.agHeat || 0) >= 100) { u.agHeat = 0; u.agSP = Math.round((u.agSP || 0) / 2); pushLog(s, (u.stFlags?.aguC6 ? "☢️ Superaquecimento contido! O núcleo é resfriado à força, mas a Forma Eterna mantém " + u.name + " na forma atual — só perde metade do TamerSP." : "☢️ Superaquecimento! Agumon perde metade do TamerSP ao ventilar o núcleo.")); }
       }
       applyMutPostAction(s, u); // mutadores do Abismo
       s.hitFx = { el: u.element, big: u.boss && (u.actCount % 3 === 0 || (enraged && u.actCount % 2 === 0)), enemy: true, id: Math.random() };
@@ -6980,7 +6981,7 @@ const AGU_FORMS = {
       ["Giga Destroyer", "Mísseis em área (170% ATK) que DESTROEM escudos inimigos. Calor +35 · +25 SP. Com Calor > 80: +50% de dano (risco de Meltdown!)."],
       ["Tera Destroyer", "Energia em todos (330% ATK) + atrasa a ação de TODOS os inimigos em 15%. +35 SP."]] },
   wargreymon: { name: "WarGreymon", stage: "Mega", imgId: "agumon_wargreymon", emoji: "⚔️",
-    req: { sp: 150, heatMin: 90, heatMax: 99, needTrident: true }, reqTxt: "150 TamerSP · Calor 90-99 (na beira do colapso!) · Trident Arm na rodada anterior · (C1 Ignis-X Activation: basta Calor > 75)",
+    req: { sp: 150, heatMin: 90, heatMax: 99, needTrident: true }, reqTxt: "150 TamerSP · Calor 90-99 (na beira do colapso!) · Trident Arm na rodada anterior · (C1 Ignis-X Activation: basta Calor > 75) · (C6 Final Digital Evolution: Calor deixa de importar — só o TamerSP)",
     buffs: "SINCRONIA PERFEITA → MODO X: +150% CRIT DMG, +60 VEL, Calor travado em 0 por 2 rodadas. Evolução imperfeita: a forma dura 1 turno e ele regride a Agumon com 1 de HP e 0 SP. ⚡ Nesta forma, a Gaia Force custa 250 de Energia (em vez dos 120 padrão) — o núcleo precisa de muito mais poder pra disparar.",
     skills: [["Great Tornado", "4 golpes das Dramon Killers (65% ATK cada, 20% de penetração de DEF). Contra CHEFES/Elites o dano DOBRA. Não gera Calor."],
       ["Brave Shield", "TAUNT ABSOLUTO: todos os inimigos o atacam por 2 rodadas + 100% de CONTRA-ATAQUE (corte crítico + cura 5% do HP)."],
