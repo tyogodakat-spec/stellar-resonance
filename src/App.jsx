@@ -47,8 +47,8 @@ const ROSTER = [
   // ---- T5 ----
   mk({ id: "miyabi", name: "Miyabi", title: "Caçadora do Vazio", element: "Glacial", role: "aoe", rarity: 5, avatar: "🌸", hp: 1060, atk: 790, def: 420, spd: 103, energy: 160, cr: 8, cd: 60, tags: ["Gelo", "DPS", "Área", "Anomalia"],
     skill: { basicMul: 80, skillMul: 195, aoe: true, skillDot: { type: "freeze", mul: 60, turns: 2 }, ultMul: 390, ultAoe: true, ultDot: { type: "freeze", mul: 82, turns: 2 } } }),
-  mk({ id: "kaiba", name: "Seto Kaiba", title: "Mestre dos Dragões", element: "Eletro", role: "summoner", rarity: 5, avatar: "🃏", hp: 1180, atk: 720, def: 480, spd: 101, energy: 300, cr: 5, cd: 50, er: 30, elemDmg: 5, tags: ["Eletro", "Invocador", "Deus Egípcio", "Único"],
-    skill: { basicMul: 100, enBasic: 15, enSkill: 22, skillMul: 140, aoe: true, kaibaUlt: true, summon: { name: "Blue-Eyes White Dragon", avatar: "🐉", hpMul: 0.75, atkMul: 1.0, mul: 108, spd: 115 } } }),
+  mk({ id: "kaiba", name: "Seto Kaiba", title: "Mestre dos Dragões", element: "Eletro", role: "summoner", rarity: 5, avatar: "🃏", hp: 1180, atk: 720, def: 480, spd: 101, energy: 140, cr: 5, cd: 50, er: 30, elemDmg: 5, tags: ["Eletro", "Invocador", "Deus Egípcio", "Único"],
+    skill: { basicMul: 100, kaibaBasic: true, skillMul: 0, kaibaSkill: true, ultMul: 550, kaibaUlt: true } }),
   // ---- T4 ----
   mk({ id: "renji", name: "Renji Abarai", title: "Zabimaru", element: "Chaos", role: "dps", rarity: 4, avatar: "🗡️", hp: 1060, atk: 705, def: 440, spd: 104, energy: 120, tags: ["Caos", "DPS", "Sangramento"],
     skill: { basicMul: 100, skillMul: 215, skillDot: { type: "bleed", mul: 50, turns: 2 }, ultMul: 380 } }),
@@ -112,9 +112,10 @@ const WEAPONS = [
   // ── ★★★★★ 5-estrelas ────────────────────────────────────────────────────────
   { id: "digivice",         name: "Digivice da Coragem",   rarity: 5, role: "dps",      atk: 500, hpFlat: 500, elemDmg: 30.0,    passive: "Sincronia Térmica: +50 de TamerSP máximo; Perícias geram 5 a menos de Calor. Ao Digivolver: restaura 10% do HP Máximo e +10 de VEL por 2 rodadas. No MODO X: a Gaia Force ganha +50% de CRIT DMG e inimigos derrotados por ela não podem ser ressuscitados nem curados por 1 rodada.", buff: { aguWeapon: true } },
   { id: "relampago_fugaz",  name: "Relâmpago Fugaz",       rarity: 5, role: "dps",      hpFlat: 1058, defFlat: 463, spd: 10,      passive: "Passo Fantasma: HP 1058 · DEF 463 · +10 de VEL Base fixa. Efeito 1: +12% da VEL total do portador, sempre ativo. Efeito 2: cada Ataque Extra do portador aumenta o dano dos PRÓXIMOS Ataques Extras dele mesmo em +10% (acumula até 3×, cada acúmulo renova a duração de 2 turnos). Efeito 3 (com VEL > 150): todo Ataque Extra do portador concede +12% de Taxa de CRIT e +24% de CRIT DMG a TODA a equipe por 2 turnos, e recupera 2 de Energia sempre que o Talento intercepta uma ação aliada (independe do limiar de 150 VEL).", buff: { yoruWeapon: true, spdPct: 12 } },
+  { id: "disco_nexo",       name: "Disco de Duelo — Protótipo Nexo", rarity: 5, role: "summoner", hpFlat: 1164, atk: 582, defFlat: 396, critRate: 12,     passive: "Jogo de Alta Linhagem: HP 1164 · ATK 582 · DEF 396 · +12% de Taxa de CRIT sempre ativa. Sempre que o portador puxar uma carta ou ativar uma carta da Mão Virtual, o Monstro Invocado ativo ganha 1 acúmulo de 'Soberania do Duelista' (máx 3): cada acúmulo dá +16% de dano às invocações e faz seus ataques ignorarem +10% de DEF — expira após 2 turnos do monstro. Quando um Monstro Invocado deixa o campo, o portador recupera 6 de Energia instantaneamente e o PRÓXIMO monstro invocado ganha +30% de Dano Crítico por 2 rodadas.", buff: { kaibaWeapon: true } },
   { id: "starblade",        name: "Lâmina Estelar",       rarity: 5, role: "dps",      atk: 882, critDmg: 52.8,                    passive: "Fio Cortante: após a Habilidade, ganha +24% de Bônus de Dano por 2 turnos.",                                                    buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
   { id: "radiant",          name: "Cetro Radiante",        rarity: 5, role: "buffer",   atk: 720, energyRegen: 26.4,                passive: "Pulso de Apoio: ao buffar aliados, concede +12% de Bônus de Dano por 2 turnos.",                                                buff: { onBuff: { dmgBonus: 12, turns: 2 } } },
-  { id: "dragoncannon",     name: "Disco de Duelo X",      rarity: 5, role: "summoner", atk: 700, atkPct: 48.0,                     passive: "Socio Majoritario: +48% ATK. Exclusivo (Kaiba): cada Blue-Eyes +18% CRIT DMG (max +54%); Habilidade +30% Perfuracao; Suprema +1 PH ao time." },
+  { id: "duelo_nexo",        name: "Disco de Duelo — Protótipo Nexo", rarity: 5, role: "summoner", hpFlat: 1164, atk: 582, defFlat: 396, critRate: 12.0, passive: "Atributos Base: HP 1164 | ATK 582 | DEF 396. Efeito Passivo — Jogo de Alta Linhagem: aumenta a Taxa Crítica do portador em 12% / 15% / 18% / 21% / 24% (por nível de refinamento; este jogo aplica o valor de nível 1: 12%). Sempre que o portador utilizar a Perícia para puxar uma carta ou ativar uma carta diretamente de sua Mão Virtual, o Monstro Invocado atualmente ativo no campo ganha 1 acúmulo do status Soberania do Duelista (limite máximo de 3 acúmulos). Cada acúmulo aumenta o Dano causado pelas invocações em 16% / 20% / 24% / 28% / 32% (nível 1: 16%) e faz com que seus ataques ignorem 10% / 12% / 14% / 16% / 18% da DEF dos alvos atingidos (nível 1: 10%). Este efeito expira após 2 turnos do monstro. Quando um Monstro Invocado aliado deixa o campo de batalha (seja por destruição, substituição automática ou mecânica de Tributo), o portador regenera de forma instantânea 6.0 / 7.5 / 9.0 / 10.5 / 12.0 pontos de Energia (nível 1: 6.0). Adicionalmente, o próximo Monstro Invocado que entrar em campo recebe um bônus compulsório de 30% / 37.5% / 45% / 52.5% / 60% de Dano Crítico em todas as suas ações ofensivas por 2 rodadas completas (nível 1: 30%).", buff: { kaibaWeapon: true } },
   { id: "hailstorm",        name: "Nevasca de Outono",     rarity: 5, role: "aoe",      atk: 756, critRate: 36.0, critDmg: 64.8,    passive: "Fio do Zero Absoluto: DoTs de Geada amplificados. Apos a Habilidade, +24% Bonus de Dano por 2 turnos.",                         buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
   { id: "thunderclaws",     name: "Garras do Trovao",      rarity: 5, role: "dps",      atk: 952, critRate: 44.0,                   passive: "Descarga Predatoria: apos a Habilidade, +20% de VEL por 2 turnos.",                                                             buff: { onSkill: { spd: 20, turns: 2 } } },
   { id: "originpistol",     name: "Pistola da Origem",     rarity: 5, role: "debuffer", atk: 840, critDmg: 58.8, extraDefDown: 14,  passive: "Mira Calculada: debuffs reduzem +14% de DEF adicional do alvo." },
@@ -170,6 +171,9 @@ const RELIC_SETS = {
   "Vestígios da Calamidade Eterna": { color: "#6B21A8", el: "Chaos", p2: { energyRegen: 12, elemDmg: 15 }, flag2: "setCalamidade2", flag4: "setCalamidade4",
     d2: "+12% Taxa de Regeneração de Energia · +15% Dano de Chaos · ao aplicar buff ou debuff: recupera 3 de Energia (1× por ação)",
     d4: "A cada buff/debuff aplicado, ganha 1 Acúmulo de Calamidade (máx 10). Cada acúmulo: +4% Dano Chaos · +3% VEL · +4% CRIT DMG. Ao atingir 10 acúmulos: ignora 25% da DEF · duração de todos os buffs e debuffs +30% · ataques causam Golpe de Chaos adicional de 80% ATQ. Ideal para Wonder of You." },
+  "Servos de um Rei": { color: "#FFD166", el: null, flag2: "setServos2", flag4: "setServos4",
+    d2: "+15% de Dano causado por Invocações. Se a Invocação herdar atributos nativos do portador (ATK/VEL), a taxa de conversão desses atributos transferidos é elevada em +10% adicional em combate.",
+    d4: "Sempre que a Invocação aliada agir ou atacar na Ordem de Turnos, ganha 1 acúmulo de Sintonia Sincrônica (máx 2). Cada acúmulo dá +20% de Dano Crítico à própria Invocação por 2 turnos. No limite de 2 acúmulos, todos os ataques da Invocação passam a ignorar automaticamente 16% da DEF dos alvos. Além disso, sempre que o portador consumir um Ponto de Habilidade ou ativar a Habilidade Suprema, a Invocação atual avança 15% na Ordem de Turnos imediatamente. Funciona com QUALQUER Invocação do jogo (dragões, monstros do Kaiba, clones, etc.)." },
   "Traje do Astrólogo do Destino": { color: "#D4A017", el: "Holy", p2: { energyRegen: 15 }, flag2: "setAstrologo2", flag4: "setAstrologo4",
     d2: "+15% de Eficiência de Recarga de Energia · ao usar a Perícia, compartilha 10% do atributo mais alto (ATK ou DEF) com o aliado de menor HP por 2 rodadas",
     d4: "Cada Acerto Crítico de qualquer aliado gera 1 Energia Estelar (máx 8). Ao atingir 8 acúmulos: ativa Apogeu do Zodíaco — o próximo ataque ou habilidade causa Dano Adaptativo (muda para a fraqueza elemental do inimigo) e concede +30% de CRIT DMG ao grupo por 1 rodada. Ideal para Athena." },
@@ -193,6 +197,7 @@ const RELIC_ITEM_ID = {
   "Teia da Agonia": "item_relic_teia",
   "Além do Horizonte": "item_relic_horizonte",
   "Vestígios da Calamidade Eterna": "item_relic_calamidade",
+  "Servos de um Rei": "item_relic_servos",
   "Traje do Astrólogo do Destino": "item_relic_astrologo",
   "Muralha do Guardião": "item_relic_muralha",
   "Protocolo de Adaptação Universal": "item_relic_adapt",
@@ -208,6 +213,7 @@ const RELIC_EMOJI = {
   "Teia da Agonia": "🕸️",
   "Além do Horizonte": "🌿",
   "Vestígios da Calamidade Eterna": "💀",
+  "Servos de um Rei": "👑",
   "Traje do Astrólogo do Destino": "🔯",
   "Muralha do Guardião": "🛡️",
   "Protocolo de Adaptação Universal": "🧬",
@@ -233,6 +239,7 @@ const GAME_ITEMS = [
   { id: "item_relic_teia",     name: "Relíquia · Teia da Agonia",          icon: "🕸️" },
   { id: "item_relic_horizonte",name: "Relíquia · Além do Horizonte",  icon: "🌿" },
   { id: "item_relic_calamidade", name: "Relíquia · Vestígios da Calamidade Eterna", icon: "💀" },
+  { id: "item_relic_servos",     name: "Relíquia · Servos de um Rei",                icon: "👑" },
   { id: "item_relic_astrologo",  name: "Relíquia · Traje do Astrólogo do Destino",  icon: "🔯" },
   { id: "item_relic_muralha",    name: "Relíquia · Muralha do Guardião",             icon: "🛡️" },
   { id: "item_relic_adapt",      name: "Relíquia · Protocolo de Adaptação Universal", icon: "🧬" },
@@ -299,14 +306,14 @@ const weaponTotalCostToMax = (fromLv) => { let tot = 0; for (let lv = fromLv; lv
 // Passiva de personagem (sempre ativa) — identidade única do kit, descrita em detalhe
 const PASSIVE = {
   miyabi:    { name: "Caçadora do Vazio · Geada Profunda", desc: "Talento: sempre que Miyabi atinge um inimigo que esteja sob QUALQUER efeito contínuo (Congelamento, Queimadura, Veneno, Choque ou Sangramento), o golpe causa +30% de dano. Como suas próprias Habilidade e Ultimate marcam congelamento, ela rapidamente se auto-habilita e escala o dano contra alvos já afligidos pela equipe — quanto mais DoTs no campo, mais letal ela fica.", flag: "pShatter" },
-  kaiba:     { name: "Inversão de Ações", desc: "Talento (Bateria & Auto-Buff): para cada Blue-Eyes ativo no campo, o ATK de Kaiba aumenta em 20% e sua Taxa de Regeneração de Energia aumenta em +15% — acumulando até 3 vezes. Com o campo cheio (3 dragões), são +60% de ATK e +45% de recarga de energia, fazendo Kaiba carregar a Suprema cada vez mais rápido conforme o exército cresce. Os dragões herdam o ATK turbinado no momento em que são invocados.", flag: null },
+  kaiba:     { name: "Regra do Duelista", desc: "Kaiba é limitado a manter apenas 1 Monstro Invocado ativo no campo de batalha por vez. Mecânica de Substituição: se um novo Monstro for invocado enquanto já houver outro ativo, o monstro anterior é destruído imediatamente. Atributos da Invocação: o Monstro Invocado ativo possui sua própria barra de ação na Ordem de Turnos, agindo de forma autônoma. Ele herda 100% da VEL de Kaiba, 100% da Taxa/Dano Crítico dele, e 120% do ATK base dele. Quando Kaiba sofre um ataque, o Monstro Invocado intercepta 30% do dano recebido — como ele não possui uma barra de HP independente, esse dano nunca chega a ser subtraído da vida de Kaiba (na prática, isso se traduz em -30% de todo o dano sofrido por Kaiba enquanto houver um Monstro ativo em campo).", flag: null },
   renji:     { name: "Instinto de Caça · Execução", desc: "Talento: Renji fareja o sangue. Contra inimigos abaixo de 40% de HP, todos os seus ataques causam +25% de dano, transformando-o em um finalizador implacável. Combina com o Sangramento da Habilidade, que mantém o alvo perdendo vida até entrar no alcance de execução.", flag: "pExecute" },
   ace:       { name: "Vontade da Chama · Brasa Viva", desc: "Talento: a Queimadura aplicada por Ace é 30% mais forte que uma queimadura comum e ignora parte da defesa do alvo ao longo do tempo. Cada inimigo aceso continua perdendo vida no início do próprio turno, e Ace amplifica todo o dano que causa a alvos em chamas.", flag: "pScorch" },
   usopp:     { name: "Olho de Águia · Ponto Fraco", desc: "Talento: Usopp mira sempre o ponto vulnerável. Seus debuffs reduzem +12% de DEF adicional do alvo (além do valor base do golpe), abrindo a guarda do inimigo para toda a equipe. Quanto mais ele enfraquece um alvo, mais dano todos passam a causar nele.", flag: "pWeakpoint" },
   sakura:    { name: "Selo Centenário · Mãos que Curam", desc: "Talento: o chakra de cura de Sakura é refinado — a cura do seu Ultimate é 25% mais forte. Ela equilibra dano e suporte: bate forte com os punhos e, no Ultimate, devolve uma parcela enorme de HP a todo o time, segurando a equipe em lutas longas.", flag: "pMedic" },
   chopper:   { name: "Pontos Vitais · Médico Dedicado", desc: "Talento: como médico de bordo, todas as curas de Chopper (Habilidade e Ultimate) são 25% mais fortes. Ele prioriza sempre o aliado mais ferido e ainda distribui energia ao time, mantendo o grupo vivo e com os Ultimates carregados.", flag: "pRegen" },
   kirara:    { name: "Baluarte Estelar", desc: "Talento: os escudos de Kirara são 25% mais resistentes. Ela provoca os inimigos para atrair os ataques e converte a própria DEF altíssima em barreiras grossas para todo o time, sustentando a linha de frente contra os golpes mais pesados dos chefes.", flag: "pBulwark" },
-  yoruichi:  { name: "Frequência Shunpo", desc: "Todos os multiplicadores de dano de Yoruichi escalam exclusivamente com sua VELOCIDADE (VEL), ignorando ATK. A cada 10 de VEL acima de 120, o Dano Crítico de Ataques Extras de todo o time sobe 6% (máx 60%). Ataques Extras aliados fazem Yoruichi conjurar um Clone Residual (500% da VEL em Dano Eletro no mesmo alvo); a cada 3 Clones, dispara Colapso Elétrico (1500% da VEL em área + -20% RES a Ataques Extras por 2 turnos no alvo).", flag: "pSwift" },
+  yoruichi:  { name: "Frequência Shunpo", desc: "Yoruichi opera em uma linha temporal acelerada. Todos os seus multiplicadores de dano ignoram os atributos de ATK e escalam exclusivamente com sua Velocidade (VEL) total. A cada 10 pontos de VEL que Yoruichi possuir acima de 120, o Dano Crítico de todos os Ataques Extras da equipe aumenta em 6% (até um máximo de 60% por padrão, ou 160% com a S6). Clones Residuais (Ataque Extra): sempre que um aliado desferir um Ataque Extra contra um inimigo, Yoruichi intercepta a ação e conjura um Clone Residual instantâneo que ataca o mesmo alvo, causando Dano Eletro equivalente a 500% de sua VEL total. Colapso Elétrico: o jogo contabiliza os Clones Residuais gerados. A cada 3 Clones acionados, o alvo atual sofre uma sobrecarga, recebendo Dano Eletro em Área equivalente a 1500% da VEL de Yoruichi e sofrendo uma redução de 20% na Resistência a Ataques Extras por 2 turnos. Não há limite de vezes que Clones Residuais podem ser ativados por ciclo de turnos.", flag: "pSwift" },
   kiritsugu: { name: "Análise · Caçador de Magos", desc: "Talento: o frio cálculo de Kiritsugu encontra a falha do alvo — toda vulnerabilidade que ele aplica é +12% mais forte. Combinado com o Veneno da Habilidade, ele transforma qualquer inimigo em um alvo que recebe dano amplificado de toda a equipe e ainda derrete ao longo dos turnos.", flag: "pAnalyze" },
   soifon: { name: "Ciclo do Ferrão · Vibração da Morte", desc: "Talento: QUALQUER aliado que agir concede 1 carga de [Vibração de Ferrão] para Soi Fon (máx 3). Com 3 cargas, ela entra em Postura de Ferrão — próximo Ataque Básico causa Dano Verdadeiro (120% ATK, ignora DEF e Escudos). Com [Ferrão da Morte] em algum inimigo, cada ação aliada dispara Ataques Extras instantâneos de Vento nos alvos marcados (máx 2/turno de aliado) — e esses golpes contam pro sistema de Ataque Extra do jogo (reagem com kits como o da Yoruichi).", flag: "sfFollowup" },
   omegamon: { name: "Digital Hazard", desc: "Talento: enquanto Omegamon Zwart D está em campo, o HP Máximo de todos os aliados aumenta em 25%. Sempre que o portador ou um aliado com [Protocolo de Infecção] é atacado, acumula 1 carga de [Vírus Defeat] (máx 5). Cada carga concede +15% de CRIT DMG e reduz a DEF do atacante em 10%. Ao atingir 5 cargas, o próximo ataque remove todos os buffs do alvo e causa Dano Verdadeiro igual a 20% do HP Máximo do portador.", flag: "omgTalent" },
@@ -332,12 +339,12 @@ const CONS = {
     { name: "C6 · Estilo Kamakura: Julgamento Final", flag: "miC6", desc: "O limite máximo de PH de Miyabi aumenta para 4. Ao atingir 4 PH, a Postura Iaido evolui para o Corte do Fim dos Tempos: o ataque passa a atingir TODOS os inimigos com 450% de ATK, ignora 50% da DEF e, se eliminar qualquer alvo, reseta instantaneamente a barra de ação de Miyabi para ela jogar de novo." },
   ],
   kaiba: [
-    { name: "S1 · Pressão Dracônica", flag: "kS1", desc: "Mudança de kit: os ataques dos Dragões (e da Fusão Definitiva) passam a quebrar a guarda elemental do alvo, aplicando +15% de vulnerabilidade a Eletro/Holy/Fogo por 2 turnos. Cada golpe dracônico deixa o inimigo recebendo cada vez mais dano da sua equipe inteira." },
-    { name: "S2 · Barreira do Duelista", flag: "kS2", desc: "Mudança de kit: sempre que Kaiba usa a Perícia (Ascensão do Dragão Branco), ele ergue para si um escudo equivalente a 100% do seu ATK. Como ele invoca dragões com frequência, isso o mantém praticamente sempre protegido na linha de frente." },
-    { name: "S3 · Treinamento de Elite", amp: "skill", ampV: 25, desc: "Aprimoramento: eleva o nível da Perícia (+25% de dano da Ascensão do Dragão Branco) e reforça o Ataque Básico, aumentando todo o dano Eletro de Kaiba e, por consequência, o que os dragões herdam." },
-    { name: "S4 · Decreto Soberano", flag: "kS4", desc: "Mudança de kit: ativar a Suprema (Obelisco ou Dragão Definitivo) concede +35% de Dano CRÍTICO a TODA a equipe por 3 turnos. O Ultimate de Kaiba deixa de ser só uma bomba e vira também um buff coletivo devastador." },
-    { name: "S5 · Poder Absoluto", amp: "ult", ampV: 50, desc: "Aprimoramento: eleva o nível da Suprema e do Talento (+50% no dano do Punho do Destino do Obelisco e da Rajada Neutrônica do Dragão Definitivo)." },
-    { name: "S6 · Trindade Divina", flag: "kS6", desc: "Mudança de kit (capstone): escolher o Obelisco passa a NÃO sacrificar os dragões — eles permanecem em campo após o Punho do Destino. E escolher o Dragão Definitivo faz a Fusão durar +1 turno e executar a Rajada Neutrônica Tripla DUAS vezes seguidas ao entrar. A forma final absoluta do monarca dos dragões." },
+    { name: "S1 · Mecânica de Cemitério e Reciclagem de Deck", flag: "kaibaS1", desc: "Sempre que um Monstro Invocado é destruído ou substituído, ele é enviado para o Cemitério (limite máximo de 3 monstros armazenados). Cada monstro presente no Cemitério concede a Kaiba um aumento permanente de +10% na Taxa de Regeneração de Energia e aumenta o Dano Crítico de todas as invocações ativas em 15%. Ao atingir o limite de 3 monstros no Cemitério, Kaiba consome todos os registros para reembaralhar instantaneamente as cartas de monstro de volta ao Deck Holográfico, gerando 1 Ponto de Habilidade e forçando a próxima Perícia a puxar obrigatoriamente uma carta de categoria Magia ou Armadilha." },
+    { name: "S2 · Elo de Corrente (Chain Link)", flag: "kaibaS2", desc: "Ao utilizar a Perícia (Puxada do Destino), o sistema verifica a categoria da carta sacada. Se a carta atual pertencer à mesma categoria (Monstro ou Magia/Armadilha) que a carta utilizada na rodada anterior, ativa-se o efeito Chain Link 2: o efeito, dano ou buff da carta atual é executado duas vezes consecutivas na mesma ação. Caso as categorias sejam diferentes, Kaiba realiza um Descarte da carta anterior do Cemitério, desencadeando um contra-ataque reativo que causa Dano Eletro equivalente a 180% do seu ATK a todos os alvos no campo." },
+    { name: "S3 · Mecânica de Mão e Invocação por Tributo", flag: "kaibaS3", desc: "Mudança de Kit: o funcionamento da Perícia é completamente reestruturado. Em vez de executar a carta imediatamente após a puxada, a Perícia passa a adicionar as cartas sacadas a uma Mão Virtual (limite máximo de 3 cartas na mão). Kaiba agora pode gerenciar e escolher manualmente qual carta da mão ativar durante a sua fase de ação, gastando o Ponto de Habilidade apenas no momento da ativação real da carta. Aprimoramento do Talento: o limite de monstros simultâneos em campo aumenta para 2. Invocação por Tributo: se Kaiba possuir 2 monstros ativos em campo, ele ganha a habilidade de Tributar ambos (destruindo-os voluntariamente) para conjurar qualquer carta de sua Mão Virtual sem gastar Pontos de Habilidade. Essa ação avança a próxima ação de Kaiba em 100% na Ordem de Turnos e dobra o multiplicador de dano da carta ativada." },
+    { name: "S4 · Campo de Duelo: Arena KaibaCorp", flag: "kaibaS4", desc: "Ao ativar a Habilidade Suprema, o cenário do combate é modificado, ativando a zona de campo Arena KaibaCorp por 3 ciclos completos de rodada. Enquanto a Arena estiver ativa, todos os inimigos sofrem uma redução de 18% em suas Resistências Elementais globais. Além disso, sempre que um Monstro Invocado aliado desferir um ataque dentro da Arena, o inimigo com a maior DEF presente no campo tem 35% de sua DEF drenada antes do cálculo do impacto; esse valor de DEF roubado é convertido diretamente em ATK líquido para o monstro atacante até o encerramento do seu turno." },
+    { name: "S5 · Sobrecarga do Atormentador", flag: "kaibaS5", desc: "O dano de todos os Monstros Invocados passa a receber um multiplicador multiplicativo extra baseado na proporção entre a barra de Firmeza máxima do inimigo e o ATK total de Kaiba. Se a carta lendária Obelisco, o Atormentador for ativada enquanto a zona de campo Arena KaibaCorp estiver ativa, o impacto do Punho do Destino purga e remove instantaneamente todos os buffs positivos, escudos e melhorias dos inimigos em campo, convertendo cada efeito removido em +60% de multiplicador de Dano Verdadeiro para a detonação." },
+    { name: "S6 · Trindade do Caos", flag: "kaibaS6", desc: "Mudança de Kit: a Habilidade Suprema deixa de invocar apenas o Dragão de Olhos Azuis Base e passa a rastrear o histórico de combate da partida. Fusão Neutrônica Absoluta: se o jogo contabilizar que 3 Dragões de Olhos Azuis passaram pelo campo ou pelo Cemitério ao longo do combate, a ativação da Suprema consome esses registros para realizar a Fusão, invocando o Dragão Alado de Olhos Azuis da Eternidade. Mecânica da Fusão: o Dragão da Eternidade ocupa o campo de forma permanente (não pode ser substituído por monstros comuns da Perícia). Ele possui 3 barras de ação independentes na Ordem de Turnos (uma para cada cabeça). Cada cabeça executa um ataque autônomo de 400% de ATK que ignora completamente salvaguardas de imortalidade, efeitos de ressurreição passiva e mecânicas de partilha de dano dos inimigos. Interação Divina: se a carta do Obelisco estiver presente na Mão Virtual ou no Deck no momento em que a Fusão for consolidada, Obelisco é invocado automaticamente como uma unidade de cobertura de Ataque Extra indestrutível no início de cada ciclo, executando um golpe esmagador que atrasa a ação de toda a linha inimiga em 100%." },
   ],
   renji: [
     { name: "S1 · Rugido de Zabimaru", stat: "atk", value: 8, desc: "Aprimoramento: ATK +8%." },
@@ -505,7 +512,7 @@ function constellationNodes(def) { return CONS[def.id] || GENERIC_CONS; }
 function passiveOf(def) { return PASSIVE[def.id] || { name: "Instinto", desc: "Combatente experiente.", flag: null }; }
 const SKILL_NAMES = {
   miyabi: ["Corte Gélido", "Lâminas de Gelo", "Inverno Eterno"],
-  kaiba: ["Descarga de Energia", "Invocar Blue-Eyes", "Invocação Suprema"],
+  kaiba: ["Decreto Corporativo", "Puxada do Destino", "Invocação do Dragão Branco de Olhos Azuis"],
   renji: ["Golpe de Zabimaru", "Hikotsu Taihō", "Hihiō Zabimaru"],
   ace: ["Soco Flamejante", "Punho de Fogo", "Grande Incêndio"],
   usopp: ["Tiro Certeiro", "Estilingue Tático", "Pop Green: Impacto"],
@@ -539,6 +546,14 @@ const TRACE_NODES = [
 ];
 // Nós específicos por personagem (Hypercarry de Gelo etc.). Quem não tiver usa o set genérico.
 const TRACE_NODE_SETS = {
+  yoruichi: [
+    { stat: "spd", value: 6, label: "VEL +6", cost: 700 },
+    { stat: "critDmg", value: 10, label: "CRIT DMG +10%", cost: 700 },
+    { stat: "critRate", value: 5, label: "CRIT +5%", cost: 700 },
+    { stat: "hp", value: 8, label: "HP +8%", cost: 500 },
+    { stat: "def", value: 8, label: "DEF +8%", cost: 500 },
+    { stat: "spd", value: 5, label: "VEL +5", cost: 900 },
+  ],
   agumon: [
     { stat: "breakEffect", value: 10, label: "Perfuração +10%", cost: 700 },
     { stat: "elemDmg", element: "Fogo", value: 12, label: "Dano de Fogo +12%", cost: 700 },
@@ -643,9 +658,9 @@ function specialTraces(def) {
     { name: "Vestígio: Tempestade", desc: "Rastro Especial de combate · Detonação: ao atacar inimigos que já estejam sob efeito de DoT ou com a DEF reduzida, Miyabi consome instantaneamente esses debuffs para gerar uma explosão de 150% de Dano Glacial em área e aplica Congelamento por 1 turno.", combat: "miDetonate", cost: 3 },
   ];
   if (def.id === "kaiba") return [
-    { name: "Tecnologia KaibaCorp", desc: "Rastro Especial de combate: quando Kaiba usa o Ataque Básico (Decreto Corporativo), TODOS os Blue-Eyes ativos avançam 35% na linha do tempo de ação — eles atacam muito mais cedo, acelerando o dano e a construção do tabuleiro.", combat: "kcAdvance", cost: 2 },
-    { name: "Controle de Ações", desc: "Rastro Especial de combate: enquanto houver pelo menos 2 Blue-Eyes em campo, Kaiba fica IMUNE a debuffs e penalidades de atributo — os inimigos não conseguem reduzir sua DEF nem aplicar vulnerabilidade nele.", combat: "kcImmune", cost: 2 },
-    { name: "Orgulho do Monarca", desc: "Rastro Especial de combate: se o Obelisco eliminar o alvo principal, Kaiba recupera 100 de Energia instantaneamente. Se o Dragão Definitivo for invocado, o Dano CRÍTICO de Kaiba aumenta em +40% enquanto a Fusão durar.", combat: "kcMonarch", cost: 3 },
+    { name: "Rastro Especial 1 · Mão Inicial Perfeita", desc: "No início do combate, Kaiba executa uma puxada automática, adicionando 1 carta do Baralho Holográfico à sua Mão Virtual sem consumir Pontos de Habilidade. Sempre que uma carta da categoria Magia ou Armadilha for ativada e resolvida em campo, a posição do Monstro Invocado ativo na Ordem de Turnos é avançada em 22%.", combat: "kaibaT1", cost: 2 },
+    { name: "Rastro Especial 2 · Reciclagem Eficiente", desc: "Sempre que um Monstro Invocado for destruído por um inimigo ou enviado ao Cemitério por efeito de Substituição/Tributo, Kaiba regenera 15 pontos de Energia e ganha um bônus de 20% de ATK por 2 turnos. Adicionalmente, o dano infligido por cartas de efeito direto (como o Anel da Destruição e o Vírus Esmaga-Cards) passa a ignorar 25% da DEF dos alvos afetados.", combat: "kaibaT2", cost: 2 },
+    { name: "Rastro Especial 3 · Soberania Tecnológica", desc: "Cada monstro registrado no Cemitério aumenta de forma fixa em +8% a Taxa Crítica e em +16% o Dano Crítico de todas as invocações ativas em combate. Se uma invocação de classe Lendária ou Suprema (Obelisco, o Atormentador, ou o Dragão Ultimate) entrar em campo, o impacto inicial de sua habilidade reduz a barra de Firmeza (Resistência/Perfuração) de todos os inimigos em um valor fixo massivo, ignorando completamente os tipos de fraqueza elemental nativa dos alvos.", combat: "kaibaT3", cost: 3 },
   ];
   if (def.id === "soifon") return [
     { name: "Vestígio: Sombra Assassina", desc: "Rastro Especial de combate · ao entrar na Postura de Ferrão (3 cargas de Vibração), Soi Fon ganha +20% de Bônus de Dano de Vento por 1 turno.", combat: "sfSombra", cost: 2 },
@@ -954,6 +969,19 @@ function rewardFor(f) {
   return 100;
 }
 // ══════════ TORRE SOMBRIA (Dark Tower) — 10 níveis, só chefes, HP altíssimo, ignoram escudo ══════════
+// ══════════ CARTAS DO KAIBA (Puxada do Destino / Mão Virtual) ══════════
+const KAIBA_CARDS = {
+  vorse:   { name: "Vorse Raider", avatar: "👹", cat: "monster", imgId: "card_vorse", desc: "Monstro · Invoca Vorse Raider ao campo. Ele executa ataques de alvo único de impacto massivo que causam 260% de ATK em Dano Físico e possuem 50% de chance de aplicar Sangramento." },
+  kaiser:  { name: "Kaiser Sea Horse", avatar: "🐴", cat: "monster", imgId: "card_kaiser", desc: "Monstro · Invoca Kaiser Sea Horse ao campo. Seus ataques causam 180% de ATK em Dano de Luz/Eletro e regeneram 20 pontos de Energia para Kaiba instantaneamente." },
+  saggi:   { name: "Saggi, o Clone das Sombras", avatar: "👤", cat: "monster", imgId: "card_saggi", desc: "Monstro · Invoca Saggi ao campo. Saggi possui baixa capacidade ofensiva (70% de ATK), mas aumenta sua própria taxa de Provocação (Taunt) em 300%, forçando todos os inimigos a atacá-lo por 2 rodadas." },
+  judge:   { name: "Juiz", avatar: "⚖️", cat: "monster", imgId: "card_judge", desc: "Monstro · Invoca Juiz ao campo. Seus ataques desferem golpes pesados em Área (AoE), causando 200% de Dano baseado no ATK de Kaiba ao alvo principal e 100% aos alvos adjacentes." },
+  obelisk: { name: "Obelisco, o Atormentador", avatar: "🗿", cat: "monster", imgId: "card_obelisk", desc: "Monstro Lendário (Taxa de Puxada: 5%) · Invoca o Deus Egípcio ao campo substituindo qualquer invocação. Obelisco permanece por apenas 1 turno, mas executa o ataque \"Punho do Destino\", causando 750% de Dano Físico/Eletro Global (a todos os inimigos na tela) e ignorando 100% da DEF inimiga." },
+  control: { name: "Controlador de Inimigos", avatar: "🎮", cat: "magic", imgId: "card_control", desc: "Magia · Seleciona um inimigo aleatório e atrasa a ação dele na Ordem de Turnos em 40%, impedindo que use habilidades especiais na próxima rodada." },
+  shrink:  { name: "Encolher", avatar: "📉", cat: "magic", imgId: "card_shrink", desc: "Magia · Seleciona o inimigo com o maior ATK do campo e reduz o seu ATK e a sua DEF em 35% por 2 turnos completos." },
+  flute:   { name: "A Flauta para Invocação de Dragões", avatar: "🎵", cat: "magic", imgId: "card_flute", desc: "Magia · Se o Dragão de Olhos Azuis estiver em campo, avança a ação dele em 100% imediatamente e concede a ele um buff de +50% de Dano Crítico para o próximo ataque. Caso não haja dragões em campo, compra outra carta imediatamente sem gastar pontos." },
+  virus:   { name: "Vírus Esmaga-Cards", avatar: "🦠", cat: "trap", imgId: "card_virus", desc: "Armadilha · Contamina o campo inimigo por 2 turnos. Sempre que qualquer inimigo tentar desferir um ataque que cause mais de 150% de dano, o dano desse ataque é mitigado e reduzido para uma taxa fixa de apenas 50%." },
+  ring:    { name: "Anel da Destruição", avatar: "💍", cat: "trap", imgId: "card_ring", desc: "Armadilha · Explode um colar no inimigo com menor HP. Causa Dano Verdadeiro massivo equivalente a 25% da Vida Máxima do alvo. Kaiba sofre um contragolpe reativo equivalente a 5% do seu próprio HP atual." },
+};
 const DARK_TOWER_WEAKNESS = ["Holy", "Fogo", "Vento", "Virus", "Glacial", "Chaos", "Eletro", "Holy", "Fogo", "Vento"];
 const DARK_TOWER_BOSSES = [
   { name: "Sentinela Sombria",        element: "Chaos",  bossKind: "guardian",       hpMul: 47,  dot: null,     reward: 1600 },
@@ -2659,28 +2687,31 @@ const SKILL_DESC = {
   },
   kaiba: {
     basic: [
-      "Causa <b>100% de ATK</b> em Dano Eletro no inimigo principal.",
-      "Ganha <b>+1 Ponto de Habilidade</b> e <b>+15 de Energia</b>.",
-      "<b>[Tecnologia KaibaCorp]</b> Todos os Blue-Eyes vivos avançam <b>35%</b> na linha do tempo ao usar o Básico.",
+      "<b>Decreto Corporativo</b> — causa Dano a um único inimigo equivalente a <b>100% do ATK</b> de Kaiba.",
+      "Ganha <b>+1 Ponto de Habilidade</b>.",
+      "✦ <b>Talento — Regra do Duelista:</b> Kaiba é limitado a manter apenas <b>1 Monstro Invocado</b> ativo por vez (2 com S3). Se um novo Monstro for invocado enquanto já houver outro ativo, o mais antigo é destruído imediatamente. O Monstro ativo tem sua própria barra de ação na Ordem de Turnos e age sozinho, herdando <b>100% da VEL</b> de Kaiba, <b>100% da Taxa/Dano Crítico</b> dele, e <b>120% do ATK base</b> dele. Quando Kaiba sofre um ataque, o Monstro intercepta <b>30% do dano recebido</b> — como ele não tem uma barra de HP independente, esse dano nunca chega a ser subtraído da vida de Kaiba (na prática, -30% de dano sofrido enquanto houver Monstro ativo).",
     ],
     skill: [
       "Custo: <b>1 Ponto de Habilidade</b>.",
-      "Invoca um <b>Blue-Eyes White Dragon</b> (máx 3 em campo). Dragões agem sozinhos atacando por <b>96% do ATK</b> por turno.",
-      "Causa adicionalmente <b>140% de ATK em Dano Eletro em área</b>.",
-      "Cada dragão ativo concede a Kaiba <b>+20% de ATK</b> e <b>+15% de Regen de Energia</b>.",
-      "<b>[Disco de Duelo X]</b> Cada dragão confere <b>+18% de CRIT DMG</b> (máx +54%). A Habilidade perfura <b>30% da DEF</b>.",
-      "<b>[Controle de Ações]</b> Com 2+ dragões, Kaiba fica imune a debuffs de atributo.",
-      "<b>[C2]</b> Ao usar a Habilidade, Kaiba ergue um escudo equivalente a <b>100% do seu ATK</b>.",
+      "<b>Puxada do Destino</b> — Kaiba saca aleatoriamente 1 de 10 cartas possíveis do Baralho Original. O efeito é executado instantaneamente conforme a categoria da carta:",
+      "━━ <b>Cartas de Monstro:</b> ━━",
+      "<b>Vorse Raider</b> — invoca ao campo. Ataques de alvo único causando <b>260% de ATK</b> em dano físico, com <b>50% de chance</b> de aplicar Sangramento.",
+      "<b>Kaiser Sea Horse</b> — invoca ao campo. Ataques causam <b>180% de ATK</b> em Dano de Luz/Eletro e regeneram <b>20 de Energia</b> para Kaiba instantaneamente ao ser invocado.",
+      "<b>Saggi, o Clone das Sombras</b> — invoca ao campo. Baixo dano (<b>70% de ATK</b>), mas provoca (Taunt) TODOS os inimigos a atacá-lo por 2 rodadas.",
+      "<b>Juiz</b> — invoca ao campo. Golpes em Área: <b>200% de ATK</b> no alvo principal e <b>100%</b> nos alvos adjacentes.",
+      "<b>Obelisco, o Atormentador</b> (Lendário, <b>taxa de puxada fixa de 5%</b>) — substitui qualquer invocação ativa. Executa \"Punho do Destino\": <b>750% de Dano Físico/Eletro em ÁREA</b> (todos os inimigos), ignorando <b>100% da DEF</b> inimiga.",
+      "━━ <b>Cartas de Magia:</b> ━━",
+      "<b>Controlador de Inimigos</b> — seleciona um inimigo aleatório e atrasa a ação dele em <b>40%</b> na Ordem de Turnos.",
+      "<b>Encolher</b> — seleciona o inimigo de maior ATK do campo e reduz o ATK e a DEF dele em <b>35%</b> por 2 turnos.",
+      "<b>A Flauta para Invocação de Dragões</b> — se o Dragão Branco estiver em campo, avança a ação dele em <b>100%</b> imediatamente e dá <b>+50% de CRIT DMG</b> no próximo ataque. Se não houver dragão em campo, puxa outra carta imediatamente sem gastar Ponto de Habilidade.",
+      "━━ <b>Cartas de Armadilha:</b> ━━",
+      "<b>Vírus Esmaga-Cards</b> — protege o time por 2 turnos: qualquer ataque inimigo com multiplicador acima de 150% tem o dano reduzido para apenas <b>50%</b>.",
+      "<b>Anel da Destruição</b> — explode o inimigo com menor HP: <b>Dano Verdadeiro</b> equivalente a <b>25% da Vida Máxima</b> do alvo. Kaiba sofre um contragolpe reativo de <b>5% do próprio HP atual</b>.",
     ],
     ult: [
-      "Custo: <b>300 de Energia</b>. Requer <b>3 Blue-Eyes</b> em campo.",
-      "Escolha: invocar <b>Obelisco, o Atormentador</b> OU <b>Dragão Ultimate</b>.",
-      "━━ <b>Obelisco:</b> ━━",
-      "Ataque de área poderoso. Se eliminar o alvo principal, recupera <b>100 de Energia</b>.",
-      "━━ <b>Dragão Ultimate (Fusão):</b> ━━",
-      "Fusão dos 3 Blue-Eyes — ataque massivo em área. Ganha <b>+40% CRIT DMG</b> enquanto durar.",
-      "<b>[C4]</b> Ao usar a Suprema, o time inteiro ganha <b>+35% de CRIT DMG</b> por 3 turnos.",
-      "<b>[C6]</b> Obelisco não sacrifica os dragões. Dragão Ultimate age DUAS vezes ao entrar.",
+      "Custo: <b>140 de Energia</b>.",
+      "<b>Entrada Triunfal:</b> ao entrar em campo, a ação do Dragão avança <b>100%</b> na Ordem de Turnos (age quase imediatamente).",
+      "<b>Rajada de Relâmpagos:</b> no turno dele, o Dragão causa Dano Eletro/Fogo devastador — <b>550% do ATK</b> de Kaiba no alvo principal e <b>275%</b> nos alvos adjacentes, removendo todos os buffs positivos dos alvos atingidos. Permanece em campo até ser substituído ou derrotado.",
     ],
   },
   renji: {
@@ -2803,26 +2834,28 @@ const SKILL_DESC = {
   },
   yoruichi: {
     basic: [
-      "<b>Golpe Relâmpago</b> — causa <b>300% da VEL</b> (não do ATK!) em Dano Eletro no inimigo principal.",
+      "<b>Golpe Relâmpago</b> — causa Dano Eletro a um único inimigo equivalente a <b>300% da VEL total</b> de Yoruichi (não do ATK — todo o kit dela ignora completamente o atributo de Ataque).",
       "Ganha <b>+1 Ponto de Habilidade</b>.",
-      "✦ <b>Talento — Frequência Shunpo:</b> todo o dano de Yoruichi escala com VEL, não ATK. A cada 10 de VEL acima de 120, o Dano Crítico de Ataques Extras de todo o time sobe +6% (máx 60%, ou 160% com S6).",
+      "✦ <b>Talento — Frequência Shunpo:</b> Yoruichi opera em uma linha temporal acelerada. Todos os seus multiplicadores de dano ignoram os atributos de ATK e escalam exclusivamente com sua Velocidade (VEL) total.",
+      "A cada 10 pontos de VEL que Yoruichi possuir acima de 120, o Dano Crítico de TODOS os Ataques Extras da equipe (não só os dela) aumenta em 6%, até um máximo de 60% por padrão — ou 160% com a constelação S6.",
     ],
     skill: [
       "Custo: <b>1 Ponto de Habilidade</b>.",
-      "<b>Domínio Magnético</b> — Yoruichi entra em Condução Perfeita por 3 turnos e marca 1 inimigo como <b>Ponto de Aterramento</b>.",
-      "Enquanto ativo: todo o time ganha <b>+12% da VEL de Yoruichi</b> como VEL fixa (buff de área).",
-      "Toda vez que o alvo marcado sofre dano de um <b>Ataque Extra</b> (de aliados ou dos Clones Residuais dela), 35% desse dano é registrado (52% com S5).",
-      "No início do próximo turno natural de Yoruichi, todo o dano registrado detona de uma vez no alvo — <b>Dano Verdadeiro</b> (ignora DEF e Escudo), e o registro reinicia.",
+      "<b>Domínio Magnético</b> — Yoruichi entra na postura Condução Perfeita por 3 turnos (a duração diminui no início de cada turno natural dela) e marca um único inimigo como <b>Ponto de Aterramento</b>.",
+      "<b>Buff de Área:</b> enquanto a postura estiver ativa, toda a equipe ganha um bônus numérico fixo de VEL equivalente a <b>12% da VEL total</b> de Yoruichi.",
+      "<b>Registro de Dano (Eco):</b> toda vez que o inimigo marcado como Ponto de Aterramento sofrer dano proveniente de um Ataque Extra — seja de qualquer aliado ou dos próprios Clones Residuais de Yoruichi — o Domínio Magnético registra <b>35% do dano causado</b> (52% com a constelação S5).",
+      "<b>Detonação:</b> no início do próximo turno natural de Yoruichi, TODO o dano acumulado no registro é detonado de uma só vez no alvo marcado. Esse dano é classificado como <b>Dano Verdadeiro Eletro</b> — ignora completamente a DEF do alvo e qualquer Escudo de mitigação — e o contador reinicia logo em seguida a zero.",
     ],
     ult: [
       "Custo: <b>120 de Energia</b>.",
-      "<b>Shunko: Raijin</b> — causa <b>2200% da VEL</b> em Dano Eletro no inimigo principal.",
-      "Avança a ação de todos os outros aliados em <b>25%</b> na Ordem de Turnos.",
-      "Insere à força <b>2 Clones Residuais</b> no alvo atingido — contam pro Colapso Elétrico e pro registro do Ponto de Aterramento.",
+      "<b>Shunko: Raijin</b> — causa Dano Eletro massivo a um único inimigo principal, equivalente a <b>2200% da VEL total</b> de Yoruichi.",
+      "<b>Efeito Adicional:</b> avança imediatamente a ação de TODOS os outros aliados (não ela mesma) em 25% na Ordem de Turnos.",
+      "Além disso, a Suprema insere compulsoriamente <b>2 Clones Residuais</b> diretamente no alvo atingido, acelerando de forma autônoma a ativação do Colapso Elétrico do Talento — sem precisar de nenhum Ataque Extra real de um aliado pra isso.",
     ],
     talent: [
-      "✦ <b>Clones Residuais:</b> sempre que um aliado realiza um Ataque Extra (contra-ataque), Yoruichi intercepta e conjura um Clone que ataca o mesmo alvo — <b>500% da VEL</b> em Dano Eletro.",
-      "✦ <b>Colapso Elétrico:</b> a cada 3 Clones Residuais acionados, o alvo sofre uma explosão em área de <b>1500% da VEL</b> e recebe +20% de dano por 2 turnos (representando a queda de RES a Ataques Extras).",
+      "✦ <b>Clones Residuais (Ataque Extra):</b> sempre que um aliado desferir um Ataque Extra contra um inimigo, Yoruichi intercepta a ação e conjura um Clone Residual instantâneo que ataca o mesmo alvo, causando Dano Eletro equivalente a <b>500% de sua VEL total</b>.",
+      "✦ <b>Colapso Elétrico:</b> o jogo contabiliza os Clones Residuais gerados. A cada 3 Clones acionados, o alvo atual sofre uma sobrecarga, recebendo Dano Eletro em Área equivalente a <b>1500% da VEL</b> de Yoruichi e sofrendo uma redução de 20% na Resistência a Ataques Extras por 2 turnos.",
+      "Não há limite de vezes que Clones Residuais podem ser ativados por ciclo de turnos — quanto mais a equipe contra-atacar, mais ela dispara.",
     ],
   },
   kiritsugu: {
@@ -3621,29 +3654,44 @@ function makeAllyUnit(ally, idx) {
 function makeSummon(owner, cfg) {
   const f = owner.stFlags || {};
   const bonus = (f.summonPlus ? 1.3 : 1) * (f.pDragonLord ? 1.2 : 1);
-  const atk = effStat(owner, "atk") * cfg.atkMul * bonus;
+  // Servos de um Rei (2pç): +10% na taxa de conversão de ATK/VEL herdados do portador pela Invocação
+  const convBonus = f.setServos2 ? 1.10 : 1;
+  const atkMulFinal = cfg.atkMul * convBonus;
+  const spdFinal = Math.round((cfg.spd || 100) * convBonus);
+  const atk = effStat(owner, "atk") * atkMulFinal * bonus;
   const hp = Math.round(owner.maxHp * cfg.hpMul);
+  // Servos de um Rei (2pç): +15% de Dano causado por Invocações
+  const summonDmgBonus = f.setServos2 ? 15 : 0;
   return {
     uid: cfg.uid, side: "H", id: cfg.imgKey || "summon", name: cfg.name, avatar: cfg.avatar,
     element: cfg.elements ? cfg.elements[0] : owner.element, elements: cfg.elements || null,
     roleKey: "summon", isSummon: true, auto: true, kind: cfg.kind, mul: cfg.mul, ownerUid: owner.uid, firstHit: cfg.kind === "dragon",
     level: owner.level, life: cfg.life || Infinity, stFlags: {}, tBasic: 1, tSkill: 1, tUlt: 1,
-    base: { atk, def: owner.base.def * 0.5, spd: cfg.spd, critRate: owner.base.critRate, critDmg: owner.base.critDmg, dmgBonus: owner.base.dmgBonus, elemBonus: owner.base.elemBonus || 0, hp, energyMax: 0 },
-    hp, maxHp: hp, shield: 0, energy: 0, energyMax: 0, av: 10000 / Math.max(1, cfg.spd), buffs: [], debuffs: [], dots: [], alive: true, weapon: null,
+    base: { atk, def: owner.base.def * 0.5, spd: spdFinal, critRate: owner.base.critRate, critDmg: owner.base.critDmg, dmgBonus: (owner.base.dmgBonus || 0) + summonDmgBonus, elemBonus: owner.base.elemBonus || 0, hp, energyMax: 0 },
+    hp, maxHp: hp, shield: 0, energy: 0, energyMax: 0, av: 10000 / Math.max(1, spdFinal), buffs: [], debuffs: [], dots: [], alive: true, weapon: null,
+    _servosOwner: f.setServos2 || f.setServos4 ? owner.uid : null, _hasServos4: !!f.setServos4,
   };
 }
 function aliveDragons(s, uid) { return s.heroes.filter((h) => h.isSummon && h.kind === "dragon" && h.ownerUid === uid && h.alive); }
+function activeMonster(s, uid) { return s.heroes.find((h) => h.isSummon && h.kind === "monster" && h.ownerUid === uid && h.alive) || null; }
 function refreshKaibaBuffs(s) {
   const k = s.heroes.find((h) => h.id === "kaiba" && h.alive);
   if (!k) return;
-  const n = aliveDragons(s, k.uid).length;
-  k.buffs = k.buffs.filter((b) => b.name !== "Inversão" && b.name !== "DiscoDuelo");
-  if (n > 0) {
-    k.buffs.push({ stat: "atk", value: 20 * n, pct: true, turns: 99, name: "Inversão" });
-    k.buffs.push({ stat: "energyRegen", value: 15 * n, pct: false, turns: 99, name: "Inversão" });
-    if (k.weapon?.id === "dragoncannon") k.buffs.push({ stat: "critDmg", value: 18 * n, pct: false, turns: 99, name: "DiscoDuelo" }); // +18% CRIT DMG por dragão
+  const mon = activeMonster(s, k.uid);
+  k.buffs = k.buffs.filter((b) => b.name !== "Regra do Duelista" && b.name !== "Soberania" && b.name !== "Cemitério");
+  // Talento: -30% de dano sofrido enquanto houver Monstro ativo (ele "intercepta" sem ter HP próprio)
+  if (mon) k.buffs.push({ stat: "dmgReduce", value: 30, turns: 99, name: "Regra do Duelista" });
+  // S1: cada monstro no Cemitério dá +10% Regen de Energia e +15% CRIT DMG às invocações ativas
+  const graveN = (k._kaibaGraveyard || []).length;
+  if (k.stFlags?.kaibaS1 && graveN > 0) {
+    k.buffs.push({ stat: "energyRegen", value: 10 * graveN, turns: 99, name: "Cemitério" });
+    if (mon) mon.buffs = mon.buffs.filter(b => b.name !== "Cemitério"), mon.buffs.push({ stat: "critDmg", value: 15 * graveN, turns: 99, name: "Cemitério" });
   }
-  if (k.stFlags?.kcImmune && n >= 2) k.debuffs = []; // Controle de Ações: imune a debuffs com 2+ dragões
+  // S6: cada monstro no Cemitério dá +8% CRIT / +16% CRIT DMG fixo às invocações ativas
+  if (k.stFlags?.kaibaS6 && graveN > 0 && mon) {
+    mon.buffs.push({ stat: "critRate", value: 8 * graveN, turns: 99, name: "Cemitério" });
+    mon.buffs.push({ stat: "critDmg", value: 16 * graveN, turns: 99, name: "Cemitério" });
+  }
 }
 function makeEnemy(idx, enc) {
   const lvl = enc.level, boss = enc.boss && idx === 0, finalBoss = enc.finalBoss && idx === 0, weekly = enc.weekly && idx === 0, ascend = enc.ascend && idx === 0;
@@ -3950,6 +3998,8 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   // Mutador Espelhos: 25% de chance de erro em qualquer ataque
   if ((attacker._mut || defender._mut) === "espelhos" && (attacker._espelhosMissStreak || 0) < 1 && Math.random() < 0.15) { attacker._espelhosMissStreak = (attacker._espelhosMissStreak || 0) + 1; fx.push({ uid: defender.uid, txt: "ERROU!", crit: false, id: Math.random() }); return { dmg: 0, crit: false }; }
   if ((attacker._mut || defender._mut) === "espelhos") attacker._espelhosMissStreak = 0;
+  // Vírus Esmaga-Cards (Kaiba): ataques inimigos fortes (mult >= 150%) contra o time protegido são reduzidos a 50% de dano
+  if (attacker.side === "enemy" && (defender._kaibaVirusTurns || 0) > 0 && mult >= 150) mult = mult * (50 / mult);
   let dmg = effStat(attacker, "atk") * (mult / 100);
   // Mutador Miasma Cegante: Chance Crítica travada em 0%
   const crit = (attacker._mut || defender._mut) === "miasma" ? false : Math.random() * 100 < Math.min(100, effStat(attacker, "critRate"));
@@ -3967,6 +4017,9 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   // Resistência / Fraqueza elemental — fraqueza amplifica o bônus elemental do atacante
   const el = opts?.el || attacker.element;
   const baseElemBonus = attacker.base.elemBonus || 0;
+  // RES Elemental (debuff "elemRes", ex: Arena KaibaCorp, marcas de Holy/Eletro RES↓): reduz a resistência do alvo, amplificando o dano recebido
+  const elemResDebuff = (defender.debuffs || []).filter(d => d.stat === "elemRes").reduce((a, d) => a + (d.value || 0), 0);
+  if (elemResDebuff) dmg *= (1 - elemResDebuff / 100);
   // Resistência de Perfuração: enquanto a barra de Resistência estiver ativa, -10% de todo dano recebido
   if (defender._hasToughness && (defender.toughness || 0) > 0 && !opts?.isDot) dmg *= 0.9;
   if (defender.res && defender.res.includes(el)) {
@@ -4301,6 +4354,11 @@ function tickDots(u, fx, allies) {
   return total;
 }
 function healUnit(u, amount, fx) { let amt = amount; if (u._mut === "ventos") amt = Math.round(amt * 2); if (u._glitchHealHalf) amt = Math.round(amt * 0.5); const before = u.hp; u.hp = Math.min(u.maxHp, u.hp + amt); const done = u.hp - before; fx.push({ uid: u.uid, txt: "+" + done, heal: true, id: Math.random() }); return done; }
+function advanceServosSummon(s, owner) {
+  if (!owner.stFlags?.setServos4) return;
+  const mySummon = s.heroes.find(h => h.isSummon && h.alive && h.ownerUid === owner.uid);
+  if (mySummon) mySummon.av = Math.max(0.01, (mySummon.av || 1) * 0.85);
+}
 function tickBuffs(u) { u.buffs = u.buffs.map((b) => ({ ...b, turns: b.turns - 1 })).filter((b) => b.turns > 0); u.debuffs = u.debuffs.map((b) => ({ ...b, turns: b.turns - 1 })).filter((b) => b.turns > 0); }
 function cloneU(u) { return { ...u, buffs: u.buffs.map((b) => ({ ...b })), debuffs: u.debuffs.map((b) => ({ ...b })), dots: (u.dots || []).map((d) => ({ ...d })), base: { ...u.base }, stFlags: { ...(u.stFlags || {}) } }; }
 function findUnit(s, uid) { return [...s.heroes, ...s.enemies].find((u) => u.uid === uid); }
@@ -4367,6 +4425,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         }
       } }
     { const yoru0 = heroes.find((h) => h.id === "yoruichi"); if (yoru0 && yoru0.stFlags?.yoruT1 && yoru0.energyMax) { yoru0.energy = Math.min(yoru0.energyMax, yoru0.energy + 20); yoru0._yoruT1Uses = 0; } }
+    { const kb0 = heroes.find((h) => h.id === "kaiba"); if (kb0 && kb0.stFlags?.kaibaT1) { const starter = makeSummon(kb0, { uid: "S_" + kb0.uid + "_mon0", name: "Vorse Raider", avatar: "👹", kind: "monster", mul: 260, spd: effStat(kb0, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); starter.cardBleed = 0.5; heroes.push(starter); } }
+    { const kb0 = heroes.find((h) => h.id === "kaiba"); if (kb0 && kb0.stFlags?.kaibaT1) { const mon0 = makeSummon(kb0, { uid: "S_" + kb0.uid + "_mon0", name: "Vorse Raider", avatar: "👹", kind: "monster", mul: 260, spd: effStat(kb0, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); mon0.cardBleed = 0.5; heroes.push(mon0); } }
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
     // _sibs: referências dos aliados de cada lado (Fulgur Resonance precisa achar o de menor HP)
     heroes.forEach(h => { h._sibs = heroes; });
@@ -4402,6 +4462,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
   const holdingRef = useRef(false);
   const [previewKind, setPreviewKind] = useState(null);
   const [inspectUid, setInspectUid] = useState(null); // clique num personagem → painel de status/buffs
+  const cardHoldTimer = useRef(null);
+  const cardHoldingRef = useRef(false);
+  const [cardPreviewIdx, setCardPreviewIdx] = useState(null); // segurar numa carta do Kaiba → mostra a descrição
   const current = state.turn;
 
   useEffect(() => {
@@ -4527,6 +4590,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         s.heroes.filter(h => h.alive && !h.isSummon).forEach(a => { const h = Math.round(a.maxHp * hp6 / 100); healUnit(a, h, s.fx); });
       }
       tickDots(u, s.fx);
+      if ((u._kaibaVirusTurns || 0) > 0) u._kaibaVirusTurns -= 1; // Vírus Esmaga-Cards (Kaiba): decai no turno de cada aliado protegido
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
       refreshKaibaBuffs(s);
       // Yoruichi: início do turno natural dela — detona o Ponto de Aterramento e passa a Condução Perfeita
@@ -4703,7 +4767,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         s.sp = Math.min(5, s.sp + 1); u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enBasic || 15));
       } else if (kind === "skill") {
         if (u.id === "uraraka" && sk.uraSkill) { s.choice = { uid: u.uid, kind: "uraraka" }; return s; }
-        s.sp -= 1; u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enSkill || 22));
+        s.sp -= 1; u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enSkill || 22)); advanceServosSummon(s, u);
         if (u.id === "miyabi" && f.miC2 && enemy && (enemy.dots || []).some((d) => d.type === "freeze" || d.type === "geada")) s.sp = Math.min(5, s.sp + 1); // C2: vs Congelado não gasta PH
         const sMul = u.tSkill * ampS;
         if (sk.summon) {
@@ -4717,7 +4781,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             s.heroes.push(d);
             msg = `${u.name} invoca ${d.name} (${idx + 1}/3 dragões em campo).`;
           }
-          if (sk.skillMul) { const wpen = u.weapon?.id === "dragoncannon" ? 30 : 0; let tot = 0; aliveEnemies(s).forEach((e) => { tot += dealDamage(u, e, sk.skillMul * sMul, fx, { breakW: 2, el: "Eletro", defPen: wpen }).dmg; }); if (tot) msg += ` Rajada Eletro em área: ${tot}${wpen ? " (perfura DEF)" : ""}.`; }
+          if (sk.skillMul) { const wpen = u.weapon?.id === "duelo_nexo" ? 30 : 0; let tot = 0; aliveEnemies(s).forEach((e) => { tot += dealDamage(u, e, sk.skillMul * sMul, fx, { breakW: 2, el: "Eletro", defPen: wpen }).dmg; }); if (tot) msg += ` Rajada Eletro em área: ${tot}${wpen ? " (perfura DEF)" : ""}.`; }
           if (f.kS2) { const sh0 = Math.round(effStat(u, "atk") * ampS); const sh = capShieldAdd(u, sh0); u.shield += sh; msg += ` Barreira do Duelista: escudo de ${sh}${sh < sh0 ? " (travado no teto de "+SHIELD_CAP+")" : ""}.`; }
           refreshKaibaBuffs(s);
         }
@@ -4803,6 +4867,105 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
               else a.buffs.push({ stat: "dmgBonus", value: dmgBonusVal, turns: 3, name: "Bênção da Calamidade" });
             });
             msg = `🌑 ${u.name} conjura Calamidade Inevitável — ${wooTot} de Dano Chaos${wooCrit ? " (CRÍTICO!)" : ""}! 4 debuffs exclusivos${f.wooE2 ? " PERMANENTES" : ` por ${debuffDur}t`}: Miss +${Math.round(20*e1Mul)}%, Vuln +${Math.round(18*e1Mul)}%, VEL -${Math.round(12*e1Mul)}%, DEF -${Math.round(15*e1Mul)}%.${f.wooE1 ? " [E1: buffs/debuffs existentes estendidos]" : ""}`;
+          }
+          else if (u.id === "kaiba" && sk.kaibaSkill) {
+            const catOf = (id) => (["vorse", "kaiser", "saggi", "judge", "obelisk"].includes(id) ? "monster" : (["control", "shrink", "flute"].includes(id) ? "magic" : "trap"));
+            const drawOne = () => {
+              const r = Math.random();
+              if (r < 0.05) return "obelisk";
+              const rest = ["vorse", "kaiser", "saggi", "judge", "control", "shrink", "flute", "virus", "ring"];
+              return rest[Math.min(rest.length - 1, Math.floor((r - 0.05) / 0.95 * rest.length))];
+            };
+            let cardId = u._kaibaForceMagic ? ["control", "shrink", "flute", "virus", "ring"][Math.floor(Math.random() * 5)] : drawOne();
+            u._kaibaForceMagic = false;
+            // S3 (Mudança de Kit): a Perícia passa a ADICIONAR a carta sacada à Mão Virtual (máx 3), sem resolver e SEM gastar o Ponto de Habilidade
+            if (u.stFlags?.kaibaS3) {
+              u._kaibaHand = u._kaibaHand || [];
+              s.sp = Math.min(5, s.sp + 1); // devolve o PH — a puxada em si é gratuita com S3
+              if (u._kaibaHand.length >= 3) { msg = "🎴 Mão Virtual cheia (3/3)! Ative uma carta antes de puxar outra."; }
+              else { u._kaibaHand.push(cardId); msg = `🎴 Kaiba saca ${KAIBA_CARDS[cardId].name} para a Mão Virtual (${u._kaibaHand.length}/3). Toque na carta pra ativá-la.`; }
+              return s;
+            }
+            const sMulK = u.tSkill * ampS;
+            let chainX2 = false, msgPre = "";
+            if (u.stFlags?.kaibaS2 && u._kaibaLastCat) {
+              if (catOf(cardId) === u._kaibaLastCat) { chainX2 = true; msgPre = "⛓️ CHAIN LINK 2! "; }
+              else { let totDisc = 0; aliveEnemies(s).forEach(e => { totDisc += dealDamage(u, e, 180 * sMulK, fx, { el: "Eletro" }).dmg; }); msgPre = `🗑️ Descarte! ${totDisc} de Dano Eletro em área. `; }
+            }
+            u._kaibaLastCat = catOf(cardId);
+            const destroyOld = () => {
+              const monsters = s.heroes.filter(h => h.isSummon && h.kind === "monster" && h.ownerUid === u.uid && h.alive);
+              const slotLimit = u.stFlags?.kaibaS3 ? 2 : 1;
+              if (monsters.length < slotLimit) return; // ainda tem vaga livre — não precisa destruir nada
+              const old = monsters[0]; // destrói o mais antigo
+              if (old) {
+                old.alive = false;
+                if (u.stFlags?.kaibaS1) { u._kaibaGraveyard = u._kaibaGraveyard || []; if (u._kaibaGraveyard.length < 3) u._kaibaGraveyard.push(old.name); if (u._kaibaGraveyard.length >= 3) { u._kaibaGraveyard = []; s.sp = Math.min(5, s.sp + 1); u._kaibaForceMagic = true; msgPre += "[S1: Cemitério cheio — reembaralha e gera 1 PH!] "; } }
+                if (u.stFlags?.kaibaT2) { u.energy = Math.min(u.energyMax, u.energy + 15); u.buffs.push({ stat: "atk", value: 20, pct: true, turns: 2, name: "Reciclagem Eficiente" }); }
+                // Arma: ao sair de campo, +6 de Energia e o próximo monstro ganha +30% de CRIT DMG por 2 rodadas
+                if (u.weapon?.buff?.kaibaWeapon) { u.energy = Math.min(u.energyMax, u.energy + 6); u._kaibaWpnNextBonus = true; }
+              }
+            };
+            const summonCard = (name, avatar, mul, opts2) => {
+              destroyOld();
+              const mon = makeSummon(u, { uid: "S_" + u.uid + "_mon" + Math.floor(Math.random() * 1e6), name, avatar, kind: "monster", mul: mul * (chainX2 ? 2 : 1), spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity });
+              if (opts2?.taunt) mon.taunt = true;
+              if (opts2?.bleedChance) mon.cardBleed = opts2.bleedChance;
+              if (opts2?.onSummonEnergy) u.energy = Math.min(u.energyMax, u.energy + opts2.onSummonEnergy);
+              s.heroes.push(mon);
+              return mon;
+            };
+            if (cardId === "vorse") { summonCard("Vorse Raider", "👹", 260, { bleedChance: 0.5 }); msg = msgPre + "🎴 VORSE RAIDER! Monstro de impacto pesado (260% ATK), 50% de chance de Sangramento."; }
+            else if (cardId === "kaiser") { summonCard("Kaiser Sea Horse", "🐴", 180, { onSummonEnergy: 20 }); msg = msgPre + "🎴 KAISER SEA HORSE! Monstro invocado (180% ATK) — +20 de Energia instantânea."; }
+            else if (cardId === "saggi") { summonCard("Saggi, o Clone das Sombras", "👤", 70, { taunt: true }); msg = msgPre + "🎴 SAGGI! Monstro de baixo dano (70% ATK) mas provoca TODOS os inimigos por 2 rodadas."; }
+            else if (cardId === "judge") {
+              destroyOld();
+              const mon = makeSummon(u, { uid: "S_" + u.uid + "_mon" + Math.floor(Math.random() * 1e6), name: "Juiz", avatar: "⚖️", kind: "monster", mul: 200 * (chainX2 ? 2 : 1), spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity });
+              mon.judgeSplash = 100; s.heroes.push(mon);
+              msg = msgPre + "🎴 JUIZ! Monstro de área (200% ATK no principal, 100% nos adjacentes).";
+            }
+            else if (cardId === "obelisk") {
+              destroyOld();
+              let totOb = 0, purgeCount = 0;
+              aliveEnemies(s).forEach(e => {
+                if (u.stFlags?.kaibaS5 && e.debuffs.some(d => d.name === "Arena KaibaCorp")) { if (e.buffs.length) purgeCount += e.buffs.length; if (e.shield > 0) { purgeCount += 1; e.shield = 0; } e.buffs = []; }
+                totOb += dealDamage(u, e, 750 * (chainX2 ? 2 : 1) * sMulK * (1 + purgeCount * 0.6), fx, { el: "Eletro", defPen: 100 }).dmg;
+              });
+              msg = msgPre + `🎴✨ OBELISCO, O ATORMENTADOR!!! Punho do Destino — ${totOb} de dano em TODOS os inimigos, ignorando 100% da DEF!${purgeCount ? ` [S5: purgou ${purgeCount} efeitos, +${purgeCount*60}% de Dano Verdadeiro!]` : ""}`;
+              if (u.stFlags?.kaibaT3) { aliveEnemies(s).forEach(e => { if (e._hasToughness && e.toughness > 0) { e.toughness = Math.max(0, e.toughness - 30); if (e.toughness <= 0) applyBreakEffect(u, e, "Eletro", fx); } }); msg += " [Rastro 3: Resistência de todos os inimigos reduzida!]"; }
+            }
+            else if (cardId === "control") {
+              const tgt = aliveEnemies(s)[Math.floor(Math.random() * aliveEnemies(s).length)];
+              if (tgt) { tgt.av = (tgt.av || 1) * (chainX2 ? 1.8 : 1.4); tgt.debuffs.push({ stat: "mark", value: 0, turns: 1, name: "Controlado" }); msg = msgPre + `🎴 CONTROLADOR DE INIMIGOS! ${tgt.name} atrasado em 40% na Ordem de Turnos.`; }
+            }
+            else if (cardId === "shrink") {
+              const tgt = aliveEnemies(s).sort((a, b) => effStat(b, "atk") - effStat(a, "atk"))[0];
+              if (tgt) { const v = chainX2 ? 50 : 35; tgt.debuffs.push({ stat: "atk", value: -v, pct: true, turns: 2, name: "Encolher" }, { stat: "def", value: -v, pct: true, turns: 2, name: "Encolher" }); msg = msgPre + `🎴 ENCOLHER! ${tgt.name} perde ${v}% de ATK e DEF por 2 turnos.`; }
+            }
+            else if (cardId === "flute") {
+              const mon = activeMonster(s, u.uid);
+              if (mon) { mon.av = Math.max(0.01, (mon.av || 1) * 0.0); mon.buffs.push({ stat: "critDmg", value: chainX2 ? 100 : 50, turns: 1, name: "Flauta" }); msg = msgPre + "🎴 A FLAUTA! O Monstro ativo avança 100% na Ordem de Turnos e ganha +50% de CRIT DMG no próximo golpe."; }
+              else { u._kaibaForceMagic = false; cardId = drawOne(); msg = msgPre + "🎴 A Flauta não encontrou nenhum Dragão em campo — puxa outra carta!"; }
+            }
+            else if (cardId === "virus") { allies.forEach(a => { a._kaibaVirusTurns = 2; }); msg = msgPre + "🎴 VÍRUS ESMAGA-CARDS! Por 2 turnos, qualquer ataque inimigo acima de 150% de mult. contra seu time tem o dano reduzido pra apenas 50%."; }
+            else if (cardId === "ring") {
+              const tgt = aliveEnemies(s).sort((a, b) => a.hp - b.hp)[0];
+              if (tgt) { const rd = Math.round(tgt.maxHp * 0.25 * (chainX2 ? 2 : 1)); tgt.hp = Math.max(0, tgt.hp - rd); if (tgt.hp <= 0) tgt.alive = false; fx.push({ uid: tgt.uid, txt: String(rd), crit: true, id: Math.random(), el: "Chaos" }); const selfDmg = Math.round(u.hp * 0.05); u.hp = Math.max(1, u.hp - selfDmg); msg = msgPre + `🎴 ANEL DA DESTRUIÇÃO! ${rd} de Dano Verdadeiro em ${tgt.name}. Kaiba sofre ${selfDmg} de contragolpe.`; }
+            }
+            // Arma: toda puxada de carta dá 1 acúmulo de Soberania do Duelista ao Monstro ativo (máx 3, expira em 2 turnos dele)
+            if (u.weapon?.buff?.kaibaWeapon) {
+              const monW = activeMonster(s, u.uid);
+              if (monW) {
+                if (u._kaibaWpnNextBonus) { monW.buffs.push({ stat: "critDmg", value: 30, turns: 2, name: "Nexo: Chegada" }); u._kaibaWpnNextBonus = false; }
+                const stacks = monW.buffs.filter(b => b.name === "Soberania do Duelista").length;
+                if (stacks < 3) monW.buffs.push({ stat: "dmgBonus", value: 16, turns: 2, name: "Soberania do Duelista" }, { stat: "defPen", value: 10, turns: 2, name: "Soberania do Duelista" });
+              }
+            }
+            // Rastro 1: cartas de Magia/Armadilha avançam o Monstro ativo em 22% na Ordem de Turnos
+            if (u.stFlags?.kaibaT1 && catOf(cardId) !== "monster") {
+              const monT1 = activeMonster(s, u.uid);
+              if (monT1) monT1.av = Math.max(0.01, (monT1.av || 1) * 0.78);
+            }
           }
           else if (u.id === "yoruichi" && sk.yoruSkill && enemy) {
             u._yoruStance = 3; u._yoruMarkUid = enemy.uid; u._yoruRecordedDmg = 0;
@@ -4958,14 +5121,31 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         // Athena C6: pode reabrir a seleção das 7 Casas a cada 2 turnos sem custo de energia
         const _athFreeUlt = u.id === "athena" && u.stFlags?.athC6 && s._athHouseActive && (u._athC6Cd || 0) <= 0;
         if (u.energy < u.energyMax && !_athFreeUlt) return s;
+        advanceServosSummon(s, u); // Servos de um Rei (4pç): a Invocação avança 15% ao ativar a Suprema
         // Protocolo de Adaptação Universal (4pç): Suprema concede -20% DEF ignorada + Dano Global +25% por 2 rodadas
         if (f.setAdapt4) {
           u.buffs = u.buffs.filter(b => b.name !== "Protocolo de Adaptação");
           u.buffs.push({ stat: "defPen", value: 20, turns: 2, name: "Protocolo de Adaptação" });
           u.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "Protocolo de Adaptação" });
         }
-        if (u.id === "kaiba") { if (aliveDragons(s, u.uid).length >= 3) { s.choice = { uid: u.uid }; return s; } else { return s; } } // Suprema só com 3 dragões
         if (u.id === "kirara" && (u.stFlags?.kirC4)) { u.energy = Math.min(u.energyMax, u.energy + 20); } // C4: recupera 20 energia ao usar ult
+        if (u.id === "kaiba" && sk.kaibaUlt) {
+          const oldMon = activeMonster(s, u.uid);
+          if (oldMon) { oldMon.alive = false; if (u.stFlags?.kaibaS1) { u._kaibaGraveyard = u._kaibaGraveyard || []; if (u._kaibaGraveyard.length < 3) u._kaibaGraveyard.push(oldMon.name); } if (u.stFlags?.kaibaT2) { u.energy = Math.min(u.energyMax, u.energy + 15); } }
+          u._kaibaBEWCount = (u._kaibaBEWCount || 0) + 1; // S6: rastreia quantos Blue-Eyes passaram pelo campo/Cemitério
+          const dragon = makeSummon(u, { uid: "S_" + u.uid + "_bew" + Math.floor(Math.random() * 1e6), name: "Dragão Branco de Olhos Azuis", avatar: "🐉", kind: "monster", mul: (sk.ultMul || 550) * (u.tUlt || 1) * ampU, spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity });
+          dragon.dragonSplash = 275 * (u.tUlt || 1) * ampU; dragon.dragonVuln = false; dragon.removeBuffsOnHit = true;
+          dragon.av = 0.01; // Entrada Triunfal: avança 100% na Ordem de Turnos — age quase imediatamente
+          s.heroes.push(dragon);
+          // S4: ativa a Arena KaibaCorp — -18% de RES elemental nos inimigos por ~3 Ciclos (aprox. 10 turnos)
+          if (u.stFlags?.kaibaS4) {
+            aliveEnemies(s).forEach(e => { e.debuffs = e.debuffs.filter(d => d.name !== "Arena KaibaCorp"); e.debuffs.push({ stat: "elemRes", value: -18, turns: 10, name: "Arena KaibaCorp" }); });
+            pushLog(s, "🏟️ ARENA KAIBACORP ativada! -18% de RES elemental em todos os inimigos por 3 Ciclos.");
+          }
+          msg = "🐉✨ Kaiba invoca o lendário DRAGÃO BRANCO DE OLHOS AZUIS! Ele avança na Ordem de Turnos e prepara a Rajada de Relâmpagos.";
+          if (u.stFlags?.kaibaT3) { aliveEnemies(s).forEach(e => { if (e._hasToughness && e.toughness > 0) { e.toughness = Math.max(0, e.toughness - 30); if (e.toughness <= 0) applyBreakEffect(u, e, "Eletro", fx); } }); msg += " [Rastro 3: Resistência de todos os inimigos reduzida!]"; }
+          s.summonFx = { kind: "dragon", id: Math.random() };
+        }
         if (u.id === "frieren" && u.stFlags?.frC6) { s.choice = { uid: u.uid, kind: "frieren" }; return s; } // C6: jogador escolhe a forma da Suprema
         if (u.id === "athena" && sk.athUlt) { s.choice = { uid: u.uid, kind: "athena" }; return s; } // jogador escolhe quem recebe a Casa Extra antes de aplicar os buffs
         if (u.id === "soifon" && sk.sfUlt) {
@@ -5301,6 +5481,79 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
     });
   }
 
+  function playKaibaHandCard(cardIdx, tribute) {
+    setState((s0) => {
+      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
+      const u = s.heroes.find(h => h.id === "kaiba" && h.alive); if (!u) { s.turn = null; return s; }
+      const hand = u._kaibaHand || [];
+      const cardId = hand[cardIdx]; if (!cardId) { s.turn = null; return s; }
+      const monsters = s.heroes.filter(h => h.isSummon && h.kind === "monster" && h.ownerUid === u.uid && h.alive);
+      const canTribute = tribute && u.stFlags?.kaibaS3 && monsters.length >= 2;
+      if (!canTribute && s.sp <= 0) { pushLog(s, "🎴 Sem Ponto de Habilidade pra ativar a carta."); s.turn = null; return s; }
+      if (!canTribute) s.sp -= 1;
+      u._kaibaHand = hand.filter((_, i) => i !== cardIdx);
+      const fx = s.fx, allies = s.heroes.filter(h => h.alive), ampS = u.ampSkill || 1, sMulK = u.tSkill * ampS;
+      const catOf = (id) => (["vorse", "kaiser", "saggi", "judge", "obelisk"].includes(id) ? "monster" : (["control", "shrink", "flute"].includes(id) ? "magic" : "trap"));
+      let chainX2 = !!canTribute, msgPre = canTribute ? "⚔️ TRIBUTO! Ambos os monstros sacrificados — dano em DOBRO e ação avançada! " : "";
+      if (!canTribute && u.stFlags?.kaibaS2 && u._kaibaLastActivatedCat) {
+        if (catOf(cardId) === u._kaibaLastActivatedCat) { chainX2 = true; msgPre = "⛓️ CHAIN LINK 2! "; }
+        else { let totDisc = 0; aliveEnemies(s).forEach(e => { totDisc += dealDamage(u, e, 180 * sMulK, fx, { el: "Eletro" }).dmg; }); msgPre = `🗑️ Descarte! ${totDisc} de Dano Eletro em área. `; }
+      }
+      u._kaibaLastActivatedCat = catOf(cardId);
+      if (canTribute) { monsters.forEach(m => { m.alive = false; if (u.stFlags?.kaibaS1) { u._kaibaGraveyard = u._kaibaGraveyard || []; if (u._kaibaGraveyard.length < 3) u._kaibaGraveyard.push(m.name); } }); u.av = Math.max(0.01, (u.av || 1) * 0.0); }
+      const destroyOld = () => {
+        const mons = s.heroes.filter(h => h.isSummon && h.kind === "monster" && h.ownerUid === u.uid && h.alive);
+        const slotLimit = u.stFlags?.kaibaS3 ? 2 : 1;
+        if (mons.length < slotLimit) return;
+        const old = mons[0];
+        if (old) {
+          old.alive = false;
+          if (u.stFlags?.kaibaS1) { u._kaibaGraveyard = u._kaibaGraveyard || []; if (u._kaibaGraveyard.length < 3) u._kaibaGraveyard.push(old.name); }
+          if (u.stFlags?.kaibaT2) { u.energy = Math.min(u.energyMax, u.energy + 15); u.buffs.push({ stat: "atk", value: 20, pct: true, turns: 2, name: "Reciclagem Eficiente" }); }
+          if (u.weapon?.buff?.kaibaWeapon) { u.energy = Math.min(u.energyMax, u.energy + 6); u._kaibaWpnNextBonus = true; }
+        }
+      };
+      const summonCard = (name, avatar, mul, opts2) => {
+        destroyOld();
+        const mon = makeSummon(u, { uid: "S_" + u.uid + "_mon" + Math.floor(Math.random() * 1e6), name, avatar, kind: "monster", mul: mul * (chainX2 ? 2 : 1), spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity });
+        if (opts2?.taunt) mon.taunt = true;
+        if (opts2?.bleedChance) mon.cardBleed = opts2.bleedChance;
+        if (opts2?.onSummonEnergy) u.energy = Math.min(u.energyMax, u.energy + opts2.onSummonEnergy);
+        s.heroes.push(mon);
+        return mon;
+      };
+      let msg = "";
+      if (cardId === "vorse") { summonCard("Vorse Raider", "👹", 260, { bleedChance: 0.5 }); msg = msgPre + "🎴 VORSE RAIDER! Monstro de impacto pesado (260% ATK), 50% de chance de Sangramento."; }
+      else if (cardId === "kaiser") { summonCard("Kaiser Sea Horse", "🐴", 180, { onSummonEnergy: 20 }); msg = msgPre + "🎴 KAISER SEA HORSE! Monstro invocado (180% ATK) — +20 de Energia instantânea."; }
+      else if (cardId === "saggi") { summonCard("Saggi, o Clone das Sombras", "👤", 70, { taunt: true }); msg = msgPre + "🎴 SAGGI! Monstro de baixo dano (70% ATK) mas provoca TODOS os inimigos por 2 rodadas."; }
+      else if (cardId === "judge") { destroyOld(); const mon = makeSummon(u, { uid: "S_" + u.uid + "_mon" + Math.floor(Math.random() * 1e6), name: "Juiz", avatar: "⚖️", kind: "monster", mul: 200 * (chainX2 ? 2 : 1), spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); mon.judgeSplash = 100; s.heroes.push(mon); msg = msgPre + "🎴 JUIZ! Monstro de área (200% ATK no principal, 100% nos adjacentes)."; }
+      else if (cardId === "obelisk") {
+        destroyOld();
+        let totOb = 0, purgeCount = 0;
+        aliveEnemies(s).forEach(e => {
+          if (u.stFlags?.kaibaS5 && e.debuffs.some(d => d.name === "Arena KaibaCorp")) { if (e.buffs.length) purgeCount += e.buffs.length; if (e.shield > 0) { purgeCount += 1; e.shield = 0; } e.buffs = []; }
+          totOb += dealDamage(u, e, 750 * (chainX2 ? 2 : 1) * sMulK * (1 + purgeCount * 0.6), fx, { el: "Eletro", defPen: 100 }).dmg;
+        });
+        msg = msgPre + `🎴✨ OBELISCO, O ATORMENTADOR!!! Punho do Destino — ${totOb} de dano em TODOS os inimigos, ignorando 100% da DEF!${purgeCount ? ` [S5: purgou ${purgeCount} efeitos!]` : ""}`;
+        if (u.stFlags?.kaibaT3) { aliveEnemies(s).forEach(e => { if (e._hasToughness && e.toughness > 0) { e.toughness = Math.max(0, e.toughness - 30); if (e.toughness <= 0) applyBreakEffect(u, e, "Eletro", fx); } }); msg += " [Rastro 3!]"; }
+      }
+      else if (cardId === "control") { const tgt = aliveEnemies(s)[Math.floor(Math.random() * aliveEnemies(s).length)]; if (tgt) { tgt.av = (tgt.av || 1) * (chainX2 ? 1.8 : 1.4); tgt.debuffs.push({ stat: "mark", value: 0, turns: 1, name: "Controlado" }); msg = msgPre + `🎴 CONTROLADOR DE INIMIGOS! ${tgt.name} atrasado em 40%.`; } }
+      else if (cardId === "shrink") { const tgt = aliveEnemies(s).sort((a, b) => effStat(b, "atk") - effStat(a, "atk"))[0]; if (tgt) { const v = chainX2 ? 50 : 35; tgt.debuffs.push({ stat: "atk", value: -v, pct: true, turns: 2, name: "Encolher" }, { stat: "def", value: -v, pct: true, turns: 2, name: "Encolher" }); msg = msgPre + `🎴 ENCOLHER! ${tgt.name} perde ${v}% de ATK/DEF por 2 turnos.`; } }
+      else if (cardId === "flute") { const mon = activeMonster(s, u.uid); if (mon) { mon.av = 0.01; mon.buffs.push({ stat: "critDmg", value: chainX2 ? 100 : 50, turns: 1, name: "Flauta" }); msg = msgPre + "🎴 A FLAUTA! O Monstro ativo avança e ganha CRIT DMG."; } else { msg = msgPre + "🎴 A Flauta não achou Dragão em campo — efeito perdido."; } }
+      else if (cardId === "virus") { allies.forEach(a => { a._kaibaVirusTurns = 2; }); msg = msgPre + "🎴 VÍRUS ESMAGA-CARDS! Time protegido por 2 turnos."; }
+      else if (cardId === "ring") { const tgt = aliveEnemies(s).sort((a, b) => a.hp - b.hp)[0]; if (tgt) { const rd = Math.round(tgt.maxHp * 0.25 * (chainX2 ? 2 : 1)); tgt.hp = Math.max(0, tgt.hp - rd); if (tgt.hp <= 0) tgt.alive = false; fx.push({ uid: tgt.uid, txt: String(rd), crit: true, id: Math.random(), el: "Chaos" }); const selfDmg = Math.round(u.hp * 0.05); u.hp = Math.max(1, u.hp - selfDmg); msg = msgPre + `🎴 ANEL DA DESTRUIÇÃO! ${rd} de Dano Verdadeiro. Kaiba sofre ${selfDmg} de contragolpe.`; } }
+      if (u.weapon?.buff?.kaibaWeapon) {
+        const monW = activeMonster(s, u.uid);
+        if (monW) {
+          if (u._kaibaWpnNextBonus) { monW.buffs.push({ stat: "critDmg", value: 30, turns: 2, name: "Nexo: Chegada" }); u._kaibaWpnNextBonus = false; }
+          const stacks = monW.buffs.filter(b => b.name === "Soberania do Duelista").length;
+          if (stacks < 3) monW.buffs.push({ stat: "dmgBonus", value: 16, turns: 2, name: "Soberania do Duelista" }, { stat: "defPen", value: 10, turns: 2, name: "Soberania do Duelista" });
+        }
+      }
+      if (u.stFlags?.kaibaT1 && catOf(cardId) !== "monster") { const monT1 = activeMonster(s, u.uid); if (monT1) monT1.av = Math.max(0.01, (monT1.av || 1) * 0.78); }
+      pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
+    });
+  }
   function resolveKaibaUlt(which) {
     setState((s0) => {
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null };
@@ -5308,7 +5561,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       const fx = s.fx, ampU = u.ampUlt || 1, ff = u.stFlags || {};
       const allies = s.heroes.filter((h) => h.alive);
       u.energy = Math.round(5 * (1 + (effStat(u, "energyRegen") || 0) / 100)); // reembolso HSR
-      if (u.weapon?.id === "dragoncannon") s.sp = Math.min(5, (s.sp || 0) + 1); // +1 PH ao time (arma)
+      if (u.weapon?.id === "duelo_nexo") s.sp = Math.min(5, (s.sp || 0) + 1); // +1 PH ao time (arma)
       let msg = "";
       if (which === "obelisk") {
         if (!ff.kS6) s.heroes = s.heroes.filter((h) => !(h.isSummon && h.kind === "dragon" && h.ownerUid === u.uid)); // tributa os 3 dragões (S6 os mantém)
@@ -5499,16 +5752,25 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
       const u = findUnit(s, uid); if (!u || !u.alive) { s.turn = null; return s; }
       tickDots(u, s.fx);
+      if ((u._kaibaVirusTurns || 0) > 0) u._kaibaVirusTurns -= 1; // Vírus Esmaga-Cards (Kaiba): decai no turno de cada aliado protegido
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
       refreshKaibaBuffs(s);
       const fx = s.fx, sk = u.skill || {}, allies = s.heroes.filter((h) => h.alive), enemies = aliveEnemies(s);
       let msg = "";
       if (u.isSummon) {
+        // Servos de um Rei (4pç): a Invocação ganha 1 acúmulo de Sintonia Sincrônica ao agir (máx 2)
+        let servosDefPen = 0;
+        if (u._hasServos4) {
+          const stacks = u.buffs.filter(b => b.name === "Sintonia Sincrônica").length;
+          if (stacks < 2) u.buffs.push({ stat: "critDmg", value: 20, turns: 2, name: "Sintonia Sincrônica" });
+          const newStacks = u.buffs.filter(b => b.name === "Sintonia Sincrônica").length;
+          if (newStacks >= 2) servosDefPen = 16; // no limite máximo de acúmulos, ignora 16% da DEF automaticamente
+        }
         const tgt = enemies.slice().sort((a, b) => a.hp - b.hp)[0];
         const isDragon = u.kind === "dragon";
         const aoeNow = u.firstHit && isDragon; // dragão dá dano em ÁREA no 1º golpe; depois só single-target
         if (tgt) {
-          const op = { pierceShield: !!u.pierce };
+          const op = { pierceShield: !!u.pierce, defPen: servosDefPen };
           const hitList = aoeNow ? enemies : [tgt];
           let tot = 0;
           hitList.forEach((e) => {
@@ -5516,10 +5778,19 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             if (u.elements && u.elements.length > 1) u.elements.forEach((el) => { tot += dealDamage(u, e, u.mul, fx, { breakW: 1, ...op, el }).dmg; });
             else tot += dealDamage(u, e, u.mul, fx, { breakW: 1, ...op, el: u.element }).dmg;
             if (u.dragonVuln && e.alive) e.debuffs.push({ stat: "vuln", value: 15, turns: 2, name: "Vuln" });
+            // Carta: Vorse Raider — 50% de chance de aplicar Sangramento
+            if (u.cardBleed && e.alive && Math.random() < u.cardBleed) applyDot([e], { type: "bleed", mul: 30, turns: 3 }, u, fx);
           });
-          msg = `${u.name} ${aoeNow ? "irrompe em ÁREA" : "investe em " + tgt.name} — ${tot}${u.pierce ? " (perfura escudos)" : ""}.`;
+          // Carta: Juiz — golpe em área, 100% do mul nos alvos além do principal
+          if (u.judgeSplash) { enemies.filter(e => e.alive && e.uid !== tgt.uid).forEach(e => { tot += dealDamage(u, e, u.judgeSplash, fx, { breakW: 1, el: u.element, defPen: servosDefPen }).dmg; }); }
+          // Dragão Branco de Olhos Azuis (Suprema): Rajada de Relâmpagos — dano reduzido nos adjacentes + remove buffs positivos
+          if (u.dragonSplash) {
+            enemies.filter(e => e.alive && e.uid !== tgt.uid).forEach(e => { tot += dealDamage(u, e, u.dragonSplash, fx, { breakW: 1, el: u.element, defPen: servosDefPen }).dmg; if (u.removeBuffsOnHit) e.buffs = []; });
+            if (u.removeBuffsOnHit && tgt.alive) tgt.buffs = [];
+          }
+          msg = `${u.name} ${aoeNow ? "irrompe em ÁREA" : "investe em " + tgt.name} — ${tot}${u.pierce ? " (perfura escudos)" : ""}${servosDefPen ? " (Sintonia Sincrônica: ignora " + servosDefPen + "% da DEF)" : ""}.`;
           // a investida do dragão recarrega o Mestre dos Dragões
-          if (isDragon) { const owner = s.heroes.find((h) => h.uid === u.ownerUid && h.alive); if (owner && owner.energyMax) owner.energy = Math.min(owner.energyMax, owner.energy + Math.round(5 * (1 + (effStat(owner, "energyRegen") || 0) / 100))); }
+          if (isDragon || u.kind === "monster") { const owner = s.heroes.find((h) => h.uid === u.ownerUid && h.alive); if (owner && owner.energyMax) owner.energy = Math.min(owner.energyMax, owner.energy + Math.round(5 * (1 + (effStat(owner, "energyRegen") || 0) / 100))); }
         }
         if (u.firstHit) u.firstHit = false;
         if (isFinite(u.life)) { u.life -= 1; if (u.life <= 0) { u.alive = false; msg += ` ${u.name} se dissipa.`; } }
@@ -5612,7 +5883,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       const enraged = u.boss && u.hp / u.maxHp < 0.4;
       const rage = enraged ? 1.25 : 1;
       const braveTank = allAllies.find((h) => h.id === "agumon" && (h.agBrave || 0) > 0 && h.alive);
-      const taunter = braveTank || allAllies.find((h) => h.skill?.taunt && h.alive);
+      const taunter = braveTank || allAllies.find((h) => (h.skill?.taunt || h.taunt) && h.alive);
       let msg = "";
 
       const pickTarget = () => {
@@ -5966,7 +6237,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
 
   const isHeroTurn = current && current.side === "H" && !current.auto && !current.isSummon;
   const activeHero = isHeroTurn ? state.heroes.find((h) => h.uid === current.uid) : null;
-  const canUlt = activeHero && activeHero.energyMax && (activeHero.energy >= activeHero.energyMax || (activeHero.id === "athena" && activeHero.stFlags?.athC6 && state._athHouseActive && (activeHero._athC6Cd || 0) <= 0)) && (activeHero.id !== "kaiba" || aliveDragons(state, activeHero.uid).length >= 3);
+  const canUlt = activeHero && activeHero.energyMax && (activeHero.energy >= activeHero.energyMax || (activeHero.id === "athena" && activeHero.stFlags?.athC6 && state._athHouseActive && (activeHero._athC6Cd || 0) <= 0));
   const stageEl = (current ? ELEMENTS[current.element] : null) || ELEMENTS.Holy;
 
   return (
@@ -6255,7 +6526,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
               </>
             )}
           </div>
-        ) : isHeroTurn ? (() => { let nm = skillNamesOf(activeHero.id); if (activeHero.id === "agumon") { const _F = AGU_FORMS[activeHero.agForm || "agumon"]; if (_F) nm = _F.skills.map(x => x[0]); } const kaiba3 = activeHero.id === "kaiba" && aliveDragons(state, activeHero.uid).length >= 3;
+        ) : isHeroTurn ? (() => { let nm = skillNamesOf(activeHero.id); if (activeHero.id === "agumon") { const _F = AGU_FORMS[activeHero.agForm || "agumon"]; if (_F) nm = _F.skills.map(x => x[0]); }
           const _kindLabel = { basic: "Ataque Básico", skill: "Perícia · 1 PH", ult: "Ultimate" };
           const _kindName  = { basic: nm[0], skill: nm[1], ult: nm[2] };
           const _holdBtn = (kind, btnProps, children) => <Btn {...btnProps} onClick={null}
@@ -6275,12 +6546,49 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
                 <div style={{ fontSize: 10, color: C.dim, marginTop: 8, borderTop: `1px solid ${C.line}`, paddingTop: 6 }}>Solte para cancelar · Clique rápido para usar</div>
               </div>;
             })()}
+            {activeHero.id === "kaiba" && (activeHero._kaibaHand || []).length > 0 && (() => {
+              const hand = activeHero._kaibaHand || [];
+              const monCount = state.heroes.filter(h => h.isSummon && h.kind === "monster" && h.ownerUid === activeHero.uid && h.alive).length;
+              const canTribute = !!(activeHero.stFlags?.kaibaS3 && monCount >= 2);
+              const startCardHold = (idx) => { cardHoldingRef.current = false; clearTimeout(cardHoldTimer.current); cardHoldTimer.current = setTimeout(() => { cardHoldingRef.current = true; setCardPreviewIdx(idx); }, 380); };
+              const endCardHold = (idx) => { clearTimeout(cardHoldTimer.current); if (cardHoldingRef.current) { cardHoldingRef.current = false; setCardPreviewIdx(null); } else { playKaibaHandCard(idx, false); } };
+              return (
+                <div style={{ width: "100%", marginBottom: 6 }}>
+                  <div style={{ textAlign: "center", fontSize: 10, color: C.gold, fontWeight: 800, letterSpacing: 1, marginBottom: 6 }}>🎴 MÃO VIRTUAL ({hand.length}/3) — segure pra ver a descrição, toque pra ativar</div>
+                  <div className="flex gap-2" style={{ justifyContent: "center", flexWrap: "wrap" }}>
+                    {hand.map((cid, idx) => { const card = KAIBA_CARDS[cid]; if (!card) return null; return (
+                      <button key={idx}
+                        onPointerDown={() => startCardHold(idx)} onPointerUp={() => endCardHold(idx)} onPointerLeave={() => clearTimeout(cardHoldTimer.current)}
+                        style={{ width: 66, textAlign: "center", border: `2px solid ${card.cat === "monster" ? "#FF9E45" : card.cat === "magic" ? "#B98BFF" : "#6FE3FF"}88`, borderRadius: 12, padding: "8px 4px", background: "linear-gradient(180deg,#241d3a,#120e22)", cursor: "pointer" }}>
+                        <Avatar ch={{ id: card.imgId, element: activeHero.element, avatar: card.avatar }} size={36} ring={card.cat === "monster" ? "#FF9E45" : card.cat === "magic" ? "#B98BFF" : "#6FE3FF"} />
+                        <div style={{ fontSize: 8, fontWeight: 800, marginTop: 4, lineHeight: 1.2 }}>{card.name}</div>
+                      </button>
+                    ); })}
+                  </div>
+                  {cardPreviewIdx != null && hand[cardPreviewIdx] && KAIBA_CARDS[hand[cardPreviewIdx]] && (
+                    <div style={{ marginTop: 8, background: C.panelHi, border: `1px solid ${C.gold}55`, borderRadius: 10, padding: 10, maxWidth: 360, marginLeft: "auto", marginRight: "auto" }}>
+                      <div style={{ fontWeight: 800, fontSize: 12, color: C.gold, marginBottom: 4 }}>{KAIBA_CARDS[hand[cardPreviewIdx]].name}</div>
+                      <div style={{ fontSize: 11, color: C.mute, lineHeight: 1.6 }}>{KAIBA_CARDS[hand[cardPreviewIdx]].desc}</div>
+                      <div style={{ fontSize: 9, color: C.dim, marginTop: 6 }}>Solte pra fechar · toque rápido em qualquer carta pra ativar</div>
+                    </div>
+                  )}
+                  {canTribute && (
+                    <div style={{ textAlign: "center", marginTop: 8 }}>
+                      <div style={{ fontSize: 9, color: C.mute, marginBottom: 4 }}>Tributo disponível: sacrifica os 2 monstros ativos, ativa a carta de graça com dano em DOBRO e avança a ação de Kaiba em 100%.</div>
+                      <div className="flex gap-2" style={{ justifyContent: "center", flexWrap: "wrap" }}>
+                        {hand.map((cid, idx) => <Btn key={idx} kind="soft" style={{ borderColor: "#FF6B82", color: "#FF6B82", fontSize: 11 }} onClick={() => playKaibaHandCard(idx, true)}>⚔️ Tributar por {KAIBA_CARDS[cid]?.name}</Btn>)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
             <div className="flex gap-2" style={{ flexWrap: "wrap", justifyContent: "center" }}>
               {activeHero.id === "agumon" && (activeHero.agForm || "agumon") !== "wargreymon" &&
                 <Btn kind="soft" style={{ borderColor: "#FF9E45", color: "#FFB74D" }} onClick={() => setState(s0 => ({ ...s0, choice: { uid: activeHero.uid, kind: "agumon_evo" } }))}>🧬 Digievoluir</Btn>}
               {_holdBtn("basic", { kind: "soft" }, <>⚔️ {nm[0]}</>)}
               {_holdBtn("skill", { disabled: state.sp <= 0 }, <>✦ {nm[1]} <span style={{ fontSize: 10, opacity: 0.8 }}>(1 PH)</span></>)}
-              {_holdBtn("ult", { kind: canUlt ? "primary" : "soft", disabled: !canUlt }, <>{canUlt ? "💥 " : "⏳ "}{activeHero.id === "kaiba" && activeHero.energy >= activeHero.energyMax && !kaiba3 ? `Precisa 3 dragões (${aliveDragons(state, activeHero.uid).length}/3)` : kaiba3 && canUlt ? "Invocação Suprema" : nm[2]}</>)}
+              {_holdBtn("ult", { kind: canUlt ? "primary" : "soft", disabled: !canUlt }, <>{canUlt ? "💥 " : "⏳ "}{nm[2]}</>)}
             </div>
             <div style={{ textAlign: "center", fontSize: 11, color: C.mute, marginTop: 6 }}>{abilityHint(activeHero)}</div>
           </div>); })() : <div style={{ textAlign: "center", color: C.mute, fontSize: 13 }}>{current && (current.side === "enemy") ? "⚔️ Turno do inimigo…" : "🤝 Aliado agindo…"}</div>}
@@ -6658,7 +6966,7 @@ function Admin({ images, setImages, tierList, setTierList, flash, isAdmin, draft
           );
         })}
       </div>}
-      {tab === "chars" && <div className="flex flex-col gap-2">{ROSTER.map((c) => <AdminRow key={c.id} id={c.id} name={`${c.name} · ${c.element} · ${ROLES[c.role].label}`} rarity={c.rarity} fallback={c.avatar} element={c.element} url={images[c.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}<Panel style={{ padding: "10px 12px", marginTop: 4 }}><b style={{ fontSize: 13 }}>🦖 Agumon — Formas de Digievolução</b><p style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>Fotos para cada estágio. O ID correto já está indicado em cada linha.</p></Panel><AdminRow key="agumon_greymon" id="agumon_greymon" name="Greymon · Champion · Fogo" rarity={5} fallback="🦕" element="Fogo" url={images["agumon_greymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><AdminRow key="agumon_metalgreymon" id="agumon_metalgreymon" name="MetalGreymon · Ultimate · Fogo" rarity={5} fallback="🤖" element="Fogo" url={images["agumon_metalgreymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><AdminRow key="agumon_wargreymon" id="agumon_wargreymon" name="WarGreymon · Mega · Fogo" rarity={5} fallback="⚔️" element="Fogo" url={images["agumon_wargreymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /></div>}
+      {tab === "chars" && <div className="flex flex-col gap-2">{ROSTER.map((c) => <AdminRow key={c.id} id={c.id} name={`${c.name} · ${c.element} · ${ROLES[c.role].label}`} rarity={c.rarity} fallback={c.avatar} element={c.element} url={images[c.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}<Panel style={{ padding: "10px 12px", marginTop: 4 }}><b style={{ fontSize: 13 }}>🦖 Agumon — Formas de Digievolução</b><p style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>Fotos para cada estágio. O ID correto já está indicado em cada linha.</p></Panel><AdminRow key="agumon_greymon" id="agumon_greymon" name="Greymon · Champion · Fogo" rarity={5} fallback="🦕" element="Fogo" url={images["agumon_greymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><AdminRow key="agumon_metalgreymon" id="agumon_metalgreymon" name="MetalGreymon · Ultimate · Fogo" rarity={5} fallback="🤖" element="Fogo" url={images["agumon_metalgreymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><AdminRow key="agumon_wargreymon" id="agumon_wargreymon" name="WarGreymon · Mega · Fogo" rarity={5} fallback="⚔️" element="Fogo" url={images["agumon_wargreymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><Panel style={{ padding: "10px 12px", marginTop: 4 }}><b style={{ fontSize: 13 }}>🎴 Kaiba — Cartas do Baralho</b><p style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>Fotos pra cada uma das 10 cartas que aparecem na Mão Virtual e na Puxada do Destino.</p></Panel>{Object.entries(KAIBA_CARDS).map(([cid, card]) => <AdminRow key={card.imgId} id={card.imgId} name={`${card.name} · ${card.cat === "monster" ? "Monstro" : card.cat === "magic" ? "Magia" : "Armadilha"}`} rarity={cid === "obelisk" ? 5 : 4} fallback={card.avatar} element="Eletro" url={images[card.imgId] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "weapons" && <div className="flex flex-col gap-2">{WEAPONS.map((w) => <AdminRow key={w.id} id={w.id} name={`${w.name} · ${ROLES[w.role].label}`} rarity={w.rarity} fallback="🗡️" weapon url={images[w.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "summons" && <div className="flex flex-col gap-2">
         <Panel style={{ padding: 10 }}><p style={{ fontSize: 12, color: C.mute }}>Fotos das invocações do Kaiba. Aparecem no campo de batalha e na tela de escolha do Ultimate.</p></Panel>
