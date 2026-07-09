@@ -479,9 +479,9 @@ const CONS = {
       { name: "C1 · Ignis-X Activation", flag: "aguC1", desc: "Aceleração Térmica: o limite de Calor para entrar no MODO X é reduzido — basta estar ACIMA DE 75 de Calor (em vez de 90-99) ao evoluir para WarGreymon. Permite atingir o potencial máximo da forma Mega muito mais rápido, sem flertar com o Meltdown." },
       { name: "C2 · Data-Stream Overflow", flag: "aguC2", desc: "Acúmulo de TamerSP: o TamerSP máximo sobe para 250. Além disso, sempre que Agumon (em qualquer forma) sofrer dano, ele ganha 1 de TamerSP para cada 5% do HP Máximo recebido em dano. Ele vira um gerador de recursos: apanhar também alimenta a evolução." },
       { name: "C3 · Entropy Equilibrium", flag: "aguC3", desc: "Estabilidade de Calor: a perda de 5% de HP por turno do Overclocking Terminal é REMOVIDA. Com Calor acima de 70, em vez de perder vida, Agumon converte 10% do seu ATK em Escudo a cada rodada. Um bruiser de sustentação que vive no vermelho sem medo." },
-      { name: "C4 · X-Antibody Synchro", flag: "aguC4", desc: "O Gatilho de Resposta: ao Digievoluir, Agumon LIMPA todos os seus debuffs e, se algum inimigo tiver escudo ativo, ROUBA todos os escudos inimigos para si. Contador direto de chefes com barreiras de fase — ele se alimenta da defesa inimiga." },
+      { name: "C4 · X-Antibody Synchro", flag: "aguC4", desc: "Sincronia de Combate: +20% de Dano de Fogo e +25% de Dano Crítico permanentes. Além disso, o Supremo (Pepper Breath, Nova Blast, Tera Destroyer ou Gaia Force) causa +200% de dano em TODAS as formas." },
       { name: "C5 · Gaia Singularit-X", flag: "aguC5", desc: "A Supremacia da Gaia Force: se o alvo sobreviver à Gaia Force, recebe RUPTURA DE REALIDADE por 2 rodadas — todo dano recebido (de qualquer fonte do time) ignora completamente a DEF do inimigo (tratado como Dano Verdadeiro). O abridor de portas supremo contra chefes de altíssima DEF." },
-      { name: "C6 · Final Digital Evolution", flag: "aguC6", desc: "A Forma Eterna (Capstone): o custo de TamerSP de TODAS as Digievoluções cai a ZERO. Além disso, se o WarGreymon derrotar um inimigo enquanto estiver no MODO X, o modo é ESTENDIDO até o fim da próxima rodada dele (não expira enquanto continuar matando). A gestão de calor vira dominação de campo." },
+      { name: "C6 · Final Digital Evolution", flag: "aguC6", desc: "A Forma Eterna (Capstone): Agumon já COMEÇA a batalha na forma Greymon. O custo de TamerSP de TODAS as Digievoluções cai a ZERO — só o Calor importa. Ao evoluir para WarGreymon, o MODO X é SEMPRE ativado (a forma imperfeita deixa de existir). Se o WarGreymon derrotar um inimigo em MODO X, o modo é ESTENDIDO até o fim da próxima rodada dele." },
     ],
     athena: [
       { name: "C1 · Arquitetura do Destino", flag: "athC1", desc: "Mudança de kit: a aba de seleção de aliados da Suprema Expansão das 7 Casas ganha o Modo Totalitário. Nesse modo, além de distribuir os buffs normalmente, Athena pode marcar um único aliado como Guardado pelas Casas. O aliado marcado recebe todos os buffs da Suprema em dobro: +60% de VEL, +60% de DEF e +40% de Taxa de CRIT, em vez dos valores padrão. Os demais aliados não marcados ainda recebem os buffs normais (+30% VEL, +30% DEF, +20% CRIT). Isso permite concentrar todo o poder das Casas em um único Hyper-Carry ou garantir que o personagem mais importante do time nunca seja atingido de forma crítica." },
@@ -4189,7 +4189,18 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
     { const fr = heroes.find((h) => h.id === "frieren" && h.stFlags?.frC4); if (fr) { fr.buffs.push({ stat: "energyRegen", value: 30, pct: false, turns: 99, name: "CicloMilenar" }); } }
     { const fr = heroes.find((h) => h.id === "frieren"); if (fr) { fr._frPoints = 2; } } // Talento + C1: começa com 2 Pontos de Elemento
     { const lc = heroes.find((h) => h.id === "lancer" && h.stFlags?.lancerC1); if (lc) { lc.lancerDodges = 1; } } // C1: 1 Esquiva Absoluta grátis
-    { const ag = heroes.find((h) => h.id === "agumon"); if (ag) { ag.agHeat = 0; ag.agSP = 0; ag.agForm = "agumon"; ag.agTrident = 0; ag.agModoX = 0; ag.agTempForm = 0; ag.agBrave = 0; ag.imgId = "agumon"; } }
+    { const ag = heroes.find((h) => h.id === "agumon"); if (ag) {
+        ag.agHeat = 0; ag.agSP = 0; ag.agForm = "agumon"; ag.agTrident = 0; ag.agModoX = 0; ag.agTempForm = 0; ag.agBrave = 0; ag.imgId = "agumon";
+        // C4 · X-Antibody Synchro: +20% de Dano de Fogo + 25% de Dano Crítico permanentes
+        if (ag.stFlags?.aguC4) { ag.base.elemBonus = (ag.base.elemBonus || 0) + 20; ag.buffs.push({ stat: "critDmg", value: 25, turns: 9999, name: "X-Antibody Synchro" }); }
+        // C6 · Final Digital Evolution: começa a batalha já na forma Greymon
+        if (ag.stFlags?.aguC6) {
+          ag._aguBaseMaxHp = ag.maxHp;
+          ag.agForm = "greymon"; ag.imgId = "agumon_greymon";
+          ag.buffs.push({ stat: "def", value: 100, pct: true, turns: 9999, name: "Forma: Greymon" });
+          const hpGain = Math.round(ag._aguBaseMaxHp * 0.6); ag.maxHp = ag._aguBaseMaxHp + hpGain; ag.hp = ag.maxHp;
+        }
+      } }
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
     // _sibs: referências dos aliados de cada lado (Fulgur Resonance precisa achar o de menor HP)
     heroes.forEach(h => { h._sibs = heroes; });
@@ -4782,26 +4793,27 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             msg = `☠️ LEI DA CALAMIDADE ABSOLUTA! ${u.name} — ${wooTot} de Dano Chaos${wooCrit ? " (CRÍTICO!)" : ""}! Debuffs ${(f.wooE2||f.wooE6) ? "PERMANENTES" : `por ${debuffDurUlt}t`}${f.wooE6 ? ", intensidade×2, JULGAMENTO DA CALAMIDADE ativado!" : f.wooE4 ? ` [E4: bônus dinâmicos aplicados!]` : ""}!`;
           } else if (u.id === "agumon" && sk.aguUlt) {
             const fm = u.agForm || "agumon";
+            const c4Mul = u.stFlags?.aguC4 ? 3 : 1; // C4: +200% de dano da Suprema em todas as formas
             if (fm === "agumon") {
               const hot = (u.agHeat || 0) > 50; const pen = hot ? 40 : 0;
-              let tU = 0; aliveEnemies(s).forEach(e => { tU += dealDamage(u, e, (sk.ultMul || 300) * u.tUlt * ampU, fx, { breakW: 3, el: "Fogo", defPen: pen }).dmg; });
+              let tU = 0; aliveEnemies(s).forEach(e => { tU += dealDamage(u, e, (sk.ultMul || 300) * c4Mul * u.tUlt * ampU, fx, { breakW: 3, el: "Fogo", defPen: pen }).dmg; });
               if (hot) u.agHeat = 0;
               u.agSP = Math.min(aguSPMax(u), (u.agSP || 0) + 35);
               msg = `🔥🔥 PEPPER BREATH! ${tU} de Dano de Fogo em todos${hot ? " — TODO o Calor foi convertido em 40% de penetração de DEF!" : ""}. [+35 SP · Calor → ${u.agHeat}]`;
             } else if (fm === "greymon" && enemy) {
-              const r = dealDamage(u, enemy, 380 * u.tUlt * ampU, fx, { breakW: 3, el: "Fogo" });
+              const r = dealDamage(u, enemy, 380 * c4Mul * u.tUlt * ampU, fx, { breakW: 3, el: "Fogo" });
               const transf = Math.round((u.agHeat || 0) / 2); u.agHeat = Math.max(0, (u.agHeat || 0) - transf);
               if (enemy.alive) enemy.debuffs.push({ stat: "atk", value: -30, pct: true, turns: 2, name: "Calor Transferido" });
               u.agSP = Math.min(aguSPMax(u), (u.agSP || 0) + 35);
               msg = `🌋 NOVA BLAST sob ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}! Metade do Calor é transferida: ATK do alvo -30% por 2 rodadas. [Calor → ${u.agHeat}]`;
             } else if (fm === "metalgreymon") {
-              let tU = 0; aliveEnemies(s).forEach(e => { tU += dealDamage(u, e, 330 * u.tUlt * ampU, fx, { breakW: 3, el: "Fogo" }).dmg; if (e.alive) e.av = (e.av || 1) * 1.15; });
+              let tU = 0; aliveEnemies(s).forEach(e => { tU += dealDamage(u, e, 330 * c4Mul * u.tUlt * ampU, fx, { breakW: 3, el: "Fogo" }).dmg; if (e.alive) e.av = (e.av || 1) * 1.15; });
               u.agSP = Math.min(aguSPMax(u), (u.agSP || 0) + 35);
               msg = `💥 TERA DESTROYER! ${tU} de dano em todos + a ação de TODOS os inimigos atrasa 15% — a janela perfeita para calcular sua evolução!`;
             } else if (enemy) {
               let mulX = 1, spent = 0;
               if ((u.agModoX || 0) > 0 && (u.agSP || 0) > 0) { spent = u.agSP; mulX = Math.min(2, 1 + spent / 150); u.agSP = 0; }
-              const gaia = Math.round(effStat(u, "atk") * 6 * mulX * u.tUlt * ampU);
+              const gaia = Math.round(effStat(u, "atk") * 6 * c4Mul * mulX * u.tUlt * ampU);
               enemy.hp -= gaia; if (enemy.hp <= 0) { enemy.hp = 0; enemy.alive = false; }
               fx.push({ uid: enemy.uid, txt: String(gaia), crit: true, id: Math.random(), el: "Fogo" });
               msg = `☀️ GAIA FORCE!!! ${gaia} de DANO VERDADEIRO em ${enemy.name}${spent ? ` — o MODO X consumiu ${spent} TamerSP (dano ×${mulX.toFixed(2)})!` : "!"}`;
@@ -4990,14 +5002,14 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         if ((u.agModoX || 0) > 0) { u.agModoX -= 1; u.agHeat = 0; if (u.agModoX <= 0) { u.buffs = u.buffs.filter(b => b.name !== "MODO X"); pushLog(s, "⚙️ O MODO X se encerra — os sistemas do WarGreymon voltam ao normal."); } }
         // Forma imperfeita: dura 1 turno → regride com 1 de HP e 0 SP
         if ((u.agTempForm || 0) > 0) { u.agTempForm -= 1; if (u.agTempForm <= 0) { aguRevert(u, s, true); } }
-        // Calor > 70: Overclocking (+ATK/+CD até 80%) mas queima 5% HP/turno
+        // Calor > 70: Overclocking (+ATK/+CD até 80%). C3: sem dreno de HP — vira Escudo (10% do ATK/rodada)
         u.buffs = u.buffs.filter(b => b.name !== "Overclocking");
         if ((u.agHeat || 0) > 70 && (u.agModoX || 0) <= 0) {
           const ov = Math.round(((u.agHeat - 70) / 30) * 80);
           u.buffs.push({ stat: "atk", value: ov, pct: true, turns: 9999, name: "Overclocking" });
           u.buffs.push({ stat: "critDmg", value: ov, turns: 9999, name: "Overclocking" });
-          const burn5 = Math.round(u.maxHp * 0.05); u.hp = Math.max(1, u.hp - burn5);
-          fx.push({ uid: u.uid, txt: String(burn5), dot: "burn", id: Math.random() });
+          if (u.stFlags?.aguC3) { const shGain = Math.round(effStat(u, "atk") * 0.10); u.shield = (u.shield || 0) + shGain; fx.push({ uid: u.uid, txt: "🛡️+" + shGain, heal: true, id: Math.random() }); }
+          else { const burn5 = Math.round(u.maxHp * 0.05); u.hp = Math.max(1, u.hp - burn5); fx.push({ uid: u.uid, txt: String(burn5), dot: "burn", id: Math.random() }); }
         }
         // Meltdown a 100 de Calor
         if ((u.agHeat || 0) >= 100 && (u.agForm || "agumon") !== "agumon") {
@@ -5149,9 +5161,13 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         pushLog(s, "🧬 GREYMON ULTRA DIGIVOLVE PARA... METALGREYMON! (+100% ATK, +40% de Dano de Fogo)");
       } else if (formId === "wargreymon") {
         u.buffs.push({ stat: "atk", value: 60, pct: true, turns: 9999, name: "Forma: WarGreymon" });
+        // Forma: WarGreymon — +70% de HP Máximo e +70% de Dano Bônus
+        const hpGainWG = Math.round(u._aguBaseMaxHp * 0.70); u.maxHp = u._aguBaseMaxHp + hpGainWG; u.hp = Math.min(u.maxHp, u.hp + hpGainWG);
+        u.buffs.push({ stat: "dmgBonus", value: 70, turns: 9999, name: "Forma: WarGreymon" });
         if (!u._aguBaseEnergyMax) u._aguBaseEnergyMax = u.energyMax;
         u.energyMax = 250; // Gaia Force exige um núcleo de energia muito maior nesta forma
-        if (inWindow) {
+        const perfectSync = inWindow || u.stFlags?.aguC6; // C6: o Modo X SEMPRE substitui a forma normal do WarGreymon
+        if (perfectSync) {
           u.agModoX = 2; u._aguXHeat = u.agHeat || 0; u.agHeat = 0; // T3: guarda o Calor do momento da evolução p/ escalar penetração
           u.buffs.push({ stat: "critDmg", value: 150, turns: 9999, name: "MODO X" });
           u.buffs.push({ stat: "spd", value: 60, pct: false, turns: 9999, name: "MODO X" });
@@ -5653,14 +5669,14 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         if ((u.agModoX || 0) > 0) { u.agModoX -= 1; u.agHeat = 0; if (u.agModoX <= 0) { u.buffs = u.buffs.filter(b => b.name !== "MODO X"); pushLog(s, "⚙️ O MODO X se encerra — os sistemas do WarGreymon voltam ao normal."); } }
         // Forma imperfeita: dura 1 turno → regride com 1 de HP e 0 SP
         if ((u.agTempForm || 0) > 0) { u.agTempForm -= 1; if (u.agTempForm <= 0) { aguRevert(u, s, true); } }
-        // Calor > 70: Overclocking (+ATK/+CD até 80%) mas queima 5% HP/turno
+        // Calor > 70: Overclocking (+ATK/+CD até 80%). C3: sem dreno de HP — vira Escudo (10% do ATK/rodada)
         u.buffs = u.buffs.filter(b => b.name !== "Overclocking");
         if ((u.agHeat || 0) > 70 && (u.agModoX || 0) <= 0) {
           const ov = Math.round(((u.agHeat - 70) / 30) * 80);
           u.buffs.push({ stat: "atk", value: ov, pct: true, turns: 9999, name: "Overclocking" });
           u.buffs.push({ stat: "critDmg", value: ov, turns: 9999, name: "Overclocking" });
-          const burn5 = Math.round(u.maxHp * 0.05); u.hp = Math.max(1, u.hp - burn5);
-          fx.push({ uid: u.uid, txt: String(burn5), dot: "burn", id: Math.random() });
+          if (u.stFlags?.aguC3) { const shGain = Math.round(effStat(u, "atk") * 0.10); u.shield = (u.shield || 0) + shGain; fx.push({ uid: u.uid, txt: "🛡️+" + shGain, heal: true, id: Math.random() }); }
+          else { const burn5 = Math.round(u.maxHp * 0.05); u.hp = Math.max(1, u.hp - burn5); fx.push({ uid: u.uid, txt: String(burn5), dot: "burn", id: Math.random() }); }
         }
         // Meltdown a 100 de Calor
         if ((u.agHeat || 0) >= 100 && (u.agForm || "agumon") !== "agumon") {
