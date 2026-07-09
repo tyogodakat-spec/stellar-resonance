@@ -71,8 +71,8 @@ const ROSTER = [
   // ---- T5 PADRÃO (saem ao perder o 50/50 e no banner permanente) ----
   mk({ id: "kirara", name: "Kirara", title: "Encontro Estelar", element: "Chaos", role: "shield", rarity: 5, avatar: "💫", hp: 1360, atk: 560, def: 620, spd: 99, energy: 90, tags: ["Caos", "Guardião", "Escudo", "Provocar"],
     skill: { basicMul: 80, shield: { defMul: 90, flat: 320 }, taunt: true, ultShield: { defMul: 10, flat: 2000, all: true }, ultBuff: { def: 30, all: true, turns: 2 }, energyGift: 8 } }),
-  mk({ id: "yoruichi", name: "Yoruichi", title: "Deusa do Relâmpago", element: "Eletro", role: "dps", rarity: 5, avatar: "🐈‍⬛", hp: 1040, atk: 800, def: 410, spd: 125, energy: 120, cr: 10, cd: 62, tags: ["Eletro", "DPS", "Velocidade", "Choque"],
-    skill: { basicMul: 110, skillMul: 260, skillBuff: { critRate: 20, spd: 12, all: false, turns: 2 }, skillDot: { type: "shock", mul: 45, turns: 2 }, ultMul: 460 } }),
+  mk({ id: "yoruichi", name: "Yoruichi", title: "Deusa do Relâmpago", element: "Eletro", role: "dps", rarity: 5, avatar: "🐈‍⬛", hp: 1040, atk: 800, def: 410, spd: 125, energy: 120, cr: 10, cd: 62, tags: ["Eletro", "DPS", "Velocidade", "Ataque Extra"],
+    skill: { basicMul: 300, yoruBasic: true, skillMul: 0, yoruSkill: true, ultMul: 2200, yoruUlt: true } }),
   mk({ id: "kiritsugu", name: "Kiritsugu", title: "Caçador de Magos", element: "Virus", role: "debuffer", rarity: 5, avatar: "🔫", hp: 1080, atk: 725, def: 450, spd: 108, energy: 120, cr: 8, cd: 56, tags: ["Vírus", "Debuffador", "Veneno"],
     skill: { basicMul: 100, skillMul: 205, skillDebuff: { defDown: 40, vuln: 22, turns: 3 }, skillDot: { type: "poison", mul: 70, turns: 3 }, ultMul: 365, ultDebuff: { vuln: 30, all: true, turns: 3 } } }),
   // ---- Ryoshu (Limitada) ----
@@ -111,6 +111,7 @@ const DEFAULT_FEATURED_CHAR = "miyabi";
 const WEAPONS = [
   // ── ★★★★★ 5-estrelas ────────────────────────────────────────────────────────
   { id: "digivice",         name: "Digivice da Coragem",   rarity: 5, role: "dps",      atk: 500, hpFlat: 500, elemDmg: 30.0,    passive: "Sincronia Térmica: +50 de TamerSP máximo; Perícias geram 5 a menos de Calor. Ao Digivolver: restaura 10% do HP Máximo e +10 de VEL por 2 rodadas. No MODO X: a Gaia Force ganha +50% de CRIT DMG e inimigos derrotados por ela não podem ser ressuscitados nem curados por 1 rodada.", buff: { aguWeapon: true } },
+  { id: "relampago_fugaz",  name: "Relâmpago Fugaz",       rarity: 5, role: "dps",      hpFlat: 1058, defFlat: 463, spd: 10,      passive: "Passo Fantasma: +12% de VEL total. Ataques Extras do portador aumentam o próprio dano de Ataque Extra em +10% (acumula 3×, dura 2 turnos). Com VEL > 150: cada Ataque Extra do portador dá ao time +12% de Taxa de CRIT e +24% de CRIT DMG por 2 turnos, e o portador recupera 2 de Energia a cada interceptação do Talento.", buff: { yoruWeapon: true, spdPct: 12 } },
   { id: "starblade",        name: "Lâmina Estelar",       rarity: 5, role: "dps",      atk: 882, critDmg: 52.8,                    passive: "Fio Cortante: após a Habilidade, ganha +24% de Bônus de Dano por 2 turnos.",                                                    buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
   { id: "radiant",          name: "Cetro Radiante",        rarity: 5, role: "buffer",   atk: 720, energyRegen: 26.4,                passive: "Pulso de Apoio: ao buffar aliados, concede +12% de Bônus de Dano por 2 turnos.",                                                buff: { onBuff: { dmgBonus: 12, turns: 2 } } },
   { id: "dragoncannon",     name: "Disco de Duelo X",      rarity: 5, role: "summoner", atk: 700, atkPct: 48.0,                     passive: "Socio Majoritario: +48% ATK. Exclusivo (Kaiba): cada Blue-Eyes +18% CRIT DMG (max +54%); Habilidade +30% Perfuracao; Suprema +1 PH ao time." },
@@ -138,7 +139,7 @@ const DEFAULT_FEATURED_WEAPON = "starblade";
 /* ---------- MOCHILEIRO (seletor de personagem inicial) ---------- */
 const BEGINNER_PICK_CHARS = [
   { id: "kirara",    wpn: "starmantle"   },
-  { id: "yoruichi",  wpn: "thunderclaws" },
+  { id: "yoruichi",  wpn: "relampago_fugaz" },
   { id: "kiritsugu", wpn: "originpistol" },
   { id: "renji",    wpn: "shadowkunai"  },
   { id: "ace",      wpn: "chaostome"    },
@@ -305,9 +306,9 @@ const PASSIVE = {
   sakura:    { name: "Selo Centenário · Mãos que Curam", desc: "Talento: o chakra de cura de Sakura é refinado — a cura do seu Ultimate é 25% mais forte. Ela equilibra dano e suporte: bate forte com os punhos e, no Ultimate, devolve uma parcela enorme de HP a todo o time, segurando a equipe em lutas longas.", flag: "pMedic" },
   chopper:   { name: "Pontos Vitais · Médico Dedicado", desc: "Talento: como médico de bordo, todas as curas de Chopper (Habilidade e Ultimate) são 25% mais fortes. Ele prioriza sempre o aliado mais ferido e ainda distribui energia ao time, mantendo o grupo vivo e com os Ultimates carregados.", flag: "pRegen" },
   kirara:    { name: "Baluarte Estelar", desc: "Talento: os escudos de Kirara são 25% mais resistentes. Ela provoca os inimigos para atrair os ataques e converte a própria DEF altíssima em barreiras grossas para todo o time, sustentando a linha de frente contra os golpes mais pesados dos chefes.", flag: "pBulwark" },
-  yoruichi:  { name: "Deusa Veloz · Shunko", desc: "Talento: a velocidade divina de Yoruichi adianta drasticamente sua barra de ação — ela quase sempre age primeiro na batalha, aplicando Choque e abrindo o combate antes do inimigo reagir. Sua altíssima VEL também significa turnos mais frequentes ao longo da luta.", flag: "pSwift" },
+  yoruichi:  { name: "Frequência Shunpo", desc: "Todos os multiplicadores de dano de Yoruichi escalam exclusivamente com sua VELOCIDADE (VEL), ignorando ATK. A cada 10 de VEL acima de 120, o Dano Crítico de Ataques Extras de todo o time sobe 6% (máx 60%). Ataques Extras aliados fazem Yoruichi conjurar um Clone Residual (500% da VEL em Dano Eletro no mesmo alvo); a cada 3 Clones, dispara Colapso Elétrico (1500% da VEL em área + -20% RES a Ataques Extras por 2 turnos no alvo).", flag: "pSwift" },
   kiritsugu: { name: "Análise · Caçador de Magos", desc: "Talento: o frio cálculo de Kiritsugu encontra a falha do alvo — toda vulnerabilidade que ele aplica é +12% mais forte. Combinado com o Veneno da Habilidade, ele transforma qualquer inimigo em um alvo que recebe dano amplificado de toda a equipe e ainda derrete ao longo dos turnos.", flag: "pAnalyze" },
-  soifon: { name: "Ciclo do Ferrão · Vibração da Morte", desc: "Talento: aliados que causam Dano de Eletro concedem 1 carga de [Vibração de Ferrão] para Soi Fon (máx 3). Com 3 cargas, ela entra em Postura de Ferrão — próximo Ataque Básico causa Dano Verdadeiro (120% ATK, ignora DEF e Escudos). Com [Ferrão da Morte] no alvo e ataques Eletro de aliados, dispara follow-ups instantâneos de Vento (máx 2/turno de aliado).", flag: "sfFollowup" },
+  soifon: { name: "Ciclo do Ferrão · Vibração da Morte", desc: "Talento: QUALQUER aliado que agir concede 1 carga de [Vibração de Ferrão] para Soi Fon (máx 3). Com 3 cargas, ela entra em Postura de Ferrão — próximo Ataque Básico causa Dano Verdadeiro (120% ATK, ignora DEF e Escudos). Com [Ferrão da Morte] em algum inimigo, cada ação aliada dispara Ataques Extras instantâneos de Vento nos alvos marcados (máx 2/turno de aliado) — e esses golpes contam pro sistema de Ataque Extra do jogo (reagem com kits como o da Yoruichi).", flag: "sfFollowup" },
   omegamon: { name: "Digital Hazard", desc: "Talento: enquanto Omegamon Zwart D está em campo, o HP Máximo de todos os aliados aumenta em 25%. Sempre que o portador ou um aliado com [Protocolo de Infecção] é atacado, acumula 1 carga de [Vírus Defeat] (máx 5). Cada carga concede +15% de CRIT DMG e reduz a DEF do atacante em 10%. Ao atingir 5 cargas, o próximo ataque remove todos os buffs do alvo e causa Dano Verdadeiro igual a 20% do HP Máximo do portador.", flag: "omgTalent" },
   lancer: { name: "Rune da Imortalidade · Survivance", desc: "Talento: Lancer não pode ser morto por um golpe fatal — a primeira vez por batalha que recebesse dano suficiente para zerar o HP, ele sobrevive com 1 de HP e recupera imediatamente 20% do HP máximo. Esse instinto de sobrevivência o torna o herói mais difícil de abater e combina com a Ultimate de ignição de baixo HP.", flag: "lancerRevive" },
   nanami: { name: "Postura Profissional · Cálculo 7:3", desc: "Talento: Nanami está sempre dentro do expediente — se a batalha ultrapassar o 5º turno de heróis, ele entra em [Hora Extra], ganhando permanentemente +30% de ATK pelo resto do combate. Combinado com a mecânica 7:3 da Habilidade (que dispara Crítico Garantido em danos terminados em 7 ou 3), cada turno longo o torna exponencialmente mais letal.", flag: "nanamHoraExtra" },
@@ -387,12 +388,12 @@ const CONS = {
     { name: "C6 · Muralha Estelar Absoluta", flag: "kirC6", desc: "Capstone: a Ultimate concede escudos 50% mais grossos E +25% de Bônus de Dano ao time por 2 turnos. Enquanto qualquer aliado tiver escudo ativo, Kirara provoca TODOS os inimigos — a guardiã cósmica não descansa." },
   ],
   yoruichi: [
-    { name: "S1 · Deusa da Velocidade", stat: "spd", value: 10, desc: "Aprimoramento: VEL +10, agindo ainda antes na ordem de turnos." },
-    { name: "S2 · Shunko Crepitante", flag: "dotBoost", desc: "Mudança de kit: o Choque de Yoruichi causa +40% de dano por turno." },
-    { name: "S3 · Punho Relâmpago", ...A_SKILL, desc: "Eleva em +25% o dano da Habilidade." },
-    { name: "S4 · Forma Felina", stat: "critDmg", value: 25, desc: "Aprimoramento: CRIT DMG +25%." },
-    { name: "S5 · Shunko: Raijin", ...A_ULT, desc: "Eleva em +50% o dano do Ultimate." },
-    { name: "S6 · Velocidade Divina", flag: "ultRefund", desc: "Mudança de kit: após o Ultimate, Yoruichi recupera 40 de energia — graças à VEL altíssima, ela consegue encadear Ultimates em sequência." },
+    { name: "S1 · Corrente Corrosiva", flag: "yoruS1", desc: "Sempre que um Clone Residual atinge um inimigo, reduz a DEF dele em 4% por 2 turnos. Acumula até 5 vezes." },
+    { name: "S2 · Ressonância Crítica", flag: "yoruS2", desc: "Alvos com a RES reduzida pelo Colapso Elétrico recebem o Eco do Domínio Magnético com Dano Crítico bônus baseado na Taxa de CRIT atual de Yoruichi." },
+    { name: "S3 · Sincronia de Combate", flag: "yoruS3", desc: "Mudança de kit: o Talento passa a reconhecer Supremas ofensivas dos aliados como Ataques Extras — Yoruichi dispara Clones Residuais e acumula Colapso Elétrico também quando o time usa a Ultimate." },
+    { name: "S4 · Fluxo Vital", flag: "yoruS4", desc: "Sempre que o Colapso Elétrico detona, Yoruichi recupera 5 de Energia e cura o aliado com menor HP em 10% do HP Máximo dele." },
+    { name: "S5 · Aterramento Perfeito", flag: "yoruS5", desc: "A conversão de dano do Ponto de Aterramento sobe de 35% para 52%." },
+    { name: "S6 · Sobrecarga Total", flag: "yoruS6", desc: "Mudança de kit: o teto do bônus de Dano Crítico do Talento sobe para 160%. A detonação do Ponto de Aterramento deixa de ser só no alvo marcado — 50% do dano acumulado se espalha para TODOS os inimigos." },
   ],
   kiritsugu: [
     { name: "S1 · Olhar Clínico", stat: "critRate", value: 8, desc: "Aprimoramento: Taxa de CRIT +8%." },
@@ -511,7 +512,7 @@ const SKILL_NAMES = {
   sakura: ["Golpe Centena", "Soco Esmagador", "Punho Sobre-humano"],
   chopper: ["Investida", "Cuidado Médico", "Operação de Emergência"],
   kirara: ["Toque Estelar", "Escudo Cósmico", "Constelação Guardiã"],
-  yoruichi: ["Golpe Relâmpago", "Shunko", "Shunko: Raijin"],
+  yoruichi: ["Golpe Relâmpago", "Domínio Magnético", "Shunko: Raijin"],
   kiritsugu: ["Tiro de Origem", "Bala Calculada", "Time Alter: Triple Accel"],
   ryoshu: ["F.P. [Fio Peçonhento]", "M.D.S. [Marionetes de Sangue]", "A.T.D.A. [A Tela da Aranha]"],
   frieren: ["Magia Comum", "Grimório do Colecionador", "Descompressão de Mana"],
@@ -947,6 +948,27 @@ function rewardFor(f) {
   if (f % 10 === 0) return 500;
   return 100;
 }
+// ══════════ TORRE SOMBRIA (Dark Tower) — 10 níveis, só chefes, HP altíssimo, ignoram escudo ══════════
+const DARK_TOWER_BOSSES = [
+  { name: "Sentinela Sombria",        element: "Chaos",  bossKind: "guardian",       hpMul: 6.0,  res: [],              weak: ["Holy"],           dot: null,     reward: 1600 },
+  { name: "Aizen · Eco Sombrio",      element: "Holy",   bossKind: "aizen",          hpMul: 6.5,  res: ["Glacial"],     weak: ["Fogo", "Virus"],  dot: null,     reward: 1600 },
+  { name: "Sukuna · Fome Eterna",     element: "Chaos",  bossKind: "sukuna",         hpMul: 7.0,  res: ["Chaos"],       weak: ["Holy"],           dot: "burn",   reward: 1600 },
+  { name: "Kaiba · Obelisco Negro",   element: "Eletro", bossKind: "godkaiba",       hpMul: 7.5,  res: ["Eletro", "Holy"], weak: ["Fogo", "Virus"], dot: null,   reward: 1600 },
+  { name: "Ryoshu · Teia Sombria",    element: "Virus",  bossKind: "ryoshu_boss",    hpMul: 8.0,  res: ["Virus"],       weak: ["Fogo", "Holy"],   dot: "poison", reward: 1600 },
+  { name: "Frieren · Memória Rota",   element: "Holy",   bossKind: "frieren_boss",   hpMul: 8.5,  res: ["Glacial"],     weak: ["Fogo", "Virus"],  dot: "freeze", reward: 1600 },
+  { name: "Omegamon · Núcleo Corrompido", element: "Virus", bossKind: "omegamon_boss", hpMul: 9.0, res: ["Virus", "Chaos"], weak: ["Fogo"],        dot: "poison", reward: 1600 },
+  { name: "Soberano do Vazio · Sombra", element: "Chaos", bossKind: "void_sovereign", hpMul: 9.5,  res: ["Chaos", "Virus"], weak: ["Holy"],        dot: "burn",   reward: 1600 },
+  { name: "Soberano da Espiral Negra", element: "Chaos", bossKind: "espiral_lord",   hpMul: 10.0, res: [],              weak: ["Fogo", "Holy", "Virus"], dot: "freeze", reward: 1600, espiralLordHpMul: 1 },
+  { name: "Maximillion · Máscara Final", element: "Chaos", bossKind: "maximillion",  hpMul: 11.0, res: [],              weak: ["Chaos", "Holy", "Eletro"], dot: "poison", reward: 1600 },
+];
+function darkTowerEncounter(level, power) {
+  const bd = DARK_TOWER_BOSSES[level - 1]; if (!bd) return null;
+  return {
+    level: 70 + level * 6, boss: true, count: 1, floor: level, isTower: true, darkTower: true,
+    teamPower: power || 2500, bossName: bd.name, bossElement: bd.element, bossKind: bd.bossKind, bossImgId: null,
+    bossRes: bd.res, bossWeak: bd.weak, darkTowerHpMul: bd.hpMul, darkTowerDot: bd.dot, espiralLordHpMul: bd.espiralLordHpMul,
+  };
+}
 function towerEncounter(f, power) {
   const boss = f % 10 === 0, finalBoss = f === TOWER_FLOORS;
   const bd = TOWER_BOSSES[f];
@@ -1087,7 +1109,10 @@ function Game({ email, isAdmin, onLogout }) {
   const [lastStamina, setLastStamina] = useState(Date.now());
   const [playerName, setPlayerName] = useState("Pioneiro");
   const [images, setImages] = useState({});
+  const [tierList, setTierList] = useState(TIER_LIST_DEFAULT);
   const [towerCleared, setTowerCleared] = useState(0);
+  const [darkTowerCleared, setDarkTowerCleared] = useState(0);
+  const [darkTowerClaimed, setDarkTowerClaimed] = useState([]);
   const [towerClaimed, setTowerClaimed] = useState([]);
   const [towerSeason, setTowerSeason] = useState(-1);
   const [towerTop1Claimed, setTowerTop1Claimed] = useState(false);
@@ -1154,7 +1179,8 @@ function Game({ email, isAdmin, onLogout }) {
           setTowerCleared(s.towerCleared ?? 0); setTowerClaimed(s.towerClaimed ?? []); setBossRushCleared(Array.isArray(s.bossRushCleared) ? s.bossRushCleared : []);
           setTowerSeason(savedSeason);
         }
-        setTowerTop1Claimed(s.towerTop1Claimed ?? false); }
+        setTowerTop1Claimed(s.towerTop1Claimed ?? false);
+        setDarkTowerCleared(s.darkTowerCleared ?? 0); setDarkTowerClaimed(Array.isArray(s.darkTowerClaimed) ? s.darkTowerClaimed : []); }
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0);
       setDraftRoomCleared(s.draftRoomCleared ?? 0); setDraftClaimedGems(s.draftClaimedGems ?? 0); setDraftBoons(Array.isArray(s.draftBoons) ? s.draftBoons : []);
       setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setMail2Claimed(prev => prev || (s.mail2Claimed ?? false)); setRelicMats(s.relicMats ?? 0); setRouletteCleared(s.rouletteCleared ?? false); setNextRouletteClaimAt(s.nextRouletteClaimAt ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
@@ -1168,6 +1194,8 @@ function Game({ email, isAdmin, onLogout }) {
     }
     // Carrega fotos do localStorage imediatamente (sem depender do Firebase)
     try { const li = _ls.get("sr_shared_images"); if (li) { const parsed = JSON.parse(li); if (parsed && typeof parsed === "object") setImages(parsed); } } catch {}
+    // Carrega a Tier List (editável pelo admin) do localStorage imediatamente
+    try { const lt = _ls.get("sr_shared_tierlist"); if (lt) { const parsedT = JSON.parse(lt); if (parsedT && typeof parsedT === "object") setTierList(parsedT); } } catch {}
     // Load admin game settings (draft dungeon active, etc.)
     cloudReady.then(() => cloudGet("meta", "settings")).then((cfg) => {
       if (cfg && cfg.draftActive !== undefined) setDraftActive(!!cfg.draftActive);
@@ -1178,6 +1206,12 @@ function Game({ email, isAdmin, onLogout }) {
       if (sharedImgs && sharedImgs.map && Object.keys(sharedImgs.map).length > 0) {
         setImages(sharedImgs.map);
         _ls.set("sr_shared_images", JSON.stringify(sharedImgs.map));
+      }
+    }).catch(() => {});
+    cloudReady.then(() => cloudGet("meta", "tierlist")).then((sharedTL) => {
+      if (sharedTL && sharedTL.map && Object.keys(sharedTL.map).length > 0) {
+        setTierList(sharedTL.map);
+        _ls.set("sr_shared_tierlist", JSON.stringify(sharedTL.map));
       }
     }).catch(() => {});
   })(); }, [SAVE_KEY]);
@@ -1197,8 +1231,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1359,6 +1393,13 @@ function Game({ email, isAdmin, onLogout }) {
     if (floor <= towerCleared) { flash("Andar já concluído — não pode repetir.", C.bad); return; }
     if (floor > towerCleared + 1) { flash("Conclua os andares anteriores primeiro.", C.bad); return; }
     setBattle({ context: "tower", floor, encounter: towerEncounter(floor, teamPower()), ally: null });
+  }
+  function startDarkTower(level) {
+    if (level <= darkTowerCleared) { flash("Nível já concluído — não pode repetir.", C.bad); return; }
+    if (level > darkTowerCleared + 1) { flash("Conclua os níveis anteriores primeiro.", C.bad); return; }
+    const enc = darkTowerEncounter(level, teamPower());
+    if (!enc) return;
+    setBattle({ context: "darktower", floor: level, encounter: enc, ally: null });
   }
   function startTest() {
     const lv = Math.round(team.reduce((a, id) => a + (ownedMap[id]?.level || 1), 0) / Math.max(1, team.length)) + 4;
@@ -1548,6 +1589,15 @@ function Game({ email, isAdmin, onLogout }) {
           cloudReady.then(() => cloudSet("tower_lb", _pName, { name: _pName, floor: f, updatedAt: Date.now() }));
         } else { setExpItems((v) => v + 4); flash("Andar repetido — sem gemas, +4 Lácrimas de XP", C.mute); } // anti-exploit: replays não dão gemas
       } else flash("Você caiu na torre…", C.bad);
+    } else if (b.context === "darktower") {
+      if (result.win) {
+        const lvl = b.floor;
+        if (lvl === darkTowerCleared + 1 && !darkTowerClaimed.includes(lvl)) {
+          const bd = DARK_TOWER_BOSSES[lvl - 1]; const rw = (bd && bd.reward) || 1600;
+          setJade((j) => j + rw); setDarkTowerCleared(lvl); setDarkTowerClaimed((p) => [...p, lvl]);
+          flash(`🌑 Nível ${lvl} da Torre Sombria conquistado! +${rw}💎`, C.good);
+        } else { setExpItems((v) => v + 4); flash("Nível repetido — sem gemas, +4 Lácrimas de XP", C.mute); }
+      } else flash("Você caiu na Torre Sombria…", C.bad);
     } else if (b.context === "test") {
       if (result.win) { flash("Vitória de treino! (modo livre, sem recompensas)", C.good); } // anti-exploit: treino é sandbox, sem materiais
       else flash("Derrota", C.bad);
@@ -1659,7 +1709,7 @@ function Game({ email, isAdmin, onLogout }) {
 
   if (!loaded) return <div style={{ minHeight: "100vh", background: C.bg0, color: C.mute, display: "flex", alignItems: "center", justifyContent: "center" }}>Sincronizando ressonância…</div>;
 
-  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["roleta", "Pacto", "🎰"], ["espiral", "Espiral", "🌀"], ["abismo", "Abismo", "🕳️"], ["roteiro", "Roteiro", "📖"], ["wiki", "Wiki", "📚"], ["tierlist", "Tier List", "📊"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
+  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["darktower", "T. Sombria", "🌑"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["roleta", "Pacto", "🎰"], ["espiral", "Espiral", "🌀"], ["abismo", "Abismo", "🕳️"], ["roteiro", "Roteiro", "📖"], ["wiki", "Wiki", "📚"], ["tierlist", "Tier List", "📊"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
 
   const needsNick = loaded && (!playerName || playerName === "Pioneiro");
 
@@ -1705,6 +1755,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "team" && <TeamScreen owned={owned} team={team} setTeam={setTeam} startTest={startTest} flash={flash} />}
               {screen === "farm" && <Farm stamina={stamina} start={startFarm} expItems={expItems} startTagDungeon={startTagDungeon} tagMats={tagMats} weaponMats={weaponMats} skillMats={skillMats} startRelicDungeon={startRelicDungeon} />}
               {screen === "tower" && <Tower towerCleared={towerCleared} towerClaimed={towerClaimed} start={startTower} team={team} flash={flash} />}
+              {screen === "darktower" && <DarkTowerScreen darkTowerCleared={darkTowerCleared} darkTowerClaimed={darkTowerClaimed} start={startDarkTower} team={team} flash={flash} />}
               {screen === "weekly" && <WeeklyBoss start={startWeekly} stamina={stamina} bossMats={bossMats} lastWeeklyBoss={lastWeeklyBoss} startAscension={startAscension} ascMats={ascMats} />}
               {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} setRelicMats={setRelicMats} flash={flash} setBattle={setBattle} />}
               {screen === "relics" && <RelicsScreen relicInv={relicInv} />}
@@ -1717,8 +1768,8 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "espiral" && <Espiral owned={owned} team={team} ownedMap={ownedMap} espiralClearedAt={espiralClearedAt} espiralWeekSeed={espiralWeekSeed} espiralWeaknesses={espiralWeaknesses} startEspiral={startEspiral} images={images} flash={flash} />}
                 {screen === "roteiro" && <Roteiro />}
                 {screen === "wiki" && <WikiScreen />}
-                {screen === "tierlist" && <TierListScreen />}
-              {screen === "admin" && (isAdmin ? <Admin images={images} setImages={setImages} flash={flash} isAdmin={isAdmin} draftActive={draftActive} setDraftActive={setDraftActive} /> : <Empty msg="Acesso restrito ao administrador." />)}
+                {screen === "tierlist" && <TierListScreen tierList={tierList} />}
+              {screen === "admin" && (isAdmin ? <Admin images={images} setImages={setImages} tierList={tierList} setTierList={setTierList} flash={flash} isAdmin={isAdmin} draftActive={draftActive} setDraftActive={setDraftActive} /> : <Empty msg="Acesso restrito ao administrador." />)}
             </>
           )}
         </div>
@@ -3423,6 +3474,40 @@ function TowerLeaderboard() {
     </Panel>
   );
 }
+function DarkTowerScreen({ darkTowerCleared, darkTowerClaimed, start, team, flash }) {
+  const totalReward = DARK_TOWER_BOSSES.reduce((a, b) => a + b.reward, 0);
+  const earned = darkTowerClaimed.reduce((a, l) => a + ((DARK_TOWER_BOSSES[l - 1] && DARK_TOWER_BOSSES[l - 1].reward) || 0), 0);
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel glow="#B98BFF" style={{ position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(420px 200px at 85% 0%, #B98BFF22, transparent)" }} />
+        <div style={{ position: "relative" }}>
+          <div style={{ ...ORB, fontSize: 20, fontWeight: 800 }}>🌑 Torre Sombria</div>
+          <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>10 níveis, cada um contra um único chefe de HP altíssimo. Todos IGNORAM escudos do seu time — não dá pra tankar, só sobreviver e furar. Alguns ainda infectam seus personagens com DoTs periodicamente. <Glow color="#B98BFF">{totalReward.toLocaleString("pt-BR")}💎 totais</Glow>.</div>
+          <div className="flex items-center gap-3 mt-3" style={{ fontSize: 13 }}><span>Progresso: <b style={{ color: "#B98BFF" }}>{darkTowerCleared}/10</b></span><span>Gemas ganhas: <b style={{ color: "#86d8ff" }}>{earned.toLocaleString("pt-BR")}/{totalReward.toLocaleString("pt-BR")}</b></span></div>
+          <Bar value={earned} max={totalReward} color="#B98BFF" />
+        </div>
+      </Panel>
+      <div className="flex flex-col gap-2">
+        {DARK_TOWER_BOSSES.map((bd, i) => {
+          const lvl = i + 1; const cleared = darkTowerCleared >= lvl; const locked = lvl > darkTowerCleared + 1;
+          const el = ELEMENTS[bd.element] || { color: C.line, glyph: "✦" };
+          return (
+            <button key={lvl} disabled={locked} onClick={() => { if (!team.length) { flash("Monte uma equipe antes!", "#FF6464"); return; } start(lvl); }}
+              style={{ textAlign: "left", display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 14, border: `2px solid ${cleared ? "#74E8A6" : locked ? C.line : "#B98BFF"}`, background: cleared ? "#0d2317" : locked ? C.panel : "linear-gradient(135deg,#1c1233,#0e0a1c)", cursor: locked ? "not-allowed" : "pointer", opacity: locked ? 0.5 : 1 }}>
+              <div style={{ fontSize: 26, width: 40, textAlign: "center" }}>{cleared ? "✅" : locked ? "🔒" : "🌑"}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ ...ORB, fontWeight: 800, fontSize: 14 }}>Nível {lvl} · {bd.name}</div>
+                <div style={{ fontSize: 11, color: el.color }}>{el.glyph} {bd.element}{bd.dot ? ` · aplica ${DOT_INFO[bd.dot]?.n || bd.dot}` : ""} · ignora escudo</div>
+              </div>
+              <div style={{ fontWeight: 800, color: "#F6C95B", fontSize: 13 }}>+{bd.reward}💎</div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 function Tower({ towerCleared, towerClaimed, start, team, flash }) {
   const earned = towerClaimed.reduce((a, f) => a + rewardFor(f), 0);
   const totalReward = 78500; // soma total de todos os andares 1-200
@@ -3571,9 +3656,9 @@ function makeEnemy(idx, enc) {
     // Torre: HP dos chefes escala exponencialmente — andar 200 = exatamente 5.000.000 HP
     if (enc.isTower && boss) {
       const f = enc.floor || enc.level;
-      baseHp = f === 200 ? 3500000 : Math.round(118000 * Math.pow(10, (f - 50) / 105));
+      baseHp = f === 200 ? 5000000 : Math.round(118000 * Math.pow(10, (f - 50) / 105));
     } else if (boss) {
-      baseHp *= (finalBoss ? 5.4 : weekly ? 6.2 : ascend ? 2.4 : enc.relicFarm ? 0.85 : 3.4);
+      baseHp *= enc.darkTower ? (enc.darkTowerHpMul || 6) : (finalBoss ? 7.0 : weekly ? 7.0 : ascend ? 2.4 : enc.relicFarm ? 0.85 : 4.0);
     }
   }
   const hp = Math.round(baseHp);
@@ -3612,6 +3697,7 @@ function makeEnemy(idx, enc) {
     hp: _finalHp, maxHp: _finalHp, shield: 0, av: 10000 / Math.max(1, spd), buffs: [], debuffs: [], dots: [], alive: true, actCount: 0,
     // ── Perfuração (Toughness): apenas Chefes/Elites com fraqueza definida têm barra de Resistência ──
     _hasToughness: (boss || (!boss && lvl >= 18 && idx === 0)) && weak.length > 0,
+    _ignoresShield: !!(enc.darkTower && idx === 0), _darkTowerDot: (enc.darkTower && idx === 0) ? (enc.darkTowerDot || null) : null,
     toughness: (boss || (!boss && lvl >= 18 && idx === 0)) ? Math.round(80 + (finalBoss ? 100 : weekly ? 70 : ascend ? 20 : boss ? 40 : 0)) : 0,
     maxToughness: (boss || (!boss && lvl >= 18 && idx === 0)) ? Math.round(80 + (finalBoss ? 100 : weekly ? 70 : ascend ? 20 : boss ? 40 : 0)) : 0,
   };
@@ -3636,6 +3722,8 @@ function effStat(u, key) {
       if (th && rawSpd > th.spd && th.spdBonus) flat += th.spdBonus;
     }
   }
+  // Relâmpago Fugaz (Yoruichi): Passo Fantasma — +12% da VEL total
+  if (key === "spd" && u && u.weapon?.buff?.yoruWeapon) { const raw = base + flat + pct; flat += raw * 0.12; }
   const v = PCT[key] ? base * (1 + pct / 100) + flat : base + flat + pct;
   return isFinite(v) ? v : base;
 }
@@ -3645,7 +3733,7 @@ function defMult(attacker, defenderDef) { const lvl = (attacker && attacker.leve
 const BOSS_RUSH_BOSSES = [
   {
     id: "aizen", name: "Sōsuke Aizen", avatar: "\uD83D\uDDE1\uFE0F", imgKey: "boss_aizen",
-    hp: 1100000, element: "Holy", reward: 1000,
+    hp: 1300000, element: "Holy", reward: 1000,
     lore: "O Shinigami traidor que forjou seu proprio trono no vazio entre os mundos. Kyoka Suigetsu distorce ate a propria realidade dos sentidos.",
     mechanics: [
       "A cada 3 acoes usa Completude Hipnotica: hipnotiza o time, causando dano Holy e reduzindo a Precisao.",
@@ -3656,7 +3744,7 @@ const BOSS_RUSH_BOSSES = [
   },
   {
     id: "godkaiba", name: "Seto Kaiba · Modo Deus", avatar: "\uD83D\uDC09", imgKey: "boss_kaiba",
-    hp: 1300000, element: "Eletro", reward: 1000,
+    hp: 1500000, element: "Eletro", reward: 1000,
     lore: "Kaiba fundiu sua alma ao Obelisco, o Atormentador. Um soberano dracônico que nao aceita a derrota como opcao.",
     mechanics: [
       "Ergue Radiacao do Obelisco: escudo massivo e aplica Vulnerabilidade permanente ao time.",
@@ -3667,7 +3755,7 @@ const BOSS_RUSH_BOSSES = [
   },
   {
     id: "void_sovereign", name: "Soberano do Vazio", avatar: "\uD83C\uDF11", imgKey: "boss_void",
-    hp: 1600000, element: "Chaos", reward: 1200,
+    hp: 1900000, element: "Chaos", reward: 1200,
     lore: "Uma fenda consciente na realidade. Cada rodada que passa, ele apaga um pouco mais do que os herois construiram.",
     mechanics: [
       "Fase 2 (abaixo de 60% HP): Eclipse Total — ATK/DEF/VEL sobem e anula buffs temporarios do time.",
@@ -3737,6 +3825,58 @@ function capShieldAdd(u, amt, customCap) {
   if (cur >= cap) return 0;
   return Math.max(0, Math.min(amt, cap - cur));
 }
+// Yoruichi — Frequência Shunpo: reage a Ataques Extras de qualquer aliado (contra-ataques da equipe)
+function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx) {
+  if (!follower || follower.side !== "H" || !enemyTarget || !enemyTarget.alive) return;
+  const yoru = (follower._sibs || []).find(h => h.id === "yoruichi" && h.alive);
+  if (!yoru || yoru.uid === follower.uid) return;
+  const ySpd = effStat(yoru, "spd"), yAtk = Math.max(1, effStat(yoru, "atk"));
+  const cloneMul = (ySpd * 5.0 / yAtk) * 100; // Clone Residual: 500% da VEL
+  const cr = dealDamage(yoru, enemyTarget, cloneMul, fx, { el: "Eletro", isYoruClone: true, breakW: 1 });
+  yoru._yoruClones = (yoru._yoruClones || 0) + 1;
+  // Relâmpago Fugaz: dano próprio de Ataque Extra +10% por acúmulo (máx 3, dura 2 turnos)
+  if (yoru.weapon?.buff?.yoruWeapon) {
+    const stW = yoru.buffs.filter(b => b.name === "Passo Fantasma").length;
+    if (stW < 3) yoru.buffs.push({ stat: "dmgBonus", value: 10, turns: 2, name: "Passo Fantasma" });
+    else { const oldest = yoru.buffs.find(b => b.name === "Passo Fantasma"); if (oldest) oldest.turns = 2; }
+    // Regenera 2 de Energia a cada interceptação do Talento
+    if (yoru.energyMax) yoru.energy = Math.min(yoru.energyMax, yoru.energy + 2);
+    // Com VEL > 150: Ataque Extra do portador dá ao time +12% CRIT e +24% CRIT DMG por 2 turnos
+    if (ySpd > 150) {
+      (yoru._sibs || []).filter(h => h.alive).forEach(h => { h.buffs = h.buffs.filter(b => b.name !== "Passo Fantasma (Equipe)"); h.buffs.push({ stat: "critRate", value: 12, turns: 2, name: "Passo Fantasma (Equipe)" }); h.buffs.push({ stat: "critDmg", value: 24, turns: 2, name: "Passo Fantasma (Equipe)" }); });
+    }
+  }
+  // S1: cada Clone Residual reduz a DEF do alvo em 4% por 2 turnos (acumula até 5×)
+  if (yoru.stFlags?.yoruS1 && enemyTarget.alive) {
+    const stacks = enemyTarget.debuffs.filter(d => d.name === "Corrente Corrosiva").length;
+    if (stacks < 5) enemyTarget.debuffs.push({ stat: "def", value: -4, pct: true, turns: 2, name: "Corrente Corrosiva" });
+  }
+  let burstDmg = 0;
+  if (yoru._yoruClones % 3 === 0 && enemyTarget._sibs) {
+    const burstMul = (ySpd * 15.0 / yAtk) * 100; // Colapso Elétrico: 1500% da VEL em área
+    enemyTarget._sibs.filter(e => e.alive).forEach(e => {
+      const br = dealDamage(yoru, e, burstMul, fx, { el: "Eletro", isYoruClone: true, breakW: 2 });
+      if (e.uid === enemyTarget.uid) burstDmg = br.dmg;
+      e.debuffs.push({ stat: "vuln", value: 20, turns: 2, name: "Colapso Elétrico" }); // -20% RES a Ataques Extras (implementado como +20% de dano recebido)
+    });
+    pushLogGlobalFx(fx, yoru.uid, "COLAPSO ELÉTRICO!");
+    // S4: ao detonar o Colapso Elétrico, recupera 5 de Energia e cura o aliado com menor HP em 10%
+    if (yoru.stFlags?.yoruS4) {
+      if (yoru.energyMax) yoru.energy = Math.min(yoru.energyMax, yoru.energy + 5);
+      const lowAlly = (yoru._sibs || []).filter(h => h.alive && !h.isSummon).sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+      if (lowAlly) { const heal = Math.round(lowAlly.maxHp * 0.10); healUnit(lowAlly, heal, fx); }
+    }
+  }
+  // Registro do Ponto de Aterramento
+  if ((yoru._yoruStance || 0) > 0 && yoru._yoruMarkUid === enemyTarget.uid) {
+    const rate = yoru.stFlags?.yoruS5 ? 0.52 : 0.35;
+    let recAmt = (dmgDealt || 0) * rate + (cr.dmg || 0) * rate + burstDmg * rate;
+    // S2: alvos sob Colapso Elétrico recebem o Eco com bônus de Dano Crítico baseado na Taxa de CRIT de Yoruichi
+    if (yoru.stFlags?.yoruS2 && enemyTarget.debuffs.some(d => d.name === "Colapso Elétrico")) recAmt *= (1 + effStat(yoru, "critRate") / 100);
+    yoru._yoruRecordedDmg = (yoru._yoruRecordedDmg || 0) + recAmt;
+  }
+}
+function pushLogGlobalFx(fx, uid, txt) { fx.push({ uid, txt, crit: true, id: Math.random(), el: "Eletro" }); }
 function dealDamage(attacker, defender, mult, fx, opts) {
   // Lancer Esquiva Absoluta: bloqueia o próximo ataque
   if (defender.id === "lancer" && (defender.lancerDodges || 0) > 0 && attacker.side !== "H" && !opts?.pierceShield) {
@@ -3747,6 +3887,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
       const cntAtk = Math.round(effStat(defender, "atk") * 0.80);
       attacker.hp -= cntAtk; if (attacker.hp <= 0) { attacker.hp = 0; attacker.alive = false; }
       fx.push({ uid: attacker.uid, txt: String(cntAtk), crit: false, id: Math.random(), el: "Chaos" });
+      yoruFollowupProc(defender, attacker, cntAtk, fx);
     }
     return { dmg: 0, crit: false };
   }
@@ -3757,6 +3898,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     fx.push({ uid: attacker.uid, txt: String(cAtk), crit: true, id: Math.random(), el: "Fogo" });
     const bh = Math.round(defender.maxHp * 0.05); defender.hp = Math.min(defender.maxHp, defender.hp + bh);
     fx.push({ uid: defender.uid, txt: "+" + bh, heal: true, id: Math.random() });
+    yoruFollowupProc(defender, attacker, cAtk, fx);
   }
   // Uraraka (Rastro Tempestade): aliado com Zero Gravity atacado atrasa a ação do inimigo em 8%
   if (defender.side === "H" && attacker.side !== "H" && defender.buffs && defender.buffs.some(b => b.name === "Zero Gravity") && defender._uraDelayFlag) {
@@ -3839,7 +3981,8 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     if (red) dmg = Math.max(1, Math.round(dmg * Math.max(0.1, 1 - red / 100))); // Protocolo de Infecção
     if (defender.id === "omegamon" || (defender.buffs || []).some((b) => b.name === "Protocolo")) defender._omgHit = (defender._omgHit || 0) + 1;
   }
-  if (defender.shield > 0 && !opts?.pierceShield) { const shBefore = defender.shield; const a = Math.min(defender.shield, dmg); defender.shield -= a; dmg -= a; if (shBefore > 0 && defender.shield === 0 && defender.id === "omegamon" && defender.stFlags && defender.stFlags.omgContagio && attacker.side !== "H") { attacker.dots = attacker.dots || []; if (!attacker.dots.some(function(d){return d.type==="corrosao";})) attacker.dots.push({ type: "corrosao", dmg: Math.max(1, Math.round(defender.base.atk * 0.35)), turns: 2 }); fx.push({ uid: attacker.uid, txt: "CORROSAO", dot: "corrosao", id: Math.random() }); } }
+  if (defender.shield > 0 && !opts?.pierceShield && !attacker._ignoresShield) { const shBefore = defender.shield; const a = Math.min(defender.shield, dmg); defender.shield -= a; dmg -= a; if (shBefore > 0 && defender.shield === 0 && defender.id === "omegamon" && defender.stFlags && defender.stFlags.omgContagio && attacker.side !== "H") { attacker.dots = attacker.dots || []; if (!attacker.dots.some(function(d){return d.type==="corrosao";})) attacker.dots.push({ type: "corrosao", dmg: Math.max(1, Math.round(defender.base.atk * 0.35)), turns: 2 }); fx.push({ uid: attacker.uid, txt: "CORROSAO", dot: "corrosao", id: Math.random() }); } }
+  else if (defender.shield > 0 && attacker._ignoresShield && !opts?.pierceShield) { fx.push({ uid: defender.uid, txt: "ESCUDO IGNORADO!", crit: true, id: Math.random(), el: "Chaos" }); }
   defender.hp -= dmg;
   if (dmg > 0 && (defender.debuffs || []).some(d => d.name === "Colapso Entrópico")) defender._chaosHits = (defender._chaosHits || 0) + 1;
   if (defender.hp <= 0) {
@@ -4000,15 +4143,18 @@ function checkNamiFollowup(s, actor, fx) {
   const r = dealDamage(nami, tgt, 40 * (nami.tSkill || 1), fx, { breakW: 1, el: "Vento" });
   s.log = [...s.log.slice(-40), `🌊 NAMI — Ataque Coordenado em ${tgt.name}: ${r.dmg} de Dano de Vento!`];
 }
+// Ataque Extra da Soi Fon — gatilho próprio do Talento dela (como no HSR, cada personagem define seu próprio gatilho de Ataque Extra; não existe um "sistema" único compartilhado entre personagens).
 function checkSoiFonFollowup(s, actor, fx) {
-  if (!actor || actor.element !== "Eletro" || actor.id === "soifon") return;
+  if (!actor || actor.id === "soifon" || actor.isSummon) return;
   const sf = s.heroes.find(h => h.id === "soifon" && h.alive && !h.isSummon);
   if (!sf) return;
   const ae = s.enemies.filter(e => e.alive);
   if (!ae.length) return;
+  // Vibração de Ferrão: QUALQUER aliado que agir concede 1 carga (era só Eletro — agora universal)
   sf.sfCharges = Math.min(3, (sf.sfCharges || 0) + 1);
   const f2 = sf.stFlags || {};
-  if (f2.sfC2) { const anyMarked = ae.some(e => (e.debuffs || []).some(d => d.name === "Ferrão da Morte")); if (anyMarked) sf.sfCharges = Math.min(3, sf.sfCharges + 1); }
+  // C2: aliados de Eletro continuam dando bônus extra (sinergia elemental preservada, mas não é mais requisito)
+  if (f2.sfC2 && actor.element === "Eletro") { const anyMarked = ae.some(e => (e.debuffs || []).some(d => d.name === "Ferrão da Morte")); if (anyMarked) sf.sfCharges = Math.min(3, sf.sfCharges + 1); }
   let posturaMsg = "";
   if (sf.sfCharges >= 3) {
     sf.sfCharges = 0; sf.sfPostura = true;
@@ -4027,7 +4173,7 @@ function checkSoiFonFollowup(s, actor, fx) {
     if (f2.sfPrecisao) fuMul *= 1.25;
     if (f2.sfC5) fuMul *= 1.15;
     if (sf.weapon?.id === "ferrao_borboleta") { const wc = sf.sfWpnCharges || 0; if (wc > 0) { fuMul *= (1 + wc * 0.10); sf.sfWpnCharges = Math.min(5, wc + 1); } }
-    const r = dealDamage(sf, tgt, fuMul, fx, { breakW: 1, el: "Vento" });
+    const r = dealDamage(sf, tgt, fuMul, fx, { breakW: 1, el: "Vento", isFollowup: true });
     if (f2.sfPrecisao) { const cdStacks = sf.buffs.filter(b => b.name === "PrecisaoFU").length; if (cdStacks < 2) sf.buffs.push({ stat: "critDmg", value: 15, turns: 99, name: "PrecisaoFU" }); }
     fuMsgs.push(`${tgt.name}: ${r.dmg}${r.crit ? " CRÍTICO" : ""}`);
     if (!tgt.alive && f2.sfC6) { sf.energy = sf.energyMax; sf.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); fuMsgs.push("KILL! Energia máx"); }
@@ -4358,6 +4504,29 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       tickDots(u, s.fx);
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
       refreshKaibaBuffs(s);
+      // Yoruichi: início do turno natural dela — detona o Ponto de Aterramento e passa a Condução Perfeita
+      if (u.id === "yoruichi") {
+        if ((u._yoruRecordedDmg || 0) > 0 && u._yoruMarkUid) {
+          const markT = s.enemies.find(e => e.uid === u._yoruMarkUid && e.alive);
+          const rec = Math.round(u._yoruRecordedDmg);
+          if (markT) {
+            if (u.stFlags?.yoruS6) {
+              aliveEnemies(s).forEach(e => { const half = Math.round(rec * (e.uid === markT.uid ? 1 : 0.5)); e.hp = Math.max(0, e.hp - half); if (e.hp <= 0) e.alive = false; s.fx.push({ uid: e.uid, txt: String(half), crit: true, id: Math.random(), el: "Eletro" }); });
+              pushLog(s, `⚡💥 PONTO DE ATERRAMENTO detona (S6, espalhado)! ${rec} de Dano Verdadeiro no alvo principal, 50% nos demais!`);
+            } else {
+              markT.hp = Math.max(0, markT.hp - rec); if (markT.hp <= 0) markT.alive = false;
+              s.fx.push({ uid: markT.uid, txt: String(rec), crit: true, id: Math.random(), el: "Eletro" });
+              pushLog(s, `⚡💥 PONTO DE ATERRAMENTO detona em ${markT.name} — ${rec} de Dano Verdadeiro Eletro!`);
+            }
+          }
+          u._yoruRecordedDmg = 0;
+        }
+        if ((u._yoruStance || 0) > 0) { u._yoruStance -= 1; if (u._yoruStance <= 0) { u._yoruMarkUid = null; u.buffs = u.buffs.filter(b => b.name !== "Condução Perfeita"); s.heroes.forEach(h => { if (h.alive) h.buffs = h.buffs.filter(b => b.name !== "Domínio Magnético"); }); pushLog(s, "⚡ A Condução Perfeita de Yoruichi se dissipa."); } }
+        // Talento (Frequência Shunpo): +6% de CRIT DMG em Ataques Extras por 10 de VEL acima de 120 (cap 60%, ou 160% com S6)
+        const ySpdT = effStat(u, "spd"); const cap = u.stFlags?.yoruS6 ? 160 : 60;
+        const shunpoBonus = Math.max(0, Math.min(cap, Math.floor((ySpdT - 120) / 10) * 6));
+        s.heroes.forEach(h => { h.buffs = h.buffs.filter(b => b.name !== "Frequência Shunpo"); if (shunpoBonus > 0 && h.alive) h.buffs.push({ stat: "critDmg", value: shunpoBonus, turns: 9999, name: "Frequência Shunpo" }); });
+      }
       // Frieren C4: DEF -15% on all enemies when ult energy is full
       if (u.id === "frieren" && u.stFlags?.frC4 && u.energy >= u.energyMax) {
         aliveEnemies(s).forEach(e => {
@@ -4433,6 +4602,13 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
           if ((enemy.dots || []).some((d) => d.type === "corrosao")) { const h = Math.round(u.maxHp * 0.10); healUnit(u, h, fx); extra = ` Recupera ${h} de HP (alvo corroído).`; }
           if ((u.omgCharges || 0) >= 5 && enemy.alive) { enemy.buffs = []; const td = Math.round(u.maxHp * 0.38); enemy.hp -= td; if (enemy.hp <= 0) { enemy.hp = 0; enemy.alive = false; } fx.push({ uid: enemy.uid, txt: String(td), crit: true, id: Math.random(), el: "Virus" }); if (u.weapon?.omgWeapon) u.energy = Math.min(u.energyMax, u.energy + 8); u.omgCharges = 0; u.buffs = u.buffs.filter((b) => b.name !== "VirusDefeat"); extra += ` ☢️ Vírus Defeat MÁXIMO: remove buffs e causa ${td} de Dano Verdadeiro!`; }
           msg = `🛡️ ${u.name} dispara Garuru Cannon em ${enemy.name} — ${r.dmg} de Dano de Vírus${r.crit ? " (CRÍTICO!)" : ""}.${extra}`;
+          miyDone = true;
+        }
+        if (!miyDone && u.id === "yoruichi" && enemy) {
+          const ySpd = effStat(u, "spd"), yAtk = Math.max(1, effStat(u, "atk"));
+          const yMul = (ySpd * 3.0 / yAtk) * 100; // 300% da VEL (convertido pra fórmula de %ATK do motor)
+          const r = dealDamage(u, enemy, yMul, fx, { el: "Eletro" });
+          msg = `⚡ Golpe Relâmpago em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}.`;
           miyDone = true;
         }
         if (!miyDone && u.id === "agumon" && enemy) {
@@ -4588,6 +4764,13 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
               else a.buffs.push({ stat: "dmgBonus", value: dmgBonusVal, turns: 3, name: "Bênção da Calamidade" });
             });
             msg = `🌑 ${u.name} conjura Calamidade Inevitável — ${wooTot} de Dano Chaos${wooCrit ? " (CRÍTICO!)" : ""}! 4 debuffs exclusivos${f.wooE2 ? " PERMANENTES" : ` por ${debuffDur}t`}: Miss +${Math.round(20*e1Mul)}%, Vuln +${Math.round(18*e1Mul)}%, VEL -${Math.round(12*e1Mul)}%, DEF -${Math.round(15*e1Mul)}%.${f.wooE1 ? " [E1: buffs/debuffs existentes estendidos]" : ""}`;
+          }
+          else if (u.id === "yoruichi" && sk.yoruSkill && enemy) {
+            u._yoruStance = 3; u._yoruMarkUid = enemy.uid; u._yoruRecordedDmg = 0;
+            u.buffs = u.buffs.filter(b => b.name !== "Condução Perfeita"); u.buffs.push({ stat: "dmgBonus", value: 0, turns: 3, name: "Condução Perfeita" }); // marcador visual (0 = não altera stats)
+            const spdBonus = Math.round(effStat(u, "spd") * 0.12);
+            allies.forEach(a => { a.buffs = a.buffs.filter(b => b.name !== "Domínio Magnético"); a.buffs.push({ stat: "spd", value: spdBonus, pct: false, turns: 3, name: "Domínio Magnético" }); });
+            msg = `🌀 DOMÍNIO MAGNÉTICO! Yoruichi entra em Condução Perfeita por 3 turnos e marca ${enemy.name} como Ponto de Aterramento. Time inteiro ganha +${spdBonus} de VEL.`;
           }
           else if (u.id === "agumon" && sk.aguSkill) {
             const fm = u.agForm || "agumon";
@@ -4791,6 +4974,14 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             // E6: ativa Julgamento da Calamidade para todas as ações inimigas
             if (f.wooE6) s._wooJudgment = { uid: u.uid };
             msg = `☠️ LEI DA CALAMIDADE ABSOLUTA! ${u.name} — ${wooTot} de Dano Chaos${wooCrit ? " (CRÍTICO!)" : ""}! Debuffs ${(f.wooE2||f.wooE6) ? "PERMANENTES" : `por ${debuffDurUlt}t`}${f.wooE6 ? ", intensidade×2, JULGAMENTO DA CALAMIDADE ativado!" : f.wooE4 ? ` [E4: bônus dinâmicos aplicados!]` : ""}!`;
+          } else if (u.id === "yoruichi" && sk.yoruUlt && enemy) {
+            const ySpd = effStat(u, "spd"), yAtk = Math.max(1, effStat(u, "atk"));
+            const yMul = (ySpd * 22.0 / yAtk) * 100; // 2200% da VEL
+            const r = dealDamage(u, enemy, yMul, fx, { el: "Eletro", breakW: 3 });
+            allies.filter(a => a.uid !== u.uid && a.alive).forEach(a => { a.av = (a.av || 1) * 0.75; });
+            msg = `⚡⚡ SHUNKO: RAIJIN! ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} em ${enemy.name}! O resto do time avança 25% na Ordem de Turnos!`;
+            // Insere 2 Clones Residuais forçados (conta pro Colapso Elétrico e pro registro do Ponto de Aterramento)
+            for (let ci = 0; ci < 2 && enemy.alive; ci++) { dealDamage(u, enemy, yMul * 0.5, fx, { el: "Eletro", isYoruClone: true, isFollowup: true, breakW: 1 }); }
           } else if (u.id === "agumon" && sk.aguUlt) {
             const fm = u.agForm || "agumon";
             const c4Mul = u.stFlags?.aguC4 ? 3 : 1; // C4: +200% de dano da Suprema em todas as formas
@@ -4813,7 +5004,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             } else if (enemy) {
               let mulX = 1, spent = 0;
               if ((u.agModoX || 0) > 0 && (u.agSP || 0) > 0) { spent = u.agSP; mulX = Math.min(2, 1 + spent / 150); u.agSP = 0; }
-              const gaia = Math.round(effStat(u, "atk") * 6 * c4Mul * mulX * u.tUlt * ampU);
+              const gaia = Math.min(932000, Math.round(effStat(u, "atk") * 6 * c4Mul * mulX * u.tUlt * ampU));
               enemy.hp -= gaia; if (enemy.hp <= 0) { enemy.hp = 0; enemy.alive = false; }
               fx.push({ uid: enemy.uid, txt: String(gaia), crit: true, id: Math.random(), el: "Fogo" });
               msg = `☀️ GAIA FORCE!!! ${gaia} de DANO VERDADEIRO em ${enemy.name}${spent ? ` — o MODO X consumiu ${spent} TamerSP (dano ×${mulX.toFixed(2)})!` : "!"}`;
@@ -4998,6 +5189,13 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       if (s._athHouseActive && !s.heroes.some(h => h.alive && h.buffs.some(b => b.name === "Bênção do Olimpo"))) s._athHouseActive = false;
       // ═══ Agumon: termodinâmica no fim do turno dele ═══
       if (u.id === "agumon" && u.alive) {
+        // Reforço defensivo: garante que os buffs da forma atual nunca sumam por engano
+        const _agFm = u.agForm || "agumon";
+        if (_agFm !== "agumon" && !u.buffs.some(b => b.name === "Forma: " + (_agFm === "greymon" ? "Greymon" : _agFm === "metalgreymon" ? "MetalGreymon" : "WarGreymon"))) {
+          if (_agFm === "greymon") u.buffs.push({ stat: "def", value: 100, pct: true, turns: 9999, name: "Forma: Greymon" });
+          else if (_agFm === "metalgreymon") { u.buffs.push({ stat: "atk", value: 100, pct: true, turns: 9999, name: "Forma: MetalGreymon" }); u.buffs.push({ stat: "dmgBonus", value: 40, turns: 9999, name: "Forma: MetalGreymon" }); }
+          else if (_agFm === "wargreymon") { u.buffs.push({ stat: "atk", value: 60, pct: true, turns: 9999, name: "Forma: WarGreymon" }); u.buffs.push({ stat: "dmgBonus", value: 90, turns: 9999, name: "Forma: WarGreymon" }); }
+        }
         if ((u.agTrident || 0) > 0) u.agTrident -= 1;
         if ((u.agModoX || 0) > 0) { u.agModoX -= 1; u.agHeat = 0; if (u.agModoX <= 0) { u.buffs = u.buffs.filter(b => b.name !== "MODO X"); pushLog(s, "⚙️ O MODO X se encerra — os sistemas do WarGreymon voltam ao normal."); } }
         // Forma imperfeita: dura 1 turno → regride com 1 de HP e 0 SP
@@ -5164,7 +5362,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         u.buffs.push({ stat: "atk", value: 60, pct: true, turns: 9999, name: "Forma: WarGreymon" });
         // Forma: WarGreymon — +70% de HP Máximo e +70% de Dano Bônus
         const hpGainWG = Math.round(u._aguBaseMaxHp * 0.70); u.maxHp = u._aguBaseMaxHp + hpGainWG; u.hp = Math.min(u.maxHp, u.hp + hpGainWG);
-        u.buffs.push({ stat: "dmgBonus", value: 70, turns: 9999, name: "Forma: WarGreymon" });
+        u.buffs.push({ stat: "dmgBonus", value: 90, turns: 9999, name: "Forma: WarGreymon" });
         if (!u._aguBaseEnergyMax) u._aguBaseEnergyMax = u.energyMax;
         u.energyMax = 250; // Gaia Force exige um núcleo de energia muito maior nesta forma
         const perfectSync = inWindow; // C6 já força inWindow=true acima, então o Modo X sempre ativa
@@ -5666,6 +5864,13 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       // ═══ Agumon: termodinâmica no fim do turno dele ═══
       if (u.id === "agumon" && u.alive) {
+        // Reforço defensivo: garante que os buffs da forma atual nunca sumam por engano
+        const _agFm = u.agForm || "agumon";
+        if (_agFm !== "agumon" && !u.buffs.some(b => b.name === "Forma: " + (_agFm === "greymon" ? "Greymon" : _agFm === "metalgreymon" ? "MetalGreymon" : "WarGreymon"))) {
+          if (_agFm === "greymon") u.buffs.push({ stat: "def", value: 100, pct: true, turns: 9999, name: "Forma: Greymon" });
+          else if (_agFm === "metalgreymon") { u.buffs.push({ stat: "atk", value: 100, pct: true, turns: 9999, name: "Forma: MetalGreymon" }); u.buffs.push({ stat: "dmgBonus", value: 40, turns: 9999, name: "Forma: MetalGreymon" }); }
+          else if (_agFm === "wargreymon") { u.buffs.push({ stat: "atk", value: 60, pct: true, turns: 9999, name: "Forma: WarGreymon" }); u.buffs.push({ stat: "dmgBonus", value: 90, turns: 9999, name: "Forma: WarGreymon" }); }
+        }
         if ((u.agTrident || 0) > 0) u.agTrident -= 1;
         if ((u.agModoX || 0) > 0) { u.agModoX -= 1; u.agHeat = 0; if (u.agModoX <= 0) { u.buffs = u.buffs.filter(b => b.name !== "MODO X"); pushLog(s, "⚙️ O MODO X se encerra — os sistemas do WarGreymon voltam ao normal."); } }
         // Forma imperfeita: dura 1 turno → regride com 1 de HP e 0 SP
@@ -5686,6 +5891,15 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         } else if ((u.agHeat || 0) >= 100) { u.agHeat = 0; u.agSP = Math.round((u.agSP || 0) / 2); pushLog(s, (u.stFlags?.aguC6 ? "☢️ Superaquecimento contido! O núcleo é resfriado à força, mas a Forma Eterna mantém " + u.name + " na forma atual — só perde metade do TamerSP." : "☢️ Superaquecimento! Agumon perde metade do TamerSP ao ventilar o núcleo.")); }
       }
       applyMutPostAction(s, u); // mutadores do Abismo
+      // Torre Sombria: chefes com DoT designado aplicam a cada 3 ações num aliado aleatório
+      if (u._darkTowerDot && u.actCount % 3 === 0) {
+        const alive2 = s.heroes.filter(h => h.alive && !h.isSummon);
+        if (alive2.length) {
+          const tgt2 = alive2[Math.floor(Math.random() * alive2.length)];
+          applyDot([tgt2], { type: u._darkTowerDot, mul: 30 + Math.round((u.level || 70) * 0.4), turns: 2 }, u, s.fx);
+          pushLog(s, "☠️ " + u.name + " infecta " + tgt2.name + " com " + (DOT_INFO[u._darkTowerDot]?.n || u._darkTowerDot) + "!");
+        }
+      }
       s.hitFx = { el: u.element, big: u.boss && (u.actCount % 3 === 0 || (enraged && u.actCount % 2 === 0)), enemy: true, id: Math.random() };
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
@@ -6340,17 +6554,44 @@ function AdminPlayersTab() {
     </div>
   );
 }
-function Admin({ images, setImages, flash, isAdmin, draftActive, setDraftActive }) {
+function Admin({ images, setImages, tierList, setTierList, flash, isAdmin, draftActive, setDraftActive }) {
   const [tab, setTab] = useState("chars");
   const setImg = (id, url) => setImages((m) => { const next = { ...m, [id]: url }; cloudSet("meta", "images", { map: next }); _ls.set("sr_shared_images", JSON.stringify(next)); return next; });
   const clearImg = (id) => setImages((m) => { const n = { ...m }; delete n[id]; cloudSet("meta", "images", { map: n }); _ls.set("sr_shared_images", JSON.stringify(n)); return n; });
+  const setCharTier = (charId, newTier) => setTierList((prev) => {
+    const next = {}; TIER_ORDER.forEach(t => { next[t] = (prev[t] || []).filter(id => id !== charId); });
+    if (newTier) next[newTier] = [...(next[newTier] || []), charId];
+    cloudSet("meta", "tierlist", { map: next }); _ls.set("sr_shared_tierlist", JSON.stringify(next));
+    flash(newTier ? `${CHAR_MAP[charId]?.name} movido pra ${newTier}` : `${CHAR_MAP[charId]?.name} removido da Tier List`, C.gold);
+    return next;
+  });
   return (
     <div className="flex flex-col gap-4">
       <Panel glow={C.gold}>
         <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>🛠️ Painel Admin</div>
         <p style={{ fontSize: 13, color: C.mute, marginTop: 6 }}>Cole o link direto da imagem (Imgur) de cada personagem e arma. Use o link que termina em <b>.jpg</b>/<b>.png</b> (ex: <span style={{ color: C.text }}>https://i.imgur.com/XXXX.png</span>). A imagem aparece no jogo inteiro na hora.</p>
       </Panel>
-      <div className="flex gap-2" style={{ flexWrap: "wrap" }}><TabBtn active={tab === "chars"} onClick={() => setTab("chars")}>Personagens</TabBtn><TabBtn active={tab === "weapons"} onClick={() => setTab("weapons")}>Armas</TabBtn><TabBtn active={tab === "summons"} onClick={() => setTab("summons")}>Invocações</TabBtn><TabBtn active={tab === "items"} onClick={() => setTab("items")}>🎒 Itens</TabBtn><TabBtn active={tab === "bosses"} onClick={() => setTab("bosses")}>💀 Chefes</TabBtn><TabBtn active={tab === "players"} onClick={() => setTab("players")}>👥 Players</TabBtn><TabBtn active={tab === "evento"} onClick={() => setTab("evento")}>🎲 Evento</TabBtn><TabBtn active={tab === "roteiro"} onClick={() => setTab("roteiro")}>🎬 Roteiro</TabBtn></div>
+      <div className="flex gap-2" style={{ flexWrap: "wrap" }}><TabBtn active={tab === "chars"} onClick={() => setTab("chars")}>Personagens</TabBtn><TabBtn active={tab === "weapons"} onClick={() => setTab("weapons")}>Armas</TabBtn><TabBtn active={tab === "summons"} onClick={() => setTab("summons")}>Invocações</TabBtn><TabBtn active={tab === "items"} onClick={() => setTab("items")}>🎒 Itens</TabBtn><TabBtn active={tab === "bosses"} onClick={() => setTab("bosses")}>💀 Chefes</TabBtn><TabBtn active={tab === "players"} onClick={() => setTab("players")}>👥 Players</TabBtn><TabBtn active={tab === "evento"} onClick={() => setTab("evento")}>🎲 Evento</TabBtn><TabBtn active={tab === "roteiro"} onClick={() => setTab("roteiro")}>🎬 Roteiro</TabBtn><TabBtn active={tab === "tierlist"} onClick={() => setTab("tierlist")}>📊 Tier List</TabBtn></div>
+      {tab === "tierlist" && <div className="flex flex-col gap-2">
+        <Panel style={{ padding: 10 }}><p style={{ fontSize: 12, color: C.mute }}>Toque no tier pra mover o personagem. As mudanças valem pra todo mundo na hora. "—" tira ele da Tier List.</p></Panel>
+        {ROSTER.map((c) => {
+          const curTier = TIER_ORDER.find(t => (tierList[t] || []).includes(c.id)) || null;
+          return (
+            <Panel key={c.id} style={{ padding: "8px 12px" }}>
+              <div className="flex items-center gap-2" style={{ flexWrap: "wrap" }}>
+                <Avatar ch={c} size={34} ring={(ELEMENTS[c.element] || {}).color} />
+                <div style={{ flex: 1, minWidth: 100, fontWeight: 700, fontSize: 13 }}>{c.name}</div>
+                {["SSS", "SS", "S", "A", "B", null].map((t) => (
+                  <button key={t || "none"} onClick={() => setCharTier(c.id, t)}
+                    style={{ fontSize: 11, fontWeight: 800, padding: "4px 10px", borderRadius: 8, border: `1px solid ${curTier === t ? C.gold : C.line}`, background: curTier === t ? "#3a2c05" : C.panelHi, color: curTier === t ? C.gold : C.mute, cursor: "pointer" }}>
+                    {t || "—"}
+                  </button>
+                ))}
+              </div>
+            </Panel>
+          );
+        })}
+      </div>}
       {tab === "chars" && <div className="flex flex-col gap-2">{ROSTER.map((c) => <AdminRow key={c.id} id={c.id} name={`${c.name} · ${c.element} · ${ROLES[c.role].label}`} rarity={c.rarity} fallback={c.avatar} element={c.element} url={images[c.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}<Panel style={{ padding: "10px 12px", marginTop: 4 }}><b style={{ fontSize: 13 }}>🦖 Agumon — Formas de Digievolução</b><p style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>Fotos para cada estágio. O ID correto já está indicado em cada linha.</p></Panel><AdminRow key="agumon_greymon" id="agumon_greymon" name="Greymon · Champion · Fogo" rarity={5} fallback="🦕" element="Fogo" url={images["agumon_greymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><AdminRow key="agumon_metalgreymon" id="agumon_metalgreymon" name="MetalGreymon · Ultimate · Fogo" rarity={5} fallback="🤖" element="Fogo" url={images["agumon_metalgreymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><AdminRow key="agumon_wargreymon" id="agumon_wargreymon" name="WarGreymon · Mega · Fogo" rarity={5} fallback="⚔️" element="Fogo" url={images["agumon_wargreymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /></div>}
       {tab === "weapons" && <div className="flex flex-col gap-2">{WEAPONS.map((w) => <AdminRow key={w.id} id={w.id} name={`${w.name} · ${ROLES[w.role].label}`} rarity={w.rarity} fallback="🗡️" weapon url={images[w.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "summons" && <div className="flex flex-col gap-2">
@@ -7971,7 +8212,7 @@ const TIER_INFO = {
   A:  { c: "#74E8A6", label: "Muito bons, fortes com build correta ou papel específico no time." },
   B:  { c: "#6FE3FF", label: "Sólidos e viáveis — competitivos com investimento ou sinergia certa." },
 };
-const TIER_LIST = {
+const TIER_LIST_DEFAULT = {
   SSS: ["agumon"],
   SS: ["wonderofyou", "ryoshu"],
   S:  ["miyabi", "yoruichi", "frieren", "soifon", "kiritsugu"],
@@ -7979,7 +8220,8 @@ const TIER_LIST = {
   B:  ["nanami", "nami", "sakura", "ace", "usopp", "lancer", "renji"],
 };
 const TIER_ORDER = ["SSS", "SS", "S", "A", "B"];
-function TierListScreen() {
+function TierListScreen({ tierList }) {
+  const TL = tierList || TIER_LIST_DEFAULT;
   const [roleFilter, setRoleFilter] = React.useState("all");
   return <div className="flex flex-col gap-4">
     <Panel glow="#F6C95B">
@@ -7992,8 +8234,8 @@ function TierListScreen() {
         ))}
       </div>
     </Panel>
-    {TIER_ORDER.map(tier => {
-      const ids = TIER_LIST[tier].filter(id => roleFilter === "all" || CHAR_MAP[id]?.role === roleFilter);
+    {TIER_ORDER.filter(t => TL[t] && TL[t].length).map(tier => {
+      const ids = (TL[tier] || []).filter(id => roleFilter === "all" || CHAR_MAP[id]?.role === roleFilter);
       if (!ids.length) return null;
       const ti = TIER_INFO[tier];
       return (
