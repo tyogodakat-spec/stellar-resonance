@@ -111,7 +111,7 @@ const DEFAULT_FEATURED_CHAR = "miyabi";
 const WEAPONS = [
   // ── ★★★★★ 5-estrelas ────────────────────────────────────────────────────────
   { id: "digivice",         name: "Digivice da Coragem",   rarity: 5, role: "dps",      atk: 500, hpFlat: 500, elemDmg: 30.0,    passive: "Sincronia Térmica: +50 de TamerSP máximo; Perícias geram 5 a menos de Calor. Ao Digivolver: restaura 10% do HP Máximo e +10 de VEL por 2 rodadas. No MODO X: a Gaia Force ganha +50% de CRIT DMG e inimigos derrotados por ela não podem ser ressuscitados nem curados por 1 rodada.", buff: { aguWeapon: true } },
-  { id: "relampago_fugaz",  name: "Relâmpago Fugaz",       rarity: 5, role: "dps",      hpFlat: 1058, defFlat: 463, spd: 10,      passive: "Passo Fantasma: +12% de VEL total. Ataques Extras do portador aumentam o próprio dano de Ataque Extra em +10% (acumula 3×, dura 2 turnos). Com VEL > 150: cada Ataque Extra do portador dá ao time +12% de Taxa de CRIT e +24% de CRIT DMG por 2 turnos, e o portador recupera 2 de Energia a cada interceptação do Talento.", buff: { yoruWeapon: true, spdPct: 12 } },
+  { id: "relampago_fugaz",  name: "Relâmpago Fugaz",       rarity: 5, role: "dps",      hpFlat: 1058, defFlat: 463, spd: 10,      passive: "Passo Fantasma: HP 1058 · DEF 463 · +10 de VEL Base fixa. Efeito 1: +12% da VEL total do portador, sempre ativo. Efeito 2: cada Ataque Extra do portador aumenta o dano dos PRÓXIMOS Ataques Extras dele mesmo em +10% (acumula até 3×, cada acúmulo renova a duração de 2 turnos). Efeito 3 (com VEL > 150): todo Ataque Extra do portador concede +12% de Taxa de CRIT e +24% de CRIT DMG a TODA a equipe por 2 turnos, e recupera 2 de Energia sempre que o Talento intercepta uma ação aliada (independe do limiar de 150 VEL).", buff: { yoruWeapon: true, spdPct: 12 } },
   { id: "starblade",        name: "Lâmina Estelar",       rarity: 5, role: "dps",      atk: 882, critDmg: 52.8,                    passive: "Fio Cortante: após a Habilidade, ganha +24% de Bônus de Dano por 2 turnos.",                                                    buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
   { id: "radiant",          name: "Cetro Radiante",        rarity: 5, role: "buffer",   atk: 720, energyRegen: 26.4,                passive: "Pulso de Apoio: ao buffar aliados, concede +12% de Bônus de Dano por 2 turnos.",                                                buff: { onBuff: { dmgBonus: 12, turns: 2 } } },
   { id: "dragoncannon",     name: "Disco de Duelo X",      rarity: 5, role: "summoner", atk: 700, atkPct: 48.0,                     passive: "Socio Majoritario: +48% ATK. Exclusivo (Kaiba): cada Blue-Eyes +18% CRIT DMG (max +54%); Habilidade +30% Perfuracao; Suprema +1 PH ao time." },
@@ -388,12 +388,12 @@ const CONS = {
     { name: "C6 · Muralha Estelar Absoluta", flag: "kirC6", desc: "Capstone: a Ultimate concede escudos 50% mais grossos E +25% de Bônus de Dano ao time por 2 turnos. Enquanto qualquer aliado tiver escudo ativo, Kirara provoca TODOS os inimigos — a guardiã cósmica não descansa." },
   ],
   yoruichi: [
-    { name: "S1 · Corrente Corrosiva", flag: "yoruS1", desc: "Sempre que um Clone Residual atinge um inimigo, reduz a DEF dele em 4% por 2 turnos. Acumula até 5 vezes." },
-    { name: "S2 · Ressonância Crítica", flag: "yoruS2", desc: "Alvos com a RES reduzida pelo Colapso Elétrico recebem o Eco do Domínio Magnético com Dano Crítico bônus baseado na Taxa de CRIT atual de Yoruichi." },
-    { name: "S3 · Sincronia de Combate", flag: "yoruS3", desc: "Mudança de kit: o Talento passa a reconhecer Supremas ofensivas dos aliados como Ataques Extras — Yoruichi dispara Clones Residuais e acumula Colapso Elétrico também quando o time usa a Ultimate." },
-    { name: "S4 · Fluxo Vital", flag: "yoruS4", desc: "Sempre que o Colapso Elétrico detona, Yoruichi recupera 5 de Energia e cura o aliado com menor HP em 10% do HP Máximo dele." },
-    { name: "S5 · Aterramento Perfeito", flag: "yoruS5", desc: "A conversão de dano do Ponto de Aterramento sobe de 35% para 52%." },
-    { name: "S6 · Sobrecarga Total", flag: "yoruS6", desc: "Mudança de kit: o teto do bônus de Dano Crítico do Talento sobe para 160%. A detonação do Ponto de Aterramento deixa de ser só no alvo marcado — 50% do dano acumulado se espalha para TODOS os inimigos." },
+    { name: "S1 · Corrente Corrosiva", flag: "yoruS1", desc: "Sempre que um Clone Residual (gerado pelo Talento) atinge um inimigo, esse inimigo perde 4% de DEF por 2 turnos. O efeito acumula até 5 vezes no mesmo alvo (até -20% de DEF total), tornando Yoruichi uma boa abridora de dano pro resto do time." },
+    { name: "S2 · Ressonância Crítica", flag: "yoruS2", desc: "Enquanto um inimigo estiver com a marca de +20% de dano recebido do Colapso Elétrico ativa, o dano registrado pelo Domínio Magnético (o 'Eco' que detona no turno dela) ganha um multiplicador extra igual à Taxa de CRIT atual de Yoruichi — quanto mais CRIT ela tiver, maior a detonação final." },
+    { name: "S3 · Sincronia de Combate", flag: "yoruS3", desc: "Mudança de kit: o Talento de Yoruichi passa a reconhecer as Supremas ofensivas dos aliados como Ataques Extras também. Ou seja, toda vez que outro personagem usar a própria Ultimate contra um inimigo, Yoruichi intercepta como se fosse um contra-ataque — conjura um Clone Residual (500% VEL) e soma pro contador do Colapso Elétrico e pro registro do Ponto de Aterramento, mesmo sem nenhum contra-ataque de verdade ter acontecido." },
+    { name: "S4 · Fluxo Vital", flag: "yoruS4", desc: "Sempre que o Colapso Elétrico detonar (a cada 3 Clones Residuais acionados), Yoruichi recupera 5 de Energia na hora, e o aliado com menor % de HP da equipe é curado em 10% do HP Máximo dele — dá sustentação extra em lutas longas sem precisar de um healer dedicado só pra ela." },
+    { name: "S5 · Aterramento Perfeito", flag: "yoruS5", desc: "A taxa de conversão de dano do Ponto de Aterramento (Perícia) sobe de 35% para 52% — ou seja, o Eco registrado e detonado no início do turno dela fica bem mais forte, tornando o Domínio Magnético uma fonte de dano relevante por si só, não só um habilitador de VEL pro time." },
+    { name: "S6 · Sobrecarga Total", flag: "yoruS6", desc: "Mudança de kit: o teto do bônus de Dano Crítico do Talento (Frequência Shunpo) sobe de 60% para 160% — com VEL bem alta, o time inteiro fica com CRIT DMG absurdo nos Ataques Extras. Além disso, a detonação do Ponto de Aterramento deixa de bater só no alvo marcado: o dano principal continua nele, mas 50% desse valor se espalha automaticamente pra TODOS os outros inimigos vivos — vira uma explosão em área no fim da rotação dela." },
   ],
   kiritsugu: [
     { name: "S1 · Olhar Clínico", stat: "critRate", value: 8, desc: "Aprimoramento: Taxa de CRIT +8%." },
@@ -617,6 +617,11 @@ const TRACE_MAX = 10;
 const traceMul = (level) => 1 + (Math.max(1, level || 1) - 1) * 0.08; // +8% por nível
 const traceCost = (level) => 600 + (level - 1) * 450; // jade p/ subir do nível atual
 function specialTraces(def) {
+    if (def.id === "yoruichi") return [
+      { name: "Rastro Especial 1 · Passo de Sombra", desc: "Rastro Especial de combate: no início do combate, Yoruichi regenera 20 de Energia imediatamente. Sempre que um aliado desferir um Ataque Extra, a ação dela avança 6% na Ordem de Turnos — limitado a 3 ativações por Ciclo.", combat: "yoruT1", cost: 2 },
+      { name: "Rastro Especial 2 · Condutor de Alta Voltagem", desc: "Rastro Especial de combate: quando o Colapso Elétrico do Talento ativa, o dano de todos os Ataques Extras da equipe sobe +25% por 2 turnos. Além disso, a detonação do Ponto de Aterramento reduz a barra de Resistência (Perfuração) do inimigo principal em um valor fixo, mesmo sem ser do elemento de fraqueza dele.", combat: "yoruT2", cost: 2 },
+      { name: "Rastro Especial 3 · Relâmpago Causal", desc: "Rastro Especial de combate: se a VEL de Yoruichi for maior que a do alvo no momento do impacto, os Clones Residuais e o Colapso Elétrico ignoram 18% da DEF dele. Além disso, para cada 10 de VEL acima de 140, a Taxa de Regeneração de Energia dela sobe +4%.", combat: "yoruT3", cost: 3 },
+    ];
     if (def.id === "wonderofyou") return [
       { name: "A2 · Marca da Calamidade", desc: "Rastro Especial de combate: os inimigos afetados pelos debuffs exclusivos de Wonder of You (Miss, Vulnerabilidade, Atraso ou Redução de Atributos) recebem +12% de dano de todas as fontes enquanto durar qualquer um desses debuffs.", combat: "wooA2", cost: 2 },
       { name: "A4 · Convite ao Vazio", desc: "Rastro Especial de combate: ao final de cada turno em que pelo menos um inimigo estiver sob 2 ou mais debuffs de Wonder of You simultâneos, ela recupera 10 de Energia extra.", combat: "wooA4", cost: 2 },
@@ -949,18 +954,19 @@ function rewardFor(f) {
   return 100;
 }
 // ══════════ TORRE SOMBRIA (Dark Tower) — 10 níveis, só chefes, HP altíssimo, ignoram escudo ══════════
+const DARK_TOWER_WEAKNESS = ["Holy", "Fogo", "Vento", "Virus", "Glacial", "Chaos", "Eletro", "Holy", "Fogo", "Vento"];
 const DARK_TOWER_BOSSES = [
-  { name: "Sentinela Sombria",        element: "Chaos",  bossKind: "guardian",       hpMul: 47,  res: [],              weak: ["Holy"],           dot: null,     reward: 1600 },
-  { name: "Aizen · Eco Sombrio",      element: "Holy",   bossKind: "aizen",          hpMul: 51,  res: ["Glacial"],     weak: ["Fogo", "Virus"],  dot: null,     reward: 1600 },
-  { name: "Sukuna · Fome Eterna",     element: "Chaos",  bossKind: "sukuna",         hpMul: 55,  res: ["Chaos"],       weak: ["Holy"],           dot: "burn",   reward: 1600 },
-  { name: "Kaiba · Obelisco Negro",   element: "Eletro", bossKind: "godkaiba",       hpMul: 59,  res: ["Eletro", "Holy"], weak: ["Fogo", "Virus"], dot: null,   reward: 1600 },
-  { name: "Ryoshu · Teia Sombria",    element: "Virus",  bossKind: "ryoshu_boss",    hpMul: 63,  res: ["Virus"],       weak: ["Fogo", "Holy"],   dot: "poison", reward: 1600 },
-  { name: "Frieren · Memória Rota",   element: "Holy",   bossKind: "frieren_boss",   hpMul: 67,  res: ["Glacial"],     weak: ["Fogo", "Virus"],  dot: "freeze", reward: 1600 },
-  { name: "Omegamon · Núcleo Corrompido", element: "Virus", bossKind: "omegamon_boss", hpMul: 71, res: ["Virus", "Chaos"], weak: ["Fogo"],        dot: "poison", reward: 1600 },
-  { name: "Soberano do Vazio · Sombra", element: "Chaos", bossKind: "void_sovereign", hpMul: 75,  res: ["Chaos", "Virus"], weak: ["Holy"],        dot: "burn",   reward: 1600 },
-  { name: "Soberano da Espiral Negra", element: "Chaos", bossKind: "espiral_lord",   hpMul: 80, res: [],              weak: ["Fogo", "Holy", "Virus"], dot: "freeze", reward: 1600, espiralLordHpMul: 1 },
-  { name: "Maximillion · Máscara Final", element: "Chaos", bossKind: "maximillion",  hpMul: 88, res: [],              weak: ["Chaos", "Holy", "Eletro"], dot: "poison", reward: 1600 },
-];
+  { name: "Sentinela Sombria",        element: "Chaos",  bossKind: "guardian",       hpMul: 47,  dot: null,     reward: 1600 },
+  { name: "Aizen · Eco Sombrio",      element: "Holy",   bossKind: "aizen",          hpMul: 51,  dot: null,     reward: 1600 },
+  { name: "Sukuna · Fome Eterna",     element: "Chaos",  bossKind: "sukuna",         hpMul: 55,  dot: "burn",   reward: 1600 },
+  { name: "Kaiba · Obelisco Negro",   element: "Eletro", bossKind: "godkaiba",       hpMul: 59,  dot: null,     reward: 1600 },
+  { name: "Ryoshu · Teia Sombria",    element: "Virus",  bossKind: "ryoshu_boss",    hpMul: 63,  dot: "poison", reward: 1600 },
+  { name: "Frieren · Memória Rota",   element: "Holy",   bossKind: "frieren_boss",   hpMul: 67,  dot: "freeze", reward: 1600 },
+  { name: "Omegamon · Núcleo Corrompido", element: "Virus", bossKind: "omegamon_boss", hpMul: 71, dot: "poison", reward: 1600 },
+  { name: "Soberano do Vazio · Sombra", element: "Chaos", bossKind: "void_sovereign", hpMul: 75,  dot: "burn",   reward: 1600 },
+  { name: "Soberano da Espiral Negra", element: "Chaos", bossKind: "espiral_lord",   hpMul: 80,  dot: "freeze", reward: 1600, espiralLordHpMul: 1 },
+  { name: "Maximillion · Máscara Final", element: "Chaos", bossKind: "maximillion",  hpMul: 88,  dot: "poison", reward: 1600 },
+].map((b, i) => { const w = DARK_TOWER_WEAKNESS[i]; return { ...b, weak: [w], res: ELEMENT_NAMES.filter(e => e !== w) }; });
 function darkTowerEncounter(level, power) {
   const bd = DARK_TOWER_BOSSES[level - 1]; if (!bd) return null;
   return {
@@ -2797,21 +2803,26 @@ const SKILL_DESC = {
   },
   yoruichi: {
     basic: [
-      "Causa <b>110% de ATK</b> em Dano Eletro no inimigo principal — Golpe Relâmpago.",
+      "<b>Golpe Relâmpago</b> — causa <b>300% da VEL</b> (não do ATK!) em Dano Eletro no inimigo principal.",
       "Ganha <b>+1 Ponto de Habilidade</b>.",
-      "✦ <b>Talento — Shunko:</b> Yoruichi age primeiro em combate e sua altíssima VEL garante turnos frequentes.",
+      "✦ <b>Talento — Frequência Shunpo:</b> todo o dano de Yoruichi escala com VEL, não ATK. A cada 10 de VEL acima de 120, o Dano Crítico de Ataques Extras de todo o time sobe +6% (máx 60%, ou 160% com S6).",
     ],
     skill: [
       "Custo: <b>1 Ponto de Habilidade</b>.",
-      "Shunko: causa <b>260% de ATK</b> em Dano Eletro no inimigo principal.",
-      "Aplica <b>Choque</b> no alvo por 2 turnos (<b>45% ATK/turno</b>).",
-      "Confere a si mesma: <b>+20% de Taxa Crítica</b> e <b>+12 de VEL</b> por 2 turnos.",
+      "<b>Domínio Magnético</b> — Yoruichi entra em Condução Perfeita por 3 turnos e marca 1 inimigo como <b>Ponto de Aterramento</b>.",
+      "Enquanto ativo: todo o time ganha <b>+12% da VEL de Yoruichi</b> como VEL fixa (buff de área).",
+      "Toda vez que o alvo marcado sofre dano de um <b>Ataque Extra</b> (de aliados ou dos Clones Residuais dela), 35% desse dano é registrado (52% com S5).",
+      "No início do próximo turno natural de Yoruichi, todo o dano registrado detona de uma vez no alvo — <b>Dano Verdadeiro</b> (ignora DEF e Escudo), e o registro reinicia.",
     ],
     ult: [
       "Custo: <b>120 de Energia</b>.",
-      "Shunko: Raijin — causa <b>510% de ATK</b> em Dano Eletro no inimigo principal.",
-      "<b>[Tempestade Eletro 4pç]</b> Bônus de Dano Eletro acumula até +12% por ações.",
-      "<b>[S5]</b> +50% de dano na Ultimate.",
+      "<b>Shunko: Raijin</b> — causa <b>2200% da VEL</b> em Dano Eletro no inimigo principal.",
+      "Avança a ação de todos os outros aliados em <b>25%</b> na Ordem de Turnos.",
+      "Insere à força <b>2 Clones Residuais</b> no alvo atingido — contam pro Colapso Elétrico e pro registro do Ponto de Aterramento.",
+    ],
+    talent: [
+      "✦ <b>Clones Residuais:</b> sempre que um aliado realiza um Ataque Extra (contra-ataque), Yoruichi intercepta e conjura um Clone que ataca o mesmo alvo — <b>500% da VEL</b> em Dano Eletro.",
+      "✦ <b>Colapso Elétrico:</b> a cada 3 Clones Residuais acionados, o alvo sofre uma explosão em área de <b>1500% da VEL</b> e recebe +20% de dano por 2 turnos (representando a queda de RES a Ataques Extras).",
     ],
   },
   kiritsugu: {
@@ -3483,7 +3494,7 @@ function DarkTowerScreen({ darkTowerCleared, darkTowerClaimed, start, team, flas
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(420px 200px at 85% 0%, #B98BFF22, transparent)" }} />
         <div style={{ position: "relative" }}>
           <div style={{ ...ORB, fontSize: 20, fontWeight: 800 }}>🌑 Torre Sombria</div>
-          <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>10 níveis, cada um contra um único chefe de HP altíssimo. Todos IGNORAM escudos do seu time — não dá pra tankar, só sobreviver e furar. Alguns ainda infectam seus personagens com DoTs periodicamente. <Glow color="#B98BFF">{totalReward.toLocaleString("pt-BR")}💎 totais</Glow>.</div>
+          <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>10 níveis, cada um contra um único chefe de HP altíssimo. Todos IGNORAM escudos do seu time — não dá pra tankar, só sobreviver e furar. Alguns ainda infectam seus personagens com DoTs periodicamente. Cada chefe resiste a TODOS os elementos menos 1 fraqueza única. <b style={{ color: "#FF6B82" }}>Limite de 10 Ciclos</b> — não derrotar o chefe a tempo é derrota automática. <Glow color="#B98BFF">{totalReward.toLocaleString("pt-BR")}💎 totais</Glow>.</div>
           <div className="flex items-center gap-3 mt-3" style={{ fontSize: 13 }}><span>Progresso: <b style={{ color: "#B98BFF" }}>{darkTowerCleared}/10</b></span><span>Gemas ganhas: <b style={{ color: "#86d8ff" }}>{earned.toLocaleString("pt-BR")}/{totalReward.toLocaleString("pt-BR")}</b></span></div>
           <Bar value={earned} max={totalReward} color="#B98BFF" />
         </div>
@@ -3498,7 +3509,7 @@ function DarkTowerScreen({ darkTowerCleared, darkTowerClaimed, start, team, flas
               <div style={{ fontSize: 26, width: 40, textAlign: "center" }}>{cleared ? "✅" : locked ? "🔒" : "🌑"}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ ...ORB, fontWeight: 800, fontSize: 14 }}>Nível {lvl} · {bd.name}</div>
-                <div style={{ fontSize: 11, color: el.color }}>{el.glyph} {bd.element}{bd.dot ? ` · aplica ${DOT_INFO[bd.dot]?.n || bd.dot}` : ""} · ignora escudo</div>
+                <div style={{ fontSize: 11, color: el.color }}>{el.glyph} {bd.element} · resiste a tudo, fraco a <b style={{ color: (ELEMENTS[bd.weak[0]] || {}).color }}>{bd.weak[0]}</b>{bd.dot ? ` · aplica ${DOT_INFO[bd.dot]?.n || bd.dot}` : ""} · ignora escudo</div>
               </div>
               <div style={{ fontWeight: 800, color: "#F6C95B", fontSize: 13 }}>+{bd.reward}💎</div>
             </button>
@@ -3668,8 +3679,8 @@ function makeEnemy(idx, enc) {
   const dungeonAtkMult = enc.tagDungeon ? 1.38 : enc.isTower ? Math.min(1.55, 0.9 + Math.max(0, (enc.floor || enc.level || 50) - 50) / 130) : enc.espiral ? 1.3 : enc.abismo ? 1.25 : 1.5;
   const atk = Math.round((power * 0.052 + lvl * 3.5 + 70) * (boss ? 1.3 : 1) * atkReduce * dungeonAtkMult);
   const def = Math.round(power * 0.035 + lvl * 3 + (boss ? power * 0.03 : 0));
-  const spd = 95 + idx * 3 + (boss ? 4 : 0);
-  if (enc.bossRush && idx === 0) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===enc.bossId;}); if (bd) { const atkBr = Math.round(3300 + (enc.level||90) * 11); const defBr = Math.round(2450 + (enc.level||90) * 8); return { uid: "E0", side: "enemy", name: bd.name, bossTitle: bd.lore, bossImgId: bd.imgKey, avatar: bd.avatar, element: bd.element, level: bd.level, roleKey: "dps", bossKind: bd.kind, boss: true, finalBoss: false, weekly: false, ascend: false, elite: false, res: bd.res || [], weak: bd.weak || [], base: { atk: atkBr, def: defBr, spd: 90, critRate: 15, critDmg: 60, dmgBonus: 0 }, hp: bd.hp, maxHp: bd.hp, shield: 0, av: 10000 / 90, buffs: [], debuffs: [], dots: [], alive: true, actCount: 0, _hasToughness: (bd.weak || []).length > 0, toughness: 150, maxToughness: 150 }; } }
+  const spd = 102 + idx * 3 + (boss ? 14 : 4);
+  if (enc.bossRush && idx === 0) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===enc.bossId;}); if (bd) { const atkBr = Math.round(3300 + (enc.level||90) * 11); const defBr = Math.round(2450 + (enc.level||90) * 8); return { uid: "E0", side: "enemy", name: bd.name, bossTitle: bd.lore, bossImgId: bd.imgKey, avatar: bd.avatar, element: bd.element, level: bd.level, roleKey: "dps", bossKind: bd.kind, boss: true, finalBoss: false, weekly: false, ascend: false, elite: false, res: bd.res || [], weak: bd.weak || [], base: { atk: atkBr, def: defBr, spd: 112, critRate: 15, critDmg: 60, dmgBonus: 0 }, hp: bd.hp, maxHp: bd.hp, shield: 0, av: 10000 / 112, buffs: [], debuffs: [], dots: [], alive: true, actCount: 0, _hasToughness: (bd.weak || []).length > 0, toughness: 150, maxToughness: 150 }; } }
   const bossEl = enc.bossElement || pick(ELEMENT_NAMES);
   const name = ascend ? (enc.bossName || "Guardião da Ascensão") : weekly ? (enc.bossName || "Tirano do Vazio") : finalBoss ? "Soberano do Vazio" : boss ? "Guardião do Andar" : "Aberração " + (idx + 1);
   // Alguns chefes têm RESISTÊNCIA (1-3 elementos) e FRAQUEZA (1-2 elementos)
@@ -3831,8 +3842,12 @@ function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx) {
   const yoru = (follower._sibs || []).find(h => h.id === "yoruichi" && h.alive);
   if (!yoru || yoru.uid === follower.uid) return;
   const ySpd = effStat(yoru, "spd"), yAtk = Math.max(1, effStat(yoru, "atk"));
+  // Rastro Especial 1 · Passo de Sombra: Ataque Extra aliado avança a ação dela em 6% (máx 3× entre os turnos dela)
+  if (yoru.stFlags?.yoruT1 && (yoru._yoruT1Uses || 0) < 3) { yoru._yoruT1Uses = (yoru._yoruT1Uses || 0) + 1; yoru.av = Math.max(0.01, (yoru.av || 1) * 0.94); }
+  // Rastro Especial 3 · Relâmpago Causal: se a VEL dela for maior que a do alvo, ignora 18% de DEF
+  const t3DefPen = (yoru.stFlags?.yoruT3 && ySpd > effStat(enemyTarget, "spd")) ? 18 : 0;
   const cloneMul = (ySpd * 5.0 / yAtk) * 100; // Clone Residual: 500% da VEL
-  const cr = dealDamage(yoru, enemyTarget, cloneMul, fx, { el: "Eletro", isYoruClone: true, breakW: 1 });
+  const cr = dealDamage(yoru, enemyTarget, cloneMul, fx, { el: "Eletro", isYoruClone: true, breakW: 1, defPen: t3DefPen });
   yoru._yoruClones = (yoru._yoruClones || 0) + 1;
   // Relâmpago Fugaz: dano próprio de Ataque Extra +10% por acúmulo (máx 3, dura 2 turnos)
   if (yoru.weapon?.buff?.yoruWeapon) {
@@ -3855,11 +3870,15 @@ function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx) {
   if (yoru._yoruClones % 3 === 0 && enemyTarget._sibs) {
     const burstMul = (ySpd * 15.0 / yAtk) * 100; // Colapso Elétrico: 1500% da VEL em área
     enemyTarget._sibs.filter(e => e.alive).forEach(e => {
-      const br = dealDamage(yoru, e, burstMul, fx, { el: "Eletro", isYoruClone: true, breakW: 2 });
+      const br = dealDamage(yoru, e, burstMul, fx, { el: "Eletro", isYoruClone: true, breakW: 2, defPen: t3DefPen });
       if (e.uid === enemyTarget.uid) burstDmg = br.dmg;
       e.debuffs.push({ stat: "vuln", value: 20, turns: 2, name: "Colapso Elétrico" }); // -20% RES a Ataques Extras (implementado como +20% de dano recebido)
     });
     pushLogGlobalFx(fx, yoru.uid, "COLAPSO ELÉTRICO!");
+    // Rastro Especial 2 · Condutor de Alta Voltagem: +25% de dano de Ataque Extra pra equipe por 2 turnos
+    if (yoru.stFlags?.yoruT2) {
+      (yoru._sibs || []).filter(h => h.alive).forEach(h => { h.buffs = h.buffs.filter(b => b.name !== "Alta Voltagem"); h.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "Alta Voltagem" }); });
+    }
     // S4: ao detonar o Colapso Elétrico, recupera 5 de Energia e cura o aliado com menor HP em 10%
     if (yoru.stFlags?.yoruS4) {
       if (yoru.energyMax) yoru.energy = Math.min(yoru.energyMax, yoru.energy + 5);
@@ -4347,6 +4366,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
           const hpGain = Math.round(ag._aguBaseMaxHp * 0.6); ag.maxHp = ag._aguBaseMaxHp + hpGain; ag.hp = ag.maxHp;
         }
       } }
+    { const yoru0 = heroes.find((h) => h.id === "yoruichi"); if (yoru0 && yoru0.stFlags?.yoruT1 && yoru0.energyMax) { yoru0.energy = Math.min(yoru0.energyMax, yoru0.energy + 20); yoru0._yoruT1Uses = 0; } }
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
     // _sibs: referências dos aliados de cada lado (Fulgur Resonance precisa achar o de menor HP)
     heroes.forEach(h => { h._sibs = heroes; });
@@ -4417,6 +4437,11 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         s2.cycle = (s2.cycle || 1) + 1;
         s2.log = [...s2.log, `🔄 CICLO ${s2.cycle}`];
         s2.cycleFlash = { n: s2.cycle, id: Math.random() };
+        // Torre Sombria: limite de 10 Ciclos — não derrotou o chefe a tempo, a run é perdida
+        if (encounter.darkTower && s2.cycle > 10 && !s2.over) {
+          s2.over = true; s2.win = false;
+          s2.log = [...s2.log, "⏳ LIMITE DE 10 CICLOS ATINGIDO! A Torre Sombria consome o que restou do seu time..."];
+        }
       }
       return s2;
     });
@@ -4517,11 +4542,24 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
               markT.hp = Math.max(0, markT.hp - rec); if (markT.hp <= 0) markT.alive = false;
               s.fx.push({ uid: markT.uid, txt: String(rec), crit: true, id: Math.random(), el: "Eletro" });
               pushLog(s, `⚡💥 PONTO DE ATERRAMENTO detona em ${markT.name} — ${rec} de Dano Verdadeiro Eletro!`);
+              // Rastro Especial 2: a detonação também reduz a Resistência (Perfuração) em valor fixo, ignorando o elemento de fraqueza
+              if (u.stFlags?.yoruT2 && markT._hasToughness && (markT.toughness || 0) > 0) {
+                markT.toughness = Math.max(0, markT.toughness - 15);
+                if (markT.toughness <= 0) applyBreakEffect(u, markT, "Eletro", s.fx);
+              }
             }
           }
           u._yoruRecordedDmg = 0;
         }
         if ((u._yoruStance || 0) > 0) { u._yoruStance -= 1; if (u._yoruStance <= 0) { u._yoruMarkUid = null; u.buffs = u.buffs.filter(b => b.name !== "Condução Perfeita"); s.heroes.forEach(h => { if (h.alive) h.buffs = h.buffs.filter(b => b.name !== "Domínio Magnético"); }); pushLog(s, "⚡ A Condução Perfeita de Yoruichi se dissipa."); } }
+        u._yoruT1Uses = 0; // Rastro 1: reseta o limite de avanços de ação a cada turno natural dela
+        // Rastro Especial 3: +4% de Regen de Energia pra cada 10 de VEL acima de 140
+        if (u.stFlags?.yoruT3) {
+          const _yspd3 = effStat(u, "spd");
+          u.buffs = u.buffs.filter(b => b.name !== "Relâmpago Causal");
+          const _erBonus = Math.max(0, Math.floor((_yspd3 - 140) / 10) * 4);
+          if (_erBonus > 0) u.buffs.push({ stat: "energyRegen", value: _erBonus, turns: 9999, name: "Relâmpago Causal" });
+        }
         // Talento (Frequência Shunpo): +6% de CRIT DMG em Ataques Extras por 10 de VEL acima de 120 (cap 60%, ou 160% com S6)
         const ySpdT = effStat(u, "spd"); const cap = u.stFlags?.yoruS6 ? 160 : 60;
         const shunpoBonus = Math.max(0, Math.min(cap, Math.floor((ySpdT - 120) / 10) * 6));
@@ -4738,17 +4776,18 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         }
         else if (u.id === "wonderofyou" && sk.wooSkill) {
             const sMul = u.tSkill * ampS;
+            const supMul = Math.min(1.12, u.tSkill || 1); // escala o valor dos debuffs/buff com o nível da Perícia (cap +12%, mesma regra dos outros suportes)
             const wooEnemies = aliveEnemies(s);
             let wooTot = 0, wooCrit = false;
             const debuffDur = f.wooE2 ? 9999 : 3; // E2: debuffs permanentes
-            const e1Mul = f.wooE1 ? 1.2 : 1; // E1: +20% potência
+            const e1Mul = (f.wooE1 ? 1.2 : 1) * supMul; // E1: +20% potência, além da escala de nível
             wooEnemies.forEach((e) => {
               const r = dealDamage(u, e, (sk.skillMul || 210) * sMul / Math.max(1, wooEnemies.length * 0.6), fx, { breakW: 2, el: "Chaos" });
               wooTot += r.dmg; if (r.crit) wooCrit = true;
               // E1: se já existe, renova e estende +1 turno (máx 6); senão aplica
               const addOrExtend = (nm, db) => {
                 const ex = e.debuffs.find(d => d.name === nm);
-                if (ex) { ex.turns = f.wooE1 ? Math.min(6, ex.turns + 1) : Math.max(ex.turns, debuffDur); }
+                if (ex) { ex.turns = f.wooE1 ? Math.min(6, ex.turns + 1) : Math.max(ex.turns, debuffDur); ex.value = db.value; }
                 else e.debuffs.push(db);
               };
               addOrExtend("Miss da Calamidade", { stat: "missChance", value: Math.round(20 * e1Mul), turns: debuffDur, name: "Miss da Calamidade" });
@@ -4760,7 +4799,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             const dmgBonusVal = Math.round(18 * e1Mul);
             allies.forEach((a) => {
               const ex = a.buffs.find(b => b.name === "Bênção da Calamidade");
-              if (ex) { if (f.wooE1) ex.turns = Math.min(6, ex.turns + 1); ex.value = Math.max(ex.value, dmgBonusVal); }
+              if (ex) { if (f.wooE1) ex.turns = Math.min(6, ex.turns + 1); ex.value = dmgBonusVal; }
               else a.buffs.push({ stat: "dmgBonus", value: dmgBonusVal, turns: 3, name: "Bênção da Calamidade" });
             });
             msg = `🌑 ${u.name} conjura Calamidade Inevitável — ${wooTot} de Dano Chaos${wooCrit ? " (CRÍTICO!)" : ""}! 4 debuffs exclusivos${f.wooE2 ? " PERMANENTES" : ` por ${debuffDur}t`}: Miss +${Math.round(20*e1Mul)}%, Vuln +${Math.round(18*e1Mul)}%, VEL -${Math.round(12*e1Mul)}%, DEF -${Math.round(15*e1Mul)}%.${f.wooE1 ? " [E1: buffs/debuffs existentes estendidos]" : ""}`;
@@ -5175,6 +5214,26 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       s.sfFollowThisTurn = 0;
       checkSoiFonFollowup(s, u, s.fx);
       checkNamiFollowup(s, u, s.fx);
+      // Yoruichi S3: reconhece Supremas ofensivas de outros aliados como Ataque Extra (gatilho próprio dela, não genérico)
+      if (kind === "ult" && u.id !== "yoruichi") {
+        const yoru3 = s.heroes.find(h => h.id === "yoruichi" && h.alive && h.stFlags?.yoruS3);
+        const t3 = yoru3 && targetEnemy(s);
+        if (yoru3 && t3 && t3.alive) {
+          const ySpd = effStat(yoru3, "spd"), yAtk = Math.max(1, effStat(yoru3, "atk"));
+          const cloneMul = (ySpd * 5.0 / yAtk) * 100;
+          const cr3 = dealDamage(yoru3, t3, cloneMul, s.fx, { el: "Eletro", isYoruClone: true, breakW: 1 });
+          yoru3._yoruClones = (yoru3._yoruClones || 0) + 1;
+          if (yoru3._yoruClones % 3 === 0 && t3._sibs) {
+            const burstMul = (ySpd * 15.0 / yAtk) * 100;
+            t3._sibs.filter(e => e.alive).forEach(e => { dealDamage(yoru3, e, burstMul, s.fx, { el: "Eletro", isYoruClone: true, breakW: 2 }); e.debuffs.push({ stat: "vuln", value: 20, turns: 2, name: "Colapso Elétrico" }); });
+            pushLog(s, "⚡💥 S3: a Suprema aliada dispara o COLAPSO ELÉTRICO de Yoruichi!");
+          }
+          if ((yoru3._yoruStance || 0) > 0 && yoru3._yoruMarkUid === t3.uid) {
+            const rate3 = yoru3.stFlags?.yoruS5 ? 0.52 : 0.35;
+            yoru3._yoruRecordedDmg = (yoru3._yoruRecordedDmg || 0) + (cr3.dmg || 0) * rate3;
+          }
+        }
+      }
       // C2 Athena: Lei da Inércia — avança AV de Athena quando aliado sob 7 Casas age
       { const athC2h = s.heroes.find(h => h.id === "athena" && h.alive && h.stFlags?.athC2 && h.uid !== u.uid);
         if (athC2h && s._athHouseActive && u.buffs.some(b => b.name === "Bênção do Olimpo")) {
@@ -5922,7 +5981,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
 
         {!state.over && encounter.isTower && (
           <div style={{ textAlign: "center", marginBottom: 4 }}>
-            <span style={{ ...ORB, fontSize: 11, fontWeight: 800, color: "#8AA0FF", background: "#161233", border: "1px solid #8AA0FF55", borderRadius: 99, padding: "3px 12px" }}>🔄 CICLO {state.cycle || 1}</span>
+            <span style={{ ...ORB, fontSize: 11, fontWeight: 800, color: encounter.darkTower && (state.cycle || 1) >= 8 ? "#FF6B82" : "#8AA0FF", background: "#161233", border: `1px solid ${encounter.darkTower && (state.cycle || 1) >= 8 ? "#FF6B8255" : "#8AA0FF55"}`, borderRadius: 99, padding: "3px 12px" }}>🔄 CICLO {state.cycle || 1}{encounter.darkTower ? "/10" : ""}</span>
           </div>
         )}
         {state.cycleFlash && encounter.isTower && (
@@ -6286,11 +6345,15 @@ function AttackFx({ data }) {
 function predictTurnOrder(units, n) {
   const sim = units.filter((u) => u.alive).map((u) => ({ ref: u, av: (isFinite(u.av) && u.av >= 0 ? u.av : 9999), spd: Math.max(1, effStat(u, "spd")) }));
   const order = [];
+  let cumAv = 0;
   for (let i = 0; i < (n || 7) && sim.length; i++) {
     sim.sort((a, b) => a.av - b.av);
     const nx = sim[0], t = nx.av;
     sim.forEach((x) => (x.av -= t));
-    order.push(nx.ref);
+    cumAv += t;
+    const cycleBreakBefore = cumAv >= 10000; // marca "|" quando esse turno já cai no próximo Ciclo
+    if (cycleBreakBefore) cumAv -= 10000;
+    order.push({ ...nx.ref, _cycleBreakBefore: cycleBreakBefore });
     nx.av = 10000 / nx.spd;
   }
   return order;
@@ -6300,12 +6363,15 @@ function TurnOrderBar({ units }) {
   return <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 2px 10px", overflowX: "auto" }}>
     <span style={{ fontSize: 9, color: C.mute, whiteSpace: "nowrap", marginRight: 2 }}>PRÓXIMOS ▸</span>
     {order.map((u, i) => { const el = ELEMENTS[u.element] || { color: C.line }; const enemy = u.side === "enemy"; const isHero = u.side === "H"; return (
-      <div key={i} style={{ position: "relative", flexShrink: 0 }}>
-        <div style={{ width: i === 0 ? 38 : 30, height: i === 0 ? 38 : 30, borderRadius: 99, border: `2px solid ${enemy ? C.bad : el.color}`, background: enemy ? "#2a1018" : C.panelHi, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", boxShadow: i === 0 ? `0 0 8px ${enemy ? C.bad : el.color}` : "none" }}>
-          {isHero ? <Avatar ch={{ id: u.id || u.imgKey, element: u.element, avatar: u.avatar }} size={i === 0 ? 38 : 30} /> : <span style={{ fontSize: i === 0 ? 20 : 16 }}>{u.avatar}</span>}
+      <React.Fragment key={i}>
+        {u._cycleBreakBefore && <div style={{ flexShrink: 0, width: 2, height: 30, background: "#8AA0FF77", borderRadius: 2, margin: "0 2px" }} title="Novo Ciclo" />}
+        <div style={{ position: "relative", flexShrink: 0 }}>
+          <div style={{ width: i === 0 ? 38 : 30, height: i === 0 ? 38 : 30, borderRadius: 99, border: `2px solid ${enemy ? C.bad : el.color}`, background: enemy ? "#2a1018" : C.panelHi, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", boxShadow: i === 0 ? `0 0 8px ${enemy ? C.bad : el.color}` : "none" }}>
+            {isHero ? <Avatar ch={{ id: u.id || u.imgKey, element: u.element, avatar: u.avatar }} size={i === 0 ? 38 : 30} /> : <span style={{ fontSize: i === 0 ? 20 : 16 }}>{u.avatar}</span>}
+          </div>
+          {i === 0 && <div style={{ position: "absolute", bottom: -9, left: 0, right: 0, textAlign: "center", fontSize: 7, color: C.gold, fontWeight: 800 }}>AGORA</div>}
         </div>
-        {i === 0 && <div style={{ position: "absolute", bottom: -9, left: 0, right: 0, textAlign: "center", fontSize: 7, color: C.gold, fontWeight: 800 }}>AGORA</div>}
-      </div>); })}
+      </React.Fragment>); })}
   </div>;
 }
 function SummonFx({ data }) {
