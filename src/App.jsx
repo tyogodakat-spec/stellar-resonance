@@ -950,16 +950,16 @@ function rewardFor(f) {
 }
 // ══════════ TORRE SOMBRIA (Dark Tower) — 10 níveis, só chefes, HP altíssimo, ignoram escudo ══════════
 const DARK_TOWER_BOSSES = [
-  { name: "Sentinela Sombria",        element: "Chaos",  bossKind: "guardian",       hpMul: 6.0,  res: [],              weak: ["Holy"],           dot: null,     reward: 1600 },
-  { name: "Aizen · Eco Sombrio",      element: "Holy",   bossKind: "aizen",          hpMul: 6.5,  res: ["Glacial"],     weak: ["Fogo", "Virus"],  dot: null,     reward: 1600 },
-  { name: "Sukuna · Fome Eterna",     element: "Chaos",  bossKind: "sukuna",         hpMul: 7.0,  res: ["Chaos"],       weak: ["Holy"],           dot: "burn",   reward: 1600 },
-  { name: "Kaiba · Obelisco Negro",   element: "Eletro", bossKind: "godkaiba",       hpMul: 7.5,  res: ["Eletro", "Holy"], weak: ["Fogo", "Virus"], dot: null,   reward: 1600 },
-  { name: "Ryoshu · Teia Sombria",    element: "Virus",  bossKind: "ryoshu_boss",    hpMul: 8.0,  res: ["Virus"],       weak: ["Fogo", "Holy"],   dot: "poison", reward: 1600 },
-  { name: "Frieren · Memória Rota",   element: "Holy",   bossKind: "frieren_boss",   hpMul: 8.5,  res: ["Glacial"],     weak: ["Fogo", "Virus"],  dot: "freeze", reward: 1600 },
-  { name: "Omegamon · Núcleo Corrompido", element: "Virus", bossKind: "omegamon_boss", hpMul: 9.0, res: ["Virus", "Chaos"], weak: ["Fogo"],        dot: "poison", reward: 1600 },
-  { name: "Soberano do Vazio · Sombra", element: "Chaos", bossKind: "void_sovereign", hpMul: 9.5,  res: ["Chaos", "Virus"], weak: ["Holy"],        dot: "burn",   reward: 1600 },
-  { name: "Soberano da Espiral Negra", element: "Chaos", bossKind: "espiral_lord",   hpMul: 10.0, res: [],              weak: ["Fogo", "Holy", "Virus"], dot: "freeze", reward: 1600, espiralLordHpMul: 1 },
-  { name: "Maximillion · Máscara Final", element: "Chaos", bossKind: "maximillion",  hpMul: 11.0, res: [],              weak: ["Chaos", "Holy", "Eletro"], dot: "poison", reward: 1600 },
+  { name: "Sentinela Sombria",        element: "Chaos",  bossKind: "guardian",       hpMul: 47,  res: [],              weak: ["Holy"],           dot: null,     reward: 1600 },
+  { name: "Aizen · Eco Sombrio",      element: "Holy",   bossKind: "aizen",          hpMul: 51,  res: ["Glacial"],     weak: ["Fogo", "Virus"],  dot: null,     reward: 1600 },
+  { name: "Sukuna · Fome Eterna",     element: "Chaos",  bossKind: "sukuna",         hpMul: 55,  res: ["Chaos"],       weak: ["Holy"],           dot: "burn",   reward: 1600 },
+  { name: "Kaiba · Obelisco Negro",   element: "Eletro", bossKind: "godkaiba",       hpMul: 59,  res: ["Eletro", "Holy"], weak: ["Fogo", "Virus"], dot: null,   reward: 1600 },
+  { name: "Ryoshu · Teia Sombria",    element: "Virus",  bossKind: "ryoshu_boss",    hpMul: 63,  res: ["Virus"],       weak: ["Fogo", "Holy"],   dot: "poison", reward: 1600 },
+  { name: "Frieren · Memória Rota",   element: "Holy",   bossKind: "frieren_boss",   hpMul: 67,  res: ["Glacial"],     weak: ["Fogo", "Virus"],  dot: "freeze", reward: 1600 },
+  { name: "Omegamon · Núcleo Corrompido", element: "Virus", bossKind: "omegamon_boss", hpMul: 71, res: ["Virus", "Chaos"], weak: ["Fogo"],        dot: "poison", reward: 1600 },
+  { name: "Soberano do Vazio · Sombra", element: "Chaos", bossKind: "void_sovereign", hpMul: 75,  res: ["Chaos", "Virus"], weak: ["Holy"],        dot: "burn",   reward: 1600 },
+  { name: "Soberano da Espiral Negra", element: "Chaos", bossKind: "espiral_lord",   hpMul: 80, res: [],              weak: ["Fogo", "Holy", "Virus"], dot: "freeze", reward: 1600, espiralLordHpMul: 1 },
+  { name: "Maximillion · Máscara Final", element: "Chaos", bossKind: "maximillion",  hpMul: 88, res: [],              weak: ["Chaos", "Holy", "Eletro"], dot: "poison", reward: 1600 },
 ];
 function darkTowerEncounter(level, power) {
   const bd = DARK_TOWER_BOSSES[level - 1]; if (!bd) return null;
