@@ -1659,7 +1659,7 @@ function Game({ email, isAdmin, onLogout }) {
 
   if (!loaded) return <div style={{ minHeight: "100vh", background: C.bg0, color: C.mute, display: "flex", alignItems: "center", justifyContent: "center" }}>Sincronizando ressonância…</div>;
 
-  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["roleta", "Pacto", "🎰"], ["espiral", "Espiral", "🌀"], ["abismo", "Abismo", "🕳️"], ["roteiro", "Roteiro", "📖"], ["wiki", "Wiki", "📚"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
+  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["roleta", "Pacto", "🎰"], ["espiral", "Espiral", "🌀"], ["abismo", "Abismo", "🕳️"], ["roteiro", "Roteiro", "📖"], ["wiki", "Wiki", "📚"], ["tierlist", "Tier List", "📊"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
 
   const needsNick = loaded && (!playerName || playerName === "Pioneiro");
 
@@ -1717,6 +1717,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "espiral" && <Espiral owned={owned} team={team} ownedMap={ownedMap} espiralClearedAt={espiralClearedAt} espiralWeekSeed={espiralWeekSeed} espiralWeaknesses={espiralWeaknesses} startEspiral={startEspiral} images={images} flash={flash} />}
                 {screen === "roteiro" && <Roteiro />}
                 {screen === "wiki" && <WikiScreen />}
+                {screen === "tierlist" && <TierListScreen />}
               {screen === "admin" && (isAdmin ? <Admin images={images} setImages={setImages} flash={flash} isAdmin={isAdmin} draftActive={draftActive} setDraftActive={setDraftActive} /> : <Empty msg="Acesso restrito ao administrador." />)}
             </>
           )}
@@ -3778,13 +3779,16 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     mult = mult * 1.20;
   }
   // Aizen mechanic: 40% miss chance before Bankai
-  if (defender.bossKind === "aizen" && !defender.aiBankai && attacker.side === "H" && Math.random() < 0.40 && !opts?.pierceShield) {
+  if (defender.bossKind === "aizen" && !defender.aiBankai && attacker.side === "H" && !opts?.pierceShield && (defender._aizenMissStreak || 0) < 1 && Math.random() < 0.20) {
+    defender._aizenMissStreak = (defender._aizenMissStreak || 0) + 1;
     fx.push({ uid: defender.uid, txt: "ERROU!", crit: false, id: Math.random(), el: attacker.element || "Holy" });
     return { dmg: 0, crit: false };
   }
+  if (defender.bossKind === "aizen") defender._aizenMissStreak = 0; // acertou — zera a sequência de erros (pity: nunca erra 2x seguidas)
   const f = attacker.stFlags || {};
   // Mutador Espelhos: 25% de chance de erro em qualquer ataque
-  if ((attacker._mut || defender._mut) === "espelhos" && Math.random() < 0.25) { fx.push({ uid: defender.uid, txt: "ERROU!", crit: false, id: Math.random() }); return { dmg: 0, crit: false }; }
+  if ((attacker._mut || defender._mut) === "espelhos" && (attacker._espelhosMissStreak || 0) < 1 && Math.random() < 0.15) { attacker._espelhosMissStreak = (attacker._espelhosMissStreak || 0) + 1; fx.push({ uid: defender.uid, txt: "ERROU!", crit: false, id: Math.random() }); return { dmg: 0, crit: false }; }
+  if ((attacker._mut || defender._mut) === "espelhos") attacker._espelhosMissStreak = 0;
   let dmg = effStat(attacker, "atk") * (mult / 100);
   // Mutador Miasma Cegante: Chance Crítica travada em 0%
   const crit = (attacker._mut || defender._mut) === "miasma" ? false : Math.random() * 100 < Math.min(100, effStat(attacker, "critRate"));
@@ -3907,8 +3911,12 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   // ── Maximillion, o Ilusionista do Tabuleiro (Torre 200) ──
   if (defender.bossKind === "maximillion" && attacker.side === "H" && dmg > 0 && !opts?.isDot) {
     if (!attacker.isSummon) {
-      // Mente Aberta: -50% de dano de personagens principais + rouba Eficiência de Perfuração em ATK (máx 5 stacks)
-      dmg = Math.round(dmg * 0.5);
+      // Mente Aberta: -35% de dano de personagens principais + rouba Eficiência de Perfuração em ATK (máx 5 stacks)
+      // (corrige bug: a redução precisa devolver o HP que já tinha sido debitado com o valor cheio, não só mudar o número exibido)
+      const reducedDmg = Math.round(dmg * 0.65); // Mente Aberta: -35% (era -50%, forte demais somado às outras mitigações)
+      const refund = dmg - reducedDmg;
+      if (refund > 0) defender.hp = Math.min(defender.maxHp, defender.hp + refund);
+      dmg = reducedDmg;
       const stacks = defender.buffs.filter(b => b.name === "Olho do Milênio").length;
       if (stacks < 5) defender.buffs.push({ stat: "atk", value: 10, pct: true, turns: 9999, name: "Olho do Milênio" });
       // Fase 2 · Cópia Toon: reflete 50% do dano recebido como Fogo
@@ -3945,6 +3953,7 @@ function applyDot(targets, spec, source, fx) {
   targets.forEach((t) => {
     if (!t.alive) return;
     if (t.bossKind === "maximillion" && t._illusionActive && source && source.side === "H" && !source.isSummon) return; // imune a DoTs de personagens principais
+    if ((t._dotCd?.[spec.type] || 0) > 0) { fx.push({ uid: t.uid, txt: "EM RECARGA", crit: false, id: Math.random() }); return; } // cooldown de reaplicação (2 turnos após o fim)
     if (spec.type === "aero" && t.dots.filter(d => d.type === "aero").length >= 5) return; // Aero: máx 5 acúmulos
     if (spec.type === "poison" && t.dots.filter(d => d.type === "poison").length >= 5) return; // Veneno: máx 5 camadas (estilo HSR)
     if (spec.type === "sinking") { const ex = t.dots.find(d => d.type === "sinking"); if (ex) { ex.dmg = Math.min(9999, ex.dmg + dmg); ex.turns = Math.min(9, ex.turns + spec.turns); return; } } // Afundamento: Potência acumula, Count soma
@@ -4049,16 +4058,16 @@ function miyabiBasicAttack(s, u, enemy, fx, ampB) {
   let msg = "";
   if (inPostura && f.miC6 && u.posturePH >= 4) {
     const fb = (f.miC1 && !u._firstCut) ? 1.5 : 1; let killed = false, tot = 0;
-    aliveEnemies(s).forEach((e) => { const r = dealDamage(u, e, 450 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 50 }); tot += r.dmg; if (!e.alive) killed = true; });
-    msg = `❄️ MIYABI DESFERE O CORTE DO FIM DOS TEMPOS! ${tot} de Dano Glacial em TODOS, ignorando 50% da DEF.`;
+    aliveEnemies(s).forEach((e) => { const r = dealDamage(u, e, 450 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 50 }); tot += r.dmg; if (!e.alive) killed = true; if (e.alive) applyDot([e], { type: "freeze", mul: 28, turns: 3 }, u, fx); });
+    msg = `❄️ MIYABI DESFERE O CORTE DO FIM DOS TEMPOS! ${tot} de Dano Glacial em TODOS, ignorando 50% da DEF, e aplica Congelamento.`;
     if (killed) { u._avMul = 0; msg += " Um alvo foi eliminado — Miyabi joga novamente!"; }
     u._firstCut = true; if (!frostZone) u.posturePH = 0;
   } else if (inPostura) {
     const fb = (f.miC1 && !u._firstCut) ? 1.5 : 1;
-    if (enemy) { const r = dealDamage(u, enemy, (sk.basicMul || 110) * 1.5 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 30 }); msg = `❄️ Corte Iaido em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}, ignorando 30% da DEF.`; }
+    if (enemy) { const r = dealDamage(u, enemy, (sk.basicMul || 110) * 1.5 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 30 }); msg = `❄️ Corte Iaido em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}, ignorando 30% da DEF.`; if (enemy.alive) { applyDot([enemy], { type: "freeze", mul: 22, turns: 2 }, u, fx); msg += " Aplica Congelamento."; } }
     u._avMul = 0.5; u._firstCut = true; if (!frostZone) u.posturePH = 0;
   } else {
-    if (enemy) { const r = dealDamage(u, enemy, (sk.basicMul || 110) * (u.tBasic || 1) * ampB, fx, { breakW: 1, el: "Glacial" }); msg = `${u.name} usa Corte Gélido em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}.`; }
+    if (enemy) { const r = dealDamage(u, enemy, (sk.basicMul || 110) * (u.tBasic || 1) * ampB, fx, { breakW: 1, el: "Glacial" }); msg = `${u.name} usa Corte Gélido em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}.`; if (enemy.alive) applyDot([enemy], { type: "freeze", mul: 12, turns: 2 }, u, fx); }
     u.posturePH = Math.min(maxPH, u.posturePH + 1);
     if (u.posturePH >= maxPH) msg += ` (${maxPH} PH — Postura Iaido pronta!)`;
   }
@@ -4087,6 +4096,8 @@ function applyMutPostAction(s, actor) {
   });
 }
 function tickDots(u, fx, allies) {
+  // Cooldown de reaplicação de DoT (2 turnos inteiros após o encerramento) — decrementa mesmo sem dots ativos
+  if (u._dotCd) { for (const k in u._dotCd) { if (u._dotCd[k] > 0) u._dotCd[k] -= 1; } }
   if (!u.dots || !u.dots.length) return;
   let total = 0;
   if ((u._aeroCd || 0) > 0) u._aeroCd -= 1;
@@ -4096,6 +4107,7 @@ function tickDots(u, fx, allies) {
       const nuke = Math.min(Math.round(u.hp * 0.25), Math.round(gl.reduce((a, d) => a + d.dmg, 0) * 2));
       u.hp -= nuke; total += nuke;
       u.dots = u.dots.filter(d => d.type !== "freeze" && d.type !== "geada");
+      u._dotCd = u._dotCd || {}; u._dotCd.freeze = 2; u._dotCd.geada = 2;
       fx.push({ uid: u.uid, txt: "🧊 QUEBRA DE GELEIRA! " + nuke, crit: true, id: Math.random(), el: "Glacial" });
     } }
   u.dots.forEach((d) => {
@@ -4115,6 +4127,10 @@ function tickDots(u, fx, allies) {
     fx.push({ uid: u.uid, txt: "🌪️ COLAPSO!", crit: true, id: Math.random() });
   }
   u._fulgHits = 0; // Fulgur: reseta o limite de 4 ativações por rodada do alvo
+  // Cooldown de reaplicação: todo tipo de DoT que encerra agora entra em recarga de 2 turnos antes de poder ser reaplicado
+  { const expiring = u.dots.filter(d => d.turns <= 0);
+    if (expiring.length) { u._dotCd = u._dotCd || {}; expiring.forEach(d => { u._dotCd[d.type] = 2; }); }
+  }
   u.dots = u.dots.filter((d) => d.turns > 0);
   if (u.hp <= 0) { u.hp = 0; u.alive = false; }
   return total;
@@ -4198,7 +4214,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       if (gls.length) abLog.push("🧩 Glitches ativos: " + gls.length);
     }
     const totalWaves = Math.max(1, Math.min(8, encounter.waves || 1));
-    return { heroes, enemies, sp: 3, wave: 1, totalWaves, heroTurns: 0, enc: encounter, log: [...abLog, totalWaves > 1 ? `⚔️ Dungeon de ${totalWaves} ondas — sobreviva com um só fôlego!` : "⚔️ A batalha começa! A ressonância flui…"], turn: null, over: false, win: false, fx: [], choice: null, summonFx: null };
+    return { heroes, enemies, sp: 3, wave: 1, totalWaves, heroTurns: 0, enc: encounter, log: [...abLog, totalWaves > 1 ? `⚔️ Dungeon de ${totalWaves} ondas — sobreviva com um só fôlego!` : "⚔️ A batalha começa! A ressonância flui…"], turn: null, over: false, win: false, fx: [], choice: null, summonFx: null, cycle: 1, cycleAv: 0 };
   });
   const [target, setTarget] = useState(0);
   useEffect(() => { const al = state.enemies.filter((e) => e.alive); if (al.length && target >= al.length) setTarget(0); }, [state.enemies, target]);
@@ -4236,7 +4252,16 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       const minAv = Math.min(...units.map((u) => u.av));
       units.forEach((u) => (u.av -= minAv));
       const next = units.slice().sort((a, b) => a.av - b.av)[0];
-      return { ...s, turn: next };
+      // Sistema de Ciclos (estilo HSR): 10.000 de Valor de Ação consumidos = 1 Ciclo. Sem limite — só informativo.
+      let s2 = { ...s, turn: next };
+      s2.cycleAv = (s2.cycleAv || 0) + minAv;
+      if (s2.cycleAv >= 10000) {
+        s2.cycleAv -= 10000;
+        s2.cycle = (s2.cycle || 1) + 1;
+        s2.log = [...s2.log, `🔄 CICLO ${s2.cycle}`];
+        s2.cycleFlash = { n: s2.cycle, id: Math.random() };
+      }
+      return s2;
     });
   }
   function checkEnd(s) {
@@ -5578,14 +5603,14 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       } else if (u.boss && u.bossKind === "venom" && u.actCount % 2 === 0) {
         const t = pickTarget(); if (t) { t.dots.push({ type: "poison", dmg: Math.round(effStat(u, "atk") * 0.5), turns: 3 }); const r = dealDamage(u, t, 60 * rage, fx); msg = `☣️ ${u.name} injeta veneno corrosivo em ${t.name} — ${r.dmg} de dano + Veneno por 3 turnos!`; }
       } else if (u.boss && u.bossKind === "stone" && u.actCount % 3 === 0) {
-        u.shield += Math.round(u.maxHp * 0.18); const t = pickTarget(); const r = t ? dealDamage(u, t, 135 * rage, fx) : { dmg: 0 };
+        u.shield += Math.round(effStat(u, "atk") * 8); const t = pickTarget(); const r = t ? dealDamage(u, t, 135 * rage, fx) : { dmg: 0 };
         msg = `🗿 ${u.name} cristaliza uma carapaça (escudo) e esmaga ${t ? t.name : ""} por ${r.dmg}!`;
       } else if (u.boss && (u.actCount % 3 === 0 || (enraged && u.actCount % 2 === 0))) {
         let tot = 0; allAllies.forEach((h) => { tot += dealDamage(u, h, 48 * rage, fx).dmg; });
         realHeroes.forEach((h) => h.debuffs.push({ stat: "def", value: -25, pct: true, turns: 2, name: "DEF↓" }));
         msg = `💥 ${u.name} desfere um ataque DEVASTADOR em área — ${tot} de dano total e reduz a DEF de todos!${enraged ? " (ENFURECIDO!)" : ""}`;
       } else if (u.boss && u.actCount % 5 === 0) {
-        u.shield += Math.round(u.maxHp * 0.12); const t = pickTarget(); const r = t ? dealDamage(u, t, 80 * rage, fx) : { dmg: 0 };
+        u.shield += Math.round(effStat(u, "atk") * 5); const t = pickTarget(); const r = t ? dealDamage(u, t, 80 * rage, fx) : { dmg: 0 };
         msg = `${u.name} se protege com uma barreira e fere ${t ? t.name : ""} por ${r.dmg}.`;
       } else if (u.boss && Math.random() < 0.3) {
         const carry = targetable.slice().sort((a, b) => effStat(b, "atk") - effStat(a, "atk"))[0];
@@ -5664,6 +5689,17 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
           {!state.over && <button onClick={() => onEnd({ win: false, abort: true, turns: state.heroTurns })} style={{ fontSize: 12, color: C.mute, border: `1px solid ${C.line}`, borderRadius: 8, padding: "3px 10px" }}>Recuar</button>}
         </div>
 
+        {!state.over && encounter.isTower && (
+          <div style={{ textAlign: "center", marginBottom: 4 }}>
+            <span style={{ ...ORB, fontSize: 11, fontWeight: 800, color: "#8AA0FF", background: "#161233", border: "1px solid #8AA0FF55", borderRadius: 99, padding: "3px 12px" }}>🔄 CICLO {state.cycle || 1}</span>
+          </div>
+        )}
+        {state.cycleFlash && encounter.isTower && (
+          <div key={state.cycleFlash.id} style={{ position: "fixed", inset: 0, zIndex: 85, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+            <style dangerouslySetInnerHTML={{ __html: `@keyframes cycleFlash{0%{opacity:0;transform:scale(1.4)}20%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(0.9)}}` }} />
+            <div style={{ ...ORB, fontSize: 34, fontWeight: 900, color: "#8AA0FF", textShadow: "0 0 26px #8AA0FFaa", animation: "cycleFlash 1.6s ease both" }}>🔄 CICLO {state.cycleFlash.n}</div>
+          </div>
+        )}
         {!state.over && <TurnOrderBar units={[...state.heroes, ...state.enemies]} />}
 
         {/* inimigos */}
@@ -7903,6 +7939,77 @@ function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante,
      ROTEIRO - Modo Historia (acessível a todos os jogadores)
      ========================================================================== */
 /* ==========================================================================
+   TIER LIST — estilo Prydwen: fileiras por tier, cards agrupados, papel/nicho visível
+   ========================================================================== */
+const ROLE_INFO = {
+  dps: { n: "DPS", c: "#FF6B45", icon: "⚔️" }, aoe: { n: "AoE / Controle", c: "#74E8A6", icon: "🌪️" },
+  healer: { n: "Suporte de Cura", c: "#6FE3FF", icon: "💚" }, shield: { n: "Suporte de Escudo", c: "#4FC3F7", icon: "🛡️" },
+  buffer: { n: "Suporte / Buff", c: "#F6C95B", icon: "✨" }, debuffer: { n: "Debuffer", c: "#B98BFF", icon: "☠️" },
+  summoner: { n: "Invocador", c: "#FFE45B", icon: "🐉" },
+};
+const TIER_INFO = {
+  SSS: { c: "#FF3B7C", label: "O topo absoluto — redefinem o teto de poder do jogo, praticamente obrigatórios no endgame de ponta." },
+  SS: { c: "#FF9E45", label: "Melhores da atualidade — moldam a meta, valem qualquer investimento." },
+  S:  { c: "#F6C95B", label: "Excelentes em quase todo time — carregam conteúdo endgame com facilidade." },
+  A:  { c: "#74E8A6", label: "Muito bons, fortes com build correta ou papel específico no time." },
+  B:  { c: "#6FE3FF", label: "Sólidos e viáveis — competitivos com investimento ou sinergia certa." },
+};
+const TIER_LIST = {
+  SSS: ["agumon"],
+  SS: ["wonderofyou", "ryoshu"],
+  S:  ["miyabi", "yoruichi", "frieren", "soifon", "kiritsugu"],
+  A:  ["kaiba", "kirara", "omegamon", "athena", "chopper", "uraraka"],
+  B:  ["nanami", "nami", "sakura", "ace", "usopp", "lancer", "renji"],
+};
+const TIER_ORDER = ["SSS", "SS", "S", "A", "B"];
+function TierListScreen() {
+  const [roleFilter, setRoleFilter] = React.useState("all");
+  return <div className="flex flex-col gap-4">
+    <Panel glow="#F6C95B">
+      <div style={{ ...ORB, fontWeight: 900, fontSize: 20 }}>📊 Tier List — Stellar Resonance</div>
+      <div style={{ fontSize: 12, color: C.mute, marginTop: 4 }}>Avaliação geral de poder no elenco atual (PvE, endgame: Torre / Espiral / Abismo). Baseada no kit, teto de dano/utilidade e facilidade de build — não substitui sinergia de time.</div>
+      <div className="flex gap-2" style={{ flexWrap: "wrap", marginTop: 10 }}>
+        <button onClick={() => setRoleFilter("all")} style={{ fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 99, border: `1px solid ${roleFilter === "all" ? C.gold : C.line}`, background: roleFilter === "all" ? "#3a2c05" : C.panelHi, color: roleFilter === "all" ? C.gold : C.mute, cursor: "pointer" }}>Todos</button>
+        {Object.entries(ROLE_INFO).map(([k, r]) => (
+          <button key={k} onClick={() => setRoleFilter(k)} style={{ fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 99, border: `1px solid ${roleFilter === k ? r.c : C.line}`, background: roleFilter === k ? r.c + "22" : C.panelHi, color: roleFilter === k ? r.c : C.mute, cursor: "pointer" }}>{r.icon} {r.n}</button>
+        ))}
+      </div>
+    </Panel>
+    {TIER_ORDER.map(tier => {
+      const ids = TIER_LIST[tier].filter(id => roleFilter === "all" || CHAR_MAP[id]?.role === roleFilter);
+      if (!ids.length) return null;
+      const ti = TIER_INFO[tier];
+      return (
+        <Panel key={tier} glow={ti.c}>
+          <div className="flex items-center gap-3" style={{ marginBottom: 10 }}>
+            <div style={{ ...ORB, fontWeight: 900, fontSize: 26, color: ti.c, width: 54, textAlign: "center", textShadow: `0 0 16px ${ti.c}66` }}>{tier}</div>
+            <div style={{ fontSize: 11, color: C.mute, flex: 1 }}>{ti.label}</div>
+          </div>
+          <div className="flex gap-3" style={{ flexWrap: "wrap" }}>
+            {ids.map(id => {
+              const c = CHAR_MAP[id]; if (!c) return null;
+              const ri = ROLE_INFO[c.role] || { n: c.role, c: C.mute, icon: "✦" };
+              const el = ELEMENTS[c.element] || { color: C.line };
+              return (
+                <div key={id} style={{ width: 96, textAlign: "center", border: `1px solid ${C.line}`, borderRadius: 14, padding: 8, background: C.panelHi }}>
+                  <Avatar ch={c} size={56} ring={el.color} />
+                  <div style={{ fontSize: 11, fontWeight: 800, marginTop: 5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
+                  <div style={{ fontSize: 9, color: ri.c, marginTop: 2 }}>{ri.icon} {ri.n}</div>
+                  <div style={{ fontSize: 9, color: C.dim }}>{"★".repeat(c.rarity)}</div>
+                </div>
+              );
+            })}
+          </div>
+        </Panel>
+      );
+    })}
+    <Panel>
+      <div style={{ fontSize: 11, color: C.dim, lineHeight: 1.6 }}>A tier list é atualizada conforme rebalanceamentos e novos personagens chegam ao jogo. Personagens fora dela ainda não foram avaliados formalmente.</div>
+    </Panel>
+  </div>;
+}
+
+/* ==========================================================================
    WIKI — como os efeitos ao longo do tempo (DoTs) funcionam
    ========================================================================== */
 const WIKI_DOTS = [
@@ -7922,6 +8029,18 @@ function WikiScreen() {
     <Panel glow="#8AA0FF">
       <div style={{ ...ORB, fontWeight: 900, fontSize: 20 }}>📚 Wiki — Efeitos de Combate</div>
       <div style={{ fontSize: 12, color: C.mute, marginTop: 4 }}>Como os efeitos ao longo do tempo (DoTs) e efeitos de gatilho funcionam no motor de batalha.</div>
+    </Panel>
+    <Panel glow="#F2C245">
+      <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 4 }}>⏳ Recarga de Reaplicação de DoT</div>
+      <div style={{ fontSize: 12, color: C.mute, lineHeight: 1.75 }}>
+        Todo DoT (de qualquer tipo) que <b>termina naturalmente</b> num alvo entra numa recarga de <b>2 turnos inteiros</b> antes de poder ser reaplicado nesse mesmo alvo — evita manter um alvo perpetuamente sob o mesmo efeito só reaplicando sem parar. Enquanto o DoT ainda estiver ATIVO, reaplicar continua funcionando normalmente (acumula/estende); a recarga só entra em ação depois que ele acaba.
+      </div>
+    </Panel>
+    <Panel glow="#8AA0FF">
+      <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🔄 Sistema de Ciclos (Torre)</div>
+      <div style={{ fontSize: 12, color: C.mute, lineHeight: 1.75 }}>
+        Assim como no Honkai: Star Rail, o combate acompanha um relógio global de Valor de Ação: cada 10.000 de VA consumidos entre todos os personagens e inimigos equivale a <b>1 Ciclo</b>. Na Torre, um indicador mostra o ciclo atual e pisca ao trocar. Não há limite de ciclos — é só informativo, pra você comparar a velocidade da sua equipe entre tentativas.
+      </div>
     </Panel>
     <Panel glow="#F2C245">
       <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🛡️💢 Sistema de Perfuração (Resistência)</div>
