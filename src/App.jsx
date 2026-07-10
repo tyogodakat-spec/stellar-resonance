@@ -48,7 +48,7 @@ const ROSTER = [
   mk({ id: "miyabi", name: "Miyabi", title: "Caçadora do Vazio", element: "Glacial", role: "aoe", rarity: 5, avatar: "🌸", hp: 1060, atk: 790, def: 420, spd: 103, energy: 160, cr: 8, cd: 60, tags: ["Gelo", "DPS", "Área", "Anomalia"],
     skill: { basicMul: 80, skillMul: 195, aoe: true, skillDot: { type: "freeze", mul: 60, turns: 2 }, ultMul: 390, ultAoe: true, ultDot: { type: "freeze", mul: 82, turns: 2 } } }),
   mk({ id: "kaiba", name: "Seto Kaiba", title: "Mestre dos Dragões", element: "Eletro", role: "summoner", rarity: 5, avatar: "🃏", hp: 1180, atk: 720, def: 480, spd: 101, energy: 140, cr: 5, cd: 50, er: 30, elemDmg: 5, tags: ["Eletro", "Invocador", "Deus Egípcio", "Único"],
-    skill: { basicMul: 100, kaibaBasic: true, skillMul: 0, kaibaSkill: true, ultMul: 550, kaibaUlt: true } }),
+    skill: { basicMul: 100, kaibaBasic: true, skillMul: 0, kaibaSkill: true, ultMul: 850, kaibaUlt: true } }),
   // ---- T4 ----
   mk({ id: "renji", name: "Renji Abarai", title: "Zabimaru", element: "Chaos", role: "dps", rarity: 4, avatar: "🗡️", hp: 1060, atk: 705, def: 440, spd: 104, energy: 120, tags: ["Caos", "DPS", "Sangramento"],
     skill: { basicMul: 100, skillMul: 215, skillDot: { type: "bleed", mul: 50, turns: 2 }, ultMul: 380 } }),
@@ -2711,7 +2711,7 @@ const SKILL_DESC = {
     ult: [
       "Custo: <b>140 de Energia</b>.",
       "<b>Entrada Triunfal:</b> ao entrar em campo, a ação do Dragão avança <b>100%</b> na Ordem de Turnos (age quase imediatamente).",
-      "<b>Rajada de Relâmpagos:</b> no turno dele, o Dragão causa Dano Eletro/Fogo devastador — <b>550% do ATK</b> de Kaiba no alvo principal e <b>275%</b> nos alvos adjacentes, removendo todos os buffs positivos dos alvos atingidos. Permanece em campo até ser substituído ou derrotado.",
+      "<b>Rajada de Relâmpagos:</b> no turno dele, o Dragão causa Dano Eletro/Fogo devastador — <b>850% do ATK</b> de Kaiba no alvo principal e <b>425%</b> nos alvos adjacentes, removendo todos os buffs positivos dos alvos atingidos. Como Monstro Lendário, o Dragão NÃO pode ser substituído por cartas comuns da Perícia — só sai de campo se for derrotado ou se Kaiba conjurar um novo Dragão Branco pela Suprema.",
     ],
   },
   renji: {
@@ -3660,14 +3660,15 @@ function makeSummon(owner, cfg) {
   const spdFinal = Math.min(220, Math.round((cfg.spd || 100) * convBonus));
   const atk = effStat(owner, "atk") * atkMulFinal * bonus;
   const hp = Math.round(owner.maxHp * cfg.hpMul);
-  // Servos de um Rei (2pç): +15% de Dano causado por Invocações
-  const summonDmgBonus = f.setServos2 ? 15 : 0;
+  // Servos de um Rei (2pç): +15% de Dano causado por Invocações. Base geral de dano das invocações também subiu (+25%).
+  const summonDmgBonus = 25 + (f.setServos2 ? 15 : 0);
   return {
     uid: cfg.uid, side: "H", id: cfg.imgKey || "summon", imgId: cfg.imgKey || null, name: cfg.name, avatar: cfg.avatar,
     element: cfg.elements ? cfg.elements[0] : owner.element, elements: cfg.elements || null,
     roleKey: "summon", isSummon: true, auto: true, kind: cfg.kind, mul: cfg.mul, ownerUid: owner.uid, firstHit: cfg.kind === "dragon",
     level: owner.level, life: cfg.life || Infinity, stFlags: {}, tBasic: 1, tSkill: 1, tUlt: 1,
-    base: { atk, def: owner.base.def * 0.5, spd: spdFinal, critRate: owner.base.critRate, critDmg: owner.base.critDmg, dmgBonus: (owner.base.dmgBonus || 0) + summonDmgBonus, elemBonus: owner.base.elemBonus || 0, hp, energyMax: 0 },
+    // Regra do Duelista (Talento): a Invocação herda 100% da Taxa/Dano Crítico EFETIVOS de Kaiba (não só o base) — era aqui que o Talento falhava
+    base: { atk, def: effStat(owner, "def") * 0.5, spd: spdFinal, critRate: effStat(owner, "critRate"), critDmg: effStat(owner, "critDmg"), dmgBonus: (owner.base.dmgBonus || 0) + summonDmgBonus, elemBonus: owner.base.elemBonus || 0, hp, energyMax: 0 },
     hp, maxHp: hp, shield: 0, energy: 0, energyMax: 0, av: 10000 / Math.max(1, spdFinal), buffs: [], debuffs: [], dots: [], alive: true, weapon: null,
     _servosOwner: f.setServos2 || f.setServos4 ? owner.uid : null, _hasServos4: !!f.setServos4,
   };
@@ -4276,7 +4277,7 @@ function miyabiBasicAttack(s, u, enemy, fx, ampB) {
   let msg = "";
   if (inPostura && f.miC6 && u.posturePH >= 4) {
     const fb = (f.miC1 && !u._firstCut) ? 1.5 : 1; let killed = false, tot = 0;
-    aliveEnemies(s).forEach((e) => { const r = dealDamage(u, e, 450 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 50 }); tot += r.dmg; if (!e.alive) killed = true; if (e.alive) applyDot([e], { type: "freeze", mul: 28, turns: 3 }, u, fx); });
+    aliveEnemies(s).forEach((e) => { const r = dealDamage(u, e, 450 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 50 }); tot += r.dmg; if (!e.alive) killed = true; if (e.alive) applyDot([e], { type: "freeze", mul: 110, turns: 3 }, u, fx); });
     msg = `❄️ MIYABI DESFERE O CORTE DO FIM DOS TEMPOS! ${tot} de Dano Glacial em TODOS, ignorando 50% da DEF, e aplica Congelamento.`;
     if (killed) { u._avMul = 0; msg += " Um alvo foi eliminado — Miyabi joga novamente!"; }
     u._firstCut = true; if (!frostZone) u.posturePH = 0;
@@ -4876,8 +4877,15 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             const drawOne = () => {
               const r = Math.random();
               if (r < 0.05) return "obelisk";
-              const rest = ["vorse", "kaiser", "saggi", "judge", "control", "shrink", "flute", "virus", "ring"];
-              return rest[Math.min(rest.length - 1, Math.floor((r - 0.05) / 0.95 * rest.length))];
+              // Tabela de pesos explícita (soma 95): garante que Armadilhas (Vírus/Anel) sempre tenham chance visível
+              const table = [
+                ["vorse", 12], ["kaiser", 12], ["saggi", 10], ["judge", 11],
+                ["control", 10], ["shrink", 10], ["flute", 10],
+                ["virus", 10], ["ring", 10],
+              ];
+              let roll = (r - 0.05) / 0.95 * 95, acc = 0;
+              for (const [id, w] of table) { acc += w; if (roll < acc) return id; }
+              return "ring";
             };
             let cardId = u._kaibaForceMagic ? ["control", "shrink", "flute", "virus", "ring"][Math.floor(Math.random() * 5)] : drawOne();
             u._kaibaForceMagic = false;
@@ -4905,7 +4913,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
               const monsters = s.heroes.filter(h => h.isSummon && h.kind === "monster" && h.ownerUid === u.uid && h.alive);
               const slotLimit = u.stFlags?.kaibaS3 ? 2 : 1;
               if (monsters.length < slotLimit) return; // ainda tem vaga livre — não precisa destruir nada
-              const old = monsters[0]; // destrói o mais antigo
+              const nonLegend = monsters.filter(m => !m.dragonLegendary); // Dragão Branco (Suprema) NÃO pode ser substituído por cartas comuns
+              const old = nonLegend[0]; // destrói o mais antigo (nunca o Dragão Lendário)
+              if (!old) return; // só há o Dragão em campo — a carta comum não consegue substituí-lo
               if (old) {
                 old.alive = false;
                 if (u.stFlags?.kaibaS1) { u._kaibaGraveyard = u._kaibaGraveyard || []; if (u._kaibaGraveyard.length < 3) u._kaibaGraveyard.push(old.name); if (u._kaibaGraveyard.length >= 3) { u._kaibaGraveyard = []; s.sp = Math.min(5, s.sp + 1); u._kaibaForceMagic = true; msgPre += "[S1: Cemitério cheio — reembaralha e gera 1 PH!] "; } }
@@ -4923,13 +4933,13 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
               s.heroes.push(mon);
               return mon;
             };
-            if (cardId === "vorse") { summonCard("Vorse Raider", "👹", 260, { bleedChance: 0.5 }, "card_vorse"); msg = msgPre + "🎴 VORSE RAIDER! Monstro de impacto pesado (260% ATK), 50% de chance de Sangramento."; }
-            else if (cardId === "kaiser") { summonCard("Kaiser Sea Horse", "🐴", 180, { onSummonEnergy: 20 }, "card_kaiser"); msg = msgPre + "🎴 KAISER SEA HORSE! Monstro invocado (180% ATK) — +20 de Energia instantânea."; }
-            else if (cardId === "saggi") { summonCard("Saggi, o Clone das Sombras", "👤", 70, { taunt: true }, "card_saggi"); msg = msgPre + "🎴 SAGGI! Monstro de baixo dano (70% ATK) mas provoca TODOS os inimigos por 2 rodadas."; }
+            if (cardId === "vorse") { summonCard("Vorse Raider", "👹", 380, { bleedChance: 0.5 }, "card_vorse"); msg = msgPre + "🎴 VORSE RAIDER! Monstro de impacto pesado (380% ATK), 50% de chance de Sangramento."; }
+            else if (cardId === "kaiser") { summonCard("Kaiser Sea Horse", "🐴", 260, { onSummonEnergy: 20 }, "card_kaiser"); msg = msgPre + "🎴 KAISER SEA HORSE! Monstro invocado (260% ATK) — +20 de Energia instantânea."; }
+            else if (cardId === "saggi") { summonCard("Saggi, o Clone das Sombras", "👤", 110, { taunt: true }, "card_saggi"); msg = msgPre + "🎴 SAGGI! Monstro de menor dano (110% ATK) mas provoca TODOS os inimigos por 2 rodadas."; }
             else if (cardId === "judge") {
               destroyOld();
-              const mon = makeSummon(u, { uid: "S_" + u.uid + "_mon" + Math.floor(Math.random() * 1e6), name: "Juiz", avatar: "⚖️", imgKey: "card_judge", kind: "monster", mul: 200 * (chainX2 ? 2 : 1), spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity });
-              mon.judgeSplash = 100; s.heroes.push(mon);
+              const mon = makeSummon(u, { uid: "S_" + u.uid + "_mon" + Math.floor(Math.random() * 1e6), name: "Juiz", avatar: "⚖️", imgKey: "card_judge", kind: "monster", mul: 280 * (chainX2 ? 2 : 1), spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity });
+              mon.judgeSplash = 140; s.heroes.push(mon);
               msg = msgPre + "🎴 JUIZ! Monstro de área (200% ATK no principal, 100% nos adjacentes).";
             }
             else if (cardId === "obelisk") {
@@ -5141,8 +5151,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
           const oldMon = activeMonster(s, u.uid);
           if (oldMon) { oldMon.alive = false; if (u.stFlags?.kaibaS1) { u._kaibaGraveyard = u._kaibaGraveyard || []; if (u._kaibaGraveyard.length < 3) u._kaibaGraveyard.push(oldMon.name); } if (u.stFlags?.kaibaT2) { u.energy = Math.min(u.energyMax, u.energy + 15); } }
           u._kaibaBEWCount = (u._kaibaBEWCount || 0) + 1; // S6: rastreia quantos Blue-Eyes passaram pelo campo/Cemitério
-          const dragon = makeSummon(u, { uid: "S_" + u.uid + "_bew" + Math.floor(Math.random() * 1e6), name: "Dragão Branco de Olhos Azuis", avatar: "🐉", imgKey: "card_bew", kind: "monster", mul: (sk.ultMul || 550) * (u.tUlt || 1) * ampU, spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity });
-          dragon.dragonSplash = 275 * (u.tUlt || 1) * ampU; dragon.dragonVuln = false; dragon.removeBuffsOnHit = true;
+          const dragon = makeSummon(u, { uid: "S_" + u.uid + "_bew" + Math.floor(Math.random() * 1e6), name: "Dragão Branco de Olhos Azuis", avatar: "🐉", imgKey: "card_bew", kind: "monster", mul: (sk.ultMul || 850) * (u.tUlt || 1) * ampU, spd: effStat(u, "spd"), atkMul: 1.6, hpMul: 0.003, life: Infinity });
+          dragon.dragonSplash = 425 * (u.tUlt || 1) * ampU; dragon.dragonVuln = false; dragon.removeBuffsOnHit = true; dragon.dragonLegendary = true; dragon.buffs.push({ stat: "dmgBonus", value: 40, turns: 9999, name: "Dragão Lendário" });
           dragon.av = 0.01; // Entrada Triunfal: avança 100% na Ordem de Turnos — age quase imediatamente
           s.heroes.push(dragon);
           // S4: ativa a Arena KaibaCorp — -18% de RES elemental nos inimigos por ~3 Ciclos (aprox. 10 turnos)
@@ -5522,7 +5532,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         const mons = s.heroes.filter(h => h.isSummon && h.kind === "monster" && h.ownerUid === u.uid && h.alive);
         const slotLimit = u.stFlags?.kaibaS3 ? 2 : 1;
         if (mons.length < slotLimit) return;
-        const old = mons[0];
+        const nonLegendH = mons.filter(m => !m.dragonLegendary);
+        const old = nonLegendH[0];
+        if (!old) return;
         if (old) {
           old.alive = false;
           if (u.stFlags?.kaibaS1) { u._kaibaGraveyard = u._kaibaGraveyard || []; if (u._kaibaGraveyard.length < 3) u._kaibaGraveyard.push(old.name); }
@@ -5540,10 +5552,10 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         return mon;
       };
       let msg = "";
-      if (cardId === "vorse") { summonCard("Vorse Raider", "👹", 260, { bleedChance: 0.5 }, "card_vorse"); msg = msgPre + "🎴 VORSE RAIDER! Monstro de impacto pesado (260% ATK), 50% de chance de Sangramento."; }
-      else if (cardId === "kaiser") { summonCard("Kaiser Sea Horse", "🐴", 180, { onSummonEnergy: 20 }, "card_kaiser"); msg = msgPre + "🎴 KAISER SEA HORSE! Monstro invocado (180% ATK) — +20 de Energia instantânea."; }
-      else if (cardId === "saggi") { summonCard("Saggi, o Clone das Sombras", "👤", 70, { taunt: true }, "card_saggi"); msg = msgPre + "🎴 SAGGI! Monstro de baixo dano (70% ATK) mas provoca TODOS os inimigos por 2 rodadas."; }
-      else if (cardId === "judge") { destroyOld(); const mon = makeSummon(u, { uid: "S_" + u.uid + "_mon" + Math.floor(Math.random() * 1e6), name: "Juiz", avatar: "⚖️", imgKey: "card_judge", kind: "monster", mul: 200 * (chainX2 ? 2 : 1), spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); mon.judgeSplash = 100; s.heroes.push(mon); msg = msgPre + "🎴 JUIZ! Monstro de área (200% ATK no principal, 100% nos adjacentes)."; }
+      if (cardId === "vorse") { summonCard("Vorse Raider", "👹", 380, { bleedChance: 0.5 }, "card_vorse"); msg = msgPre + "🎴 VORSE RAIDER! Monstro de impacto pesado (380% ATK), 50% de chance de Sangramento."; }
+      else if (cardId === "kaiser") { summonCard("Kaiser Sea Horse", "🐴", 260, { onSummonEnergy: 20 }, "card_kaiser"); msg = msgPre + "🎴 KAISER SEA HORSE! Monstro invocado (260% ATK) — +20 de Energia instantânea."; }
+      else if (cardId === "saggi") { summonCard("Saggi, o Clone das Sombras", "👤", 110, { taunt: true }, "card_saggi"); msg = msgPre + "🎴 SAGGI! Monstro de menor dano (110% ATK) mas provoca TODOS os inimigos por 2 rodadas."; }
+      else if (cardId === "judge") { destroyOld(); const mon = makeSummon(u, { uid: "S_" + u.uid + "_mon" + Math.floor(Math.random() * 1e6), name: "Juiz", avatar: "⚖️", imgKey: "card_judge", kind: "monster", mul: 280 * (chainX2 ? 2 : 1), spd: effStat(u, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); mon.judgeSplash = 140; s.heroes.push(mon); msg = msgPre + "🎴 JUIZ! Monstro de área (200% ATK no principal, 100% nos adjacentes)."; }
       else if (cardId === "obelisk") {
         destroyOld();
         let totOb = 0, purgeCount = 0;
