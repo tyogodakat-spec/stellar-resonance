@@ -46,7 +46,7 @@ function mk(o) {
 const ROSTER = [
   // ---- T5 ----
   mk({ id: "miyabi", name: "Miyabi", title: "Caçadora do Vazio", element: "Glacial", role: "aoe", rarity: 5, avatar: "🌸", hp: 1060, atk: 790, def: 420, spd: 103, energy: 160, cr: 8, cd: 60, tags: ["Gelo", "DPS", "Área", "Anomalia"],
-    skill: { basicMul: 80, skillMul: 195, aoe: true, skillDot: { type: "freeze", mul: 60, turns: 2 }, ultMul: 390, ultAoe: true, ultDot: { type: "freeze", mul: 82, turns: 2 } } }),
+    skill: { basicMul: 80, skillMul: 195, aoe: true, skillDot: { type: "freeze", mul: 130, turns: 2 }, ultMul: 390, ultAoe: true, ultDot: { type: "freeze", mul: 170, turns: 2 } } }),
   mk({ id: "kaiba", name: "Seto Kaiba", title: "Mestre dos Dragões", element: "Eletro", role: "summoner", rarity: 5, avatar: "🃏", hp: 1180, atk: 720, def: 480, spd: 101, energy: 140, cr: 5, cd: 50, er: 30, elemDmg: 5, tags: ["Eletro", "Invocador", "Deus Egípcio", "Único"],
     skill: { basicMul: 100, kaibaBasic: true, skillMul: 0, kaibaSkill: true, ultMul: 850, kaibaUlt: true } }),
   // ---- T4 ----
@@ -96,15 +96,18 @@ const ROSTER = [
   // ---- Agumon · The Thermodynamic Core (Limitado) ----
   mk({ id: "agumon", name: "Agumon", title: "O Núcleo Termodinâmico", element: "Fogo", role: "dps", rarity: 5, avatar: "🦖", hp: 1480, atk: 730, def: 520, spd: 106, energy: 120, cr: 10, cd: 58, tags: ["Fogo", "DPS", "Evolução", "Calor"],
       skill: { basicMul: 95, aguBasic: true, skillMul: 165, aguSkill: true, ultMul: 300, aguUlt: true } }),
+  // ---- Tsukishiro Yanagi · Teorema da Desordem (Limitada) ----
+  mk({ id: "yanagi", name: "Tsukishiro Yanagi", title: "Teorema da Desordem", element: "Eletro", role: "debuffer", rarity: 5, avatar: "🌀", hp: 1100, atk: 780, def: 440, spd: 104, energy: 190, cr: 8, cd: 55, tags: ["Eletro", "Suporte de DoT", "Habilitadora", "Perfuração"],
+      skill: { basicMul: 100, yanaBasic: true, skillMul: 0, yanaSkill: true, ultMul: 180, yanaUlt: true } }),
   ];
 const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 // Tag primária de um personagem (usada como requisito de nó) e todas as tags únicas do elenco
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
 const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon"];     // limitados (pool 50/50): só via rate-up
-const FEATURED_LIMITEDS = ["miyabi", "agumon"]; // banners ativos
+const FEATURED_LIMITEDS = ["yanagi", "kaiba"]; // banners ativos agora: Yanagi e Kaiba (Miyabi/Agumon encerrados)
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
-const DEFAULT_FEATURED_CHAR = "miyabi";
+const DEFAULT_FEATURED_CHAR = "yanagi";
 
 /* ---------- ARMAS ---------- */
 // Valores de atk e stats secundários = nível MÁXIMO (80). Escalam via weaponLevelMul().
@@ -112,6 +115,7 @@ const WEAPONS = [
   // ── ★★★★★ 5-estrelas ────────────────────────────────────────────────────────
   { id: "digivice",         name: "Digivice da Coragem",   rarity: 5, role: "dps",      atk: 500, hpFlat: 500, elemDmg: 30.0,    passive: "Sincronia Térmica: +50 de TamerSP máximo; Perícias geram 5 a menos de Calor. Ao Digivolver: restaura 10% do HP Máximo e +10 de VEL por 2 rodadas. No MODO X: a Gaia Force ganha +50% de CRIT DMG e inimigos derrotados por ela não podem ser ressuscitados nem curados por 1 rodada.", buff: { aguWeapon: true } },
   { id: "relampago_fugaz",  name: "Relâmpago Fugaz",       rarity: 5, role: "dps",      hpFlat: 1058, defFlat: 463, spd: 10,      passive: "Passo Fantasma: HP 1058 · DEF 463 · +10 de VEL Base fixa. Efeito 1: +12% da VEL total do portador, sempre ativo. Efeito 2: cada Ataque Extra do portador aumenta o dano dos PRÓXIMOS Ataques Extras dele mesmo em +10% (acumula até 3×, cada acúmulo renova a duração de 2 turnos). Efeito 3 (com VEL > 150): todo Ataque Extra do portador concede +12% de Taxa de CRIT e +24% de CRIT DMG a TODA a equipe por 2 turnos, e recupera 2 de Energia sempre que o Talento intercepta uma ação aliada (independe do limiar de 150 VEL).", buff: { yoruWeapon: true, spdPct: 12 } },
+  { id: "tecelao_tempo",    name: "Tecelão do Tempo",      rarity: 5, role: "debuffer", hpFlat: 1058, atk: 635, defFlat: 463,        passive: "Atributos Base (Nv. 80): HP 1058 | ATK 635 | DEF 463. Efeito Passivo — Fio da Ruptura Contínua: Sobrecarga Base — aumenta o ATK do portador incondicionalmente em 24%. Foco em Anomalia: sempre que o portador atacar um inimigo sofrendo pelo menos 1 DoT, ganha o buff Linha do Tempo — cada acúmulo dá +6% de Taxa de Perfuração de DEF ao portador (acumula até 3×, dura 3 turnos). Ressonância da Desordem: se o portador desencadear um dano instantâneo a partir de uma reação de DoT (como a Desordem de Yanagi), esse golpe específico ativa a Fissão Temporal — ignora completamente 12% da Resistência Elemental do alvo e regenera instantaneamente 4 de Energia para o portador.", buff: { yanaWeapon: true } },
   { id: "disco_nexo",       name: "Disco de Duelo — Protótipo Nexo", rarity: 5, role: "summoner", hpFlat: 1164, atk: 582, defFlat: 396, critRate: 12,     passive: "Jogo de Alta Linhagem: HP 1164 · ATK 582 · DEF 396 · +12% de Taxa de CRIT sempre ativa. Sempre que o portador puxar uma carta ou ativar uma carta da Mão Virtual, o Monstro Invocado ativo ganha 1 acúmulo de 'Soberania do Duelista' (máx 3): cada acúmulo dá +16% de dano às invocações e faz seus ataques ignorarem +10% de DEF — expira após 2 turnos do monstro. Quando um Monstro Invocado deixa o campo, o portador recupera 6 de Energia instantaneamente e o PRÓXIMO monstro invocado ganha +30% de Dano Crítico por 2 rodadas.", buff: { kaibaWeapon: true } },
   { id: "starblade",        name: "Lâmina Estelar",       rarity: 5, role: "dps",      atk: 882, critDmg: 52.8,                    passive: "Fio Cortante: após a Habilidade, ganha +24% de Bônus de Dano por 2 turnos.",                                                    buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
   { id: "radiant",          name: "Cetro Radiante",        rarity: 5, role: "buffer",   atk: 720, energyRegen: 26.4,                passive: "Pulso de Apoio: ao buffar aliados, concede +12% de Bônus de Dano por 2 turnos.",                                                buff: { onBuff: { dmgBonus: 12, turns: 2 } } },
@@ -325,6 +329,7 @@ const PASSIVE = {
   frieren: { name: "Percepção de Milênios · Grimório Oculto", desc: "Talento: Frieren é imune a qualquer debuff de lentidão ou atraso de turno. No início da batalha, ela esconde sua verdadeira força: o Aggro dela é reduzido a quase zero enquanto tiver menos de 50% de energia da Ultimate carregada. Além disso, começa a batalha com 2 Pontos de Elemento aleatórios já acumulados.", flag: "frTalent" },
     wonderofyou: { name: "A Lei Natural do Infortúnio", desc: "Talento passivo de duas vias simultâneas. Via 1 — Proteção pelo Infortúnio: sempre que qualquer aliado receber dano de qualquer fonte (ataque, área, DoT), Wonder of You automaticamente aplica nesse aliado um Buff Único Aleatório dentre os 8 disponíveis — somente se ele ainda não possuir aquele Buff específico. Via 2 — Punição da Calamidade: sempre que qualquer inimigo causar dano a qualquer fonte, esse inimigo recebe automaticamente um dos 4 Debuffs Especiais — somente se ele ainda não o possuir. Ordem de aplicação: Calamidade → Acidente Inevitável → Má Fortuna → Destino Quebrado. Ambas as vias operam sem custo de ação e sem consumo de Pontos de Habilidade.", flag: "pWoo" },
     agumon: { name: "Overclocking Terminal", desc: "CALOR (0-100): Perícias/Supremos aquecem, Básicos resfriam. Calor > 70: ATK e CRIT DMG sobem até +80%, mas perde 5% de HP/turno. Calor = 100: MELTDOWN — regride à forma base e perde 50% do TamerSP. TamerSP paga as Digievoluções (botão 🧬 no turno dele). Sincronia Perfeita no WarGreymon (Calor 90-99 + Trident Arm na rodada anterior) ativa o MODO X.", flag: "pAgu" },
+    yanagi: { name: "Teorema da Desordem", desc: "A Mecânica de Desordem: sempre que Yanagi causa dano a um inimigo afetado por pelo menos 1 DoT do jogo (Ignis, Veneno, Choque, Sangramento, Glacier, Corrosão, Ciclone, Fulgur Resonance, Aero Sunder ou Afundamento), ela ativa a Desordem — calcula 120% de todo o dano que os DoTs ativos causariam em 1 turno e soma 150% do ATK atual dela, causando esse total como Dano de Habilidade Eletro instantâneo. Gestão de Recurso (Fagulhas): ativar a Desordem não remove a duração dos DoTs originais, mas consome 1 Fagulha de Anomalia do alvo (aplicada pela Perícia). Perfuração de DEF Dinâmica: a Desordem tem 15% de Perfuração base; para cada TIPO DIFERENTE de DoT ativo no alvo, a Perfuração sobe +5% (até 35% no total com 4+ tipos diferentes). Falha de Reação: se o alvo tiver DoT mas ZERO Fagulhas de Anomalia, a Desordem ocorre em estado Gasto — só 30% do dano calculado e nenhuma Perfuração de DEF.", flag: "pYana" },
     athena: { name: "Eco da Justiça", desc: "Talento passivo de duas funções simultâneas. Função 1 — Eco de Cura: sempre que Athena usar a Perícia (em qualquer Modo), um Eco de Cura é disparado automaticamente em todos os aliados que não foram o alvo principal — cada um recebe 50% do valor total da cura aplicada, calculado após todos os modificadores. Se algum desses aliados estiver com HP abaixo de 50% no momento do Eco, o valor do Eco nele é dobrado (equivalente a 100% do valor original). O Eco não conta como ação separada de Athena. Função 2 — Resistência das Casas: enquanto qualquer aliado estiver sob os buffs das 7 Casas, Athena recebe 100% de Resistência a todos os efeitos de Controle de Grupo — Atordoamento, Congelamento, Imobilização, Silêncio, Confusão e quaisquer outros que impeçam ou alterem sua ação.", flag: "pAth" },
   };
 // Corrente de Ressonância / Eidolons — 6 nós ÚNICOS por personagem (estilo HSR/WuWa)
@@ -491,6 +496,14 @@ const CONS = {
       { name: "C5 · Gaia Singularit-X", flag: "aguC5", desc: "A Supremacia da Gaia Force: se o alvo sobreviver à Gaia Force, recebe RUPTURA DE REALIDADE por 2 rodadas — todo dano recebido (de qualquer fonte do time) ignora completamente a DEF do inimigo (tratado como Dano Verdadeiro). O abridor de portas supremo contra chefes de altíssima DEF." },
       { name: "C6 · Final Digital Evolution", flag: "aguC6", desc: "A Forma Eterna (Capstone): Agumon já COMEÇA a batalha na forma Greymon. O Calor NUNCA MAIS SOBE (Perícias deixam de gerar Calor) — Digievoluir passa a depender só do TamerSP, sem janela térmica nenhuma. Ele NUNCA regride para a forma base (Agumon), nem por Meltdown, nem por evolução instável — praticamente impossíveis de acontecer já que o Calor não sobe mais. Ao evoluir para WarGreymon, o MODO X é SEMPRE ativado. Se o WarGreymon derrotar um inimigo em MODO X, o modo é ESTENDIDO até o fim da próxima rodada dele." },
     ],
+    yanagi: [
+      { name: "S1 · Ciclo de Ruído Perfeito", flag: "yanaS1", desc: "Sempre que a reação de Desordem for desencadeada em um inimigo que possua 3 ou mais Fagulhas de Anomalia, o impacto inicial estilhaça a resistência elemental do alvo — a Resistência Elemental correspondente aos elementos dos DoTs atualmente ativos no alvo é reduzida em 15% por 2 turnos. Adicionalmente, quando a própria Yanagi ativa uma Desordem, sua ação é avançada em 20%." },
+      { name: "S2 · Contágio Eletromagnético", flag: "yanaS2", desc: "Quando a Habilidade Suprema ativa a Desordem Absoluta, o sistema de Yanagi escaneia o alvo principal (o inimigo com maior HP máximo atingido). Todos os DoTs presentes neste alvo principal são instantaneamente clonados e aplicados a todos os outros inimigos no campo por 2 turnos. Estes DoTs clonados herdam 100% dos multiplicadores originais e recebem um bônus fixo de +10% de Perfuração de DEF." },
+      { name: "S3 · Sobrecarga de Capacidade", flag: "yanaS3", desc: "Mudança de Kit: o limitador do equipamento de Yanagi é desativado permanentemente. O limite máximo de Fagulhas de Anomalia que um inimigo pode acumular passa de 5 para 8. Efeito Paralisante: a Perícia é expandida — para cada Fagulha de Anomalia presa ao inimigo, ele perde 3% de seu ATK total. Se um inimigo atingir a carga máxima de 8 Fagulhas, sofre um Apagão Sistêmico imediato: ação atrasada em 40% na Ordem de Turnos e incapaz de usar habilidades em área na próxima rodada." },
+      { name: "S4 · Ressonância de Vácuo Absoluto", flag: "yanaS4", desc: "O debuff Isolamento Corrosivo (gerado pela Suprema) ganha propriedades de distorção de realidade. Inimigos sob este efeito perdem a redução inata de dano contra elementos fora de sua fraqueza (tratados como se tivessem fraqueza a todos os elementos para fins de Dano Contínuo). Além disso, sempre que um DoT causar dano a um inimigo sob Isolamento Corrosivo, toda a equipe de Yanagi regenera HP equivalente a 15% do ATK atual dela — permitindo abrir mão de um Healer dedicado." },
+      { name: "S5 · Calibração de Singularidade", flag: "yanaS5", desc: "Aumenta o ATK Base de Yanagi em 25%. A restrição natural do jogo sobre Dano Contínuo é ignorada: a Desordem Absoluta (Suprema) agora pode causar Acerto Crítico, calculando o dano assumindo uma Taxa Crítica fixa de 100% e um Dano Crítico fixo de 150%, convertendo o gatilho da Suprema num golpe de finalização nuclear, independente da build de crítico do jogador." },
+      { name: "S6 · O Manto do Caos Primordial", flag: "yanaS6", desc: "Mudança de Kit (capstone): a ativação da Desordem não consome mais apenas 1 Fagulha — consome TODAS as Fagulhas de Anomalia do alvo de uma vez. Para cada Fagulha consumida, o dano final da Desordem é multiplicado em +35% (até +280% com 8 Fagulhas via S3). Aura do Fim: o Ataque Básico e a Perícia passam a aplicar passivamente Zero Absoluto por 3 turnos — um DoT coringa que copia o dano base, elemento e multiplicadores do DoT mais forte atualmente em campo. Se o dano da Desordem deixar um inimigo com menos de 10% do HP Máximo, ele é executado imediatamente." },
+    ],
     athena: [
       { name: "C1 · Arquitetura do Destino", flag: "athC1", desc: "Mudança de kit: a aba de seleção de aliados da Suprema Expansão das 7 Casas ganha o Modo Totalitário. Nesse modo, além de distribuir os buffs normalmente, Athena pode marcar um único aliado como Guardado pelas Casas. O aliado marcado recebe todos os buffs da Suprema em dobro: +60% de VEL, +60% de DEF e +40% de Taxa de CRIT, em vez dos valores padrão. Os demais aliados não marcados ainda recebem os buffs normais (+30% VEL, +30% DEF, +20% CRIT). Isso permite concentrar todo o poder das Casas em um único Hyper-Carry ou garantir que o personagem mais importante do time nunca seja atingido de forma crítica." },
       { name: "C2 · Sinfonia da Velocidade", flag: "athC2", desc: "Mudança de kit: a Lei da Inércia entra em efeito. Sempre que qualquer aliado sob o efeito dos buffs das 7 Casas (ou seja, enquanto a Suprema estiver ativa) realizar qualquer ação — seja um Ataque Básico, uma Perícia ou qualquer outra habilidade — Athena avança automaticamente sua própria barra de ação em 15%. Esse avanço não conta como uma ação e não consome recursos. O efeito pode ser ativado por qualquer aliado elegível, sem limite de vezes por turno. Isso garante que Athena tenha turnos quase contínuos enquanto o time estiver ativo, permitindo manter o Modo Aprimorado da Perícia ativo praticamente 100% do tempo sem precisar investir pesadamente em Velocidade na build." },
@@ -532,6 +545,7 @@ const SKILL_NAMES = {
     wonderofyou: ["Toque do Fim", "Calamidade Inevitável", "Lei da Calamidade Absoluta"],
     athena: ["Lança de Luz", "Bênção das Sete Casas", "Julgamento do Olimpo"],
     agumon: ["Garra Afiada", "Baby Flame", "Pepper Breath"],
+    yanagi: ["Corte Voltaico", "Ciclo de Anomalia", "Eclipse Voltaico"],
   };
 const skillNamesOf = (id) => SKILL_NAMES[id] || ["Ataque Básico", "Habilidade", "Ultimate"];
 
@@ -646,6 +660,11 @@ function specialTraces(def) {
       { name: "Rastro · Thermal Efficiency", desc: "Rastro Especial de combate: com 50+ de Calor, usar uma Perícia transfere calor aos aliados — reduz o próprio Calor em 10 adicionais e concede a TODO o time +12% de Bônus de Dano nos ataques por 2 rodadas (Eficiência Térmica).", combat: "aguT1", cost: 2 },
       { name: "Rastro · Core Insulation", desc: "Rastro Especial de combate: ao sofrer um golpe que reduziria seu HP a zero, entra em Sobrecarga de Emergência — sobrevive, remove TODO o Calor, ganha um escudo de 50% do HP Máximo e recupera 30 de TamerSP. Recarga: 3 rodadas.", combat: "aguT2", cost: 2 },
       { name: "Rastro · Critical Pressure", desc: "Rastro Especial de combate: no MODO X, a Penetração de DEF aumenta em 10% para cada 10 pontos de Calor que ele possuía no momento da evolução (máx 50%). Se a Gaia Force derrotar o alvo, WarGreymon executa um ataque de seguimento imediato no inimigo de maior HP, causando 50% do dano original.", combat: "aguT3", cost: 3 },
+    ];
+    if (def.id === "yanagi") return [
+      { name: "Rastro Especial 1 · Condutividade Residual", desc: "Ao entrar em combate, Yanagi distorce imediatamente o campo, aplicando 1 Fagulha de Anomalia a todos os inimigos presentes antes da primeira ação. Adicionalmente, sempre que a Desordem for desencadeada com sucesso (consumindo uma Fagulha), Yanagi regenera 3 de Energia de forma autônoma. Se o inimigo derrotado pela Desordem ainda possuía Fagulhas não utilizadas, ela recupera 5 de Energia extra.", combat: "yanaT1", cost: 2 },
+      { name: "Rastro Especial 2 · Catalisador de Simbiose", desc: "Quando um aliado ataca um inimigo que possui Fagulhas de Anomalia e está sofrendo 2 ou mais tipos diferentes de DoT, o ataque do aliado tem 65% de chance-base de consumir 1 Fagulha do alvo para desencadear um Eco de Desordem — causa instantaneamente 50% do dano de uma Desordem tradicional (baseado no ATK atual de Yanagi) e herda a Perfuração de DEF base do Talento dela. Só pode ativar 1 vez por ação de cada aliado.", combat: "yanaT2", cost: 2 },
+      { name: "Rastro Especial 3 · Análise de Ponto Cego", desc: "Para cada 1% de Taxa de Perfuração de DEF que Yanagi possuir em seus próprios atributos (via Relíquias, Armas ou Buffs), o dano final da Desordem aumenta em 2.5%, até um teto de +50% de dano. Efeito Bônus de Corrosão: se a Perfuração total aplicada a um inimigo (Yanagi + Talento/Perícia) ultrapassar 40% de DEF Ignorada, o inimigo entra em Fratura Crítica — perde qualquer resistência nativa contra a aplicação de novos DoTs (100% de Acerto de Efeito garantido para o time).", combat: "yanaT3", cost: 3 },
     ];
     if (def.id === "athena") return [
       { name: "Traço I · Guardiã das Casas", desc: "Rastro Especial de combate: ao curar um aliado com HP cheio, o excedente de cura vira um escudo equivalente a 50% do valor, durando 2 turnos.", combat: "athI", cost: 2 },
@@ -982,18 +1001,51 @@ const KAIBA_CARDS = {
   virus:   { name: "Vírus Esmaga-Cards", avatar: "🦠", cat: "trap", imgId: "card_virus", desc: "Armadilha · Contamina o campo inimigo por 2 turnos. Sempre que qualquer inimigo tentar desferir um ataque que cause mais de 150% de dano, o dano desse ataque é mitigado e reduzido para uma taxa fixa de apenas 50%." },
   ring:    { name: "Anel da Destruição", avatar: "💍", cat: "trap", imgId: "card_ring", desc: "Armadilha · Explode um colar no inimigo com menor HP. Causa Dano Verdadeiro massivo equivalente a 25% da Vida Máxima do alvo. Kaiba sofre um contragolpe reativo equivalente a 5% do seu próprio HP atual." },
 };
-const DARK_TOWER_WEAKNESS = ["Holy", "Fogo", "Vento", "Virus", "Glacial", "Chaos", "Eletro", "Holy", "Fogo", "Vento"];
+const DARK_TOWER_WEAKNESS = ["Holy", "Fogo", "Vento", "Virus", "Glacial", "Chaos", "Eletro", "Holy", "Fogo", "Vento",
+  "Virus", "Glacial", "Chaos", "Eletro", "Holy", "Fogo", "Vento", "Virus", "Glacial", "Chaos",
+  "Eletro", "Holy", "Fogo", "Vento", "Virus", "Glacial", "Chaos", "Eletro", "Holy", "Fogo",
+  "Vento", "Virus", "Glacial", "Chaos", "Eletro", "Holy", "Fogo", "Vento", "Virus", "Glacial"];
 const DARK_TOWER_BOSSES = [
-  { name: "Sentinela Sombria",        element: "Chaos",  bossKind: "guardian",       hpMul: 47,  dot: null,     reward: 1600 },
-  { name: "Aizen · Eco Sombrio",      element: "Holy",   bossKind: "aizen",          hpMul: 51,  dot: null,     reward: 1600 },
-  { name: "Sukuna · Fome Eterna",     element: "Chaos",  bossKind: "sukuna",         hpMul: 55,  dot: "burn",   reward: 1600 },
-  { name: "Kaiba · Obelisco Negro",   element: "Eletro", bossKind: "godkaiba",       hpMul: 59,  dot: null,     reward: 1600 },
-  { name: "Ryoshu · Teia Sombria",    element: "Virus",  bossKind: "ryoshu_boss",    hpMul: 63,  dot: "poison", reward: 1600 },
-  { name: "Frieren · Memória Rota",   element: "Holy",   bossKind: "frieren_boss",   hpMul: 67,  dot: "freeze", reward: 1600 },
-  { name: "Omegamon · Núcleo Corrompido", element: "Virus", bossKind: "omegamon_boss", hpMul: 71, dot: "poison", reward: 1600 },
-  { name: "Soberano do Vazio · Sombra", element: "Chaos", bossKind: "void_sovereign", hpMul: 75,  dot: "burn",   reward: 1600 },
-  { name: "Soberano da Espiral Negra", element: "Chaos", bossKind: "espiral_lord",   hpMul: 80,  dot: "freeze", reward: 1600, espiralLordHpMul: 1 },
-  { name: "Maximillion · Máscara Final", element: "Chaos", bossKind: "maximillion",  hpMul: 88,  dot: "poison", reward: 1600 },
+  { name: "Sentinela Sombria",        element: "Chaos",  bossKind: "guardian",       hpMul: 33,  dot: null,     reward: 1600 },
+  { name: "Aizen · Eco Sombrio",      element: "Holy",   bossKind: "aizen",          hpMul: 36,  dot: null,     reward: 1600 },
+  { name: "Sukuna · Fome Eterna",     element: "Chaos",  bossKind: "sukuna",         hpMul: 38,  dot: "burn",   reward: 1600 },
+  { name: "Kaiba · Obelisco Negro",   element: "Eletro", bossKind: "godkaiba",       hpMul: 41,  dot: null,     reward: 1600 },
+  { name: "Ryoshu · Teia Sombria",    element: "Virus",  bossKind: "ryoshu_boss",    hpMul: 44,  dot: "poison", reward: 1600 },
+  { name: "Frieren · Memória Rota",   element: "Holy",   bossKind: "frieren_boss",   hpMul: 47,  dot: "freeze", reward: 1600 },
+  { name: "Omegamon · Núcleo Corrompido", element: "Virus", bossKind: "omegamon_boss", hpMul: 50, dot: "poison", reward: 1600 },
+  { name: "Soberano do Vazio · Sombra", element: "Chaos", bossKind: "void_sovereign", hpMul: 52,  dot: "burn",   reward: 1600 },
+  { name: "Soberano da Espiral Negra", element: "Chaos", bossKind: "espiral_lord",   hpMul: 56,  dot: "freeze", reward: 1600, espiralLordHpMul: 1 },
+  { name: "Maximillion · Máscara Final", element: "Chaos", bossKind: "maximillion",  hpMul: 62,  dot: "poison", reward: 1600 },
+  { name: "Sentinela Sombria · Renascida II", element: "Chaos", bossKind: "guardian", hpMul: 66, dot: "burn", reward: 1600 },
+  { name: "Aizen · Ilusão Absoluta II", element: "Chaos", bossKind: "aizen", hpMul: 70, dot: "poison", reward: 1600 },
+  { name: "Sukuna · Devorador de Eras II", element: "Chaos", bossKind: "sukuna", hpMul: 75, dot: "freeze", reward: 1600 },
+  { name: "Kaiba · Singularidade Negra II", element: "Chaos", bossKind: "godkaiba", hpMul: 80, dot: null, reward: 1600 },
+  { name: "Ryoshu · Rainha Aracnídea II", element: "Chaos", bossKind: "ryoshu_boss", hpMul: 86, dot: "burn", reward: 1600 },
+  { name: "Frieren · Herança dos Mil Anos II", element: "Chaos", bossKind: "frieren_boss", hpMul: 92, dot: "poison", reward: 1600 },
+  { name: "Omegamon · Protocolo Definitivo II", element: "Chaos", bossKind: "omegamon_boss", hpMul: 99, dot: "freeze", reward: 1600 },
+  { name: "Soberano do Vazio · Colapso Final II", element: "Chaos", bossKind: "void_sovereign", hpMul: 106, dot: null, reward: 1600 },
+  { name: "Soberano da Espiral · Além do Caos II", element: "Chaos", bossKind: "espiral_lord", hpMul: 114, dot: "burn", reward: 1600, espiralLordHpMul: 1 },
+  { name: "Maximillion · O Ilusionista Eterno II", element: "Chaos", bossKind: "maximillion", hpMul: 123, dot: "poison", reward: 1600 },
+  { name: "Sentinela Sombria · Renascida III", element: "Chaos", bossKind: "guardian", hpMul: 132, dot: "freeze", reward: 1600 },
+  { name: "Aizen · Ilusão Absoluta III", element: "Chaos", bossKind: "aizen", hpMul: 142, dot: null, reward: 1600 },
+  { name: "Sukuna · Devorador de Eras III", element: "Chaos", bossKind: "sukuna", hpMul: 153, dot: "burn", reward: 1600 },
+  { name: "Kaiba · Singularidade Negra III", element: "Chaos", bossKind: "godkaiba", hpMul: 165, dot: "poison", reward: 1600 },
+  { name: "Ryoshu · Rainha Aracnídea III", element: "Chaos", bossKind: "ryoshu_boss", hpMul: 179, dot: "freeze", reward: 1600 },
+  { name: "Frieren · Herança dos Mil Anos III", element: "Chaos", bossKind: "frieren_boss", hpMul: 194, dot: null, reward: 1600 },
+  { name: "Omegamon · Protocolo Definitivo III", element: "Chaos", bossKind: "omegamon_boss", hpMul: 210, dot: "burn", reward: 1600 },
+  { name: "Soberano do Vazio · Colapso Final III", element: "Chaos", bossKind: "void_sovereign", hpMul: 228, dot: "poison", reward: 1600 },
+  { name: "Soberano da Espiral · Além do Caos III", element: "Chaos", bossKind: "espiral_lord", hpMul: 248, dot: "freeze", reward: 1600, espiralLordHpMul: 1 },
+  { name: "Maximillion · O Ilusionista Eterno III", element: "Chaos", bossKind: "maximillion", hpMul: 270, dot: null, reward: 1600 },
+  { name: "Sentinela Sombria · Renascida IV", element: "Chaos", bossKind: "guardian", hpMul: 294, dot: "burn", reward: 1600 },
+  { name: "Aizen · Ilusão Absoluta IV", element: "Chaos", bossKind: "aizen", hpMul: 321, dot: "poison", reward: 1600 },
+  { name: "Sukuna · Devorador de Eras IV", element: "Chaos", bossKind: "sukuna", hpMul: 350, dot: "freeze", reward: 1600 },
+  { name: "Kaiba · Singularidade Negra IV", element: "Chaos", bossKind: "godkaiba", hpMul: 382, dot: null, reward: 1600 },
+  { name: "Ryoshu · Rainha Aracnídea IV", element: "Chaos", bossKind: "ryoshu_boss", hpMul: 418, dot: "burn", reward: 1600 },
+  { name: "Frieren · Herança dos Mil Anos IV", element: "Chaos", bossKind: "frieren_boss", hpMul: 458, dot: "poison", reward: 1600 },
+  { name: "Omegamon · Protocolo Definitivo IV", element: "Chaos", bossKind: "omegamon_boss", hpMul: 502, dot: "freeze", reward: 1600 },
+  { name: "Soberano do Vazio · Colapso Final IV", element: "Chaos", bossKind: "void_sovereign", hpMul: 551, dot: null, reward: 1600 },
+  { name: "Soberano da Espiral · Além do Caos IV", element: "Chaos", bossKind: "espiral_lord", hpMul: 605, dot: "burn", reward: 1600, espiralLordHpMul: 1 },
+  { name: "Maximillion · O Ilusionista Eterno IV", element: "Chaos", bossKind: "maximillion", hpMul: 665, dot: "poison", reward: 1600 },
 ].map((b, i) => { const w = DARK_TOWER_WEAKNESS[i]; return { ...b, weak: [w], res: ELEMENT_NAMES.filter(e => e !== w) }; });
 function darkTowerEncounter(level, power) {
   const bd = DARK_TOWER_BOSSES[level - 1]; if (!bd) return null;
@@ -1125,9 +1177,20 @@ function Game({ email, isAdmin, onLogout }) {
   const [featuredWeapon, setFeaturedWeapon] = useState(DEFAULT_FEATURED_WEAPON);
     const [featuredChar2, setFeaturedChar2] = useState(null);
     useEffect(() => {
-      setFeaturedChar("miyabi");
-      setFeaturedChar2("agumon");
-      setFeaturedWeapon("calamidade");
+      // Rotação de banners por data — ajuste BANNER1_START se precisar adiar/antecipar a troca.
+      const BANNER1_START = new Date("2026-07-01T00:00:00Z").getTime(); // Miyabi + Agumon
+      const BANNER_DURATION_MS = 21 * 24 * 3600 * 1000; // 21 dias por banner
+      const elapsed = Date.now() - BANNER1_START;
+      if (elapsed < BANNER_DURATION_MS) {
+        setFeaturedChar("miyabi");
+        setFeaturedChar2("agumon");
+        setFeaturedWeapon("calamidade");
+      } else {
+        // Banner seguinte: Yanagi + Kaiba, assim que o da Miyabi/Agumon terminar
+        setFeaturedChar("yanagi");
+        setFeaturedChar2("kaiba");
+        setFeaturedWeapon("tecelao_tempo");
+      }
     }, []);
   const [pity, setPity] = useState({ char: 0, weapon: 0, standard: 0, guaranteeChar: false });
   const [pullHistory, setPullHistory] = useState([]);
@@ -1545,6 +1608,14 @@ function Game({ email, isAdmin, onLogout }) {
       if (!prev) return prev;
       const r = { ...prev, hpMap: { ...prev.hpMap }, dead: [...prev.dead], glitches: [...prev.glitches], team: [...prev.team] };
       (res.heroesHp || []).forEach(h => { r.hpMap[h.id] = h.hpPct; if (!h.alive && !r.dead.includes(h.id)) { r.dead.push(h.id); r.team = r.team.filter(x => x !== h.id); } });
+      // Trava de segurança: se um "empate mútuo" zerou o time inteiro no golpe da vitória, encerra a run com segurança
+      // em vez de deixar a próxima luta começar sem nenhum herói (isso travava/crashava o jogo).
+      if (r.team.length === 0) {
+        r.points += kind === "boss" ? 30 : kind === "elite" ? 15 : 10;
+        r.frags = (r.frags || 0) + (kind === "boss" ? 40 : kind === "elite" ? 15 : 8);
+        setTimeout(() => abismoCashout(r, true), 50);
+        return r;
+      }
       r.points += kind === "boss" ? 30 : kind === "elite" ? 15 : 10;
       r.battles = (r.battles || 0) + 1;
       r.frags = (r.frags || 0) + (kind === "boss" ? 40 : kind === "elite" ? 15 : 8);
@@ -3527,8 +3598,8 @@ function DarkTowerScreen({ darkTowerCleared, darkTowerClaimed, start, team, flas
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(420px 200px at 85% 0%, #B98BFF22, transparent)" }} />
         <div style={{ position: "relative" }}>
           <div style={{ ...ORB, fontSize: 20, fontWeight: 800 }}>🌑 Torre Sombria</div>
-          <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>10 níveis, cada um contra um único chefe de HP altíssimo. Todos IGNORAM escudos do seu time — não dá pra tankar, só sobreviver e furar. Alguns ainda infectam seus personagens com DoTs periodicamente. Cada chefe resiste a TODOS os elementos menos 1 fraqueza única. <b style={{ color: "#FF6B82" }}>Limite de 10 Ciclos</b> — não derrotar o chefe a tempo é derrota automática. <Glow color="#B98BFF">{totalReward.toLocaleString("pt-BR")}💎 totais</Glow>.</div>
-          <div className="flex items-center gap-3 mt-3" style={{ fontSize: 13 }}><span>Progresso: <b style={{ color: "#B98BFF" }}>{darkTowerCleared}/10</b></span><span>Gemas ganhas: <b style={{ color: "#86d8ff" }}>{earned.toLocaleString("pt-BR")}/{totalReward.toLocaleString("pt-BR")}</b></span></div>
+          <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>40 níveis, cada um contra um único chefe de HP altíssimo. Todos IGNORAM escudos do seu time — não dá pra tankar, só sobreviver e furar. Alguns ainda infectam seus personagens com DoTs periodicamente. Cada chefe resiste a TODOS os elementos menos 1 fraqueza única. <b style={{ color: "#FF6B82" }}>Limite de 10 Ciclos</b> — não derrotar o chefe a tempo é derrota automática. <Glow color="#B98BFF">{totalReward.toLocaleString("pt-BR")}💎 totais</Glow>.</div>
+          <div className="flex items-center gap-3 mt-3" style={{ fontSize: 13 }}><span>Progresso: <b style={{ color: "#B98BFF" }}>{darkTowerCleared}/{DARK_TOWER_BOSSES.length}</b></span><span>Gemas ganhas: <b style={{ color: "#86d8ff" }}>{earned.toLocaleString("pt-BR")}/{totalReward.toLocaleString("pt-BR")}</b></span></div>
           <Bar value={earned} max={totalReward} color="#B98BFF" />
         </div>
       </Panel>
@@ -3944,7 +4015,46 @@ function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx) {
     yoru._yoruRecordedDmg = (yoru._yoruRecordedDmg || 0) + recAmt;
   }
 }
+function pushLog(s, m) { if (m) s.log = [...s.log.slice(-40), m]; }
 function pushLogGlobalFx(fx, uid, txt) { fx.push({ uid, txt, crit: true, id: Math.random(), el: "Eletro" }); }
+// Yanagi — Teorema da Desordem: gatilho reativo sempre que ela causa dano a um alvo com DoT ativo
+function triggerDesordem(yanagi, target, fx, opts) {
+  if (!target || !target.alive) return 0;
+  const dots = target.dots || [];
+  if (!dots.length) return 0;
+  const sparks = (target.debuffs || []).filter(d => d.name === "Fagulha de Anomalia");
+  const spent = sparks.length > 0;
+  const S6 = !!yanagi.stFlags?.yanaS6;
+  let consumedN = 0;
+  if (spent && !opts?.noConsume) {
+    if (S6) { consumedN = sparks.length; target.debuffs = target.debuffs.filter(d => d.name !== "Fagulha de Anomalia"); }
+    else { consumedN = 1; const idx = target.debuffs.findIndex(d => d.name === "Fagulha de Anomalia"); if (idx >= 0) target.debuffs.splice(idx, 1); }
+  } else if (spent) consumedN = 1;
+  const distinctTypes = new Set(dots.map(d => d.type)).size;
+  const t3Bonus = yanagi.stFlags?.yanaT3 ? Math.min(50, (effStat(yanagi, "defPen") || 0) * 2.5) : 0;
+  const basePen = spent ? Math.min(35, 15 + distinctTypes * 5) : 0;
+  const pen = Math.min(85, basePen + (opts?.extraPen || 0) + t3Bonus);
+  const dotSum = dots.reduce((a, d) => a + d.dmg, 0);
+  const base = dotSum * 1.2 + effStat(yanagi, "atk") * 1.5;
+  let mul = opts?.absoluteMul || 1;
+  if (S6 && consumedN > 0) mul *= (1 + consumedN * 0.35); // S6: Multiplicador de Caos — +35% por Fagulha consumida
+  let finalRaw = spent ? base * mul : base * 0.3; // Falha de Reação: sem Fagulha, só 30%
+  let crit = false;
+  if (opts?.forceCrit) { finalRaw *= 2.5; crit = true; } // S5: CRIT fixo 100%/150% na Desordem Absoluta
+  else if (Math.random() * 100 < effStat(yanagi, "critRate")) { finalRaw *= (1 + effStat(yanagi, "critDmg") / 100); crit = true; }
+  const mit = defMult(yanagi, effStat(target, "def") * (1 - pen / 100));
+  const dmg = Math.max(1, Math.round(finalRaw * mit));
+  target.hp -= dmg; if (target.hp <= 0) { target.hp = 0; target.alive = false; }
+  if (S6 && target.alive && target.hp / target.maxHp < 0.10) { target.hp = 0; target.alive = false; fx.push({ uid: target.uid, txt: "EXECUTADO!", crit: true, id: Math.random(), el: "Chaos" }); }
+  fx.push({ uid: target.uid, txt: String(dmg), crit, id: Math.random(), el: "Eletro" });
+  if (yanagi.stFlags?.yanaT1 && spent && yanagi.energyMax) {
+    yanagi.energy = Math.min(yanagi.energyMax, yanagi.energy + 3);
+    if (!target.alive && (target.debuffs || []).some(d => d.name === "Fagulha de Anomalia")) yanagi.energy = Math.min(yanagi.energyMax, yanagi.energy + 5);
+  }
+  // S1: com 3+ Fagulhas no momento do gatilho, reduz RES elemental dos DoTs ativos + avança a ação dela em 20%
+  if (yanagi.stFlags?.yanaS1 && sparks.length >= 3 && target.alive) { target.debuffs.push({ stat: "elemRes", value: -15, turns: 2, name: "Ciclo de Ruído" }); yanagi.av = Math.max(0.01, (yanagi.av || 1) * 0.80); }
+  return dmg;
+}
 function dealDamage(attacker, defender, mult, fx, opts) {
   // Lancer Esquiva Absoluta: bloqueia o próximo ataque
   if (defender.id === "lancer" && (defender.lancerDodges || 0) > 0 && attacker.side !== "H" && !opts?.pierceShield) {
@@ -4164,7 +4274,8 @@ function applyDot(targets, spec, source, fx) {
   if (f.pScorch && spec.type === "burn") m *= 1.3;
   if (f.setFire2 && spec.type === "burn") m *= 1.1; // Núcleo Ardente 2pç
   m *= 1 + (source.base.dotDmg || 0) / 100; // substatus "Dano de DoT"
-  const dmg = Math.max(1, Math.round(effStat(source, "atk") * (m / 100)));
+  let dmg = Math.max(1, Math.round(effStat(source, "atk") * (m / 100)));
+  if (source.id === "miyabi" && (spec.type === "freeze" || spec.type === "geada")) dmg = Math.max(100, Math.min(40000, dmg)); // trava pedida: DoT da Miyabi sempre entre 100 e 40.000
   const glacial = spec.type === "freeze" || spec.type === "geada";
   targets.forEach((t) => {
     if (!t.alive) return;
@@ -4277,16 +4388,16 @@ function miyabiBasicAttack(s, u, enemy, fx, ampB) {
   let msg = "";
   if (inPostura && f.miC6 && u.posturePH >= 4) {
     const fb = (f.miC1 && !u._firstCut) ? 1.5 : 1; let killed = false, tot = 0;
-    aliveEnemies(s).forEach((e) => { const r = dealDamage(u, e, 450 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 50 }); tot += r.dmg; if (!e.alive) killed = true; if (e.alive) applyDot([e], { type: "freeze", mul: 110, turns: 3 }, u, fx); });
+    aliveEnemies(s).forEach((e) => { const r = dealDamage(u, e, 450 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 50 }); tot += r.dmg; if (!e.alive) killed = true; if (e.alive) applyDot([e], { type: "freeze", mul: 180, turns: 3 }, u, fx); });
     msg = `❄️ MIYABI DESFERE O CORTE DO FIM DOS TEMPOS! ${tot} de Dano Glacial em TODOS, ignorando 50% da DEF, e aplica Congelamento.`;
     if (killed) { u._avMul = 0; msg += " Um alvo foi eliminado — Miyabi joga novamente!"; }
     u._firstCut = true; if (!frostZone) u.posturePH = 0;
   } else if (inPostura) {
     const fb = (f.miC1 && !u._firstCut) ? 1.5 : 1;
-    if (enemy) { const r = dealDamage(u, enemy, (sk.basicMul || 110) * 1.5 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 30 }); msg = `❄️ Corte Iaido em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}, ignorando 30% da DEF.`; if (enemy.alive) { applyDot([enemy], { type: "freeze", mul: 22, turns: 2 }, u, fx); msg += " Aplica Congelamento."; } }
+    if (enemy) { const r = dealDamage(u, enemy, (sk.basicMul || 110) * 1.5 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 30 }); msg = `❄️ Corte Iaido em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}, ignorando 30% da DEF.`; if (enemy.alive) { applyDot([enemy], { type: "freeze", mul: 90, turns: 2 }, u, fx); msg += " Aplica Congelamento."; } }
     u._avMul = 0.5; u._firstCut = true; if (!frostZone) u.posturePH = 0;
   } else {
-    if (enemy) { const r = dealDamage(u, enemy, (sk.basicMul || 110) * (u.tBasic || 1) * ampB, fx, { breakW: 1, el: "Glacial" }); msg = `${u.name} usa Corte Gélido em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}.`; if (enemy.alive) applyDot([enemy], { type: "freeze", mul: 12, turns: 2 }, u, fx); }
+    if (enemy) { const r = dealDamage(u, enemy, (sk.basicMul || 110) * (u.tBasic || 1) * ampB, fx, { breakW: 1, el: "Glacial" }); msg = `${u.name} usa Corte Gélido em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}.`; if (enemy.alive) applyDot([enemy], { type: "freeze", mul: 50, turns: 2 }, u, fx); }
     u.posturePH = Math.min(maxPH, u.posturePH + 1);
     if (u.posturePH >= maxPH) msg += ` (${maxPH} PH — Postura Iaido pronta!)`;
   }
@@ -4310,7 +4421,7 @@ function applyMutPostAction(s, actor) {
     if (!e.alive && !e._mutDeathDone) {
       e._mutDeathDone = true;
       if (mut === "vinganca") s.enemies.forEach(o => { if (o.alive) { o.buffs.push({ stat: "atk", value: 20, pct: true, turns: 9999, name: "Vingança" }); o.buffs.push({ stat: "spd", value: 20, pct: true, turns: 9999, name: "Vingança" }); } });
-      if (mut === "explosao") { const bd = Math.round(e.maxHp * 0.15); s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.hp -= bd; if (h.hp <= 0) { h.hp = 0; h.alive = false; } s.fx.push({ uid: h.uid, txt: String(bd), crit: true, id: Math.random(), el: "Fogo" }); } }); pushLog(s, "💥 " + e.name + " EXPLODE ao morrer — " + bd + " de dano em todos!"); }
+      if (mut === "explosao") { const bd = Math.round(e.maxHp * 0.15); s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.hp -= bd; if (h.hp <= 0) { h.hp = 0; h.alive = false; } s.fx.push({ uid: h.uid, txt: String(bd), crit: true, id: Math.random(), el: "Fogo" }); } }); s.log = [...s.log.slice(-40), "💥 " + e.name + " EXPLODE ao morrer — " + bd + " de dano em todos!"]; }
     }
   });
 }
@@ -4332,10 +4443,19 @@ function tickDots(u, fx, allies) {
   u.dots.forEach((d) => {
     if (d.type === "bleed" || d.type === "sinking") return; // Sangramento/Afundamento não dão tick — disparam por ação/golpe
     let dmg = Math.max(1, Math.round(d.dmg * (1 + vulnOf(u) / 100)));
+    // Estase (Yanagi): +25% no dano de todo DoT recebido enquanto durar
+    const dotAmp = (u.debuffs || []).filter(b => b.stat === "dotAmp").reduce((a, b) => a + (b.value || 0), 0);
+    if (dotAmp) dmg = Math.round(dmg * (1 + dotAmp / 100));
     // Ignis (trava anti-HK): o dano do tick nunca excede 10% do HP atual do alvo
     if (d.type === "burn") dmg = Math.max(1, Math.min(dmg, Math.round(u.hp * 0.10)));
+    // Yanagi — Estase (Fagulha de Anomalia): DoTs recebidos ganham +25% de dano + escala com a Perfuração por Carga
+    const sparkCt = (u.debuffs || []).filter(b => b.name === "Fagulha de Anomalia").length;
+    if (sparkCt > 0) dmg = Math.round(dmg * 1.25 * (1 + Math.min(0.30, sparkCt * 0.05)));
     u.hp -= dmg; total += dmg; d.turns -= 1; fx.push({ uid: u.uid, txt: String(dmg), dot: d.type, id: Math.random() });
     if (d.type === "corrosao" && allies && allies.length) { const h = Math.round(dmg * 0.25 * (d.healMul || 1)); allies.forEach((a) => { if (a.alive && !a.isSummon) healUnit(a, h, fx); }); } // Corrosão cura o time
+    // Yanagi S4: DoT em alvo sob Isolamento Corrosivo cura o time dela em 15% do ATK atual dela
+    { const yanaS4h = allies && allies.find(h => h.id === "yanagi" && h.alive && h.stFlags?.yanaS4);
+      if (yanaS4h && (u.debuffs || []).some(b => b.name === "Isolamento Corrosivo")) { const healAmt = Math.round(effStat(yanaS4h, "atk") * 0.15); allies.forEach(a => { if (a.alive && !a.isSummon) healUnit(a, healAmt, fx); }); } }
   });
   // Aero Sunder: colapso ao atingir 5 acúmulos (com cooldown interno de 2 rodadas — anti Turn-Lock)
   const aeroStacks = u.dots.filter(d => d.type === "aero").length;
@@ -4431,6 +4551,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
     // _sibs: referências dos aliados de cada lado (Fulgur Resonance precisa achar o de menor HP)
     heroes.forEach(h => { h._sibs = heroes; });
     enemies.forEach(e => { e._sibs = enemies; });
+    { const yn0 = heroes.find(h => h.id === "yanagi"); if (yn0 && yn0.stFlags?.yanaT1) { enemies.forEach(e => { e.debuffs.push({ stat: "mark", value: 0, turns: 3, name: "Fagulha de Anomalia" }); }); } }
     // ══ ABISMO DE DADOS: HP persistente (permadeath), mutador do andar e glitches da run ══
     let abLog = [];
     if (encounter.abismo) {
@@ -4526,7 +4647,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
     }
     return { ...s, over: true, win: true };
   }
-  const pushLog = (s, m) => { if (m) s.log = [...s.log.slice(-40), m]; };
+  
 
   function aliveEnemies(s) { return s.enemies.filter((e) => e.alive); }
   function targetEnemy(s) { const al = aliveEnemies(s); return al[target] || al[0]; }
@@ -4715,6 +4836,18 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
           const yMul = (ySpd * 3.0 / yAtk) * 100; // 300% da VEL (convertido pra fórmula de %ATK do motor)
           const r = dealDamage(u, enemy, yMul, fx, { el: "Eletro" });
           msg = `⚡ Golpe Relâmpago em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}.`;
+          miyDone = true;
+        }
+        if (!miyDone && u.id === "yanagi" && enemy) {
+          const r = dealDamage(u, enemy, (sk.basicMul || 100) * u.tBasic * ampB, fx, { el: "Eletro" });
+          const hasSpark = enemy.alive && (enemy.debuffs || []).some(d => d.name === "Fagulha de Anomalia");
+          if (hasSpark && enemy.alive) {
+            const dsd = triggerDesordem(u, enemy, fx);
+            msg = `⚡ Corte Voltaico em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}! A Fagulha reage: DESORDEM ativada — +${dsd} de Dano Eletro instantâneo!`;
+          } else {
+            u.energy = Math.min(u.energyMax, u.energy + 5); u.av = Math.max(0.01, (u.av || 1) * 0.85);
+            msg = `⚡ Corte Voltaico em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}. Sem Fagulha no alvo: Sobrecarga de Retorno — +5 de Energia e ação avançada em 15%.`;
+          }
           miyDone = true;
         }
         if (!miyDone && u.id === "agumon" && enemy) {
@@ -4992,6 +5125,20 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             allies.forEach(a => { a.buffs = a.buffs.filter(b => b.name !== "Domínio Magnético"); a.buffs.push({ stat: "spd", value: spdBonus, pct: false, turns: 3, name: "Domínio Magnético" }); });
             msg = `🌀 DOMÍNIO MAGNÉTICO! Yoruichi entra em Condução Perfeita por 3 turnos e marca ${enemy.name} como Ponto de Aterramento. Time inteiro ganha +${spdBonus} de VEL.`;
           }
+          else if (u.id === "yanagi" && sk.yanaSkill && enemy) {
+            const maxSparks = u.stFlags?.yanaS3 ? 8 : 5;
+            const addSparks = (tgt, n) => { const cur = tgt.debuffs.filter(d => d.name === "Fagulha de Anomalia").length; const room = Math.max(0, maxSparks - cur); for (let i = 0; i < Math.min(n, room); i++) tgt.debuffs.push({ stat: "mark", value: 0, turns: 3, name: "Fagulha de Anomalia" }); if (!tgt.debuffs.some(d => d.name === "Estase")) tgt.debuffs.push({ stat: "dotAmp", value: 25, turns: 3, name: "Estase" }); return tgt.debuffs.filter(d => d.name === "Fagulha de Anomalia").length; };
+            const others = aliveEnemies(s).filter(e => e.uid !== enemy.uid);
+            const hadDots = (enemy.dots || []).length > 0;
+            const sp = addSparks(enemy, 3);
+            others.forEach(e => addSparks(e, 2));
+            if (!hadDots) {
+              enemy.dots.push({ type: "shock", dmg: Math.max(1, Math.round(effStat(u, "atk") * 0.80)), turns: 2, unremovable: true });
+              msg = `🌀 CICLO DE ANOMALIA! ${enemy.name} não tinha DoT ativo — Protocolo de Segurança força um Choque Parasita (80% ATK, 2 turnos, não pode ser removido)! Fagulhas aplicadas: ${sp} no principal, 2 nos demais.`;
+            } else {
+              msg = `🌀 CICLO DE ANOMALIA! ${sp} Fagulhas de Anomalia em ${enemy.name} (2 nos demais). Estase ativa: DoTs recebidos por eles causam +25% de dano e ignoram DEF extra por Fagulha.`;
+            }
+          }
           else if (u.id === "agumon" && sk.aguSkill) {
             const fm = u.agForm || "agumon";
             if (fm === "agumon" && enemy) {
@@ -5219,6 +5366,29 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             msg = `⚡⚡ SHUNKO: RAIJIN! ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} em ${enemy.name}! O resto do time avança 25% na Ordem de Turnos!`;
             // Insere 2 Clones Residuais forçados (conta pro Colapso Elétrico e pro registro do Ponto de Aterramento)
             for (let ci = 0; ci < 2 && enemy.alive; ci++) { dealDamage(u, enemy, yMul * 0.5, fx, { el: "Eletro", isYoruClone: true, isFollowup: true, breakW: 1 }); }
+          } else if (u.id === "yanagi" && sk.yanaUlt) {
+            const maxSparks = u.stFlags?.yanaS3 ? 8 : 5;
+            const targets = aliveEnemies(s);
+            targets.forEach(e => { const cur = e.debuffs.filter(d => d.name === "Fagulha de Anomalia").length; for (let i = cur; i < maxSparks; i++) e.debuffs.push({ stat: "mark", value: 0, turns: 3, name: "Fagulha de Anomalia" }); });
+            let tot = 0, desTot = 0;
+            targets.forEach(e => {
+              const r = dealDamage(u, e, (sk.ultMul || 180) * u.tUlt * ampU, fx, { el: "Eletro", breakW: 3 });
+              tot += r.dmg;
+              if (e.alive && (e.dots || []).length > 0) {
+                const dsd = triggerDesordem(u, e, fx, { noConsume: true, absoluteMul: 1.6, forceCrit: !!u.stFlags?.yanaS5 });
+                desTot += dsd;
+              }
+              if (e.alive) { e.debuffs = e.debuffs.filter(d => d.name !== "Isolamento Corrosivo"); e.debuffs.push({ stat: "elemRes", value: -20, turns: 2, name: "Isolamento Corrosivo" }); }
+            });
+            // S2: clona os DoTs do alvo de maior HP máximo pros demais inimigos por 2 turnos
+            if (u.stFlags?.yanaS2 && targets.length > 1) {
+              const mainT = targets.slice().sort((a, b) => b.maxHp - a.maxHp)[0];
+              if (mainT && mainT.alive && (mainT.dots || []).length) {
+                targets.filter(e => e.uid !== mainT.uid && e.alive).forEach(e => { mainT.dots.forEach(d => { e.dots.push({ type: d.type, dmg: Math.round(d.dmg * 1.10), turns: 2 }); }); });
+                pushLogGlobalFx(fx, mainT.uid, "S2: DoTs clonados!");
+              }
+            }
+            msg = `⚡🌀 ECLIPSE VOLTAICO! ${tot} de Dano Eletro em área, injeta Fagulhas máximas em todos, e detona DESORDEM ABSOLUTA (+${desTot} de dano) nos alvos com DoT! Isolamento Corrosivo aplicado por 2 turnos.`;
           } else if (u.id === "agumon" && sk.aguUlt) {
             const fm = u.agForm || "agumon";
             const c4Mul = u.stFlags?.aguC4 ? 3 : 1; // C4: +200% de dano da Suprema em todas as formas
@@ -5923,6 +6093,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
 
       const pickTarget = () => {
         if (taunter) return taunter;
+        if (!targetable.length) return null; // robustez: sem alvo vivo, o inimigo simplesmente não ataca
         // 25% por membro vivo — distribuição igual, sem preferência por healer ou carry
         return targetable[Math.floor(Math.random() * targetable.length)];
       };
