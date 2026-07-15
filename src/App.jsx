@@ -115,7 +115,7 @@ const WEAPONS = [
   // ── ★★★★★ 5-estrelas ────────────────────────────────────────────────────────
   { id: "digivice",         name: "Digivice da Coragem",   rarity: 5, role: "dps",      atk: 500, hpFlat: 500, elemDmg: 30.0,    passive: "Sincronia Térmica: +50 de TamerSP máximo; Perícias geram 5 a menos de Calor. Ao Digivolver: restaura 10% do HP Máximo e +10 de VEL por 2 rodadas. No MODO X: a Gaia Force ganha +50% de CRIT DMG e inimigos derrotados por ela não podem ser ressuscitados nem curados por 1 rodada.", buff: { aguWeapon: true } },
   { id: "relampago_fugaz",  name: "Relâmpago Fugaz",       rarity: 5, role: "dps",      hpFlat: 1058, defFlat: 463, spd: 10,      passive: "Passo Fantasma: HP 1058 · DEF 463 · +10 de VEL Base fixa. Efeito 1: +12% da VEL total do portador, sempre ativo. Efeito 2: cada Ataque Extra do portador aumenta o dano dos PRÓXIMOS Ataques Extras dele mesmo em +10% (acumula até 3×, cada acúmulo renova a duração de 2 turnos). Efeito 3 (com VEL > 150): todo Ataque Extra do portador concede +12% de Taxa de CRIT e +24% de CRIT DMG a TODA a equipe por 2 turnos, e recupera 2 de Energia sempre que o Talento intercepta uma ação aliada (independe do limiar de 150 VEL).", buff: { yoruWeapon: true, spdPct: 12 } },
-  { id: "tecelao_tempo",    name: "Tecelão do Tempo",      rarity: 5, role: "debuffer", hpFlat: 1058, atk: 635, defFlat: 463,        passive: "Atributos Base (Nv. 80): HP 1058 | ATK 635 | DEF 463. Efeito Passivo — Fio da Ruptura Contínua: Sobrecarga Base — aumenta o ATK do portador incondicionalmente em 24%. Foco em Anomalia: sempre que o portador atacar um inimigo sofrendo pelo menos 1 DoT, ganha o buff Linha do Tempo — cada acúmulo dá +6% de Taxa de Perfuração de DEF ao portador (acumula até 3×, dura 3 turnos). Ressonância da Desordem: se o portador desencadear um dano instantâneo a partir de uma reação de DoT (como a Desordem de Yanagi), esse golpe específico ativa a Fissão Temporal — ignora completamente 12% da Resistência Elemental do alvo e regenera instantaneamente 4 de Energia para o portador.", buff: { yanaWeapon: true } },
+  { id: "tecelao_tempo",    name: "Tecelão do Tempo",      rarity: 5, role: "debuffer", hpFlat: 1058, atk: 635, defFlat: 463, critRate: 12.5,      passive: "Atributos Base (Nv. 80): HP 1058 | ATK 635 | DEF 463. Efeito Passivo — Fio da Ruptura Contínua: Sobrecarga Base — aumenta o ATK do portador incondicionalmente em 24% e a Taxa de CRIT dele em 12.5% (no nível máximo). Ressonância de Equipe: aumenta a Taxa de CRIT de TODA a equipe em 7%. Foco em Anomalia: sempre que o portador atacar um inimigo sofrendo pelo menos 1 DoT, ganha o buff Linha do Tempo — cada acúmulo dá +6% de Taxa de Perfuração de DEF ao portador (acumula até 3×, dura 3 turnos). Ressonância da Desordem: se o portador desencadear um dano instantâneo a partir de uma reação de DoT (como a Desordem de Yanagi), esse golpe específico ativa a Fissão Temporal — ignora completamente 12% da Resistência Elemental do alvo e regenera instantaneamente 4 de Energia para o portador.", buff: { yanaWeapon: true, teamCritRate: 7 } },
   { id: "disco_nexo",       name: "Disco de Duelo — Protótipo Nexo", rarity: 5, role: "summoner", hpFlat: 1164, atk: 582, defFlat: 396, critRate: 12,     passive: "Jogo de Alta Linhagem: HP 1164 · ATK 582 · DEF 396 · +12% de Taxa de CRIT sempre ativa. Sempre que o portador puxar uma carta ou ativar uma carta da Mão Virtual, o Monstro Invocado ativo ganha 1 acúmulo de 'Soberania do Duelista' (máx 3): cada acúmulo dá +16% de dano às invocações e faz seus ataques ignorarem +10% de DEF — expira após 2 turnos do monstro. Quando um Monstro Invocado deixa o campo, o portador recupera 6 de Energia instantaneamente e o PRÓXIMO monstro invocado ganha +30% de Dano Crítico por 2 rodadas.", buff: { kaibaWeapon: true } },
   { id: "starblade",        name: "Lâmina Estelar",       rarity: 5, role: "dps",      atk: 882, critDmg: 52.8,                    passive: "Fio Cortante: após a Habilidade, ganha +24% de Bônus de Dano por 2 turnos.",                                                    buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
   { id: "radiant",          name: "Cetro Radiante",        rarity: 5, role: "buffer",   atk: 720, energyRegen: 26.4,                passive: "Pulso de Apoio: ao buffar aliados, concede +12% de Bônus de Dano por 2 turnos.",                                                buff: { onBuff: { dmgBonus: 12, turns: 2 } } },
@@ -1641,7 +1641,8 @@ function Game({ email, isAdmin, onLogout }) {
     const now = new Date();
     const jan1 = new Date(now.getFullYear(), 0, 1);
     const week = Math.floor((now - jan1) / (7 * 24 * 3600 * 1000));
-    return now.getFullYear() * 100 + week;
+    const ESPIRAL_RESET_OFFSET = 4000; // deslocamento manual: invalida instantaneamente todo espiralClearedAt salvo (reset pra todos) — subido de 2000→4000 pra disparar um novo reset agora
+    return now.getFullYear() * 100 + week + ESPIRAL_RESET_OFFSET;
   }
   function espiralWeaknesses(seed) {
     const pool = [...ELEMENT_NAMES];
@@ -4264,7 +4265,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     }
   }
   if (!defender.alive && defender.side === "H" && defender._uti) { defender._uti = false; defender.hp = 1; defender.alive = true; fx.push({ uid: defender.uid, txt: "UTI: +1 HP!", heal: true, id: Math.random() }); }
-  fx.push({ uid: defender.uid, txt: String(dmg), crit, id: Math.random(), el: opts?.el || attacker.element });
+  fx.push({ uid: defender.uid, txt: String(dmg), crit, id: Math.random(), el: opts?.el || attacker.element, enhanced: !!opts?.enhanced });
   return { dmg, crit };
 }
 function applyDot(targets, spec, source, fx) {
@@ -4297,15 +4298,15 @@ function soiFonBasicAttack(s, u, enemy, fx, ampB) {
     const wpnCharges = (u.weapon?.id === "ferrao_borboleta") ? (u.sfWpnCharges || 0) : 0;
     const wpnBonus = wpnCharges * 0.24;
     if (wpnCharges > 0) u.sfWpnCharges = 0;
-    const finalMul = 120 * (u.tBasic || 1) * ampB * (1 + wpnBonus);
+    const finalMul = 120 * 1.20 * (u.tBasic || 1) * ampB * (1 + wpnBonus);
     const targets = f.sfC6 ? s.enemies.filter(e => e.alive) : (enemy ? [enemy] : []);
     let tot = 0;
     targets.forEach(e => {
-      const r = dealDamage(u, e, finalMul, fx, { breakW: 1, el: "Vento", pierceShield: true, defPen: f.sfC6 ? 40 : 100 });
+      const r = dealDamage(u, e, finalMul, fx, { breakW: 1, el: "Vento", pierceShield: true, defPen: f.sfC6 ? 40 : 100, enhanced: true });
       tot += r.dmg;
       if (!e.alive && f.sfC6) { u.energy = u.energyMax; u.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); }
     });
-    msg = `🦋✨ SOI FON — DANO VERDADEIRO (Postura de Ferrão)! ${tot} de Dano de Vento${f.sfC6 ? " em TODOS" : ""}${wpnBonus ? ` +${Math.round(wpnBonus * 100)}% (${wpnCharges} Cargas)` : ""}, ignora DEF e escudos!`;
+    msg = `🦋✨🌿 SOI FON — DANO VERDADEIRO (Postura de Ferrão, APRIMORADO)! ${tot} de Dano de Vento${f.sfC6 ? " em TODOS" : ""}${wpnBonus ? ` +${Math.round(wpnBonus * 100)}% (${wpnCharges} Cargas)` : ""}, ignora DEF e escudos!`;
   } else {
     if (enemy) {
       const r = dealDamage(u, enemy, (sk.basicMul || 100) * (u.tBasic || 1) * ampB, fx, { breakW: 1, el: "Vento" });
@@ -4388,13 +4389,13 @@ function miyabiBasicAttack(s, u, enemy, fx, ampB) {
   let msg = "";
   if (inPostura && f.miC6 && u.posturePH >= 4) {
     const fb = (f.miC1 && !u._firstCut) ? 1.5 : 1; let killed = false, tot = 0;
-    aliveEnemies(s).forEach((e) => { const r = dealDamage(u, e, 450 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 50 }); tot += r.dmg; if (!e.alive) killed = true; if (e.alive) applyDot([e], { type: "freeze", mul: 180, turns: 3 }, u, fx); });
+    aliveEnemies(s).forEach((e) => { const r = dealDamage(u, e, 450 * 1.20 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 50, enhanced: true }); tot += r.dmg; if (!e.alive) killed = true; if (e.alive) applyDot([e], { type: "freeze", mul: 180, turns: 3 }, u, fx); });
     msg = `❄️ MIYABI DESFERE O CORTE DO FIM DOS TEMPOS! ${tot} de Dano Glacial em TODOS, ignorando 50% da DEF, e aplica Congelamento.`;
     if (killed) { u._avMul = 0; msg += " Um alvo foi eliminado — Miyabi joga novamente!"; }
     u._firstCut = true; if (!frostZone) u.posturePH = 0;
   } else if (inPostura) {
     const fb = (f.miC1 && !u._firstCut) ? 1.5 : 1;
-    if (enemy) { const r = dealDamage(u, enemy, (sk.basicMul || 110) * 1.5 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 30 }); msg = `❄️ Corte Iaido em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}, ignorando 30% da DEF.`; if (enemy.alive) { applyDot([enemy], { type: "freeze", mul: 90, turns: 2 }, u, fx); msg += " Aplica Congelamento."; } }
+    if (enemy) { const r = dealDamage(u, enemy, (sk.basicMul || 110) * 1.75 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 30, enhanced: true }); msg = `❄️🌿 Corte Iaido (APRIMORADO) em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}, ignorando 30% da DEF.`; if (enemy.alive) { applyDot([enemy], { type: "freeze", mul: 90, turns: 2 }, u, fx); msg += " Aplica Congelamento."; } }
     u._avMul = 0.5; u._firstCut = true; if (!frostZone) u.posturePH = 0;
   } else {
     if (enemy) { const r = dealDamage(u, enemy, (sk.basicMul || 110) * (u.tBasic || 1) * ampB, fx, { breakW: 1, el: "Glacial" }); msg = `${u.name} usa Corte Gélido em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}.`; if (enemy.alive) applyDot([enemy], { type: "freeze", mul: 50, turns: 2 }, u, fx); }
@@ -4547,6 +4548,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       } }
     { const yoru0 = heroes.find((h) => h.id === "yoruichi"); if (yoru0 && yoru0.stFlags?.yoruT1 && yoru0.energyMax) { yoru0.energy = Math.min(yoru0.energyMax, yoru0.energy + 20); yoru0._yoruT1Uses = 0; } }
     { const kb0 = heroes.find((h) => h.id === "kaiba"); if (kb0 && kb0.stFlags?.kaibaT1) { const starter = makeSummon(kb0, { uid: "S_" + kb0.uid + "_mon0", name: "Vorse Raider", avatar: "👹", imgKey: "card_vorse", kind: "monster", mul: 260, spd: effStat(kb0, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); starter.cardBleed = 0.5; heroes.push(starter); } }
+    { const yana0 = heroes.find((h) => h.id === "yanagi"); if (yana0 && yana0.weapon?.buff?.teamCritRate) { const critBonus = yana0.weapon.buff.teamCritRate; heroes.forEach(h => { if (!h.isSummon) h.buffs.push({ stat: "critRate", value: critBonus, turns: 9999, name: "Ressonância de Equipe" }); }); } }
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
     // _sibs: referências dos aliados de cada lado (Fulgur Resonance precisa achar o de menor HP)
     heroes.forEach(h => { h._sibs = heroes; });
@@ -4805,7 +4807,11 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         { const gIdx = u.dots.findIndex(d => d.type === "freeze" || d.type === "geada");
           if (gIdx >= 0) { u.dots.splice(gIdx, 1); const chip = Math.max(1, Math.round(u.maxHp * 0.03)); u.hp = Math.max(1, u.hp - chip); fx.push({ uid: u.uid, txt: "❄️ gelo quebrado (-" + chip + ")", dot: "freeze", id: Math.random() }); } }
         let miyDone = false;
-        if (u.id === "miyabi") { msg = miyabiBasicAttack(s, u, enemy, fx, ampB); miyDone = true; }
+        if (u.id === "miyabi") {
+          try { msg = miyabiBasicAttack(s, u, enemy, fx, ampB); }
+          catch (err) { if (enemy && enemy.alive) { const r = dealDamage(u, enemy, 110 * (u.tBasic || 1) * ampB, fx, { breakW: 1, el: "Glacial" }); msg = `${u.name} ataca ${enemy.name} — ${r.dmg}.`; } else { msg = `${u.name} ataca.`; } }
+          miyDone = true;
+        }
         if (!miyDone && u.id === "soifon") { msg = soiFonBasicAttack(s, u, enemy, fx, ampB); miyDone = true; }
         // Ryoshu basic
         if (!miyDone && u.id === "ryoshu" && enemy) {
@@ -6901,9 +6907,9 @@ function SummonFx({ data }) {
 function FX({ fx, uid }) {
   const items = fx.filter((f) => f.uid === uid);
   if (!items.length) return null;
-  const colorOf = (f) => f.heal ? C.good : f.dot ? (DOT_INFO[f.dot]?.c || "#fff") : f.crit ? C.gold : (f.el && ELEMENTS[f.el]?.color) || "#ffd9d9";
+  const colorOf = (f) => f.enhanced ? "#5CFF7A" : f.heal ? C.good : f.dot ? (DOT_INFO[f.dot]?.c || "#fff") : f.crit ? C.gold : (f.el && ELEMENTS[f.el]?.color) || "#ffd9d9";
   return <div style={{ position: "absolute", top: -6, left: 0, right: 0, textAlign: "center", pointerEvents: "none", zIndex: 5 }}>
-    {items.map((f) => <div key={f.id} style={{ animation: "srFloat 1s ease-out forwards", fontWeight: 800, fontSize: f.crit ? 18 : f.dot ? 11 : 14, color: colorOf(f), textShadow: "0 1px 3px #000" }}>{f.dot ? "🔥" : ""}{f.txt}{f.crit ? "!" : ""}</div>)}
+    {items.map((f) => <div key={f.id} style={{ animation: "srFloat 1s ease-out forwards", fontWeight: 800, fontSize: f.enhanced ? 20 : f.crit ? 18 : f.dot ? 11 : 14, color: colorOf(f), textShadow: f.enhanced ? "0 0 10px #5CFF7Aaa, 0 1px 3px #000" : "0 1px 3px #000" }}>{f.dot ? "🔥" : f.enhanced ? "🌿" : ""}{f.txt}{f.crit ? "!" : ""}</div>)}
   </div>;
 }
 
