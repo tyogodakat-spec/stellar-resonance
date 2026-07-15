@@ -1387,6 +1387,25 @@ function Game({ email, isAdmin, onLogout }) {
     return existed;
   }
   const setOwnedField = (id, patch) => setOwned((prev) => prev.map((o) => (o.id === id ? { ...o, ...patch } : o)));
+  function claimMail2Reward() {
+    if (mail2Claimed) return;
+    setJade((j) => j + 6000);
+    setExpItems((v) => v + 150);
+    setWeaponMats((v) => v + 150);
+    setMail2Claimed(true);
+    try { localStorage.setItem('sr_mail2_claimed_v1', '1'); } catch {}
+    flash(`📬 +6.000💎 +150📘 +150⚙️ coletados!`, C.gold);
+  }
+  function claimMail3Reward(charId) {
+    if (mail3Claimed) return;
+    if (!CHAR_MAP[charId] || CHAR_MAP[charId].rarity !== 5) return;
+    const ownedRef = new Set(owned.map(o => o.id));
+    grantChar(charId, ownedRef);
+    setMail3CharPicked(charId);
+    setMail3Claimed(true);
+    try { localStorage.setItem('sr_mail3_claimed_v1', '1'); localStorage.setItem('sr_mail3_char_v1', charId); } catch {}
+    flash(`📬 ${CHAR_MAP[charId].name} entra no seu elenco!`, C.gold);
+  }
   function claimMail4Reward() {
     if (mail4Claimed) return;
     setJade((j) => j + 7000);
@@ -1924,7 +1943,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} setRelicMats={setRelicMats} flash={flash} setBattle={setBattle} />}
               {screen === "relics" && <RelicsScreen relicInv={relicInv} />}
               {screen === "loja" && <Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} />}
-              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mailIniciante={mailIniciante} setMailIniciante={setMailIniciante} mail4Claimed={mail4Claimed} claimMail4Reward={claimMail4Reward} mail5Claimed={mail5Claimed} claimMail5Reward={claimMail5Reward} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setAscMats={setAscMats} playerName={playerName} towerTop1Claimed={towerTop1Claimed} claimTop1Reward={claimTop1Reward} flash={flash} />}
+              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mailIniciante={mailIniciante} setMailIniciante={setMailIniciante} mail2Claimed={mail2Claimed} claimMail2Reward={claimMail2Reward} mail3Claimed={mail3Claimed} mail3CharPicked={mail3CharPicked} claimMail3Reward={claimMail3Reward} mail4Claimed={mail4Claimed} claimMail4Reward={claimMail4Reward} mail5Claimed={mail5Claimed} claimMail5Reward={claimMail5Reward} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setAscMats={setAscMats} playerName={playerName} towerTop1Claimed={towerTop1Claimed} claimTop1Reward={claimTop1Reward} flash={flash} owned={owned} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
               {screen === "roleta" && <RouletteEvent jade={jade} setJade={setJade} rouletteCleared={rouletteCleared} setRouletteCleared={setRouletteCleared} nextRouletteClaimAt={nextRouletteClaimAt} setNextRouletteClaimAt={setNextRouletteClaimAt} />}
@@ -2795,8 +2814,10 @@ const SKILL_DESC = {
     ],
     skill: [
       "Custo: <b>1 Ponto de Habilidade</b>.",
-      "<b>Teoria do Caos</b> — cura o aliado com menor % de HP em <b>20% do HP Máximo de Shorekeeper + 500</b>, e os demais aliados em metade desse valor.",
-      "O alvo principal recebe <b>Blindagem de Dados</b> por 2 turnos — imune ao próximo Controle de Grupo (Paralisia, Congelamento etc.) que sofreria.",
+      "<b>Teoria do Caos</b> — cura o aliado com menor % de HP em <b>20% do HP Máximo de Shorekeeper + 500</b>, e os demais aliados em <b>metade desse valor</b>.",
+      "🛡️ <b>Blindagem de Dados</b> (2 turnos) aplicada ao alvo principal — imunidade ao próximo Controle de Grupo (Paralisia, Congelamento, Atordoamento etc.).",
+      "⚡ <b>[Rastro 2]</b> Se a cura exceder o HP Máximo do alvo, o excedente é convertido em <b>Escudo de Dados</b> que absorve dano equivalente por 2 turnos.",
+      "💜 <b>[C4 · Calibração do Caos]</b> O alvo curado e a própria Shorekeeper ganham <b>+15% de HP Máximo</b> por 3 turnos.",
     ],
     ult: [
       "Custo: <b>130 de Energia</b>.",
@@ -8873,7 +8894,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared, nex
   );
 }
 
-function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante, mail4Claimed, claimMail4Reward, mail5Claimed, claimMail5Reward, setJade, setExpItems, setWeaponMats, setRelicMats, setAscMats, playerName, towerTop1Claimed, claimTop1Reward, flash }) {
+function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante, mail2Claimed, claimMail2Reward, mail3Claimed, mail3CharPicked, claimMail3Reward, mail4Claimed, claimMail4Reward, mail5Claimed, claimMail5Reward, setJade, setExpItems, setWeaponMats, setRelicMats, setAscMats, playerName, towerTop1Claimed, claimTop1Reward, flash, owned }) {
   const [pickChar4, setPickChar4] = React.useState(null);
   const [isTop1, setIsTop1] = React.useState(false);
   const [pickChar, setPickChar] = React.useState(null);
@@ -8926,6 +8947,58 @@ function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante,
         <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>📬 Correio</div>
         <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>Mensagens e recompensas enviadas pelo sistema.</div>
       </Panel>
+
+      {!mail2Claimed && (
+        <Panel glow="#F6C95B">
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+            <div style={{ fontSize: 38 }}>🎁</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>Pacote de Recursos</div>
+              <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
+                <b style={{ color: C.gold }}>+6.000💎</b> · <b>+150📘 Lágrimas de XP</b> · <b>+150⚙️ Engrenagens de Arma</b>
+              </div>
+              <Btn kind="primary" style={{ width: "100%", padding: "10px 18px", fontWeight: 800 }} onClick={() => claimMail2Reward()}>🎁 Coletar</Btn>
+            </div>
+          </div>
+        </Panel>
+      )}
+
+      {!mail3Claimed && (() => {
+        const all5 = Object.values(CHAR_MAP).filter(c => c.rarity === 5);
+        const [pickChar3, setPickChar3] = React.useState(null);
+        return (
+          <Panel glow="#A78BFA">
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+              <div style={{ fontSize: 38 }}>⭐</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>Personagem Especial à Escolha</div>
+                <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
+                  Escolha <b>1 personagem 5★ qualquer</b> do jogo pra entrar direto no seu elenco. Presente especial da equipe Stellar Resonance!
+                </div>
+                {!pickChar3 ? (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+                    {all5.map(c => (
+                      <Btn key={c.id} kind="soft" style={{ fontSize: 12, padding: "4px 10px" }} onClick={() => setPickChar3(c.id)}>
+                        {c.avatar} {c.name}
+                      </Btn>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 13, color: C.gold, fontWeight: 700, marginBottom: 8 }}>
+                      ✓ Selecionado: {CHAR_MAP[pickChar3]?.avatar} {CHAR_MAP[pickChar3]?.name}
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <Btn kind="soft" style={{ fontSize: 12, padding: "6px 12px" }} onClick={() => setPickChar3(null)}>Trocar</Btn>
+                      <Btn kind="primary" style={{ flex: 1, padding: "10px 18px", fontWeight: 800 }} onClick={() => claimMail3Reward(pickChar3)}>⭐ Coletar</Btn>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Panel>
+        );
+      })()}
 
       {!mail4Claimed && (
         <Panel glow="#F6C95B">
