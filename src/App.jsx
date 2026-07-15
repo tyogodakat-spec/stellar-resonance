@@ -20,8 +20,9 @@ const ELEMENTS = {
   Vento:   { color: "#74E8A6", glyph: "↟", soft: "#103325" },
   Virus:   { color: "#A6E22E", glyph: "☣", soft: "#26330f" },
   Eletro:  { color: "#B98BFF", glyph: "⚡", soft: "#241439" },
+  Unknown: { color: "#EAEAEA", glyph: "❓", soft: "#2a2a2a" }, // elemento exclusivo da Shorekeeper — fora do pool aleatório de fraqueza/resistência dos inimigos
 };
-const ELEMENT_NAMES = Object.keys(ELEMENTS);
+const ELEMENT_NAMES = Object.keys(ELEMENTS).filter(e => e !== "Unknown");
 
 const ROLES = {
   dps:      { label: "DPS", desc: "Dano em alvo único." },
@@ -97,6 +98,8 @@ const ROSTER = [
   mk({ id: "agumon", name: "Agumon", title: "O Núcleo Termodinâmico", element: "Fogo", role: "dps", rarity: 5, avatar: "🦖", hp: 1480, atk: 730, def: 520, spd: 106, energy: 120, cr: 10, cd: 58, tags: ["Fogo", "DPS", "Evolução", "Calor"],
       skill: { basicMul: 95, aguBasic: true, skillMul: 165, aguSkill: true, ultMul: 300, aguUlt: true } }),
   // ---- Tsukishiro Yanagi · Teorema da Desordem (Limitada) ----
+  mk({ id: "shorekeeper", name: "Shorekeeper", title: "Guardiã da Costa Negra", element: "Unknown", role: "healer", rarity: 5, avatar: "🌌", hp: 2400, atk: 340, def: 460, spd: 100, energy: 130, cr: 5, cd: 50, er: 20, tags: ["Desconhecido", "Suporte", "Cura", "Domínio"],
+    skill: { basicMul: 100, shkBasic: true, skillMul: 0, shkSkill: true, ultMul: 300, shkUlt: true } }),
   mk({ id: "yanagi", name: "Tsukishiro Yanagi", title: "Teorema da Desordem", element: "Eletro", role: "debuffer", rarity: 5, avatar: "🌀", hp: 1100, atk: 780, def: 440, spd: 104, energy: 190, cr: 8, cd: 55, tags: ["Eletro", "Suporte de DoT", "Habilitadora", "Perfuração"],
       skill: { basicMul: 100, yanaBasic: true, skillMul: 0, yanaSkill: true, ultMul: 180, yanaUlt: true } }),
   ];
@@ -105,7 +108,8 @@ const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
 const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon"];     // limitados (pool 50/50): só via rate-up
-const FEATURED_LIMITEDS = ["yanagi", "kaiba"]; // banners ativos agora: Yanagi e Kaiba (Miyabi/Agumon encerrados)
+const FEATURED_LIMITEDS = ["yanagi", "kaiba", "shorekeeper"]; // banners ativos agora: Yanagi, Kaiba e Shorekeeper (Miyabi/Agumon encerrados)
+const BANNER_DURATIONS = { yanagi: 3 * 24 * 60 * 60 * 1000, kaiba: 3 * 24 * 60 * 60 * 1000, shorekeeper: 4 * 24 * 60 * 60 * 1000 }; // Yanagi/Kaiba: 3 dias restantes · Shorekeeper: 4 dias restantes
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
 const DEFAULT_FEATURED_CHAR = "yanagi";
 
@@ -115,6 +119,7 @@ const WEAPONS = [
   // ── ★★★★★ 5-estrelas ────────────────────────────────────────────────────────
   { id: "digivice",         name: "Digivice da Coragem",   rarity: 5, role: "dps",      atk: 500, hpFlat: 500, elemDmg: 30.0,    passive: "Sincronia Térmica: +50 de TamerSP máximo; Perícias geram 5 a menos de Calor. Ao Digivolver: restaura 10% do HP Máximo e +10 de VEL por 2 rodadas. No MODO X: a Gaia Force ganha +50% de CRIT DMG e inimigos derrotados por ela não podem ser ressuscitados nem curados por 1 rodada.", buff: { aguWeapon: true } },
   { id: "relampago_fugaz",  name: "Relâmpago Fugaz",       rarity: 5, role: "dps",      hpFlat: 1058, defFlat: 463, spd: 10,      passive: "Passo Fantasma: HP 1058 · DEF 463 · +10 de VEL Base fixa. Efeito 1: +12% da VEL total do portador, sempre ativo. Efeito 2: cada Ataque Extra do portador aumenta o dano dos PRÓXIMOS Ataques Extras dele mesmo em +10% (acumula até 3×, cada acúmulo renova a duração de 2 turnos). Efeito 3 (com VEL > 150): todo Ataque Extra do portador concede +12% de Taxa de CRIT e +24% de CRIT DMG a TODA a equipe por 2 turnos, e recupera 2 de Energia sempre que o Talento intercepta uma ação aliada (independe do limiar de 150 VEL).", buff: { yoruWeapon: true, spdPct: 12 } },
+  { id: "sinfonia_estelar",  name: "Sinfonia Estelar",      rarity: 5, role: "healer",   hpFlat: 1270, atk: 423, defFlat: 463, hpPct: 40.0, energyRegen: 20.0, passive: "Atributos Base: Nv. 1: HP 58 | ATK 21 | DEF 21 — Nv. 80 (máximo): HP 1270 | ATK 423 | DEF 463. Efeito Passivo — Eco do Mar Negro (valores no nível máximo): Expansão de Hardware — aumenta o HP Máximo do portador incondicionalmente em 40%. Otimização de Bateria — aumenta a Taxa de Regeneração de Energia do portador em 20%. Sincronização de Rede — ao ativar a Habilidade Suprema, todos os aliados (exceto o portador) regeneram instantaneamente 14 de Energia; além disso, enquanto o efeito da Suprema estiver ativo em campo, o Dano Final de toda a equipe sobe 24%.", buff: { shkWeapon: true } },
   { id: "tecelao_tempo",    name: "Tecelão do Tempo",      rarity: 5, role: "debuffer", hpFlat: 1058, atk: 635, defFlat: 463, critRate: 12.5,      passive: "Atributos Base (Nv. 80): HP 1058 | ATK 635 | DEF 463. Efeito Passivo — Fio da Ruptura Contínua: Sobrecarga Base — aumenta o ATK do portador incondicionalmente em 24% e a Taxa de CRIT dele em 12.5% (no nível máximo). Ressonância de Equipe: aumenta a Taxa de CRIT de TODA a equipe em 7%. Foco em Anomalia: sempre que o portador atacar um inimigo sofrendo pelo menos 1 DoT, ganha o buff Linha do Tempo — cada acúmulo dá +6% de Taxa de Perfuração de DEF ao portador (acumula até 3×, dura 3 turnos). Ressonância da Desordem: se o portador desencadear um dano instantâneo a partir de uma reação de DoT (como a Desordem de Yanagi), esse golpe específico ativa a Fissão Temporal — ignora completamente 12% da Resistência Elemental do alvo e regenera instantaneamente 4 de Energia para o portador.", buff: { yanaWeapon: true, teamCritRate: 7 } },
   { id: "disco_nexo",       name: "Disco de Duelo — Protótipo Nexo", rarity: 5, role: "summoner", hpFlat: 1164, atk: 582, defFlat: 396, critRate: 12,     passive: "Jogo de Alta Linhagem: HP 1164 · ATK 582 · DEF 396 · +12% de Taxa de CRIT sempre ativa. Sempre que o portador puxar uma carta ou ativar uma carta da Mão Virtual, o Monstro Invocado ativo ganha 1 acúmulo de 'Soberania do Duelista' (máx 3): cada acúmulo dá +16% de dano às invocações e faz seus ataques ignorarem +10% de DEF — expira após 2 turnos do monstro. Quando um Monstro Invocado deixa o campo, o portador recupera 6 de Energia instantaneamente e o PRÓXIMO monstro invocado ganha +30% de Dano Crítico por 2 rodadas.", buff: { kaibaWeapon: true } },
   { id: "starblade",        name: "Lâmina Estelar",       rarity: 5, role: "dps",      atk: 882, critDmg: 52.8,                    passive: "Fio Cortante: após a Habilidade, ganha +24% de Bônus de Dano por 2 turnos.",                                                    buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
@@ -329,7 +334,8 @@ const PASSIVE = {
   frieren: { name: "Percepção de Milênios · Grimório Oculto", desc: "Talento: Frieren é imune a qualquer debuff de lentidão ou atraso de turno. No início da batalha, ela esconde sua verdadeira força: o Aggro dela é reduzido a quase zero enquanto tiver menos de 50% de energia da Ultimate carregada. Além disso, começa a batalha com 2 Pontos de Elemento aleatórios já acumulados.", flag: "frTalent" },
     wonderofyou: { name: "A Lei Natural do Infortúnio", desc: "Talento passivo de duas vias simultâneas. Via 1 — Proteção pelo Infortúnio: sempre que qualquer aliado receber dano de qualquer fonte (ataque, área, DoT), Wonder of You automaticamente aplica nesse aliado um Buff Único Aleatório dentre os 8 disponíveis — somente se ele ainda não possuir aquele Buff específico. Via 2 — Punição da Calamidade: sempre que qualquer inimigo causar dano a qualquer fonte, esse inimigo recebe automaticamente um dos 4 Debuffs Especiais — somente se ele ainda não o possuir. Ordem de aplicação: Calamidade → Acidente Inevitável → Má Fortuna → Destino Quebrado. Ambas as vias operam sem custo de ação e sem consumo de Pontos de Habilidade.", flag: "pWoo" },
     agumon: { name: "Overclocking Terminal", desc: "CALOR (0-100): Perícias/Supremos aquecem, Básicos resfriam. Calor > 70: ATK e CRIT DMG sobem até +80%, mas perde 5% de HP/turno. Calor = 100: MELTDOWN — regride à forma base e perde 50% do TamerSP. TamerSP paga as Digievoluções (botão 🧬 no turno dele). Sincronia Perfeita no WarGreymon (Calor 90-99 + Trident Arm na rodada anterior) ativa o MODO X.", flag: "pAgu" },
-    yanagi: { name: "Teorema da Desordem", desc: "A Mecânica de Desordem: sempre que Yanagi causa dano a um inimigo afetado por pelo menos 1 DoT do jogo (Ignis, Veneno, Choque, Sangramento, Glacier, Corrosão, Ciclone, Fulgur Resonance, Aero Sunder ou Afundamento), ela ativa a Desordem — calcula 120% de todo o dano que os DoTs ativos causariam em 1 turno e soma 150% do ATK atual dela, causando esse total como Dano de Habilidade Eletro instantâneo. Gestão de Recurso (Fagulhas): ativar a Desordem não remove a duração dos DoTs originais, mas consome 1 Fagulha de Anomalia do alvo (aplicada pela Perícia). Perfuração de DEF Dinâmica: a Desordem tem 15% de Perfuração base; para cada TIPO DIFERENTE de DoT ativo no alvo, a Perfuração sobe +5% (até 35% no total com 4+ tipos diferentes). Falha de Reação: se o alvo tiver DoT mas ZERO Fagulhas de Anomalia, a Desordem ocorre em estado Gasto — só 30% do dano calculado e nenhuma Perfuração de DEF.", flag: "pYana" },
+    shorekeeper: { name: "Circuito Forte — Discernimento", desc: "Supremacia Desconhecida: por pertencer ao elemento Desconhecido, todos os ataques de Shorekeeper possuem vantagem elemental absoluta — seus golpes sempre reduzem a barra de Firmeza (Resistência/Perfuração) dos inimigos, ignorando completamente as fraquezas nativas deles. Borboletas Estelares: sempre que um aliado (exceto ela) consome um Ponto de Habilidade ou ativa a Habilidade Suprema, Shorekeeper gera 1 Borboleta Estelar que orbita esse aliado (limite de 3). No início do turno desse aliado, as borboletas o curam em 4% do HP Máximo de Shorekeeper e concedem +5% de Dano Final e +4 de VEL por borboleta ativa.", flag: "pShorekeeper" },
+  yanagi: { name: "Teorema da Desordem", desc: "A Mecânica de Desordem: sempre que Yanagi causa dano a um inimigo afetado por pelo menos 1 DoT do jogo (Ignis, Veneno, Choque, Sangramento, Glacier, Corrosão, Ciclone, Fulgur Resonance, Aero Sunder ou Afundamento), ela ativa a Desordem — calcula 120% de todo o dano que os DoTs ativos causariam em 1 turno e soma 150% do ATK atual dela, causando esse total como Dano de Habilidade Eletro instantâneo. Gestão de Recurso (Fagulhas): ativar a Desordem não remove a duração dos DoTs originais, mas consome 1 Fagulha de Anomalia do alvo (aplicada pela Perícia). Perfuração de DEF Dinâmica: a Desordem tem 15% de Perfuração base; para cada TIPO DIFERENTE de DoT ativo no alvo, a Perfuração sobe +5% (até 35% no total com 4+ tipos diferentes). Falha de Reação: se o alvo tiver DoT mas ZERO Fagulhas de Anomalia, a Desordem ocorre em estado Gasto — só 30% do dano calculado e nenhuma Perfuração de DEF.", flag: "pYana" },
     athena: { name: "Eco da Justiça", desc: "Talento passivo de duas funções simultâneas. Função 1 — Eco de Cura: sempre que Athena usar a Perícia (em qualquer Modo), um Eco de Cura é disparado automaticamente em todos os aliados que não foram o alvo principal — cada um recebe 50% do valor total da cura aplicada, calculado após todos os modificadores. Se algum desses aliados estiver com HP abaixo de 50% no momento do Eco, o valor do Eco nele é dobrado (equivalente a 100% do valor original). O Eco não conta como ação separada de Athena. Função 2 — Resistência das Casas: enquanto qualquer aliado estiver sob os buffs das 7 Casas, Athena recebe 100% de Resistência a todos os efeitos de Controle de Grupo — Atordoamento, Congelamento, Imobilização, Silêncio, Confusão e quaisquer outros que impeçam ou alterem sua ação.", flag: "pAth" },
   };
 // Corrente de Ressonância / Eidolons — 6 nós ÚNICOS por personagem (estilo HSR/WuWa)
@@ -545,6 +551,7 @@ const SKILL_NAMES = {
     wonderofyou: ["Toque do Fim", "Calamidade Inevitável", "Lei da Calamidade Absoluta"],
     athena: ["Lança de Luz", "Bênção das Sete Casas", "Julgamento do Olimpo"],
     agumon: ["Garra Afiada", "Baby Flame", "Pepper Breath"],
+    shorekeeper: ["Origem da Ciência", "Teoria do Caos", "Fim do Lamento"],
     yanagi: ["Corte Voltaico", "Ciclo de Anomalia", "Eclipse Voltaico"],
   };
 const skillNamesOf = (id) => SKILL_NAMES[id] || ["Ataque Básico", "Habilidade", "Ultimate"];
@@ -660,6 +667,11 @@ function specialTraces(def) {
       { name: "Rastro · Thermal Efficiency", desc: "Rastro Especial de combate: com 50+ de Calor, usar uma Perícia transfere calor aos aliados — reduz o próprio Calor em 10 adicionais e concede a TODO o time +12% de Bônus de Dano nos ataques por 2 rodadas (Eficiência Térmica).", combat: "aguT1", cost: 2 },
       { name: "Rastro · Core Insulation", desc: "Rastro Especial de combate: ao sofrer um golpe que reduziria seu HP a zero, entra em Sobrecarga de Emergência — sobrevive, remove TODO o Calor, ganha um escudo de 50% do HP Máximo e recupera 30 de TamerSP. Recarga: 3 rodadas.", combat: "aguT2", cost: 2 },
       { name: "Rastro · Critical Pressure", desc: "Rastro Especial de combate: no MODO X, a Penetração de DEF aumenta em 10% para cada 10 pontos de Calor que ele possuía no momento da evolução (máx 50%). Se a Gaia Force derrotar o alvo, WarGreymon executa um ataque de seguimento imediato no inimigo de maior HP, causando 50% do dano original.", combat: "aguT3", cost: 3 },
+    ];
+    if (def.id === "shorekeeper") return [
+      { name: "Rastro Especial 1 · Criptografia de Sobrevivência", desc: "Ao entrar em combate, Shorekeeper regenera instantaneamente 25 pontos de Energia. Além disso, enquanto o Estelarador (Habilidade Suprema) estiver ativo, Shorekeeper ganha imunidade completa a efeitos que atrasem sua ação ou reduzam sua Energia.", combat: "shkT1", cost: 2 },
+      { name: "Rastro Especial 2 · Superávit de Enteléquia", desc: "A cura de Shorekeeper não desperdiça dados. Sempre que a cura fornecida pela Perícia ou pelas Borboletas Estelares exceder o HP Máximo do aliado alvo, o valor excedente é instantaneamente convertido em um Escudo de Dados, absorvendo dano equivalente a 100% da cura que sobrou por 2 turnos. Este escudo NÃO acumula com um já ativo — é preciso esperar o anterior acabar antes de gerar um novo.", combat: "shkT2", cost: 2 },
+      { name: "Rastro Especial 3 · Amplificação de Banda Larga", desc: "Transforma o HP de Shorekeeper em poder ofensivo bruto para o time. Para cada 1.000 de HP Máximo que ela possuir acima de 4.000, o bônus de Dano Crítico concedido pelo Estágio 1 da Habilidade Suprema aumenta em +2%, até um limite máximo de +20% de Dano Crítico adicional.", combat: "shkT3", cost: 3 },
     ];
     if (def.id === "yanagi") return [
       { name: "Rastro Especial 1 · Condutividade Residual", desc: "Ao entrar em combate, Yanagi distorce imediatamente o campo, aplicando 1 Fagulha de Anomalia a todos os inimigos presentes antes da primeira ação. Adicionalmente, sempre que a Desordem for desencadeada com sucesso (consumindo uma Fagulha), Yanagi regenera 3 de Energia de forma autônoma. Se o inimigo derrotado pela Desordem ainda possuía Fagulhas não utilizadas, ela recupera 5 de Energia extra.", combat: "yanaT1", cost: 2 },
@@ -2368,7 +2380,7 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
   const cycleWeapon = (d) => { const i = WEAPON_5_IDS.indexOf(featuredWeapon); setFeaturedWeapon(WEAPON_5_IDS[(i + d + WEAPON_5_IDS.length) % WEAPON_5_IDS.length]); };
   const headColor = isWeapon ? "#B98BFF" : isStd ? C.gold : ELEMENTS[fc.element].color;
   const arrow = { background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 8, color: C.text, width: 28, height: 28, fontWeight: 800 };
-  const charMs = useBannerTimer("char", 7 * 24 * 60 * 60 * 1000); // 1 semana // banner de evento dura 6 dias
+  const charMs = useBannerTimer("char_" + featuredChar, BANNER_DURATIONS[featuredChar] || (7 * 24 * 60 * 60 * 1000)); // cada personagem tem seu próprio prazo de encerramento
   const weaponMs = useBannerTimer("weapon");
   const bannerMs = isChar ? charMs : isWeapon ? weaponMs : null;
 
@@ -2729,6 +2741,25 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
 function St({ k, v }) { return <div className="flex justify-between" style={{ background: C.panelHi, padding: "8px 10px", borderRadius: 10 }}><span style={{ color: C.mute }}>{k}</span><b>{v}</b></div>; }
 function buffText(b) { const p = []; for (const k of ["atk", "def", "spd", "critRate", "critDmg", "dmgBonus"]) if (b[k]) p.push(`+${b[k]}${k === "spd" ? " VEL" : "% " + (STAT_LABEL[k] || k)}`); return `${p.join(", ")}${b.all ? " (time)" : ""} por ${b.turns}t`; }
 const SKILL_DESC = {
+  shorekeeper: {
+    basic: [
+      "<b>Origem da Ciência</b> — causa <b>115% do HP Máximo</b> de Shorekeeper (não do ATK!) em Dano Desconhecido a um único inimigo.",
+      "Graças ao Talento, este golpe SEMPRE reduz a barra de Firmeza do alvo, ignorando fraquezas elementais nativas.",
+      "Gera <b>+1 Ponto de Habilidade</b>.",
+    ],
+    skill: [
+      "Custo: <b>1 Ponto de Habilidade</b>.",
+      "<b>Teoria do Caos</b> — cura o aliado com menor % de HP em <b>20% do HP Máximo de Shorekeeper + 500</b>, e os demais aliados em metade desse valor.",
+      "O alvo principal recebe <b>Blindagem de Dados</b> por 2 turnos — imune ao próximo Controle de Grupo (Paralisia, Congelamento etc.) que sofreria.",
+    ],
+    ult: [
+      "Custo: <b>130 de Energia</b>.",
+      "<b>Fim do Lamento</b> — ativa o domínio Estelarador por 3 turnos.",
+      "<b>Estágio 1 (imediato):</b> todo o time ganha <b>+15% de Taxa de CRIT</b> e <b>+30% de Dano Crítico</b>.",
+      "<b>Estágio 2 (Sincronia):</b> quando o time gastar 3 Pontos de Habilidade com o domínio ativo, 50% de todo dano aliado passa a herdar a Vantagem Universal de Shorekeeper (sempre quebra Firmeza).",
+      "<b>Estágio 3 (Supernova):</b> se a Firmeza de um inimigo quebrar durante o Estágio 2, dispara um feixe que causa <b>330% do HP</b> de Shorekeeper em TODOS os inimigos e atrasa a ação deles em 40%.",
+    ],
+  },
   miyabi: {
     basic: [
       "Causa <b>110% de ATK</b> em Dano Glacial no inimigo principal — Corte Gélido.",
@@ -3946,6 +3977,22 @@ function applyBreakEffect(attacker, defender, el, fx) {
     defender._chaosHits = 0; defender._chaosBaseAtk = effStat(attacker, "atk"); defender._chaosBE = be;
   }
   defender._broken = true;
+  // Shorekeeper — Estelarador Estágio 3 (Supernova): se um aliado com Vantagem Universal ativa quebra a Firmeza durante o Estágio 2
+  if (attacker.side === "H" && attacker._universalAdvActive) {
+    const shkH = (attacker._sibs || []).find(h => h.id === "shorekeeper" && h.alive);
+    if (shkH && shkH._domainStage === 2) {
+      shkH._domainStage = 3; // consome — só dispara 1x por ativação do domínio
+      const allE = defender._sibs || [defender];
+      let totNuke = 0;
+      allE.filter(e => e.alive).forEach(e => {
+        const nukeMul = (shkH.maxHp * 3.3 / Math.max(1, effStat(shkH, "atk"))) * 100; // 330% do HP (melhorado de 300%)
+        const rN = dealDamage(shkH, e, nukeMul, fx, { el: "Unknown", isDot: true }); // isDot:true evita reprocessar toughness/universalAdv em loop
+        totNuke += rN.dmg;
+        e.av = (e.av || 1) * 1.4;
+      });
+      fx.push({ uid: shkH.uid, txt: "🌌💥 SUPERNOVA! " + totNuke, crit: true, id: Math.random(), el: "Unknown" });
+    }
+  }
 }
 // ── CAP GLOBAL DE ESCUDO (jogador): 4.000 por personagem. Ao atingir o teto, não é possível
 // adicionar mais escudo até ele zerar por completo (evita empilhamento infinito de escudo).
@@ -4134,10 +4181,11 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   if (elemResDebuff) dmg *= (1 - elemResDebuff / 100);
   // Resistência de Perfuração: enquanto a barra de Resistência estiver ativa, -10% de todo dano recebido
   if (defender._hasToughness && (defender.toughness || 0) > 0 && !opts?.isDot) dmg *= 0.9;
-  if (defender.res && defender.res.includes(el)) {
+  const universalAdv = el === "Unknown" || !!opts?.universalAdv || (attacker._universalAdvActive && attacker.side === "H" && Math.random() < 0.5); // Shorekeeper: vantagem elemental absoluta (Talento + Estelarador Estágio 2)
+  if (defender.res && defender.res.includes(el) && !universalAdv) {
     dmg *= 0.6;
     dmg *= 1 + baseElemBonus / 100; // bônus elemental reduzido pela resistência
-  } else if (defender.weak && defender.weak.includes(el)) {
+  } else if ((defender.weak && defender.weak.includes(el)) || universalAdv) {
     dmg *= 1.5; // bônus base de fraqueza
     dmg *= 1 + (baseElemBonus * 1.5) / 100; // +50% de eficiência elemental na fraqueza
     // Consome a barra de Resistência (Perfuração): básico=1, perícia=2, suprema=3 unidades, escalado pela Eficiência de Perfuração
@@ -4195,7 +4243,8 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     const fulg = (defender.dots || []).find(d => d.type === "fulgur");
     if (fulg && (defender._fulgHits || 0) < 4) {
       defender._fulgHits = (defender._fulgHits || 0) + 1;
-      if (defender.energyMax) defender.energy = Math.max(0, defender.energy - 3);
+      const shkImmune = defender.id === "shorekeeper" && defender.stFlags?.shkT1 && (defender._domainStage || 0) > 0;
+      if (defender.energyMax && !shkImmune) defender.energy = Math.max(0, defender.energy - 3);
       const sibs = (defender._sibs || []).filter(x => x.alive && x.uid !== defender.uid);
       if (sibs.length) {
         const lowSib = sibs.slice().sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0];
@@ -4476,6 +4525,14 @@ function tickDots(u, fx, allies) {
   return total;
 }
 function healUnit(u, amount, fx) { let amt = amount; if (u._mut === "ventos") amt = Math.round(amt * 2); if (u._glitchHealHalf) amt = Math.round(amt * 0.5); const before = u.hp; u.hp = Math.min(u.maxHp, u.hp + amt); const done = u.hp - before; fx.push({ uid: u.uid, txt: "+" + done, heal: true, id: Math.random() }); return done; }
+// Shorekeeper — Borboletas Estelares: gera 1 pra QUALQUER aliado (exceto ela) que gastar PH ou usar a Suprema
+function shkGenButterfly(s, allyUid) {
+  const shk = s.heroes.find(h => h.id === "shorekeeper" && h.alive);
+  if (!shk || shk.uid === allyUid) return;
+  const ally = s.heroes.find(h => h.uid === allyUid && h.alive && !h.isSummon);
+  if (!ally) return;
+  ally._shkButterflies = Math.min(3, (ally._shkButterflies || 0) + 1);
+}
 function advanceServosSummon(s, owner) {
   if (!owner.stFlags?.setServos4) return;
   const mySummon = s.heroes.find(h => h.isSummon && h.alive && h.ownerUid === owner.uid);
@@ -4547,6 +4604,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         }
       } }
     { const yoru0 = heroes.find((h) => h.id === "yoruichi"); if (yoru0 && yoru0.stFlags?.yoruT1 && yoru0.energyMax) { yoru0.energy = Math.min(yoru0.energyMax, yoru0.energy + 20); yoru0._yoruT1Uses = 0; } }
+    { const shk0 = heroes.find((h) => h.id === "shorekeeper"); if (shk0 && shk0.stFlags?.shkT1 && shk0.energyMax) { shk0.energy = Math.min(shk0.energyMax, shk0.energy + 25); } }
     { const kb0 = heroes.find((h) => h.id === "kaiba"); if (kb0 && kb0.stFlags?.kaibaT1) { const starter = makeSummon(kb0, { uid: "S_" + kb0.uid + "_mon0", name: "Vorse Raider", avatar: "👹", imgKey: "card_vorse", kind: "monster", mul: 260, spd: effStat(kb0, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); starter.cardBleed = 0.5; heroes.push(starter); } }
     { const yana0 = heroes.find((h) => h.id === "yanagi"); if (yana0 && yana0.weapon?.buff?.teamCritRate) { const critBonus = yana0.weapon.buff.teamCritRate; heroes.forEach(h => { if (!h.isSummon) h.buffs.push({ stat: "critRate", value: critBonus, turns: 9999, name: "Ressonância de Equipe" }); }); } }
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
@@ -4720,6 +4778,28 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       if ((u._kaibaVirusTurns || 0) > 0) u._kaibaVirusTurns -= 1; // Vírus Esmaga-Cards (Kaiba): decai no turno de cada aliado protegido
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
       refreshKaibaBuffs(s);
+      // Shorekeeper: contagem regressiva do Estelarador nos turnos dela — ao acabar, desliga a Vantagem Universal de todos
+      if (u.id === "shorekeeper" && (u._domainTurns || 0) > 0) {
+        u._domainTurns -= 1;
+        if (u._domainTurns <= 0) {
+          u._domainStage = null; u._domainSpSpent = 0;
+          s.heroes.forEach(h => { if (h.alive && !h.isSummon) h._universalAdvActive = false; });
+          pushLog(s, "🌌 O Estelarador se dissolve — o domínio de Shorekeeper chega ao fim.");
+        }
+      }
+      // Shorekeeper: no início do turno de QUALQUER aliado com Borboletas Estelares, consome todas de uma vez
+      if (u.id !== "shorekeeper" && (u._shkButterflies || 0) > 0) {
+        const shkH = s.heroes.find(h => h.id === "shorekeeper" && h.alive);
+        if (shkH) {
+          const n = u._shkButterflies;
+          const healAmt = Math.round(shkH.maxHp * 0.04 * n);
+          healUnit(u, healAmt, s.fx);
+          u.buffs = u.buffs.filter(b => b.name !== "Borboletas Estelares");
+          u.buffs.push({ stat: "dmgBonus", value: 5 * n, turns: 1, name: "Borboletas Estelares" }, { stat: "spd", value: 4 * n, pct: false, turns: 1, name: "Borboletas Estelares" });
+          pushLog(s, `🦋 ${n} Borboleta(s) Estelar(es) em ${u.name}: +${healAmt} de HP, +${5 * n}% de Dano Final, +${4 * n} de VEL.`);
+          u._shkButterflies = 0;
+        }
+      }
       // Yoruichi: início do turno natural dela — detona o Ponto de Aterramento e passa a Condução Perfeita
       if (u.id === "yoruichi") {
         if ((u._yoruRecordedDmg || 0) > 0 && u._yoruMarkUid) {
@@ -4844,6 +4924,12 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
           msg = `⚡ Golpe Relâmpago em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}.`;
           miyDone = true;
         }
+        if (!miyDone && u.id === "shorekeeper" && enemy) {
+          const shkMul = (u.maxHp * 1.15 / Math.max(1, effStat(u, "atk"))) * 100; // 115% do HP Máximo (melhorado de 100%), convertido pra fórmula de %ATK do motor
+          const r = dealDamage(u, enemy, shkMul * u.tBasic * ampB, fx, { el: "Unknown", breakW: 1 });
+          msg = `🌌 Origem da Ciência em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} de Dano Desconhecido — sempre quebra a Firmeza, ignorando fraquezas.`;
+          miyDone = true;
+        }
         if (!miyDone && u.id === "yanagi" && enemy) {
           const r = dealDamage(u, enemy, (sk.basicMul || 100) * u.tBasic * ampB, fx, { el: "Eletro" });
           const hasSpark = enemy.alive && (enemy.debuffs || []).some(d => d.name === "Fagulha de Anomalia");
@@ -4910,7 +4996,17 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         s.sp = Math.min(5, s.sp + 1); u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enBasic || 15));
       } else if (kind === "skill") {
         if (u.id === "uraraka" && sk.uraSkill) { s.choice = { uid: u.uid, kind: "uraraka" }; return s; }
-        s.sp -= 1; u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enSkill || 22)); advanceServosSummon(s, u);
+        s.sp -= 1; u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enSkill || 22)); advanceServosSummon(s, u); shkGenButterfly(s, u.uid);
+        // Shorekeeper: Estelarador Estágio 2 — evolui ao acumular 3 PH gastos com o domínio ativo
+        { const shkH = s.heroes.find(h => h.id === "shorekeeper" && h.alive);
+          if (shkH && shkH._domainStage === 1) {
+            shkH._domainSpSpent = (shkH._domainSpSpent || 0) + 1;
+            if (shkH._domainSpSpent >= 3) {
+              shkH._domainStage = 2;
+              s.heroes.forEach(h => { if (h.alive && !h.isSummon) h._universalAdvActive = true; });
+              pushLog(s, "🌌⚡ ESTELARADOR — ESTÁGIO 2 (SINCRONIA)! 50% de todo dano da equipe agora herda a Vantagem Universal de Shorekeeper.");
+            }
+          } }
         if (u.id === "miyabi" && f.miC2 && enemy && (enemy.dots || []).some((d) => d.type === "freeze" || d.type === "geada")) s.sp = Math.min(5, s.sp + 1); // C2: vs Congelado não gasta PH
         const sMul = u.tSkill * ampS;
         if (sk.summon) {
@@ -5131,6 +5227,21 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             allies.forEach(a => { a.buffs = a.buffs.filter(b => b.name !== "Domínio Magnético"); a.buffs.push({ stat: "spd", value: spdBonus, pct: false, turns: 3, name: "Domínio Magnético" }); });
             msg = `🌀 DOMÍNIO MAGNÉTICO! Yoruichi entra em Condução Perfeita por 3 turnos e marca ${enemy.name} como Ponto de Aterramento. Time inteiro ganha +${spdBonus} de VEL.`;
           }
+          else if (u.id === "shorekeeper" && sk.shkSkill) {
+            const healTargets = allies.filter(a => a.alive);
+            const lowest = healTargets.slice().sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0];
+            if (lowest) {
+              const mainHeal = Math.round(u.maxHp * 0.20 + 500);
+              const doneMain = healUnit(lowest, mainHeal, fx);
+              // Superávit de Enteléquia (Rastro 2): excedente vira Escudo de Dados, não acumula (espera o anterior acabar)
+              if (u.stFlags?.shkT2 && doneMain < mainHeal && !lowest.shield) { const over = mainHeal - doneMain; lowest.shield = (lowest.shield || 0) + over; fx.push({ uid: lowest.uid, txt: "🛡️+" + over, heal: true, id: Math.random() }); }
+              let tot = doneMain;
+              healTargets.filter(a => a.uid !== lowest.uid).forEach(a => { tot += healUnit(a, Math.round(mainHeal * 0.5), fx); });
+              lowest.buffs = lowest.buffs.filter(b => b.name !== "Blindagem de Dados");
+              lowest.buffs.push({ stat: "ccImmune", value: 1, turns: 2, name: "Blindagem de Dados" });
+              msg = `🌌 TEORIA DO CAOS! Restauração Sistêmica cura ${tot} de HP no total. ${lowest.name} recebe Blindagem de Dados — imune ao próximo Controle de Grupo por 2 turnos.`;
+            }
+          }
           else if (u.id === "yanagi" && sk.yanaSkill && enemy) {
             const maxSparks = u.stFlags?.yanaS3 ? 8 : 5;
             const addSparks = (tgt, n) => { const cur = tgt.debuffs.filter(d => d.name === "Fagulha de Anomalia").length; const room = Math.max(0, maxSparks - cur); for (let i = 0; i < Math.min(n, room); i++) tgt.debuffs.push({ stat: "mark", value: 0, turns: 3, name: "Fagulha de Anomalia" }); if (!tgt.debuffs.some(d => d.name === "Estase")) tgt.debuffs.push({ stat: "dotAmp", value: 25, turns: 3, name: "Estase" }); return tgt.debuffs.filter(d => d.name === "Fagulha de Anomalia").length; };
@@ -5293,6 +5404,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         const _athFreeUlt = u.id === "athena" && u.stFlags?.athC6 && s._athHouseActive && (u._athC6Cd || 0) <= 0;
         if (u.energy < u.energyMax && !_athFreeUlt) return s;
         advanceServosSummon(s, u); // Servos de um Rei (4pç): a Invocação avança 15% ao ativar a Suprema
+        shkGenButterfly(s, u.uid); // Shorekeeper: gera Borboleta Estelar quando um aliado usa a Suprema
         // Protocolo de Adaptação Universal (4pç): Suprema concede -20% DEF ignorada + Dano Global +25% por 2 rodadas
         if (f.setAdapt4) {
           u.buffs = u.buffs.filter(b => b.name !== "Protocolo de Adaptação");
@@ -5372,6 +5484,16 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             msg = `⚡⚡ SHUNKO: RAIJIN! ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} em ${enemy.name}! O resto do time avança 25% na Ordem de Turnos!`;
             // Insere 2 Clones Residuais forçados (conta pro Colapso Elétrico e pro registro do Ponto de Aterramento)
             for (let ci = 0; ci < 2 && enemy.alive; ci++) { dealDamage(u, enemy, yMul * 0.5, fx, { el: "Eletro", isYoruClone: true, isFollowup: true, breakW: 1 }); }
+          } else if (u.id === "shorekeeper" && sk.shkUlt) {
+            const f = u.stFlags || {};
+            // Estágio 1: time inteiro ganha +15% CRIT e +30% CRIT DMG por 3 turnos (Rastro 3: CRIT DMG extra pelo HP acima de 4000)
+            const t3Bonus = f.shkT3 ? Math.min(20, Math.max(0, Math.floor((u.maxHp - 4000) / 1000) * 2)) : 0;
+            s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.buffs = h.buffs.filter(b => b.name !== "Estelarador"); h.buffs.push({ stat: "critRate", value: 15, turns: 3, name: "Estelarador" }, { stat: "critDmg", value: 30 + t3Bonus, turns: 3, name: "Estelarador" }); } });
+            s._shkDomain = { turns: 3, stage: 1, spSpent: 0, ownerUid: u.uid };
+            u._domainStage = 1; u._domainSpSpent = 0; u._domainTurns = 3;
+            s.heroes.forEach(h => { if (h.alive && !h.isSummon) h._universalAdvActive = false; }); // reseta de uma ativação anterior
+            if (u.weapon?.buff?.shkWeapon) { allies.filter(a => a.uid !== u.uid && a.alive).forEach(a => { a.energy = Math.min(a.energyMax, a.energy + 14); }); s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.buffs = h.buffs.filter(b => b.name !== "Sincronização de Rede"); h.buffs.push({ stat: "dmgBonus", value: 24, turns: 3, name: "Sincronização de Rede" }); } }); }
+            msg = `🌌✨ FIM DO LAMENTO! O Estelarador cobre o campo — Estágio 1: todo o time ganha +15% de Taxa de CRIT e +${30 + t3Bonus}% de CRIT DMG por 3 turnos.${u.weapon?.buff?.shkWeapon ? " A arma sincroniza a equipe: +14 de Energia pros aliados e +24% de Dano Final enquanto o domínio durar." : ""}`;
           } else if (u.id === "yanagi" && sk.yanaUlt) {
             const maxSparks = u.stFlags?.yanaS3 ? 8 : 5;
             const targets = aliveEnemies(s);
@@ -6276,6 +6398,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
           if (t) {
             // Talento da Athena (Eco da Justiça): imune a Controle de Grupo enquanto as 7 Casas estiverem ativas
             if (t.id === "athena" && s._athHouseActive) { pushLog(s, "✟ Resistência das Casas! " + t.name + " é IMUNE ao Contra-Feitiço enquanto as 7 Casas estiverem ativas!"); }
+            else if (t.buffs.some(b => b.name === "Blindagem de Dados")) { t.buffs = t.buffs.filter(b => b.name !== "Blindagem de Dados"); pushLog(s, "🌌 BLINDAGEM DE DADOS! " + t.name + " absorve o Contra-Feitiço e permanece livre!"); }
+            else if (t.id === "shorekeeper" && t.stFlags?.shkT1 && (t._domainStage || 0) > 0) { pushLog(s, "🌌 Criptografia de Sobrevivência! Shorekeeper é imune a atrasos de ação enquanto o Estelarador estiver ativo!"); }
             else { t.debuffs.push({ stat: "spd", value: -9999, pct: false, turns: 1, name: "Paralisia" }); pushLog(s, "CONTRA-FEITCO! " + t.name + " esta paralisado por 1 turno!"); }
           }
         }
@@ -7002,11 +7126,30 @@ function RelicsScreen({ relicInv }) {
 /* ==========================================================================
    ADMIN (fotos do Imgur)
    ========================================================================== */
-function AdminPlayersTab() {
+function AdminPlayersTab({ flash }) {
   const images = useImg();
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
+  const [gemAmt, setGemAmt] = useState({});
+  const [sending, setSending] = useState(null);
+
+  const donateGems = async (p) => {
+    const amt = parseInt(gemAmt[p.email], 10);
+    if (!amt || amt <= 0) { flash && flash("Digite uma quantidade válida de gemas.", C.bad); return; }
+    setSending(p.email);
+    try {
+      const key = saveKeyFor(p.email);
+      const fresh = await loadSave(key);
+      if (!fresh) { flash && flash("Não consegui carregar o save desse jogador.", C.bad); setSending(null); return; }
+      const updated = { ...fresh, jade: (fresh.jade || 0) + amt };
+      await writeSave(key, updated);
+      setPlayers((prev) => prev.map((x) => x.email === p.email ? { ...x, jade: (x.jade || 0) + amt } : x));
+      setGemAmt((g) => ({ ...g, [p.email]: "" }));
+      flash && flash(`💎 ${amt.toLocaleString("pt-BR")} gemas enviadas pra ${p.playerName}!`, C.gold);
+    } catch { flash && flash("Erro ao enviar as gemas.", C.bad); }
+    setSending(null);
+  };
 
   const load = async () => {
     setLoading(true);
@@ -7105,6 +7248,19 @@ function AdminPlayersTab() {
             {/* Elenco expandido */}
             {isOpen && (
               <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid ${C.line}` }}>
+                <div className="flex items-center gap-2" style={{ marginBottom: 12, flexWrap: "wrap" }}>
+                  <input
+                    type="number" placeholder="Qtd. de gemas" value={gemAmt[p.email] || ""}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => setGemAmt((g) => ({ ...g, [p.email]: e.target.value }))}
+                    style={{ width: 130, background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 8, padding: "6px 10px", color: C.text, fontSize: 13 }}
+                  />
+                  <button
+                    onClick={(e) => { e.stopPropagation(); donateGems(p); }}
+                    disabled={sending === p.email}
+                    style={{ fontSize: 12, fontWeight: 800, padding: "6px 14px", borderRadius: 8, border: `1px solid ${C.gold}`, background: sending === p.email ? C.panelHi : "#3a2c05", color: C.gold, cursor: sending === p.email ? "wait" : "pointer" }}
+                  >{sending === p.email ? "Enviando…" : "💎 Doar Gemas"}</button>
+                </div>
                 {p.owned.length === 0 && <div style={{ color: C.dim, fontSize: 12 }}>Sem personagens ainda.</div>}
                 <div className="flex flex-wrap gap-2">
                   {p.owned.map((o) => {
@@ -7198,7 +7354,7 @@ function Admin({ images, setImages, tierList, setTierList, flash, isAdmin, draft
         <Panel style={{ padding: 10, marginTop: 8 }}><b style={{ fontSize: 13 }}>⚡ Boss Rush — End Game</b><p style={{ fontSize: 12, color: C.mute, marginTop: 4 }}>Fotos dos chefes do Boss Rush (End Game). Cole o link direto da imagem (Imgur .png/.jpg).</p></Panel>
         {BOSS_RUSH_BOSSES.map((boss) => <AdminRow key={boss.imgKey} id={boss.imgKey} name={boss.name + " · " + boss.element} rarity={5} fallback={boss.avatar} element={boss.element} url={images[boss.imgKey] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}
       </div>}
-      {tab === "players" && <AdminPlayersTab />}
+      {tab === "players" && <AdminPlayersTab flash={flash} />}
       {tab === "roteiro" && <AdminRoteiro />}
       {tab === "evento" && <div className="flex flex-col gap-4">
         <Panel glow="#7B5CF6">
