@@ -502,6 +502,14 @@ const CONS = {
       { name: "C5 · Gaia Singularit-X", flag: "aguC5", desc: "A Supremacia da Gaia Force: se o alvo sobreviver à Gaia Force, recebe RUPTURA DE REALIDADE por 2 rodadas — todo dano recebido (de qualquer fonte do time) ignora completamente a DEF do inimigo (tratado como Dano Verdadeiro). O abridor de portas supremo contra chefes de altíssima DEF." },
       { name: "C6 · Final Digital Evolution", flag: "aguC6", desc: "A Forma Eterna (Capstone): Agumon já COMEÇA a batalha na forma Greymon. O Calor NUNCA MAIS SOBE (Perícias deixam de gerar Calor) — Digievoluir passa a depender só do TamerSP, sem janela térmica nenhuma. Ele NUNCA regride para a forma base (Agumon), nem por Meltdown, nem por evolução instável — praticamente impossíveis de acontecer já que o Calor não sobe mais. Ao evoluir para WarGreymon, o MODO X é SEMPRE ativado. Se o WarGreymon derrotar um inimigo em MODO X, o modo é ESTENDIDO até o fim da próxima rodada dele." },
     ],
+    shorekeeper: [
+      { name: "C1 · O Primeiro Arquivo", flag: "shkC1", desc: "As Borboletas Estelares passam a alterar a gravidade ao redor dos aliados. Aliados com pelo menos 1 Borboleta ativa recebem 15% de Redução de Dano de todas as fontes. Além disso, o limite máximo de Borboletas orbitando um único aliado aumenta de 3 para 5." },
+      { name: "C2 · Expansão de Servidor", flag: "shkC2", desc: "Shorekeeper sobrecarrega a capacidade de processamento do sistema da equipe. O limite máximo de Pontos de Perícia da equipe é aumentado permanentemente em 2 (o limite padrão de 5 passa a ser 7). Ao entrar em qualquer combate, a equipe já inicia imediatamente com 3 Pontos de Perícia pré-carregados." },
+      { name: "C3 · Loop de Memória", amp: "ult", ampV: 20, desc: "Nível da Habilidade Suprema +2 (até o máximo). Nível do Ataque Básico +1 (até o máximo) — eleva o dano da Suprema e do Básico dela." },
+      { name: "C4 · Calibração do Caos", flag: "shkC4", desc: "Ao usar a Perícia Teoria do Caos, a Vida Máxima (HP) do aliado curado e da própria Shorekeeper aumenta em 15% por 3 turnos — potencializa dinamicamente os multiplicadores dela, que escalam com HP." },
+      { name: "C5 · Cálculos Inescrutáveis", amp: "skill", ampV: 20, desc: "Nível da Perícia +2 (até o máximo). Nível do Talento +2 (até o máximo) — fortalece a cura da Perícia e a potência das Borboletas Estelares." },
+      { name: "C6 · Soberana da Costa Negra", flag: "shkC6", desc: "O feixe destrutivo do Estágio 3 (Supernova) da Suprema tem seu multiplicador de dano dobrado (de 330% para 660% do HP de Shorekeeper). Zero Absoluto: enquanto o Estelarador estiver no Estágio 2 ou 3, os ataques de TODOS os aliados passam a ignorar 25% da DEF e 20% da Resistência Elemental dos inimigos." },
+    ],
     yanagi: [
       { name: "S1 · Ciclo de Ruído Perfeito", flag: "yanaS1", desc: "Sempre que a reação de Desordem for desencadeada em um inimigo que possua 3 ou mais Fagulhas de Anomalia, o impacto inicial estilhaça a resistência elemental do alvo — a Resistência Elemental correspondente aos elementos dos DoTs atualmente ativos no alvo é reduzida em 15% por 2 turnos. Adicionalmente, quando a própria Yanagi ativa uma Desordem, sua ação é avançada em 20%." },
       { name: "S2 · Contágio Eletromagnético", flag: "yanaS2", desc: "Quando a Habilidade Suprema ativa a Desordem Absoluta, o sistema de Yanagi escaneia o alvo principal (o inimigo com maior HP máximo atingido). Todos os DoTs presentes neste alvo principal são instantaneamente clonados e aplicados a todos os outros inimigos no campo por 2 turnos. Estes DoTs clonados herdam 100% dos multiplicadores originais e recebem um bônus fixo de +10% de Perfuração de DEF." },
@@ -1242,6 +1250,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [mail3Claimed, setMail3Claimed] = useState(() => { try { return localStorage.getItem('sr_mail3_claimed_v1') === '1'; } catch { return false; } });
   const [mail3CharPicked, setMail3CharPicked] = useState(() => { try { return localStorage.getItem('sr_mail3_char_v1') || null; } catch { return null; } });
   const [mailIniciante, setMailIniciante] = useState(() => { try { return localStorage.getItem('sr_mail_iniciante_v1') === '1'; } catch { return false; } });
+  const [mail4Claimed, setMail4Claimed] = useState(() => { try { return localStorage.getItem('sr_mail4_claimed_v1') === '1'; } catch { return false; } });
   const [relicMats, setRelicMats] = useState(0);
   const [rouletteCleared, setRouletteCleared] = useState(false);
   const [nextRouletteClaimAt, setNextRouletteClaimAt] = useState(0);
@@ -1295,6 +1304,7 @@ function Game({ email, isAdmin, onLogout }) {
       setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setMail2Claimed(prev => prev || (s.mail2Claimed ?? false)); setRelicMats(s.relicMats ?? 0); setRouletteCleared(s.rouletteCleared ?? false); setNextRouletteClaimAt(s.nextRouletteClaimAt ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
       setMail3Claimed(prev => prev || (s.mail3Claimed ?? false)); if (s.mail3CharPicked) setMail3CharPicked(prev => prev || s.mail3CharPicked);
       setMailIniciante(prev => prev || (s.mailIniciante ?? false));
+      setMail4Claimed(prev => prev || (s.mail4Claimed ?? false));
       if (s.espiralClearedAt) setEspiralClearedAt(s.espiralClearedAt);
       if (s.abismoRun !== undefined) setAbismoRun(s.abismoRun || null);
       setAbismoFrags(s.abismoFrags ?? 0); setAbismoMeta(s.abismoMeta || {});
@@ -1340,8 +1350,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1357,6 +1367,16 @@ function Game({ email, isAdmin, onLogout }) {
     return existed;
   }
   const setOwnedField = (id, patch) => setOwned((prev) => prev.map((o) => (o.id === id ? { ...o, ...patch } : o)));
+  function claimMail4Reward(charId) {
+    if (mail4Claimed) return;
+    if (!CHAR_MAP[charId] || CHAR_MAP[charId].rarity !== 5) return;
+    setJade((j) => j + 7000);
+    const ownedRef = new Set(owned.map(o => o.id));
+    grantChar(charId, ownedRef);
+    setMail4Claimed(true);
+    try { localStorage.setItem('sr_mail4_claimed_v1', '1'); } catch {}
+    flash(`📬 +7.000💎 e ${CHAR_MAP[charId].name} entram no seu elenco!`, C.gold);
+  }
   function claimTop1Reward(charId, weaponId) {
     if (towerTop1Claimed) return;
     if (!CHAR_MAP[charId] || !WEAPON_MAP[weaponId]) return;
@@ -1878,7 +1898,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} setRelicMats={setRelicMats} flash={flash} setBattle={setBattle} />}
               {screen === "relics" && <RelicsScreen relicInv={relicInv} />}
               {screen === "loja" && <Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} />}
-              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mailIniciante={mailIniciante} setMailIniciante={setMailIniciante} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setAscMats={setAscMats} playerName={playerName} towerTop1Claimed={towerTop1Claimed} claimTop1Reward={claimTop1Reward} flash={flash} />}
+              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mailIniciante={mailIniciante} setMailIniciante={setMailIniciante} mail4Claimed={mail4Claimed} claimMail4Reward={claimMail4Reward} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setAscMats={setAscMats} playerName={playerName} towerTop1Claimed={towerTop1Claimed} claimTop1Reward={claimTop1Reward} flash={flash} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
               {screen === "roleta" && <RouletteEvent jade={jade} setJade={setJade} rouletteCleared={rouletteCleared} setRouletteCleared={setRouletteCleared} nextRouletteClaimAt={nextRouletteClaimAt} setNextRouletteClaimAt={setNextRouletteClaimAt} />}
@@ -3985,7 +4005,7 @@ function applyBreakEffect(attacker, defender, el, fx) {
       const allE = defender._sibs || [defender];
       let totNuke = 0;
       allE.filter(e => e.alive).forEach(e => {
-        const nukeMul = (shkH.maxHp * 3.3 / Math.max(1, effStat(shkH, "atk"))) * 100; // 330% do HP (melhorado de 300%)
+        const nukeMul = (shkH.maxHp * (shkH.stFlags?.shkC6 ? 6.6 : 3.3) / Math.max(1, effStat(shkH, "atk"))) * 100; // C6 dobra: 330%→660% do HP
         const rN = dealDamage(shkH, e, nukeMul, fx, { el: "Unknown", isDot: true }); // isDot:true evita reprocessar toughness/universalAdv em loop
         totNuke += rN.dmg;
         e.av = (e.av || 1) * 1.4;
@@ -4063,6 +4083,7 @@ function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx) {
     yoru._yoruRecordedDmg = (yoru._yoruRecordedDmg || 0) + recAmt;
   }
 }
+function spCapOf(s) { const shk = s.heroes && s.heroes.find(h => h.id === "shorekeeper" && h.alive && h.stFlags?.shkC2); return shk ? 7 : 5; }
 function pushLog(s, m) { if (m) s.log = [...s.log.slice(-40), m]; }
 function pushLogGlobalFx(fx, uid, txt) { fx.push({ uid, txt, crit: true, id: Math.random(), el: "Eletro" }); }
 // Yanagi — Teorema da Desordem: gatilho reativo sempre que ela causa dano a um alvo com DoT ativo
@@ -4177,7 +4198,8 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   const el = opts?.el || attacker.element;
   const baseElemBonus = attacker.base.elemBonus || 0;
   // RES Elemental (debuff "elemRes", ex: Arena KaibaCorp, marcas de Holy/Eletro RES↓): reduz a resistência do alvo, amplificando o dano recebido
-  const elemResDebuff = (defender.debuffs || []).filter(d => d.stat === "elemRes").reduce((a, d) => a + (d.value || 0), 0);
+  let elemResDebuff = (defender.debuffs || []).filter(d => d.stat === "elemRes").reduce((a, d) => a + (d.value || 0), 0);
+  if (attacker.side === "H") { const shkC6b = (attacker._sibs || []).find(h => h.id === "shorekeeper" && h.alive && h.stFlags?.shkC6 && (h._domainStage || 0) >= 2); if (shkC6b) elemResDebuff -= 20; }
   if (elemResDebuff) dmg *= (1 - elemResDebuff / 100);
   // Resistência de Perfuração: enquanto a barra de Resistência estiver ativa, -10% de todo dano recebido
   if (defender._hasToughness && (defender.toughness || 0) > 0 && !opts?.isDot) dmg *= 0.9;
@@ -4206,6 +4228,8 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   let pen = Math.min(85, (effStat(attacker, "defPen") || 0) + (opts?.defPen || 0));
   if ((defender.debuffs || []).some(d => d.name === "Ruptura de Realidade")) pen = 100; // C5: dano tratado como Verdadeiro
   if (attacker.id === "agumon" && (attacker.agModoX || 0) > 0 && attacker.stFlags?.aguT3) pen = Math.min(100, pen + Math.min(50, Math.floor((attacker._aguXHeat || 0) / 10) * 10)); // Rastro Critical Pressure
+  // C6 · Soberana da Costa Negra (Zero Absoluto): time inteiro ignora 25% de DEF durante o Estágio 2/3 do Estelarador
+  if (attacker.side === "H") { const shkC6 = (attacker._sibs || []).find(h => h.id === "shorekeeper" && h.alive && h.stFlags?.shkC6 && (h._domainStage || 0) >= 2); if (shkC6) pen = Math.min(100, pen + 25); }
   dmg *= defMult(attacker, effStat(defender, "def") * (1 - pen / 100));
   dmg = isFinite(dmg) ? Math.max(1, Math.round(dmg)) : 1; // robustez: nunca NaN/Infinity
   if (defender.side === "H" && attacker.side !== "H") {
@@ -4531,14 +4555,23 @@ function shkGenButterfly(s, allyUid) {
   if (!shk || shk.uid === allyUid) return;
   const ally = s.heroes.find(h => h.uid === allyUid && h.alive && !h.isSummon);
   if (!ally) return;
-  ally._shkButterflies = Math.min(3, (ally._shkButterflies || 0) + 1);
+  const cap = shk.stFlags?.shkC1 ? 5 : 3;
+  ally._shkButterflies = Math.min(cap, (ally._shkButterflies || 0) + 1);
+  // C1 · O Primeiro Arquivo: qualquer aliado com pelo menos 1 Borboleta ativa ganha 15% de Redução de Dano
+  if (shk.stFlags?.shkC1 && !ally.buffs.some(b => b.name === "Gravidade Estelar")) ally.buffs.push({ stat: "dmgReduce", value: 15, turns: 9999, name: "Gravidade Estelar" });
 }
 function advanceServosSummon(s, owner) {
   if (!owner.stFlags?.setServos4) return;
   const mySummon = s.heroes.find(h => h.isSummon && h.alive && h.ownerUid === owner.uid);
   if (mySummon) mySummon.av = Math.max(0.01, (mySummon.av || 1) * 0.85);
 }
-function tickBuffs(u) { u.buffs = u.buffs.map((b) => ({ ...b, turns: b.turns - 1 })).filter((b) => b.turns > 0); u.debuffs = u.debuffs.map((b) => ({ ...b, turns: b.turns - 1 })).filter((b) => b.turns > 0); }
+function tickBuffs(u) {
+  u.buffs = u.buffs.map((b) => ({ ...b, turns: b.turns - 1 })).filter((b) => {
+    if (b.turns <= 0 && b.name === "Calibração do Caos") { u.maxHp = Math.max(1, u.maxHp - b.value); u.hp = Math.min(u.hp, u.maxHp); }
+    return b.turns > 0;
+  });
+  u.debuffs = u.debuffs.map((b) => ({ ...b, turns: b.turns - 1 })).filter((b) => b.turns > 0);
+}
 function cloneU(u) { return { ...u, buffs: u.buffs.map((b) => ({ ...b })), debuffs: u.debuffs.map((b) => ({ ...b })), dots: (u.dots || []).map((d) => ({ ...d })), base: { ...u.base }, stFlags: { ...(u.stFlags || {}) } }; }
 function findUnit(s, uid) { return [...s.heroes, ...s.enemies].find((u) => u.uid === uid); }
 // Suportes: buffs/debuffs escalam com o nível da habilidade + amps de constelação, com teto de +12%
@@ -4632,7 +4665,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       if (gls.length) abLog.push("🧩 Glitches ativos: " + gls.length);
     }
     const totalWaves = Math.max(1, Math.min(8, encounter.waves || 1));
-    return { heroes, enemies, sp: 3, wave: 1, totalWaves, heroTurns: 0, enc: encounter, log: [...abLog, totalWaves > 1 ? `⚔️ Dungeon de ${totalWaves} ondas — sobreviva com um só fôlego!` : "⚔️ A batalha começa! A ressonância flui…"], turn: null, over: false, win: false, fx: [], choice: null, summonFx: null, cycle: 1, cycleAv: 0 };
+    const _shkC2Start = heroes.some(h => h.id === "shorekeeper" && h.stFlags?.shkC2);
+    return { heroes, enemies, sp: _shkC2Start ? 6 : 3, wave: 1, totalWaves, heroTurns: 0, enc: encounter, log: [...abLog, totalWaves > 1 ? `⚔️ Dungeon de ${totalWaves} ondas — sobreviva com um só fôlego!` : "⚔️ A batalha começa! A ressonância flui…"], turn: null, over: false, win: false, fx: [], choice: null, summonFx: null, cycle: 1, cycleAv: 0 };
   });
   const [target, setTarget] = useState(0);
   useEffect(() => { const al = state.enemies.filter((e) => e.alive); if (al.length && target >= al.length) setTarget(0); }, [state.enemies, target]);
@@ -4798,6 +4832,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
           u.buffs.push({ stat: "dmgBonus", value: 5 * n, turns: 1, name: "Borboletas Estelares" }, { stat: "spd", value: 4 * n, pct: false, turns: 1, name: "Borboletas Estelares" });
           pushLog(s, `🦋 ${n} Borboleta(s) Estelar(es) em ${u.name}: +${healAmt} de HP, +${5 * n}% de Dano Final, +${4 * n} de VEL.`);
           u._shkButterflies = 0;
+          u.buffs = u.buffs.filter(b => b.name !== "Gravidade Estelar"); // C1: a Redução de Dano só vale enquanto houver Borboleta ativa
         }
       }
       // Yoruichi: início do turno natural dela — detona o Ponto de Aterramento e passa a Condução Perfeita
@@ -4869,7 +4904,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
           u.omegaEmergency = true; u._omgPhase = "emg";
           u.buffs.push({ stat: "atk", value: 50, pct: true, turns: 3, name: "Ω·Emergência" });
           allies.forEach(function(a){ a.shield = (a.shield || 0) + capShieldAdd(a, Math.round(u.maxHp * 0.10)); });
-          s.sp = Math.min(5, s.sp + 2);
+          s.sp = Math.min(spCapOf(s), s.sp + 2);
           pushLog(s, "☢️ " + u.name + " — ÚLTIMO PROTOCOLO ATIVADO! +50% ATK, escudo 10% HP ao time, +2 SP!");
         }
       }
@@ -4993,7 +5028,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
         if (f.kcAdvance) { const ds = aliveDragons(s, u.uid); ds.forEach((d) => { d.av = Math.max(0.1, d.av * 0.65); }); if (ds.length) msg += ` Os ${ds.length} dragões avançam na linha do tempo!`; }
         if (u.id === "lancer" && f.lancerTempestade) { u.buffs = u.buffs.filter(b => b.name !== "Tempestade de Lanças"); u.buffs.push({ stat: "dmgBonus", value: 20, turns: 1, name: "Tempestade de Lanças" }); msg += " ⚡ Tempestade de Lanças: +20% no próximo golpe."; }
         if (f.uraAdvance && u.id === "uraraka") { u.av = Math.max(0.1, u.av * 0.85); msg += " Uraraka avança na linha do tempo (Zero G)!"; }
-        s.sp = Math.min(5, s.sp + 1); u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enBasic || 15));
+        s.sp = Math.min(spCapOf(s), s.sp + 1); u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enBasic || 15));
       } else if (kind === "skill") {
         if (u.id === "uraraka" && sk.uraSkill) { s.choice = { uid: u.uid, kind: "uraraka" }; return s; }
         s.sp -= 1; u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enSkill || 22)); advanceServosSummon(s, u); shkGenButterfly(s, u.uid);
@@ -5007,7 +5042,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
               pushLog(s, "🌌⚡ ESTELARADOR — ESTÁGIO 2 (SINCRONIA)! 50% de todo dano da equipe agora herda a Vantagem Universal de Shorekeeper.");
             }
           } }
-        if (u.id === "miyabi" && f.miC2 && enemy && (enemy.dots || []).some((d) => d.type === "freeze" || d.type === "geada")) s.sp = Math.min(5, s.sp + 1); // C2: vs Congelado não gasta PH
+        if (u.id === "miyabi" && f.miC2 && enemy && (enemy.dots || []).some((d) => d.type === "freeze" || d.type === "geada")) s.sp = Math.min(spCapOf(s), s.sp + 1); // C2: vs Congelado não gasta PH
         const sMul = u.tSkill * ampS;
         if (sk.summon) {
           const dragons = aliveDragons(s, u.uid);
@@ -5127,7 +5162,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             // S3 (Mudança de Kit): a Perícia passa a ADICIONAR a carta sacada à Mão Virtual (máx 3), sem resolver e SEM gastar o Ponto de Habilidade
             if (u.stFlags?.kaibaS3) {
               u._kaibaHand = u._kaibaHand || [];
-              s.sp = Math.min(5, s.sp + 1); // devolve o PH — a puxada em si é gratuita com S3
+              s.sp = Math.min(spCapOf(s), s.sp + 1); // devolve o PH — a puxada em si é gratuita com S3
               if (u._kaibaHand.length >= 3) { msg = "🎴 Mão Virtual cheia (3/3)! Ative uma carta antes de puxar outra."; }
               else { u._kaibaHand.push(cardId); msg = `🎴 Kaiba saca ${KAIBA_CARDS[cardId].name} para a Mão Virtual (${u._kaibaHand.length}/3). Toque na carta pra ativá-la.`; }
               return s;
@@ -5142,7 +5177,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             // Se a carta puxada for um Monstro do MESMO tipo que já está em campo, devolve 1 Ponto de Habilidade (não "desperdiça" a puxada)
             { const curMon = activeMonster(s, u.uid);
               const cardName = { vorse: "Vorse Raider", kaiser: "Kaiser Sea Horse", saggi: "Saggi, o Clone das Sombras", judge: "Juiz", obelisk: "Obelisco, o Atormentador" }[cardId];
-              if (curMon && cardName && curMon.name === cardName) { s.sp = Math.min(5, s.sp + 1); msgPre += "[Carta repetida — 1 Ponto de Habilidade devolvido!] "; }
+              if (curMon && cardName && curMon.name === cardName) { s.sp = Math.min(spCapOf(s), s.sp + 1); msgPre += "[Carta repetida — 1 Ponto de Habilidade devolvido!] "; }
             }
             const destroyOld = () => {
               const monsters = s.heroes.filter(h => h.isSummon && h.kind === "monster" && h.ownerUid === u.uid && h.alive);
@@ -5153,7 +5188,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
               if (!old) return; // só há o Dragão em campo — a carta comum não consegue substituí-lo
               if (old) {
                 old.alive = false;
-                if (u.stFlags?.kaibaS1) { u._kaibaGraveyard = u._kaibaGraveyard || []; if (u._kaibaGraveyard.length < 3) u._kaibaGraveyard.push(old.name); if (u._kaibaGraveyard.length >= 3) { u._kaibaGraveyard = []; s.sp = Math.min(5, s.sp + 1); u._kaibaForceMagic = true; msgPre += "[S1: Cemitério cheio — reembaralha e gera 1 PH!] "; } }
+                if (u.stFlags?.kaibaS1) { u._kaibaGraveyard = u._kaibaGraveyard || []; if (u._kaibaGraveyard.length < 3) u._kaibaGraveyard.push(old.name); if (u._kaibaGraveyard.length >= 3) { u._kaibaGraveyard = []; s.sp = Math.min(spCapOf(s), s.sp + 1); u._kaibaForceMagic = true; msgPre += "[S1: Cemitério cheio — reembaralha e gera 1 PH!] "; } }
                 if (u.stFlags?.kaibaT2) { u.energy = Math.min(u.energyMax, u.energy + 15); u.buffs.push({ stat: "atk", value: 20, pct: true, turns: 2, name: "Reciclagem Eficiente" }); }
                 // Arma: ao sair de campo, +6 de Energia e o próximo monstro ganha +30% de CRIT DMG por 2 rodadas
                 if (u.weapon?.buff?.kaibaWeapon) { u.energy = Math.min(u.energyMax, u.energy + 6); u._kaibaWpnNextBonus = true; }
@@ -5231,7 +5266,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             const healTargets = allies.filter(a => a.alive);
             const lowest = healTargets.slice().sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0];
             if (lowest) {
-              const mainHeal = Math.round(u.maxHp * 0.20 + 500);
+              const mainHeal = Math.round((u.maxHp * 0.20 + 500) * ampS);
               const doneMain = healUnit(lowest, mainHeal, fx);
               // Superávit de Enteléquia (Rastro 2): excedente vira Escudo de Dados, não acumula (espera o anterior acabar)
               if (u.stFlags?.shkT2 && doneMain < mainHeal && !lowest.shield) { const over = mainHeal - doneMain; lowest.shield = (lowest.shield || 0) + over; fx.push({ uid: lowest.uid, txt: "🛡️+" + over, heal: true, id: Math.random() }); }
@@ -5239,7 +5274,11 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
               healTargets.filter(a => a.uid !== lowest.uid).forEach(a => { tot += healUnit(a, Math.round(mainHeal * 0.5), fx); });
               lowest.buffs = lowest.buffs.filter(b => b.name !== "Blindagem de Dados");
               lowest.buffs.push({ stat: "ccImmune", value: 1, turns: 2, name: "Blindagem de Dados" });
-              msg = `🌌 TEORIA DO CAOS! Restauração Sistêmica cura ${tot} de HP no total. ${lowest.name} recebe Blindagem de Dados — imune ao próximo Controle de Grupo por 2 turnos.`;
+              // C4 · Calibração do Caos: o alvo curado e a própria Shorekeeper ganham +15% de HP Máximo por 3 turnos
+              if (u.stFlags?.shkC4) {
+                [lowest, u].forEach(t => { if (!t.buffs.some(b => b.name === "Calibração do Caos")) { const gain = Math.round(t.maxHp * 0.15); t.maxHp += gain; t.hp += gain; t.buffs.push({ stat: "maxhp_shk", value: gain, turns: 3, name: "Calibração do Caos" }); } });
+              }
+              msg = `🌌 TEORIA DO CAOS! Restauração Sistêmica cura ${tot} de HP no total. ${lowest.name} recebe Blindagem de Dados — imune ao próximo Controle de Grupo por 2 turnos.${u.stFlags?.shkC4 ? " [C4: +15% de HP Máximo por 3 turnos!]" : ""}`;
             }
           }
           else if (u.id === "yanagi" && sk.yanaSkill && enemy) {
@@ -5486,14 +5525,15 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             for (let ci = 0; ci < 2 && enemy.alive; ci++) { dealDamage(u, enemy, yMul * 0.5, fx, { el: "Eletro", isYoruClone: true, isFollowup: true, breakW: 1 }); }
           } else if (u.id === "shorekeeper" && sk.shkUlt) {
             const f = u.stFlags || {};
-            // Estágio 1: time inteiro ganha +15% CRIT e +30% CRIT DMG por 3 turnos (Rastro 3: CRIT DMG extra pelo HP acima de 4000)
+            // Estágio 1: time inteiro ganha +15% CRIT e +30% CRIT DMG por 3 turnos (Rastro 3 + C3 amplificam o CRIT DMG)
             const t3Bonus = f.shkT3 ? Math.min(20, Math.max(0, Math.floor((u.maxHp - 4000) / 1000) * 2)) : 0;
-            s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.buffs = h.buffs.filter(b => b.name !== "Estelarador"); h.buffs.push({ stat: "critRate", value: 15, turns: 3, name: "Estelarador" }, { stat: "critDmg", value: 30 + t3Bonus, turns: 3, name: "Estelarador" }); } });
+            const critDmgVal = Math.round((30 + t3Bonus) * ampU);
+            s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.buffs = h.buffs.filter(b => b.name !== "Estelarador"); h.buffs.push({ stat: "critRate", value: 15, turns: 3, name: "Estelarador" }, { stat: "critDmg", value: critDmgVal, turns: 3, name: "Estelarador" }); } });
             s._shkDomain = { turns: 3, stage: 1, spSpent: 0, ownerUid: u.uid };
             u._domainStage = 1; u._domainSpSpent = 0; u._domainTurns = 3;
             s.heroes.forEach(h => { if (h.alive && !h.isSummon) h._universalAdvActive = false; }); // reseta de uma ativação anterior
             if (u.weapon?.buff?.shkWeapon) { allies.filter(a => a.uid !== u.uid && a.alive).forEach(a => { a.energy = Math.min(a.energyMax, a.energy + 14); }); s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.buffs = h.buffs.filter(b => b.name !== "Sincronização de Rede"); h.buffs.push({ stat: "dmgBonus", value: 24, turns: 3, name: "Sincronização de Rede" }); } }); }
-            msg = `🌌✨ FIM DO LAMENTO! O Estelarador cobre o campo — Estágio 1: todo o time ganha +15% de Taxa de CRIT e +${30 + t3Bonus}% de CRIT DMG por 3 turnos.${u.weapon?.buff?.shkWeapon ? " A arma sincroniza a equipe: +14 de Energia pros aliados e +24% de Dano Final enquanto o domínio durar." : ""}`;
+            msg = `🌌✨ FIM DO LAMENTO! O Estelarador cobre o campo — Estágio 1: todo o time ganha +15% de Taxa de CRIT e +${critDmgVal}% de CRIT DMG por 3 turnos.${u.weapon?.buff?.shkWeapon ? " A arma sincroniza a equipe: +14 de Energia pros aliados e +24% de Dano Final enquanto o domínio durar." : ""}`;
           } else if (u.id === "yanagi" && sk.yanaUlt) {
             const maxSparks = u.stFlags?.yanaS3 ? 8 : 5;
             const targets = aliveEnemies(s);
@@ -5823,7 +5863,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       if (!canTribute) {
         const curMonH = activeMonster(s, u.uid);
         const cardNameH = { vorse: "Vorse Raider", kaiser: "Kaiser Sea Horse", saggi: "Saggi, o Clone das Sombras", judge: "Juiz", obelisk: "Obelisco, o Atormentador" }[cardId];
-        if (curMonH && cardNameH && curMonH.name === cardNameH) { s.sp = Math.min(5, s.sp + 1); msgPre += "[Carta repetida — 1 Ponto de Habilidade devolvido!] "; }
+        if (curMonH && cardNameH && curMonH.name === cardNameH) { s.sp = Math.min(spCapOf(s), s.sp + 1); msgPre += "[Carta repetida — 1 Ponto de Habilidade devolvido!] "; }
       }
       if (canTribute) { monsters.forEach(m => { m.alive = false; if (u.stFlags?.kaibaS1) { u._kaibaGraveyard = u._kaibaGraveyard || []; if (u._kaibaGraveyard.length < 3) u._kaibaGraveyard.push(m.name); } }); u.av = Math.max(0.01, (u.av || 1) * 0.0); }
       const destroyOld = () => {
@@ -5888,7 +5928,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       const fx = s.fx, ampU = u.ampUlt || 1, ff = u.stFlags || {};
       const allies = s.heroes.filter((h) => h.alive);
       u.energy = Math.round(5 * (1 + (effStat(u, "energyRegen") || 0) / 100)); // reembolso HSR
-      if (u.weapon?.id === "duelo_nexo") s.sp = Math.min(5, (s.sp || 0) + 1); // +1 PH ao time (arma)
+      if (u.weapon?.id === "duelo_nexo") s.sp = Math.min(spCapOf(s), (s.sp || 0) + 1); // +1 PH ao time (arma)
       let msg = "";
       if (which === "obelisk") {
         if (!ff.kS6) s.heroes = s.heroes.filter((h) => !(h.isSummon && h.kind === "dragon" && h.ownerUid === u.uid)); // tributa os 3 dragões (S6 os mantém)
@@ -8770,7 +8810,8 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared, nex
   );
 }
 
-function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante, setJade, setExpItems, setWeaponMats, setRelicMats, setAscMats, playerName, towerTop1Claimed, claimTop1Reward, flash }) {
+function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante, mail4Claimed, claimMail4Reward, setJade, setExpItems, setWeaponMats, setRelicMats, setAscMats, playerName, towerTop1Claimed, claimTop1Reward, flash }) {
+  const [pickChar4, setPickChar4] = React.useState(null);
   const [isTop1, setIsTop1] = React.useState(false);
   const [pickChar, setPickChar] = React.useState(null);
   React.useEffect(() => {
@@ -8822,6 +8863,39 @@ function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante,
         <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>📬 Correio</div>
         <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>Mensagens e recompensas enviadas pelo sistema.</div>
       </Panel>
+
+      {!mail4Claimed && (
+        <Panel glow="#F6C95B">
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+            <div style={{ fontSize: 38 }}>🎁</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>Presente Especial</div>
+              <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
+                <b style={{ color: C.gold }}>+7.000💎</b> de bônus, e escolha <b>1 personagem 5★ qualquer</b> do jogo pra entrar direto no seu elenco.
+              </div>
+              {!pickChar4 ? (
+                <div className="flex gap-2" style={{ flexWrap: "wrap", maxHeight: 260, overflowY: "auto" }}>
+                  {ROSTER.filter(c => c.rarity === 5).map(c => (
+                    <button key={c.id} onClick={() => setPickChar4(c.id)} style={{ textAlign: "center", width: 72, border: `2px solid ${C.gold}55`, borderRadius: 12, padding: 6, background: C.panelHi, cursor: "pointer" }}>
+                      <Avatar ch={c} size={44} ring={C.gold} />
+                      <div style={{ fontSize: 9, fontWeight: 700, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <Avatar ch={CHAR_MAP[pickChar4]} size={56} ring={C.gold} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700 }}>{CHAR_MAP[pickChar4]?.name}</div>
+                    <button onClick={() => setPickChar4(null)} style={{ color: C.bad, background: "none", border: "none", cursor: "pointer", fontSize: 11 }}>trocar</button>
+                  </div>
+                  <Btn kind="primary" style={{ padding: "10px 18px", fontWeight: 800 }} onClick={() => claimMail4Reward(pickChar4)}>🎁 Coletar</Btn>
+                </div>
+              )}
+            </div>
+          </div>
+        </Panel>
+      )}
 
       {isTop1 && !towerTop1Claimed && (
         <Panel glow="#FFD700">
