@@ -180,6 +180,14 @@ const RELIC_SETS = {
   "Vestígios da Calamidade Eterna": { color: "#6B21A8", el: "Chaos", p2: { energyRegen: 12, elemDmg: 15 }, flag2: "setCalamidade2", flag4: "setCalamidade4",
     d2: "+12% Taxa de Regeneração de Energia · +15% Dano de Chaos · ao aplicar buff ou debuff: recupera 3 de Energia (1× por ação)",
     d4: "A cada buff/debuff aplicado, ganha 1 Acúmulo de Calamidade (máx 10). Cada acúmulo: +4% Dano Chaos · +3% VEL · +4% CRIT DMG. Ao atingir 10 acúmulos: ignora 25% da DEF · duração de todos os buffs e debuffs +30% · ataques causam Golpe de Chaos adicional de 80% ATQ. Ideal para Wonder of You." },
+  "Protocolo de Ruína em Cadeia": { color: "#A6E22E", el: null, p2: { atk: 15, defPen: 5 }, flag4: "setRuina4", flag6: "setRuina6",
+    d2: "+15% de ATK e +5% de Taxa de Perfuração de DEF.",
+    d4: "Sempre que o portador aplicar um DoT ou ativar uma reação instantânea (como a Desordem), o inimigo atingido recebe Falha Estrutural — +18% de dano de QUALQUER fonte de DoT por 2 turnos.",
+    d6: "Se o alvo atacado tiver 3+ DoTs diferentes simultâneos, a equipe inteira ganha +20% de Perfuração de DEF contra esse alvo. Quando o portador detona os DoTs acumulados, essa detonação ignora completamente qualquer Escudo/barreira do inimigo." },
+  "Arquivos da Costa Negra": { color: "#7FDBFF", el: null, p2: { hp: 18, healBonus: 10 }, flag4: "setCostaNegra4", flag6: "setCostaNegra6",
+    d2: "+18% de HP Máximo e +10% de Cura Realizada.",
+    d4: "Quando o portador cura ou dá Escudo a um aliado, o alvo entra em Sincronia por 2 turnos — +12% de Dano Final e +6 de VEL. Se a cura acertar a equipe inteira (área/Suprema), todos ganham Sincronia ao mesmo tempo.",
+    d6: "+15% de Taxa de Regeneração de Energia. Ao ativar a Suprema, registra toda a Cura Excedente gerada pelos próximos 3 turnos; no fim do turno do portador, 100% dessa Cura Excedente vira uma explosão de Dano Desconhecido em todos os inimigos, escalando com HP e ignorando 45% de DEF/RES." },
   "Servos de um Rei": { color: "#FFD166", el: null, flag2: "setServos2", flag4: "setServos4",
     d2: "+15% de Dano causado por Invocações. Se a Invocação herdar atributos nativos do portador (ATK/VEL), a taxa de conversão desses atributos transferidos é elevada em +10% adicional em combate.",
     d4: "Sempre que a Invocação aliada agir ou atacar na Ordem de Turnos, ganha 1 acúmulo de Sintonia Sincrônica (máx 2). Cada acúmulo dá +20% de Dano Crítico à própria Invocação por 2 turnos. No limite de 2 acúmulos, todos os ataques da Invocação passam a ignorar automaticamente 16% da DEF dos alvos. Além disso, sempre que o portador consumir um Ponto de Habilidade ou ativar a Habilidade Suprema, a Invocação atual avança 15% na Ordem de Turnos imediatamente. Funciona com QUALQUER Invocação do jogo (dragões, monstros do Kaiba, clones, etc.)." },
@@ -206,6 +214,8 @@ const RELIC_ITEM_ID = {
   "Teia da Agonia": "item_relic_teia",
   "Além do Horizonte": "item_relic_horizonte",
   "Vestígios da Calamidade Eterna": "item_relic_calamidade",
+  "Protocolo de Ruína em Cadeia": "item_relic_ruina",
+  "Arquivos da Costa Negra": "item_relic_costanegra",
   "Servos de um Rei": "item_relic_servos",
   "Traje do Astrólogo do Destino": "item_relic_astrologo",
   "Muralha do Guardião": "item_relic_muralha",
@@ -222,6 +232,8 @@ const RELIC_EMOJI = {
   "Teia da Agonia": "🕸️",
   "Além do Horizonte": "🌿",
   "Vestígios da Calamidade Eterna": "💀",
+  "Protocolo de Ruína em Cadeia": "🕸️",
+  "Arquivos da Costa Negra": "🌌",
   "Servos de um Rei": "👑",
   "Traje do Astrólogo do Destino": "🔯",
   "Muralha do Guardião": "🛡️",
@@ -248,6 +260,8 @@ const GAME_ITEMS = [
   { id: "item_relic_teia",     name: "Relíquia · Teia da Agonia",          icon: "🕸️" },
   { id: "item_relic_horizonte",name: "Relíquia · Além do Horizonte",  icon: "🌿" },
   { id: "item_relic_calamidade", name: "Relíquia · Vestígios da Calamidade Eterna", icon: "💀" },
+  { id: "item_relic_ruina",      name: "Relíquia · Protocolo de Ruína em Cadeia",     icon: "🕸️" },
+  { id: "item_relic_costanegra", name: "Relíquia · Arquivos da Costa Negra",          icon: "🌌" },
   { id: "item_relic_servos",     name: "Relíquia · Servos de um Rei",                icon: "👑" },
   { id: "item_relic_astrologo",  name: "Relíquia · Traje do Astrólogo do Destino",  icon: "🔯" },
   { id: "item_relic_muralha",    name: "Relíquia · Muralha do Guardião",             icon: "🛡️" },
@@ -1251,6 +1265,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [mail3CharPicked, setMail3CharPicked] = useState(() => { try { return localStorage.getItem('sr_mail3_char_v1') || null; } catch { return null; } });
   const [mailIniciante, setMailIniciante] = useState(() => { try { return localStorage.getItem('sr_mail_iniciante_v1') === '1'; } catch { return false; } });
   const [mail4Claimed, setMail4Claimed] = useState(() => { try { return localStorage.getItem('sr_mail4_claimed_v1') === '1'; } catch { return false; } });
+  const [mail5Claimed, setMail5Claimed] = useState(() => { try { return localStorage.getItem('sr_mail5_claimed_v1') === '1'; } catch { return false; } });
   const [relicMats, setRelicMats] = useState(0);
   const [rouletteCleared, setRouletteCleared] = useState(false);
   const [nextRouletteClaimAt, setNextRouletteClaimAt] = useState(0);
@@ -1304,7 +1319,7 @@ function Game({ email, isAdmin, onLogout }) {
       setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setMail2Claimed(prev => prev || (s.mail2Claimed ?? false)); setRelicMats(s.relicMats ?? 0); setRouletteCleared(s.rouletteCleared ?? false); setNextRouletteClaimAt(s.nextRouletteClaimAt ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
       setMail3Claimed(prev => prev || (s.mail3Claimed ?? false)); if (s.mail3CharPicked) setMail3CharPicked(prev => prev || s.mail3CharPicked);
       setMailIniciante(prev => prev || (s.mailIniciante ?? false));
-      setMail4Claimed(prev => prev || (s.mail4Claimed ?? false));
+      setMail4Claimed(prev => prev || (s.mail4Claimed ?? false)); setMail5Claimed(prev => prev || (s.mail5Claimed ?? false));
       if (s.espiralClearedAt) setEspiralClearedAt(s.espiralClearedAt);
       if (s.abismoRun !== undefined) setAbismoRun(s.abismoRun || null);
       setAbismoFrags(s.abismoFrags ?? 0); setAbismoMeta(s.abismoMeta || {});
@@ -1350,8 +1365,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1359,23 +1374,34 @@ function Game({ email, isAdmin, onLogout }) {
   function grantChar(id, ownedRef) {
     const existed = ownedRef.has(id);
     ownedRef.add(id);
+    let atMax = false;
     setOwned((prev) => {
       const ex = prev.find((o) => o.id === id);
-      if (ex) return prev.map((o) => (o.id === id ? { ...o, eidolon: Math.min(6, (o.eidolon || 0) + 1) } : o));
+      if (ex) {
+        if ((ex.eidolon || 0) >= 6) { atMax = true; return prev; } // já em E6 — não some, compensa com Crônicas abaixo
+        return prev.map((o) => (o.id === id ? { ...o, eidolon: Math.min(6, (o.eidolon || 0) + 1) } : o));
+      }
       return [...prev, normChar({ id, level: 1, eidolon: 0 })];
     });
+    if (atMax) { const rarity = CHAR_MAP[id]?.rarity || 5; setChronicles((c) => c + (rarity === 5 ? 40 : 15)); }
     return existed;
   }
   const setOwnedField = (id, patch) => setOwned((prev) => prev.map((o) => (o.id === id ? { ...o, ...patch } : o)));
-  function claimMail4Reward(charId) {
+  function claimMail4Reward() {
     if (mail4Claimed) return;
-    if (!CHAR_MAP[charId] || CHAR_MAP[charId].rarity !== 5) return;
     setJade((j) => j + 7000);
-    const ownedRef = new Set(owned.map(o => o.id));
-    grantChar(charId, ownedRef);
     setMail4Claimed(true);
     try { localStorage.setItem('sr_mail4_claimed_v1', '1'); } catch {}
-    flash(`📬 +7.000💎 e ${CHAR_MAP[charId].name} entram no seu elenco!`, C.gold);
+    flash(`📬 +7.000💎 coletadas!`, C.gold);
+  }
+  function claimMail5Reward(charId) {
+    if (mail5Claimed) return;
+    if (!CHAR_MAP[charId] || CHAR_MAP[charId].rarity !== 5) return;
+    const ownedRef = new Set(owned.map(o => o.id));
+    grantChar(charId, ownedRef);
+    setMail5Claimed(true);
+    try { localStorage.setItem('sr_mail5_claimed_v1', '1'); } catch {}
+    flash(`📬 ${CHAR_MAP[charId].name} entra no seu elenco!`, C.gold);
   }
   function claimTop1Reward(charId, weaponId) {
     if (towerTop1Claimed) return;
@@ -1898,7 +1924,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} setRelicMats={setRelicMats} flash={flash} setBattle={setBattle} />}
               {screen === "relics" && <RelicsScreen relicInv={relicInv} />}
               {screen === "loja" && <Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} />}
-              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mailIniciante={mailIniciante} setMailIniciante={setMailIniciante} mail4Claimed={mail4Claimed} claimMail4Reward={claimMail4Reward} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setAscMats={setAscMats} playerName={playerName} towerTop1Claimed={towerTop1Claimed} claimTop1Reward={claimTop1Reward} flash={flash} />}
+              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mailIniciante={mailIniciante} setMailIniciante={setMailIniciante} mail4Claimed={mail4Claimed} claimMail4Reward={claimMail4Reward} mail5Claimed={mail5Claimed} claimMail5Reward={claimMail5Reward} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setAscMats={setAscMats} playerName={playerName} towerTop1Claimed={towerTop1Claimed} claimTop1Reward={claimTop1Reward} flash={flash} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
               {screen === "roleta" && <RouletteEvent jade={jade} setJade={setJade} rouletteCleared={rouletteCleared} setRouletteCleared={setRouletteCleared} nextRouletteClaimAt={nextRouletteClaimAt} setNextRouletteClaimAt={setNextRouletteClaimAt} />}
@@ -4100,6 +4126,10 @@ function triggerDesordem(yanagi, target, fx, opts) {
     else { consumedN = 1; const idx = target.debuffs.findIndex(d => d.name === "Fagulha de Anomalia"); if (idx >= 0) target.debuffs.splice(idx, 1); }
   } else if (spent) consumedN = 1;
   const distinctTypes = new Set(dots.map(d => d.type)).size;
+  // Protocolo de Ruína em Cadeia (4pç): a Desordem também aplica Falha Estrutural
+  if (yanagi.stFlags?.setRuina4 && target.alive) { const exFE = target.debuffs.find(d => d.name === "Falha Estrutural"); if (exFE) exFE.turns = 2; else target.debuffs.push({ stat: "dotAmp", value: 18, turns: 2, name: "Falha Estrutural" }); }
+  // Protocolo de Ruína em Cadeia (6pç): com 3+ tipos de DoT no alvo, a equipe toda ganha +20% de Perfuração de DEF contra ele
+  if (yanagi.stFlags?.setRuina6 && distinctTypes >= 3) { const exRP = target.debuffs.find(d => d.name === "Ruína em Cadeia"); if (exRP) exRP.turns = 2; else target.debuffs.push({ stat: "teamDefPen", value: 20, turns: 2, name: "Ruína em Cadeia" }); }
   const t3Bonus = yanagi.stFlags?.yanaT3 ? Math.min(50, (effStat(yanagi, "defPen") || 0) * 2.5) : 0;
   const basePen = spent ? Math.min(35, 15 + distinctTypes * 5) : 0;
   const pen = Math.min(85, basePen + (opts?.extraPen || 0) + t3Bonus);
@@ -4226,6 +4256,11 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     else if (hasBleed || hasPoison) dmg *= 1.12;
   }
   let pen = Math.min(85, (effStat(attacker, "defPen") || 0) + (opts?.defPen || 0));
+  // Protocolo de Ruína em Cadeia (6pç): qualquer aliado ganha +20% de Perfuração de DEF contra um alvo com 3+ DoTs diferentes
+  const teamDefPenVal = (defender.debuffs || []).filter(d => d.stat === "teamDefPen").reduce((a, d) => a + (d.value || 0), 0);
+  if (teamDefPenVal && attacker.side === "H") pen = Math.min(100, pen + teamDefPenVal);
+  // Protocolo de Ruína em Cadeia (6pç): +20% de Perfuração de DEF pra QUALQUER aliado contra um alvo com 3+ DoTs
+  if (attacker.side === "H") { const rp = (defender.debuffs || []).find(d => d.name === "Ruína em Cadeia"); if (rp) pen += rp.value; }
   if ((defender.debuffs || []).some(d => d.name === "Ruptura de Realidade")) pen = 100; // C5: dano tratado como Verdadeiro
   if (attacker.id === "agumon" && (attacker.agModoX || 0) > 0 && attacker.stFlags?.aguT3) pen = Math.min(100, pen + Math.min(50, Math.floor((attacker._aguXHeat || 0) / 10) * 10)); // Rastro Critical Pressure
   // C6 · Soberana da Costa Negra (Zero Absoluto): time inteiro ignora 25% de DEF durante o Estágio 2/3 do Estelarador
@@ -4360,6 +4395,8 @@ function applyDot(targets, spec, source, fx) {
     if (spec.type === "sinking") { const ex = t.dots.find(d => d.type === "sinking"); if (ex) { ex.dmg = Math.min(9999, ex.dmg + dmg); ex.turns = Math.min(9, ex.turns + spec.turns); return; } } // Afundamento: Potência acumula, Count soma
     t.dots.push({ type: spec.type, dmg, turns: spec.turns });
     if (f.setGlacial4 && glacial) { const cur = t.debuffs.find((d) => d.name === "GlacialSet"); if (cur) cur.value = Math.min(7, cur.value + 2); else t.debuffs.push({ stat: "vuln", value: 2, turns: 3, name: "GlacialSet" }); } // Sopro Glacial 4pç
+    // Protocolo de Ruína em Cadeia (4pç): todo DoT aplicado dá Falha Estrutural — +18% de dano de DoT por 2 turnos
+    if (f.setRuina4) { const ex2 = t.debuffs.find(d => d.name === "Falha Estrutural"); if (ex2) { ex2.turns = 2; } else t.debuffs.push({ stat: "dotAmp", value: 18, turns: 2, name: "Falha Estrutural" }); }
   });
 }
 // ----- Mecânicas da Soi Fon -----
@@ -4548,7 +4585,15 @@ function tickDots(u, fx, allies) {
   if (u.hp <= 0) { u.hp = 0; u.alive = false; }
   return total;
 }
-function healUnit(u, amount, fx) { let amt = amount; if (u._mut === "ventos") amt = Math.round(amt * 2); if (u._glitchHealHalf) amt = Math.round(amt * 0.5); const before = u.hp; u.hp = Math.min(u.maxHp, u.hp + amt); const done = u.hp - before; fx.push({ uid: u.uid, txt: "+" + done, heal: true, id: Math.random() }); return done; }
+function healUnit(u, amount, fx) {
+  let amt = amount; if (u._mut === "ventos") amt = Math.round(amt * 2); if (u._glitchHealHalf) amt = Math.round(amt * 0.5);
+  const before = u.hp; u.hp = Math.min(u.maxHp, u.hp + amt); const done = u.hp - before;
+  fx.push({ uid: u.uid, txt: "+" + done, heal: true, id: Math.random() });
+  // Arquivos da Costa Negra (6pç): registra a Cura Excedente enquanto a Suprema da Shorekeeper estiver rastreando
+  const over = amt - done;
+  if (over > 0) { const shkH = (u._sibs || []).find(h => h.id === "shorekeeper" && h.alive && h.stFlags?.setCostaNegra6 && (h._costaNegraTrack || 0) > 0); if (shkH) shkH._costaNegraOverheal = (shkH._costaNegraOverheal || 0) + over; }
+  return done;
+}
 // Shorekeeper — Borboletas Estelares: gera 1 pra QUALQUER aliado (exceto ela) que gastar PH ou usar a Suprema
 function shkGenButterfly(s, allyUid) {
   const shk = s.heroes.find(h => h.id === "shorekeeper" && h.alive);
@@ -4821,6 +4866,20 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
           pushLog(s, "🌌 O Estelarador se dissolve — o domínio de Shorekeeper chega ao fim.");
         }
       }
+      // Arquivos da Costa Negra (6pç): ao fim da janela de 3 turnos, a Cura Excedente acumulada vira uma explosão de Dano Desconhecido
+      if (u.id === "shorekeeper" && (u._costaNegraTrack || 0) > 0) {
+        u._costaNegraTrack -= 1;
+        if (u._costaNegraTrack <= 0) {
+          const over = u._costaNegraOverheal || 0;
+          if (over > 0) {
+            const nukeMul = (over / Math.max(1, effStat(u, "atk"))) * 100;
+            let totCN = 0;
+            aliveEnemies(s).forEach(e => { totCN += dealDamage(u, e, nukeMul, s.fx, { el: "Unknown", defPen: 45, isDot: true }).dmg; });
+            pushLog(s, `🌌💧 ARQUIVOS DA COSTA NEGRA! ${over} de Cura Excedente detona em ${totCN} de Dano Desconhecido, ignorando 45% de DEF/RES!`);
+          }
+          u._costaNegraOverheal = 0;
+        }
+      }
       // Shorekeeper: no início do turno de QUALQUER aliado com Borboletas Estelares, consome todas de uma vez
       if (u.id !== "shorekeeper" && (u._shkButterflies || 0) > 0) {
         const shkH = s.heroes.find(h => h.id === "shorekeeper" && h.alive);
@@ -4831,6 +4890,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
           u.buffs = u.buffs.filter(b => b.name !== "Borboletas Estelares");
           u.buffs.push({ stat: "dmgBonus", value: 5 * n, turns: 1, name: "Borboletas Estelares" }, { stat: "spd", value: 4 * n, pct: false, turns: 1, name: "Borboletas Estelares" });
           pushLog(s, `🦋 ${n} Borboleta(s) Estelar(es) em ${u.name}: +${healAmt} de HP, +${5 * n}% de Dano Final, +${4 * n} de VEL.`);
+          if (shkH.stFlags?.setCostaNegra4) { u.buffs = u.buffs.filter(b => b.name !== "Sincronia"); u.buffs.push({ stat: "dmgBonus", value: 12, turns: 2, name: "Sincronia" }, { stat: "spd", value: 6, pct: false, turns: 2, name: "Sincronia" }); }
           u._shkButterflies = 0;
           u.buffs = u.buffs.filter(b => b.name !== "Gravidade Estelar"); // C1: a Redução de Dano só vale enquanto houver Borboleta ativa
         }
@@ -5279,6 +5339,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
                 [lowest, u].forEach(t => { if (!t.buffs.some(b => b.name === "Calibração do Caos")) { const gain = Math.round(t.maxHp * 0.15); t.maxHp += gain; t.hp += gain; t.buffs.push({ stat: "maxhp_shk", value: gain, turns: 3, name: "Calibração do Caos" }); } });
               }
               msg = `🌌 TEORIA DO CAOS! Restauração Sistêmica cura ${tot} de HP no total. ${lowest.name} recebe Blindagem de Dados — imune ao próximo Controle de Grupo por 2 turnos.${u.stFlags?.shkC4 ? " [C4: +15% de HP Máximo por 3 turnos!]" : ""}`;
+              // Arquivos da Costa Negra (4pç): cura o time inteiro → Sincronia simultânea pra todos
+              if (u.stFlags?.setCostaNegra4) { healTargets.forEach(t => { t.buffs = t.buffs.filter(b => b.name !== "Sincronia"); t.buffs.push({ stat: "dmgBonus", value: 12, turns: 2, name: "Sincronia" }, { stat: "spd", value: 6, pct: false, turns: 2, name: "Sincronia" }); }); msg += " [Sincronia: todo o time +12% de Dano Final e +6 de VEL!]"; }
             }
           }
           else if (u.id === "yanagi" && sk.yanaSkill && enemy) {
@@ -5531,6 +5593,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.buffs = h.buffs.filter(b => b.name !== "Estelarador"); h.buffs.push({ stat: "critRate", value: 15, turns: 3, name: "Estelarador" }, { stat: "critDmg", value: critDmgVal, turns: 3, name: "Estelarador" }); } });
             s._shkDomain = { turns: 3, stage: 1, spSpent: 0, ownerUid: u.uid };
             u._domainStage = 1; u._domainSpSpent = 0; u._domainTurns = 3;
+            if (u.stFlags?.setCostaNegra6) { u._costaNegraTrack = 3; u._costaNegraOverheal = 0; }
             s.heroes.forEach(h => { if (h.alive && !h.isSummon) h._universalAdvActive = false; }); // reseta de uma ativação anterior
             if (u.weapon?.buff?.shkWeapon) { allies.filter(a => a.uid !== u.uid && a.alive).forEach(a => { a.energy = Math.min(a.energyMax, a.energy + 14); }); s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.buffs = h.buffs.filter(b => b.name !== "Sincronização de Rede"); h.buffs.push({ stat: "dmgBonus", value: 24, turns: 3, name: "Sincronização de Rede" }); } }); }
             msg = `🌌✨ FIM DO LAMENTO! O Estelarador cobre o campo — Estágio 1: todo o time ganha +15% de Taxa de CRIT e +${critDmgVal}% de CRIT DMG por 3 turnos.${u.weapon?.buff?.shkWeapon ? " A arma sincroniza a equipe: +14 de Energia pros aliados e +24% de Dano Final enquanto o domínio durar." : ""}`;
@@ -8810,7 +8873,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared, nex
   );
 }
 
-function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante, mail4Claimed, claimMail4Reward, setJade, setExpItems, setWeaponMats, setRelicMats, setAscMats, playerName, towerTop1Claimed, claimTop1Reward, flash }) {
+function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante, mail4Claimed, claimMail4Reward, mail5Claimed, claimMail5Reward, setJade, setExpItems, setWeaponMats, setRelicMats, setAscMats, playerName, towerTop1Claimed, claimTop1Reward, flash }) {
   const [pickChar4, setPickChar4] = React.useState(null);
   const [isTop1, setIsTop1] = React.useState(false);
   const [pickChar, setPickChar] = React.useState(null);
@@ -8867,11 +8930,26 @@ function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante,
       {!mail4Claimed && (
         <Panel glow="#F6C95B">
           <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+            <div style={{ fontSize: 38 }}>💎</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>Bônus de Gemas</div>
+              <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
+                <b style={{ color: C.gold }}>+7.000💎</b> de bônus extra pra você.
+              </div>
+              <Btn kind="primary" style={{ width: "100%", padding: "10px 18px", fontWeight: 800 }} onClick={() => claimMail4Reward()}>💎 Coletar</Btn>
+            </div>
+          </div>
+        </Panel>
+      )}
+
+      {!mail5Claimed && (
+        <Panel glow="#F6C95B">
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
             <div style={{ fontSize: 38 }}>🎁</div>
             <div style={{ flex: 1 }}>
-              <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>Presente Especial</div>
+              <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>Personagem à Escolha</div>
               <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
-                <b style={{ color: C.gold }}>+7.000💎</b> de bônus, e escolha <b>1 personagem 5★ qualquer</b> do jogo pra entrar direto no seu elenco.
+                Escolha <b>1 personagem 5★ qualquer</b> do jogo pra entrar direto no seu elenco.
               </div>
               {!pickChar4 ? (
                 <div className="flex gap-2" style={{ flexWrap: "wrap", maxHeight: 260, overflowY: "auto" }}>
@@ -8889,7 +8967,7 @@ function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante,
                     <div style={{ fontSize: 13, fontWeight: 700 }}>{CHAR_MAP[pickChar4]?.name}</div>
                     <button onClick={() => setPickChar4(null)} style={{ color: C.bad, background: "none", border: "none", cursor: "pointer", fontSize: 11 }}>trocar</button>
                   </div>
-                  <Btn kind="primary" style={{ padding: "10px 18px", fontWeight: 800 }} onClick={() => claimMail4Reward(pickChar4)}>🎁 Coletar</Btn>
+                  <Btn kind="primary" style={{ padding: "10px 18px", fontWeight: 800 }} onClick={() => claimMail5Reward(pickChar4)}>🎁 Coletar</Btn>
                 </div>
               )}
             </div>
