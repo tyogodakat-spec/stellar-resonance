@@ -1260,12 +1260,12 @@ function Game({ email, isAdmin, onLogout }) {
   const [draftClaimedGems, setDraftClaimedGems] = useState(0);
   const [draftBoons, setDraftBoons] = useState([]);
   const [mailClaimed, setMailClaimed] = useState(() => { try { return localStorage.getItem('sr_mail1_claimed_v1') === '1'; } catch { return false; } });
-  const [mail2Claimed, setMail2Claimed] = useState(() => { try { return localStorage.getItem('sr_mail2_claimed_v1') === '1'; } catch { return false; } });
-  const [mail3Claimed, setMail3Claimed] = useState(() => { try { return localStorage.getItem('sr_mail3_claimed_v1') === '1'; } catch { return false; } });
-  const [mail3CharPicked, setMail3CharPicked] = useState(() => { try { return localStorage.getItem('sr_mail3_char_v1') || null; } catch { return null; } });
+  const [mail2Claimed, setMail2Claimed] = useState(() => { try { return localStorage.getItem('sr_mail2_claimed_v2') === '1'; } catch { return false; } });
+  const [mail3Claimed, setMail3Claimed] = useState(() => { try { return localStorage.getItem('sr_mail3_claimed_v2') === '1'; } catch { return false; } });
+  const [mail3CharPicked, setMail3CharPicked] = useState(() => { try { return localStorage.getItem('sr_mail3_char_v2') || null; } catch { return null; } });
   const [mailIniciante, setMailIniciante] = useState(() => { try { return localStorage.getItem('sr_mail_iniciante_v1') === '1'; } catch { return false; } });
-  const [mail4Claimed, setMail4Claimed] = useState(() => { try { return localStorage.getItem('sr_mail4_claimed_v1') === '1'; } catch { return false; } });
-  const [mail5Claimed, setMail5Claimed] = useState(() => { try { return localStorage.getItem('sr_mail5_claimed_v1') === '1'; } catch { return false; } });
+  const [mail4Claimed, setMail4Claimed] = useState(() => { try { return localStorage.getItem('sr_mail4_claimed_v2') === '1'; } catch { return false; } });
+  const [mail5Claimed, setMail5Claimed] = useState(() => { try { return localStorage.getItem('sr_mail5_claimed_v2') === '1'; } catch { return false; } });
   const [relicMats, setRelicMats] = useState(0);
   const [rouletteCleared, setRouletteCleared] = useState(false);
   const [nextRouletteClaimAt, setNextRouletteClaimAt] = useState(0);
@@ -1316,10 +1316,10 @@ function Game({ email, isAdmin, onLogout }) {
         setDarkTowerCleared(s.darkTowerCleared ?? 0); setDarkTowerClaimed(Array.isArray(s.darkTowerClaimed) ? s.darkTowerClaimed : []); }
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0);
       setDraftRoomCleared(s.draftRoomCleared ?? 0); setDraftClaimedGems(s.draftClaimedGems ?? 0); setDraftBoons(Array.isArray(s.draftBoons) ? s.draftBoons : []);
-      setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setMail2Claimed(prev => prev || (s.mail2Claimed ?? false)); setRelicMats(s.relicMats ?? 0); setRouletteCleared(s.rouletteCleared ?? false); setNextRouletteClaimAt(s.nextRouletteClaimAt ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
-      setMail3Claimed(prev => prev || (s.mail3Claimed ?? false)); if (s.mail3CharPicked) setMail3CharPicked(prev => prev || s.mail3CharPicked);
+      setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setRelicMats(s.relicMats ?? 0); setRouletteCleared(s.rouletteCleared ?? false); setNextRouletteClaimAt(s.nextRouletteClaimAt ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
+      // mail3/4/5 usam chaves v2 — não carrega valores antigos do save cloud para forçar reaparição
       setMailIniciante(prev => prev || (s.mailIniciante ?? false));
-      setMail4Claimed(prev => prev || (s.mail4Claimed ?? false)); setMail5Claimed(prev => prev || (s.mail5Claimed ?? false));
+      // (mail4/mail5 resetados via v2 — não restaura do cloud save antigo)
       if (s.espiralClearedAt) setEspiralClearedAt(s.espiralClearedAt);
       if (s.abismoRun !== undefined) setAbismoRun(s.abismoRun || null);
       setAbismoFrags(s.abismoFrags ?? 0); setAbismoMeta(s.abismoMeta || {});
@@ -1393,34 +1393,44 @@ function Game({ email, isAdmin, onLogout }) {
     setExpItems((v) => v + 150);
     setWeaponMats((v) => v + 150);
     setMail2Claimed(true);
-    try { localStorage.setItem('sr_mail2_claimed_v1', '1'); } catch {}
+    try { localStorage.setItem('sr_mail2_claimed_v2', '1'); } catch {}
     flash(`📬 +6.000💎 +150📘 +150⚙️ coletados!`, C.gold);
   }
   function claimMail3Reward(charId) {
     if (mail3Claimed) return;
     if (!CHAR_MAP[charId] || CHAR_MAP[charId].rarity !== 5) return;
+    const alreadyOwned = owned.some(o => o.id === charId);
+    const alreadyMax = owned.some(o => o.id === charId && (o.eidolon || 0) >= 6);
     const ownedRef = new Set(owned.map(o => o.id));
     grantChar(charId, ownedRef);
     setMail3CharPicked(charId);
     setMail3Claimed(true);
-    try { localStorage.setItem('sr_mail3_claimed_v1', '1'); localStorage.setItem('sr_mail3_char_v1', charId); } catch {}
-    flash(`📬 ${CHAR_MAP[charId].name} entra no seu elenco!`, C.gold);
+    try { localStorage.setItem('sr_mail3_claimed_v2', '1'); localStorage.setItem('sr_mail3_char_v2', charId); } catch {}
+    const char = CHAR_MAP[charId];
+    if (alreadyMax) flash(`📬 ${char.name} já está em E6! +40 Crônicas compensadas.`, C.gold);
+    else if (alreadyOwned) { const cur = owned.find(o => o.id === charId); const newE = Math.min(6, (cur?.eidolon || 0) + 1); flash(`📬 ${char.name} já era seu — Constelação E${newE} desbloqueada!`, C.gold); }
+    else flash(`📬 ${char.name} entra no seu elenco!`, C.gold);
   }
   function claimMail4Reward() {
     if (mail4Claimed) return;
     setJade((j) => j + 7000);
     setMail4Claimed(true);
-    try { localStorage.setItem('sr_mail4_claimed_v1', '1'); } catch {}
+    try { localStorage.setItem('sr_mail4_claimed_v2', '1'); } catch {}
     flash(`📬 +7.000💎 coletadas!`, C.gold);
   }
   function claimMail5Reward(charId) {
     if (mail5Claimed) return;
     if (!CHAR_MAP[charId] || CHAR_MAP[charId].rarity !== 5) return;
+    const alreadyOwned = owned.some(o => o.id === charId);
+    const alreadyMax = owned.some(o => o.id === charId && (o.eidolon || 0) >= 6);
     const ownedRef = new Set(owned.map(o => o.id));
     grantChar(charId, ownedRef);
     setMail5Claimed(true);
-    try { localStorage.setItem('sr_mail5_claimed_v1', '1'); } catch {}
-    flash(`📬 ${CHAR_MAP[charId].name} entra no seu elenco!`, C.gold);
+    try { localStorage.setItem('sr_mail5_claimed_v2', '1'); } catch {}
+    const char = CHAR_MAP[charId];
+    if (alreadyMax) flash(`📬 ${char.name} já está em E6! +40 Crônicas compensadas.`, C.gold);
+    else if (alreadyOwned) { const cur = owned.find(o => o.id === charId); const newE = Math.min(6, (cur?.eidolon || 0) + 1); flash(`📬 ${char.name} já era seu — Constelação E${newE} desbloqueada!`, C.gold); }
+    else flash(`📬 ${char.name} entra no seu elenco!`, C.gold);
   }
   function claimTop1Reward(charId, weaponId) {
     if (towerTop1Claimed) return;
@@ -8895,6 +8905,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared, nex
 }
 
 function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante, mail2Claimed, claimMail2Reward, mail3Claimed, mail3CharPicked, claimMail3Reward, mail4Claimed, claimMail4Reward, mail5Claimed, claimMail5Reward, setJade, setExpItems, setWeaponMats, setRelicMats, setAscMats, playerName, towerTop1Claimed, claimTop1Reward, flash, owned }) {
+  const [pickChar3, setPickChar3] = React.useState(null);
   const [pickChar4, setPickChar4] = React.useState(null);
   const [isTop1, setIsTop1] = React.useState(false);
   const [pickChar, setPickChar] = React.useState(null);
@@ -8963,42 +8974,43 @@ function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante,
         </Panel>
       )}
 
-      {!mail3Claimed && (() => {
-        const all5 = Object.values(CHAR_MAP).filter(c => c.rarity === 5);
-        const [pickChar3, setPickChar3] = React.useState(null);
-        return (
-          <Panel glow="#A78BFA">
-            <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-              <div style={{ fontSize: 38 }}>⭐</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>Personagem Especial à Escolha</div>
-                <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
-                  Escolha <b>1 personagem 5★ qualquer</b> do jogo pra entrar direto no seu elenco. Presente especial da equipe Stellar Resonance!
-                </div>
-                {!pickChar3 ? (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
-                    {all5.map(c => (
-                      <Btn key={c.id} kind="soft" style={{ fontSize: 12, padding: "4px 10px" }} onClick={() => setPickChar3(c.id)}>
-                        {c.avatar} {c.name}
-                      </Btn>
-                    ))}
-                  </div>
-                ) : (
-                  <div style={{ marginBottom: 12 }}>
-                    <div style={{ fontSize: 13, color: C.gold, fontWeight: 700, marginBottom: 8 }}>
-                      ✓ Selecionado: {CHAR_MAP[pickChar3]?.avatar} {CHAR_MAP[pickChar3]?.name}
-                    </div>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <Btn kind="soft" style={{ fontSize: 12, padding: "6px 12px" }} onClick={() => setPickChar3(null)}>Trocar</Btn>
-                      <Btn kind="primary" style={{ flex: 1, padding: "10px 18px", fontWeight: 800 }} onClick={() => claimMail3Reward(pickChar3)}>⭐ Coletar</Btn>
-                    </div>
-                  </div>
-                )}
+      {!mail3Claimed && (
+        <Panel glow="#A78BFA">
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+            <div style={{ fontSize: 38 }}>⭐</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>Personagem Especial à Escolha</div>
+              <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
+                Escolha <b>1 personagem 5★ qualquer</b> do jogo pra entrar direto no seu elenco. Presente especial da equipe Stellar Resonance!
               </div>
+              {!pickChar3 ? (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+                  {Object.values(CHAR_MAP).filter(c => c.rarity === 5).map(c => (
+                    <Btn key={c.id} kind="soft" style={{ fontSize: 12, padding: "4px 10px" }} onClick={() => setPickChar3(c.id)}>
+                      {c.avatar} {c.name}
+                    </Btn>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 13, color: C.gold, fontWeight: 700, marginBottom: 8 }}>
+                    ✓ Selecionado: {CHAR_MAP[pickChar3]?.avatar} {CHAR_MAP[pickChar3]?.name}
+                    {owned && owned.some(o => o.id === pickChar3) && (
+                      <span style={{ marginLeft: 8, color: "#A78BFA", fontSize: 12 }}>
+                        (já possuído — vira E{Math.min(6, ((owned.find(o => o.id === pickChar3)?.eidolon || 0) + 1))})
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <Btn kind="soft" style={{ fontSize: 12, padding: "6px 12px" }} onClick={() => setPickChar3(null)}>Trocar</Btn>
+                    <Btn kind="primary" style={{ flex: 1, padding: "10px 18px", fontWeight: 800 }} onClick={() => claimMail3Reward(pickChar3)}>⭐ Coletar</Btn>
+                  </div>
+                </div>
+              )}
             </div>
-          </Panel>
-        );
-      })()}
+          </div>
+        </Panel>
+      )}
 
       {!mail4Claimed && (
         <Panel glow="#F6C95B">
