@@ -5366,11 +5366,29 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
             const lowest = healTargets.slice().sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0];
             if (lowest) {
               const mainHeal = Math.round((u.maxHp * 0.20 + 500) * ampS);
+              // Registra quanto cada aliado curou para calcular excedente depois
+              const healLog = [];
               const doneMain = healUnit(lowest, mainHeal, fx);
-              // Superávit de Enteléquia (Rastro 2): excedente vira Escudo de Dados, não acumula (espera o anterior acabar)
-              if (u.stFlags?.shkT2 && doneMain < mainHeal && !lowest.shield) { const over = mainHeal - doneMain; lowest.shield = (lowest.shield || 0) + over; fx.push({ uid: lowest.uid, txt: "🛡️+" + over, heal: true, id: Math.random() }); }
+              healLog.push({ a: lowest, done: doneMain, amt: mainHeal });
               let tot = doneMain;
-              healTargets.filter(a => a.uid !== lowest.uid).forEach(a => { tot += healUnit(a, Math.round(mainHeal * 0.5), fx); });
+              healTargets.filter(a => a.uid !== lowest.uid).forEach(a => {
+                const amt = Math.round(mainHeal * 0.5);
+                const done = healUnit(a, amt, fx);
+                healLog.push({ a, done, amt });
+                tot += done;
+              });
+              // Superávit de Enteléquia (Rastro 2): excedente de cada aliado vira Escudo de Dados para o time todo
+              // Só restaura se o aliado estiver com 900 ou menos de escudo; cap individual de 5000
+              if (u.stFlags?.shkT2) {
+                const SHK_SHIELD_CAP = 5000;
+                healLog.forEach(({ a, done, amt }) => {
+                  const over = amt - done;
+                  if (over > 0 && (a.shield || 0) <= 900) {
+                    const add = Math.max(0, Math.min(over, SHK_SHIELD_CAP - (a.shield || 0)));
+                    if (add > 0) { a.shield = (a.shield || 0) + add; fx.push({ uid: a.uid, txt: "🛡️+" + add, heal: true, id: Math.random() }); }
+                  }
+                });
+              }
               lowest.buffs = lowest.buffs.filter(b => b.name !== "Blindagem de Dados");
               lowest.buffs.push({ stat: "ccImmune", value: 1, turns: 2, name: "Blindagem de Dados" });
               // C4 · Calibração do Caos: o alvo curado e a própria Shorekeeper ganham +15% de HP Máximo por 3 turnos
