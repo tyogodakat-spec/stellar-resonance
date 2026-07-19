@@ -47,7 +47,7 @@ function mk(o) {
 const ROSTER = [
   // ---- T5 ----
   mk({ id: "miyabi", name: "Miyabi", title: "Caçadora do Vazio", element: "Glacial", role: "aoe", rarity: 5, avatar: "🌸", hp: 1060, atk: 790, def: 420, spd: 103, energy: 160, cr: 8, cd: 60, tags: ["Gelo", "DPS", "Área", "Anomalia"],
-    skill: { basicMul: 80, skillMul: 195, aoe: true, skillDot: { type: "freeze", mul: 130, turns: 2 }, ultMul: 390, ultAoe: true, ultDot: { type: "freeze", mul: 170, turns: 2 } } }),
+    skill: { basicMul: 80, skillMul: 260, aoe: true, skillDot: { type: "freeze", mul: 180, turns: 2 }, ultMul: 560, ultAoe: true, ultDot: { type: "freeze", mul: 230, turns: 2 } } }),
   mk({ id: "kaiba", name: "Seto Kaiba", title: "Mestre dos Dragões", element: "Eletro", role: "summoner", rarity: 5, avatar: "🃏", hp: 1180, atk: 720, def: 480, spd: 101, energy: 140, cr: 5, cd: 50, er: 30, elemDmg: 5, tags: ["Eletro", "Invocador", "Deus Egípcio", "Único"],
     skill: { basicMul: 100, kaibaBasic: true, skillMul: 0, kaibaSkill: true, ultMul: 850, kaibaUlt: true } }),
   // ---- T4 ----
@@ -165,7 +165,7 @@ const BEGINNER_PICK_CHARS = [
 /* ---------- RELÍQUIAS ---------- */
 const RELIC_SETS = {
   "Tempestade Eletro": { color: "#B98BFF", el: "Eletro", p2: { elemDmg: 20 }, p4: { critRate: 5 }, flag4: "setEletro4", d2: "+20% de dano Eletro", d4: "+5% CRIT; ao agir (ação avançada/turno) +2% de dano, acumula até 12%" },
-  "Sopro Glacial":     { color: "#6FE3FF", el: "Glacial", p2: { critRate: 7, elemDmg: 10 }, flag4: "setGlacial4", d2: "+7% CRIT e +10% de dano Glacial", d4: "ao aplicar DoT glacial (Geada), aplica +2% de vulnerabilidade — acumula com outras vulnerabilidades até +7%" },
+  "Sopro Glacial":     { color: "#6FE3FF", el: "Glacial", p2: { critRate: 9, elemDmg: 16 }, flag4: "setGlacial4", d2: "+9% CRIT e +16% de dano Glacial", d4: "ao aplicar DoT glacial (Geada), aplica +3% de vulnerabilidade (acumula até +15%). Além disso, contra alvos Congelados o portador causa +18% de Dano." },
   "Núcleo Ardente":    { color: "#FF6B45", flag2: "setFire2", flag4: "setFire4", d2: "dano de DoT de Fogo +10%", d4: "dano da Ultimate +20%; após a Ultimate, +8% de ATK no próximo turno" },
   "Praga Viral":       { color: "#A6E22E", p2: { dmgBonus: 8 }, flag4: "setViral4", d2: "+8% de dano", d4: "com Sangramento OU Veneno no alvo: +12% de dano; com AMBOS: +20% e cura 8% do HP máx" },
   "Benção Sagrada":    { color: "#FFE08A", p2: { hp: 20 }, flag4: "setHoly4", d2: "+20% de HP máx", d4: "+15% de cura e, ao curar, aplica escudo de 2% do HP máx do alvo" },
@@ -203,6 +203,8 @@ const RELIC_SETS = {
     d6: "Pulso de Emergência: enquanto o portador estiver sob um efeito de transformação ou postura ofensiva gerado por ele mesmo, ele acessa um Reservatório de TamerSP. 2× por batalha, ao usar o Ataque Básico com o TamerSP abaixo de 30% da capacidade total, converte energia ambiente em um Pulso de Emergência — recupera 50% de TamerSP instantaneamente. Ao ativar este Pulso, o próximo ataque ganha +100% de Dano Crítico adicional." },
 };
 const RELIC_SET_NAMES = Object.keys(RELIC_SETS);
+const ROTATING_FARM_SETS = RELIC_SET_NAMES.filter((s) => s !== "Protocolo Ômega"); // Ômega já tem domínio fixo (Rede Corrompida)
+function featuredFarmSet() { const wk = Math.floor(Date.now() / (7 * 24 * 3600 * 1000)); return ROTATING_FARM_SETS[wk % ROTATING_FARM_SETS.length]; }
 const RELIC_ITEM_ID = {
   "Tempestade Eletro": "item_relic_eletro",
   "Sopro Glacial":     "item_relic_glacial",
@@ -361,7 +363,7 @@ const CONS = {
     { name: "C3 · Ritmo da Nevasca", ...A_SKILL, flag: "miC3", desc: "Eleva o nível do Ataque Básico e da Habilidade. Sempre que Miyabi usar a Habilidade, seu ATK aumenta em +20% até o fim do combate (acumula até 3 vezes)." },
     { name: "C4 · Domínio do Zero Absoluto", flag: "miC4", desc: "Ao conjurar a Ultimate Inverno Eterno, o campo vira uma Zona de Geada por 2 turnos. Dentro desta zona, Miyabi fica permanentemente em Postura Iaido e seus Ataques Básicos não precisam acumular nem consumir PH para ativar o corte aprimorado de penetração de DEF." },
     { name: "C5 · Gélido Ancestral", ...A_ULT, desc: "Eleva em +50% o dano da Ultimate (nevasca total em área) e reforça os Nós de Atributo de gelo." },
-    { name: "C6 · Estilo Kamakura: Julgamento Final", flag: "miC6", desc: "O limite máximo de PH de Miyabi aumenta para 4. Ao atingir 4 PH, a Postura Iaido evolui para o Corte do Fim dos Tempos: o ataque passa a atingir TODOS os inimigos com 450% de ATK, ignora 50% da DEF e, se eliminar qualquer alvo, reseta instantaneamente a barra de ação de Miyabi para ela jogar de novo." },
+    { name: "C6 · Estilo Kamakura: Julgamento Final", flag: "miC6", desc: "O limite máximo de PH de Miyabi aumenta para 4. Ao atingir 4 PH, a Postura Iaido evolui para o Corte do Fim dos Tempos: o ataque passa a atingir TODOS os inimigos com 680% de ATK, ignora 50% da DEF e, se eliminar qualquer alvo, reseta instantaneamente a barra de ação de Miyabi para ela jogar de novo." },
   ],
   kaiba: [
     { name: "S1 · Mecânica de Cemitério e Reciclagem de Deck", flag: "kaibaS1", desc: "Sempre que um Monstro Invocado é destruído ou substituído, ele é enviado para o Cemitério (limite máximo de 3 monstros armazenados). Cada monstro presente no Cemitério concede a Kaiba um aumento permanente de +10% na Taxa de Regeneração de Energia e aumenta o Dano Crítico de todas as invocações ativas em 15%. Ao atingir o limite de 3 monstros no Cemitério, Kaiba consome todos os registros para reembaralhar instantaneamente as cartas de monstro de volta ao Deck Holográfico, gerando 1 Ponto de Habilidade e forçando a próxima Perícia a puxar obrigatoriamente uma carta de categoria Magia ou Armadilha." },
@@ -947,6 +949,10 @@ async function cloudRandomAlly() {
   if (!Cloud.ready) return null;
   try { const { collection, getDocs, query, orderBy, limit } = Cloud.fs; const snap = await withTimeout(getDocs(query(collection(Cloud.db, "coop"), orderBy("updatedAt", "desc"), limit(30))), 4000, null); if (!snap) return null; const arr = []; snap.forEach((d) => arr.push(d.data())); return arr.length ? arr[Math.floor(Math.random() * arr.length)] : null; } catch { return null; }
 }
+async function cloudAllyList() {
+  if (!Cloud.ready) return [];
+  try { const { collection, getDocs, query, orderBy, limit } = Cloud.fs; const snap = await withTimeout(getDocs(query(collection(Cloud.db, "coop"), orderBy("updatedAt", "desc"), limit(30))), 4000, null); if (!snap) return []; const arr = []; snap.forEach((d) => arr.push(d.data())); return arr; } catch { return []; }
+}
 const cloudReady = initCloud(); // guarda a promise para await posterior
 
 const SS = {
@@ -1236,6 +1242,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [ownedWeapons, setOwnedWeapons] = useState([]);
   const [relicInv, setRelicInv] = useState([]);
   const [team, setTeam] = useState(["ace", "chopper", "usopp"]);
+  const [teamPresets, setTeamPresets] = useState([]); // [{ name, ids: [] }]
   const [stamina, setStamina] = useState(320);
   const [lastStamina, setLastStamina] = useState(Date.now());
   const [playerName, setPlayerName] = useState("Pioneiro");
@@ -1254,6 +1261,8 @@ function Game({ email, isAdmin, onLogout }) {
   const [skillMats, setSkillMats] = useState(15);
   const [tagMats, setTagMats] = useState({});
   const [lastWeeklyBoss, setLastWeeklyBoss] = useState(0);
+  const [dailyClaimedAt, setDailyClaimedAt] = useState(0);
+  const [weeklyClaimedAt, setWeeklyClaimedAt] = useState(0);
   const [bossRushCleared, setBossRushCleared] = useState([]);
   const [draftActive, setDraftActive] = useState(false);
   const [draftRoomCleared, setDraftRoomCleared] = useState(0);
@@ -1298,7 +1307,7 @@ function Game({ email, isAdmin, onLogout }) {
       setPity({ char: 0, weapon: 0, standard: 0, guaranteeChar: false, ...(s.pity || {}) });
       setPullHistory(s.pullHistory ?? []);
       if (s.owned) setOwned(s.owned.map(normChar).filter((o) => CHAR_MAP[o.id])); setOwnedWeapons((Array.isArray(s.ownedWeapons) ? s.ownedWeapons : []).map((x) => typeof x === "string" ? { id: x, lv: 1 } : x).filter((x) => x && WEAPON_MAP[x.id])); setRelicInv((Array.isArray(s.relicInv) ? s.relicInv : []).filter(isValidRelic));
-      if (s.team) setTeam(s.team); setStamina(s.stamina ?? 320); setLastStamina(s.lastStamina ?? Date.now());
+      if (s.team) setTeam(s.team); if (s.teamPresets) setTeamPresets(s.teamPresets); setStamina(s.stamina ?? 320); setLastStamina(s.lastStamina ?? Date.now());
       setPlayerName(s.playerName ?? "Pioneiro");
       // ── Reset de Temporada da Torre/Boss Rush: reseta pra todos agora, e automaticamente a cada 3 semanas ──
       { const TOWER_SEASON_EPOCH = 1751328000000; // 01/07/2025 00:00 UTC — âncora fixa das temporadas
@@ -1315,7 +1324,7 @@ function Game({ email, isAdmin, onLogout }) {
         }
         setTowerTop1Claimed(s.towerTop1Claimed ?? false);
         setDarkTowerCleared(s.darkTowerCleared ?? 0); setDarkTowerClaimed(Array.isArray(s.darkTowerClaimed) ? s.darkTowerClaimed : []); }
-      setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0);
+      setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0); setDailyClaimedAt(s.dailyClaimedAt ?? 0); setWeeklyClaimedAt(s.weeklyClaimedAt ?? 0);
       setDraftRoomCleared(s.draftRoomCleared ?? 0); setDraftClaimedGems(s.draftClaimedGems ?? 0); setDraftBoons(Array.isArray(s.draftBoons) ? s.draftBoons : []);
       setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setRelicMats(s.relicMats ?? 0); setRouletteCleared(s.rouletteCleared ?? false); setNextRouletteClaimAt(s.nextRouletteClaimAt ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
       // mail3/4/5 usam chaves v2 — não carrega valores antigos do save cloud para forçar reaparição
@@ -1366,8 +1375,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1616,6 +1625,21 @@ function Game({ email, isAdmin, onLogout }) {
     const weeklyReady = Date.now() - lastWeeklyBoss > 7 * 24 * 3600 * 1000;
     setBattle({ context: "weekly", weeklyReady, encounter: { level: 55, count: 1, boss: true, weekly: true, finalBoss: false, bossName: "Tirano do Vazio", teamPower: teamPower() }, ally: null });
   }
+  function claimDaily() {
+    if (Date.now() - dailyClaimedAt < 24 * 3600 * 1000) { flash("Já resgatado hoje. Volte amanhã.", C.bad); return; }
+    const tags = ALL_TAGS; const tag = tags[Math.floor(Math.random() * tags.length)];
+    setWeaponMats((v) => v + 10); setSkillMats((v) => v + 10); setRelicMats((v) => v + 8);
+    setTagMats((m) => ({ ...m, [tag]: (m[tag] || 0) + 2 }));
+    setDailyClaimedAt(Date.now());
+    flash(`Diária resgatada! +10 ⚙️ +10 💠 +8 🔷 +2 material "${tag}"`, C.good);
+  }
+  function claimWeekly() {
+    if (Date.now() - weeklyClaimedAt < 7 * 24 * 3600 * 1000) { flash("Já resgatado esta semana.", C.bad); return; }
+    ALL_TAGS.forEach((tag) => setTagMats((m) => ({ ...m, [tag]: (m[tag] || 0) + 3 })));
+    setWeaponMats((v) => v + 40); setSkillMats((v) => v + 40); setBossMats((v) => v + 4); setAscMats((v) => v + 4); setRelicMats((v) => v + 30);
+    setWeeklyClaimedAt(Date.now());
+    flash(`Semanal resgatada! +40 ⚙️ +40 💠 +4 🔮 +4 🔶 +30 🔷 +3 de cada material de tag`, C.good);
+  }
   function startAscension() {
     if (stamina < 40) { flash("Stamina insuficiente (precisa 40)", C.bad); return; }
     setStamina((v) => v - 40);
@@ -1767,6 +1791,12 @@ function Game({ email, isAdmin, onLogout }) {
     const bossNames = ["Núcleo Corrompido", "Servidor Infectado", "Matriz Fantasma"];
     setBattle({ context: "relicfarm", tier, encounter: { level, count: 2, boss: true, bossName: bossNames[tier] || bossNames[1], bossKind: "guardian", teamPower: teamPower(), relicFarm: true }, ally: null });
   }
+  function startRotatingRelicDungeon() {
+    const cost = 35;
+    if (stamina < cost) { flash("Stamina insuficiente (precisa " + cost + ")", C.bad); return; }
+    setStamina(function(v){ return v - cost; });
+    setBattle({ context: "relicrotate", encounter: { level: 60, count: 2, boss: true, bossName: "Guardião do Domínio Rotativo · " + featuredFarmSet(), bossKind: "guardian", teamPower: teamPower() }, ally: null });
+  }
     function onBattleEnd(result) {
     const b = battle; setBattle(null);
     if (!b || result.abort) return;
@@ -1817,8 +1847,17 @@ function Game({ email, isAdmin, onLogout }) {
         setRelicMats(function(v){ return v + 12; });
         flash("Rede Corrompida vencida! +" + count + " Relíquia(s) Protocolo Ômega ☢️ +12 🔷 Matéria de Relíquia (Elenco → Relíquias)", "#00E5CC");
       } else { flash("A Rede Corrompida resistiu…", C.bad); }
+    } else if (b.context === "relicrotate") {
+      if (result.win) {
+        const setN = featuredFarmSet();
+        const count = 2 + Math.floor(Math.random() * 2); // "buff de drop": 2-3 relíquias garantidas
+        const newRelics = Array.from({ length: count }, function() { return makeRelic(Math.floor(Math.random() * 6), setN); });
+        setRelicInv(function(inv){ return [...inv, ...newRelics]; });
+        setRelicMats(function(v){ return v + 15; });
+        flash(`Domínio Rotativo vencido! +${count} Relíquia(s) "${setN}" · +15 🔷 Matéria de Relíquia`, C.gold);
+      } else { flash("O Domínio Rotativo resistiu…", C.bad); }
     } else if (b.context === "tagdungeon") {
-      if (result.win) { const t = b.tag; const drop = Math.floor(Math.random() * 2) + 1; setTagMats((m) => ({ ...m, [t]: (m[t] || 0) + drop })); setWeaponMats((v) => v + 5); setSkillMats((v) => v + 5); setBossMats((v) => v + 1); setRelicMats((v) => v + 12); flash(`Dungeon de ${t} concluída! +${drop} material "${t}", +5 ⚙️ Arma, +5 💠 Habilidade, +1 🔮, +12 🔷 Matéria de Relíquia`, C.gold); }
+      if (result.win) { const t = b.tag; const drop = Math.floor(Math.random() * 2) + 1; setTagMats((m) => ({ ...m, [t]: (m[t] || 0) + drop })); setWeaponMats((v) => v + 14); setSkillMats((v) => v + 14); setBossMats((v) => v + 1); setRelicMats((v) => v + 12); flash(`Dungeon de ${t} concluída! +${drop} material "${t}", +14 ⚙️ Arma, +14 💠 Habilidade, +1 🔮, +12 🔷 Matéria de Relíquia`, C.gold); }
       else flash("A dungeon resistiu…", C.bad);
     } else if (b.context === "weekly") {
       if (result.win) {
@@ -1910,7 +1949,7 @@ function Game({ email, isAdmin, onLogout }) {
 
   if (!loaded) return <div style={{ minHeight: "100vh", background: C.bg0, color: C.mute, display: "flex", alignItems: "center", justifyContent: "center" }}>Sincronizando ressonância…</div>;
 
-  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["team", "Equipe", "⚔️"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["darktower", "T. Sombria", "🌑"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["roleta", "Pacto", "🎰"], ["espiral", "Espiral", "🌀"], ["abismo", "Abismo", "🕳️"], ["roteiro", "Roteiro", "📖"], ["wiki", "Wiki", "📚"], ["tierlist", "Tier List", "📊"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
+  const nav = [["home", "Portal", "✦"], ["gacha", "Invocar", "🎴"], ["roster", "Elenco", "👥"], ["farm", "Farm", "🌱"], ["tower", "Torre", "🗼"], ["darktower", "T. Sombria", "🌑"], ["weekly", "Boss", "👹"], ["coop", "Co-op", "🛰️"], ["relics", "Relíquias", "💠"], ["loja", "Loja", "🛒"], ["correio", "Correio", "📬"], ["social", "Social", "🤝"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : []), ["roleta", "Pacto", "🎰"], ["espiral", "Espiral", "🌀"], ["abismo", "Abismo", "🕳️"], ["roteiro", "Roteiro", "📖"], ["wiki", "Wiki", "📚"], ["tierlist", "Tier List", "📊"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])];
 
   const needsNick = loaded && (!playerName || playerName === "Pioneiro");
 
@@ -1944,7 +1983,11 @@ function Game({ email, isAdmin, onLogout }) {
           {battle ? (
             <Battle key={battle._bid}
               team={battle.customTeam || team} ownedMap={battle.draftOwnedMap || ownedMap} encounter={battle.encounter} ally={battle.ally} context={battle.context}
-              onEnd={onBattleEnd} onRetry={() => setBattle(battle)} flash={flash} />
+              onEnd={onBattleEnd} onRetry={() => setBattle(battle)}
+              onNext={battle.context === "tower" ? (result) => { onBattleEnd(result); startTower((battle.floor || 0) + 1); }
+                : battle.context === "darktower" ? (result) => { onBattleEnd(result); startDarkTower((battle.floor || 0) + 1); }
+                : null}
+              flash={flash} />
           ) : pendingBoss ? (
             <BossRushTeamSelect boss={BOSS_RUSH_BOSSES.find(function(b){return b.id===pendingBoss;})} owned={owned} defaultTeam={team} images={images} onCancel={function(){setPendingBoss(null);}} onConfirm={function(t){launchBossRush(pendingBoss,t);}} flash={flash} />
           ) : (
@@ -1952,14 +1995,13 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "home" && <Home email={email} isAdmin={isAdmin} playerName={playerName} setPlayerName={setPlayerName} owned={owned} setScreen={setScreen} setJade={setJade} setCharTickets={setCharTickets} setStandardTickets={setStandardTickets} setWeaponTickets={setWeaponTickets} flash={flash} towerCleared={towerCleared} bossRushCleared={bossRushCleared} startBossRush={startBossRush} images={images} setImages={setImages} />}
               {screen === "social" && <Social email={email} flash={flash} />}
               {screen === "gacha" && <Gacha doPull={doPull} pity={pity} jade={jade} chronicles={chronicles} charTickets={charTickets} weaponTickets={weaponTickets} standardTickets={standardTickets} featuredChar={featuredChar} setFeaturedChar={setFeaturedChar} featuredWeapon={featuredWeapon} setFeaturedWeapon={setFeaturedWeapon} pullHistory={pullHistory} owned={owned} ownedWeapons={ownedWeapons} />}
-              {screen === "roster" && <Roster owned={owned} ownedWeapons={ownedWeapons} relicInv={relicInv} setOwnedField={setOwnedField} levelUp={levelUp} ascendChar={ascendChar} ascMats={ascMats} jade={jade} isAdmin={isAdmin} expItems={expItems} bossMats={bossMats} traceLevelUp={traceLevelUp} unlockTraceNode={unlockTraceNode} unlockSpecialTrace={unlockSpecialTrace} publish={async (o) => { await publishChar(playerName, o); flash("Publicado no Co-op global", C.good); }} onUpgradeRelic={onUpgradeRelic} weaponLevelUp={weaponLevelUp} weaponMats={weaponMats} skillMats={skillMats} tagMats={tagMats} />}
-              {screen === "team" && <TeamScreen owned={owned} team={team} setTeam={setTeam} startTest={startTest} flash={flash} />}
-              {screen === "farm" && <Farm stamina={stamina} start={startFarm} expItems={expItems} startTagDungeon={startTagDungeon} tagMats={tagMats} weaponMats={weaponMats} skillMats={skillMats} startRelicDungeon={startRelicDungeon} />}
+              {screen === "roster" && <Roster owned={owned} ownedWeapons={ownedWeapons} relicInv={relicInv} setOwnedField={setOwnedField} levelUp={levelUp} ascendChar={ascendChar} ascMats={ascMats} jade={jade} isAdmin={isAdmin} expItems={expItems} bossMats={bossMats} traceLevelUp={traceLevelUp} unlockTraceNode={unlockTraceNode} unlockSpecialTrace={unlockSpecialTrace} publish={async (o) => { await publishChar(playerName, o); flash("Publicado no Co-op global", C.good); }} onUpgradeRelic={onUpgradeRelic} weaponLevelUp={weaponLevelUp} weaponMats={weaponMats} skillMats={skillMats} tagMats={tagMats} team={team} setTeam={setTeam} teamPresets={teamPresets} setTeamPresets={setTeamPresets} startTest={startTest} flash={flash} />}
+              {screen === "farm" && <Farm stamina={stamina} start={startFarm} expItems={expItems} startTagDungeon={startTagDungeon} tagMats={tagMats} weaponMats={weaponMats} skillMats={skillMats} startRelicDungeon={startRelicDungeon} startRotatingRelicDungeon={startRotatingRelicDungeon} dailyClaimedAt={dailyClaimedAt} weeklyClaimedAt={weeklyClaimedAt} claimDaily={claimDaily} claimWeekly={claimWeekly} />}
               {screen === "tower" && <Tower towerCleared={towerCleared} towerClaimed={towerClaimed} start={startTower} team={team} flash={flash} />}
               {screen === "darktower" && <DarkTowerScreen darkTowerCleared={darkTowerCleared} darkTowerClaimed={darkTowerClaimed} start={startDarkTower} team={team} flash={flash} />}
               {screen === "weekly" && <WeeklyBoss start={startWeekly} stamina={stamina} bossMats={bossMats} lastWeeklyBoss={lastWeeklyBoss} startAscension={startAscension} ascMats={ascMats} />}
               {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} setRelicMats={setRelicMats} flash={flash} setBattle={setBattle} />}
-              {screen === "relics" && <RelicsScreen relicInv={relicInv} />}
+              {screen === "relics" && <RelicsScreen relicInv={relicInv} setRelicInv={setRelicInv} owned={owned} setRelicMats={setRelicMats} flash={flash} />}
               {screen === "loja" && <Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} />}
               {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mailIniciante={mailIniciante} setMailIniciante={setMailIniciante} mail2Claimed={mail2Claimed} claimMail2Reward={claimMail2Reward} mail3Claimed={mail3Claimed} mail3CharPicked={mail3CharPicked} claimMail3Reward={claimMail3Reward} mail4Claimed={mail4Claimed} claimMail4Reward={claimMail4Reward} mail5Claimed={mail5Claimed} claimMail5Reward={claimMail5Reward} mail6Claimed={mail6Claimed} claimMail6Reward={claimMail6Reward} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setAscMats={setAscMats} playerName={playerName} towerTop1Claimed={towerTop1Claimed} claimTop1Reward={claimTop1Reward} flash={flash} owned={owned} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
@@ -2295,7 +2337,10 @@ function Home({ email, isAdmin, playerName, setPlayerName, owned, setScreen, set
 function Tile({ t, s, e, onClick }) {
   return <button onClick={onClick} className="text-left active:scale-95 transition"><Panel style={{ height: "100%" }}><div style={{ fontSize: 28 }}>{e}</div><div style={{ fontWeight: 800, marginTop: 6 }}>{t}</div><div style={{ color: C.mute, fontSize: 12 }}>{s}</div></Panel></button>;
 }
-function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, skillMats, startRelicDungeon }) {
+function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, skillMats, startRelicDungeon, startRotatingRelicDungeon, dailyClaimedAt, weeklyClaimedAt, claimDaily, claimWeekly }) {
+  const dailyReady = Date.now() - (dailyClaimedAt || 0) > 24 * 3600 * 1000;
+  const weeklyReady = Date.now() - (weeklyClaimedAt || 0) > 7 * 24 * 3600 * 1000;
+  const featSet = featuredFarmSet();
   return <div className="flex flex-col gap-4">
     <Panel glow="#9be7a0">
       <div className="flex items-center justify-between" style={{ gap: 10 }}>
@@ -2304,6 +2349,29 @@ function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, 
         <Res icon="📘" v={expItems} color="#9be7a0" itemId="item_exp" />
       </div>
     </Panel>
+
+    <Panel glow="#F6C95B">
+      <div style={{ ...ORB, fontWeight: 800, fontSize: 18 }}>📅 Recompensas Diária / Semanal</div>
+      <div style={{ color: C.mute, fontSize: 12, marginTop: 2 }}>Materiais garantidos, sem precisar farmar rastro no braço. Grátis, sem custo de Stamina.</div>
+      <div className="flex flex-col gap-2 mt-3">
+        <div className="flex items-center justify-between" style={{ background: C.panelHi, borderRadius: 10, padding: "10px 14px" }}>
+          <div><b style={{ fontSize: 13 }}>Diária</b><div style={{ fontSize: 11, color: C.mute }}>+10 ⚙️ · +10 💠 · +8 🔷 · +2 de uma tag aleatória</div></div>
+          <Btn kind={dailyReady ? "primary" : "soft"} disabled={!dailyReady} onClick={claimDaily} style={{ padding: "6px 14px" }}>{dailyReady ? "Resgatar" : "Feito ✓"}</Btn>
+        </div>
+        <div className="flex items-center justify-between" style={{ background: C.panelHi, borderRadius: 10, padding: "10px 14px" }}>
+          <div><b style={{ fontSize: 13 }}>Semanal</b><div style={{ fontSize: 11, color: C.mute }}>+40 ⚙️ · +40 💠 · +4 🔮 · +4 🔶 · +30 🔷 · +3 de cada tag</div></div>
+          <Btn kind={weeklyReady ? "primary" : "soft"} disabled={!weeklyReady} onClick={claimWeekly} style={{ padding: "6px 14px" }}>{weeklyReady ? "Resgatar" : "Feito ✓"}</Btn>
+        </div>
+      </div>
+    </Panel>
+
+    {startRotatingRelicDungeon && <Panel glow={RELIC_SETS[featSet]?.color || "#B98BFF"}>
+      <div className="flex items-center gap-2"><span style={{ fontSize: 22 }}>🔄</span><b style={{ ...ORB, fontSize: 18, color: RELIC_SETS[featSet]?.color }}>Domínio Rotativo</b></div>
+      <div style={{ fontSize: 12, color: C.mute, marginTop: 4 }}>Muda de conjunto toda semana. Esta semana: <b style={{ color: RELIC_SETS[featSet]?.color }}>{featSet}</b> {RELIC_EMOJI[featSet]} — com <Glow color={RELIC_SETS[featSet]?.color}>buff de drop</Glow> (2-3 relíquias garantidas).</div>
+      <div style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>{RELIC_SETS[featSet]?.d2}</div>
+      <Btn kind={stamina < 35 ? "soft" : "primary"} disabled={stamina < 35} style={{ marginTop: 10 }} onClick={startRotatingRelicDungeon}>35⚡ Entrar</Btn>
+    </Panel>}
+
     {FARM_STAGES.map((st) => <Panel key={st.id}>
       <div className="flex items-center justify-between" style={{ gap: 10 }}>
         <div><b>{st.name}</b><div style={{ color: C.mute, fontSize: 12 }}>Nv {st.level} · {st.count} inimigos{st.boss ? " · Elite" : ""} · recompensa +{st.exp} 📘</div>{st.desc && <div style={{ color: C.dim, fontSize: 11, marginTop: 2 }}>{st.desc}</div>}</div>
@@ -2628,21 +2696,76 @@ function PullModal({ data, onClose }) {
 /* ==========================================================================
    ELENCO + DETALHE
    ========================================================================== */
-function Roster({ owned, ownedWeapons, relicInv, setOwnedField, levelUp, ascendChar, ascMats, jade, isAdmin, expItems, bossMats, traceLevelUp, unlockTraceNode, unlockSpecialTrace, publish, onUpgradeRelic, weaponLevelUp, weaponMats, skillMats, tagMats }) {
+function Roster({ owned, ownedWeapons, relicInv, setOwnedField, levelUp, ascendChar, ascMats, jade, isAdmin, expItems, bossMats, traceLevelUp, unlockTraceNode, unlockSpecialTrace, publish, onUpgradeRelic, weaponLevelUp, weaponMats, skillMats, tagMats, team, setTeam, teamPresets, setTeamPresets, startTest, flash }) {
   const [sel, setSel] = useState(null);
+  const [presetName, setPresetName] = useState("");
+  const [showPresets, setShowPresets] = useState(false);
   if (!owned.length) return <Empty msg="Sem personagens. Invoque no banner!" />;
   if (sel) { const o = owned.find((x) => x.id === sel); if (!o) { setSel(null); return null; } return <CharDetail o={o} back={() => setSel(null)} ownedWeapons={ownedWeapons} relicInv={relicInv} setOwnedField={setOwnedField} levelUp={levelUp} ascendChar={ascendChar} ascMats={ascMats} jade={jade} isAdmin={isAdmin} expItems={expItems} bossMats={bossMats} traceLevelUp={traceLevelUp} unlockTraceNode={unlockTraceNode} unlockSpecialTrace={unlockSpecialTrace} publish={publish} onUpgradeRelic={onUpgradeRelic} weaponLevelUp={weaponLevelUp} weaponMats={weaponMats} skillMats={skillMats} tagMats={tagMats} />; }
+
+  const toggle = (id) => setTeam((t) => t.includes(id) ? t.filter((x) => x !== id) : t.length < 4 ? [...t, id] : t);
+  function savePreset() {
+    const name = presetName.trim() || `Time ${teamPresets.length + 1}`;
+    if (!team.length) { flash && flash("Monte uma equipe antes de salvar", C.bad); return; }
+    setTeamPresets((p) => [...p, { name, ids: [...team] }]);
+    setPresetName("");
+    flash && flash(`Preset "${name}" salvo!`, C.good);
+  }
+  function loadPreset(idx) { const p = teamPresets[idx]; if (p) { setTeam(p.ids.filter((id) => owned.some((o) => o.id === id))); flash && flash(`Preset "${p.name}" carregado`, C.good); } }
+  function deletePreset(idx) { setTeamPresets((p) => p.filter((_, i) => i !== idx)); }
+
   return (
-    <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))" }}>
-      {owned.map((o) => {
-        const def = CHAR_MAP[o.id]; if (!def) return null; const el = ELEMENTS[def.element];
-        return <button key={o.id} onClick={() => setSel(o.id)} className="text-left active:scale-95 transition">
-          <Panel glow={def.rarity === 5 ? C.gold : null} style={{ padding: 12 }}>
-            <div className="flex items-center gap-2"><Avatar ch={def} size={48} /><div style={{ overflow: "hidden" }}><div style={{ fontWeight: 800, fontSize: 14, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{def.name}</div><Rarity n={def.rarity} /></div></div>
-            <div className="flex items-center justify-between mt-2" style={{ fontSize: 11, color: C.mute }}><span>Nv {o.level}</span><span style={{ color: el.color }}>{el.glyph}</span>{o.eidolon > 0 && <span style={{ color: C.gold }}>E{o.eidolon}</span>}</div>
-          </Panel>
-        </button>;
-      })}
+    <div className="flex flex-col gap-3">
+      <Panel glow={C.gold}>
+        <div className="flex items-center justify-between">
+          <b>⚔️ Equipe atual ({team.length}/4)</b>
+          <button onClick={() => setShowPresets((v) => !v)} style={{ fontSize: 12, color: C.gold, fontWeight: 700 }}>{showPresets ? "fechar presets ✕" : "📋 Presets"}</button>
+        </div>
+        <div className="flex gap-2 mt-2">{[0, 1, 2, 3].map((i) => { const id = team[i], def = id && CHAR_MAP[id]; return (
+          <div key={i} onClick={() => id && toggle(id)} style={{ flex: 1, border: `1px dashed ${C.line}`, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 64, cursor: id ? "pointer" : "default" }}>
+            {def ? <div style={{ textAlign: "center" }}><div style={{ fontSize: 22 }}>{def.avatar}</div><div style={{ fontSize: 9, color: ELEMENTS[def.element].color }}>{ROLES[def.role].label}</div></div> : <span style={{ color: C.mute, fontSize: 11 }}>vazio</span>}
+          </div>); })}</div>
+        <div className="flex gap-2 mt-3" style={{ flexWrap: "wrap" }}>
+          <Btn disabled={!team.length} onClick={() => team.length ? startTest() : flash("Monte uma equipe", C.bad)} style={{ padding: "6px 14px", fontSize: 12 }}>Batalha de teste ⚔️</Btn>
+          <Btn kind="soft" onClick={() => setTeam([])} style={{ padding: "6px 14px", fontSize: 12 }}>Limpar</Btn>
+        </div>
+        <div style={{ fontSize: 11, color: C.mute, marginTop: 8 }}>Toque no ⚔️ de um personagem abaixo pra equipar/desequipar. Toque num slot preenchido acima pra remover.</div>
+        {showPresets && (
+          <div style={{ borderTop: `1px solid ${C.line}`, marginTop: 12, paddingTop: 12 }}>
+            <b style={{ fontSize: 13 }}>Team Presets</b>
+            <div className="flex gap-2 mt-2">
+              <input value={presetName} onChange={(e) => setPresetName(e.target.value)} placeholder="nome do preset" style={{ flex: 1, background: C.panel, border: `1px solid ${C.line}`, borderRadius: 8, padding: "6px 10px", fontSize: 12, color: C.text }} />
+              <Btn onClick={savePreset} style={{ padding: "6px 12px", fontSize: 12 }}>💾 Salvar atual</Btn>
+            </div>
+            {teamPresets.length === 0 ? <div style={{ fontSize: 12, color: C.mute, marginTop: 8 }}>Nenhum preset salvo ainda.</div> :
+              <div className="flex flex-col gap-2 mt-2">
+                {teamPresets.map((p, i) => (
+                  <div key={i} className="flex items-center gap-2" style={{ background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 8, padding: "6px 10px" }}>
+                    <div style={{ flex: 1, fontSize: 12, fontWeight: 700 }}>{p.name}</div>
+                    <div className="flex gap-1">{p.ids.map((id) => <span key={id} style={{ fontSize: 16 }}>{CHAR_MAP[id]?.avatar || "❓"}</span>)}</div>
+                    <button onClick={() => loadPreset(i)} style={{ fontSize: 11, color: C.gold, fontWeight: 700 }}>usar</button>
+                    <button onClick={() => deletePreset(i)} style={{ fontSize: 11, color: C.bad }}>excluir</button>
+                  </div>
+                ))}
+              </div>}
+          </div>
+        )}
+      </Panel>
+      <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))" }}>
+        {owned.map((o) => {
+          const def = CHAR_MAP[o.id]; if (!def) return null; const el = ELEMENTS[def.element]; const inTeam = team.includes(o.id);
+          return (
+            <div key={o.id} className="text-left active:scale-95 transition" style={{ position: "relative" }}>
+              <Panel glow={inTeam ? C.gold : def.rarity === 5 ? C.gold : null} style={{ padding: 12, border: inTeam ? `2px solid ${C.gold}` : undefined, cursor: "pointer" }} onClick={() => setSel(o.id)}>
+                <div className="flex items-center gap-2"><Avatar ch={def} size={48} /><div style={{ overflow: "hidden" }}><div style={{ fontWeight: 800, fontSize: 14, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{def.name}</div><Rarity n={def.rarity} /></div></div>
+                <div className="flex items-center justify-between mt-2" style={{ fontSize: 11, color: C.mute }}><span>Nv {o.level}</span><span style={{ color: el.color }}>{el.glyph}</span>{o.eidolon > 0 && <span style={{ color: C.gold }}>E{o.eidolon}</span>}</div>
+              </Panel>
+              <button onClick={(e) => { e.stopPropagation(); toggle(o.id); }} title={inTeam ? "Remover da equipe" : "Equipar na equipe"}
+                style={{ position: "absolute", top: 6, right: 6, width: 26, height: 26, borderRadius: 99, background: inTeam ? C.gold : "#00000088", color: inTeam ? "#1a1000" : "#fff", border: `1px solid ${inTeam ? C.gold : C.line}`, fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>⚔️</button>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -3469,23 +3592,35 @@ function WeaponRow({ w, active, match, lv }) {
 function RelicEquip({ o, setOwnedField, relicInv, onUpgradeRelic }) {
   const oc = normChar(o);
   const [pickSlot, setPickSlot] = useState(null);
+  const [setFilter, setSetFilter] = useState(null);
   const setR = (slot, relic) => { const r = [...oc.relics]; r[slot] = relic; setOwnedField(o.id, { relics: r }); };
+  const subScore = (r) => (r.subs || []).reduce((a, s) => a + s.value, 0) + (r.level || 0) * 2;
   return <Panel>
     <b>Relíquias · 6 slots</b>
     <p style={{ fontSize: 11, color: C.mute, marginTop: 2 }}>Corpo aceita DANO/CRIT como principal. Esfera aceita Dano Elemental (de qualquer elemento) ou Regen de Energia. Corda aceita Regen de Energia ou Perfuração.</p>
     <div className="grid grid-cols-2 gap-2 mt-2">
       {RELIC_SLOTS.map((sl) => { const r = oc.relics[sl.i]; const active = pickSlot === sl.i; return (
-        <button key={sl.i} onClick={() => setPickSlot(active ? null : sl.i)} className="text-left" style={{ background: active ? C.panel : C.panelHi, border: `1px solid ${active ? C.gold : r ? relicSetData(r.set).color : C.line}`, borderRadius: 12, padding: 10, minHeight: 70 }}>
+        <button key={sl.i} onClick={() => { setPickSlot(active ? null : sl.i); setSetFilter(null); }} className="text-left" style={{ background: active ? C.panel : C.panelHi, border: `1px solid ${active ? C.gold : r ? relicSetData(r.set).color : C.line}`, borderRadius: 12, padding: 10, minHeight: 70 }}>
           <div style={{ fontSize: 11, color: C.mute }}>{sl.i + 1}. {sl.name}</div>
           {r ? <><div style={{ fontSize: 12, fontWeight: 700, color: relicSetData(r.set).color, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.set} <span style={{ color: C.mute, fontWeight: 600 }}>+{r.level || 0}</span></div><div style={{ fontSize: 12 }}>{relicMainText(r)}</div><div style={{ fontSize: 10, color: C.mute, lineHeight: 1.35 }}>{(r.subs || []).map((s) => `${relicSubLabel(s)} +${s.value.toFixed(1)}`).join(" · ")}</div></> : <div style={{ color: C.mute, fontSize: 12 }}>vazio · toque p/ equipar</div>}
         </button>); })}
     </div>
-    {pickSlot != null && (() => { const opts = relicInv.filter((r) => r.slot === pickSlot); return (
+    {pickSlot != null && (() => {
+      const allOpts = relicInv.filter((r) => r.slot === pickSlot);
+      const setsHere = [...new Set(allOpts.map((r) => r.set))];
+      const opts = (setFilter ? allOpts.filter((r) => r.set === setFilter) : allOpts).slice().sort((a, b) => subScore(b) - subScore(a));
+      const bestId = opts.length ? opts[0].id : null;
+      return (
       <div style={{ borderTop: `1px solid ${C.line}`, margin: "12px 0 0", paddingTop: 12 }}>
         <div className="flex items-center justify-between"><b style={{ fontSize: 13 }}>Equipar em {RELIC_SLOTS[pickSlot].name}</b>{oc.relics[pickSlot] && <button onClick={() => { setR(pickSlot, null); }} style={{ color: C.bad, fontSize: 12 }}>remover atual</button>}</div>
-        {opts.length === 0 ? <div style={{ color: C.mute, fontSize: 12, marginTop: 8 }}>Nenhuma relíquia deste slot. Farme no Co-op.</div> :
+        {setsHere.length > 1 && <div className="flex gap-1 flex-wrap mt-2">
+          <Chip active={!setFilter} onClick={() => setSetFilter(null)}>Todos</Chip>
+          {setsHere.map((s) => <Chip key={s} active={setFilter === s} color={relicSetData(s).color} onClick={() => setSetFilter(s)}>{s}</Chip>)}
+        </div>}
+        {opts.length === 0 ? <div style={{ color: C.mute, fontSize: 12, marginTop: 8 }}>Nenhuma relíquia deste slot. Farme no Co-op ou no Farm.</div> :
           <div className="grid grid-cols-2 gap-2 mt-2" style={{ maxHeight: 260, overflowY: "auto" }}>
-            {opts.map((r) => <button key={r.id} onClick={() => { setR(pickSlot, r); setPickSlot(null); }} className="text-left" style={{ background: C.panel, border: `1px solid ${relicSetData(r.set).color}55`, borderRadius: 10, padding: 8 }}>
+            {opts.map((r) => <button key={r.id} onClick={() => { setR(pickSlot, r); setPickSlot(null); }} className="text-left" style={{ background: C.panel, border: `1px solid ${r.id === bestId ? C.gold : relicSetData(r.set).color + "55"}`, borderRadius: 10, padding: 8, position: "relative" }}>
+              {r.id === bestId && <div style={{ position: "absolute", top: 6, right: 6, fontSize: 9, fontWeight: 800, color: C.gold }}>★ MELHOR</div>}
               <div style={{ fontSize: 12, fontWeight: 700, color: relicSetData(r.set).color }}>{r.set} <span style={{ color: C.mute }}>+{r.level || 0}</span></div>
               <div style={{ fontSize: 12 }}>{relicMainText(r)}</div>
               <div style={{ fontSize: 10, color: C.mute, lineHeight: 1.35 }}>{(r.subs || []).map((s) => `${relicSubLabel(s)} +${s.value.toFixed(1)}`).join(" · ")}</div>
@@ -3720,6 +3855,14 @@ function DarkTowerScreen({ darkTowerCleared, darkTowerClaimed, start, team, flas
           <Bar value={earned} max={totalReward} color="#B98BFF" />
         </div>
       </Panel>
+      {darkTowerCleared > 0 && darkTowerCleared < DARK_TOWER_BOSSES.length && (() => { const nextLvl = darkTowerCleared + 1; const nb = DARK_TOWER_BOSSES[nextLvl - 1]; return (
+        <button onClick={() => { if (!team.length) { flash("Monte uma equipe antes!", "#FF6464"); return; } start(nextLvl); }}
+          style={{ background: "linear-gradient(135deg,#B98BFF,#7b2fc9)", color: "#1a1000", border: "none", borderRadius: 14, padding: "14px 20px", fontWeight: 800, fontSize: 15, cursor: "pointer", boxShadow: "0 0 28px #B98BFF66", display: "flex", alignItems: "center", gap: 14, width: "100%" }}>
+          <span style={{ fontSize: 22 }}>🌑</span>
+          <span style={{ flex: 1, textAlign: "left" }}>Próximo Nível · {nb?.name || ""}</span>
+          <span style={{ background: "rgba(0,0,0,0.25)", borderRadius: 10, padding: "4px 14px", fontSize: 22, fontWeight: 900 }}>{nextLvl}</span>
+        </button>
+      ); })()}
       <div className="flex flex-col gap-2">
         {DARK_TOWER_BOSSES.map((bd, i) => {
           const lvl = i + 1; const cleared = darkTowerCleared >= lvl; const locked = lvl > darkTowerCleared + 1;
@@ -4223,6 +4366,9 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   // Glacier: +6% de dano Glacial recebido por camada de gelo (máx 3)
   { const _gl = Math.min(3, (defender.dots || []).filter(d => d.type === "freeze" || d.type === "geada").length);
     if (_gl > 0 && (opts?.el || attacker.element) === "Glacial") mult = mult * (1 + 0.06 * _gl); }
+  // Sopro Glacial 4pç: contra alvo Congelado, +18% Dano Bônus (o +20% CRIT é aplicado na taxa de crítico em effStat)
+  { const _frozen = (defender.dots || []).some(d => d.type === "freeze" || d.type === "geada");
+    if (_frozen && attacker.stFlags?.setGlacial4) mult = mult * 1.18; }
   // Sangramento (Limbus): quem ataca sangrando rasga a ferida — sofre o dano do bleed (cap 8% do HP atual)
   if (!opts?.isDot && !opts?.isCounter) {
     const _bl = (attacker.dots || []).find(d => d.type === "bleed");
@@ -4422,8 +4568,8 @@ function applyDot(targets, spec, source, fx) {
   if (f.pScorch && spec.type === "burn") m *= 1.3;
   if (f.setFire2 && spec.type === "burn") m *= 1.1; // Núcleo Ardente 2pç
   m *= 1 + (source.base.dotDmg || 0) / 100; // substatus "Dano de DoT"
-  let dmg = Math.max(1, Math.round(effStat(source, "atk") * (m / 100)));
-  if (source.id === "miyabi" && (spec.type === "freeze" || spec.type === "geada")) dmg = Math.max(100, Math.min(40000, dmg)); // trava pedida: DoT da Miyabi sempre entre 100 e 40.000
+  let dmg = Math.max(1, Math.round(effStat(source, "atk") * (m / 100) * 1.4)); // buff geral +40% no dano de DoT (pedido: "12K é muito baixo")
+  if (source.id === "miyabi" && (spec.type === "freeze" || spec.type === "geada")) dmg = Math.max(100, Math.min(90000, dmg)); // trava ampliada: DoT da Miyabi agora entre 100 e 90.000
   const glacial = spec.type === "freeze" || spec.type === "geada";
   targets.forEach((t) => {
     if (!t.alive) return;
@@ -4433,7 +4579,7 @@ function applyDot(targets, spec, source, fx) {
     if (spec.type === "poison" && t.dots.filter(d => d.type === "poison").length >= 5) return; // Veneno: máx 5 camadas (estilo HSR)
     if (spec.type === "sinking") { const ex = t.dots.find(d => d.type === "sinking"); if (ex) { ex.dmg = Math.min(9999, ex.dmg + dmg); ex.turns = Math.min(9, ex.turns + spec.turns); return; } } // Afundamento: Potência acumula, Count soma
     t.dots.push({ type: spec.type, dmg, turns: spec.turns });
-    if (f.setGlacial4 && glacial) { const cur = t.debuffs.find((d) => d.name === "GlacialSet"); if (cur) cur.value = Math.min(7, cur.value + 2); else t.debuffs.push({ stat: "vuln", value: 2, turns: 3, name: "GlacialSet" }); } // Sopro Glacial 4pç
+    if (f.setGlacial4 && glacial) { const cur = t.debuffs.find((d) => d.name === "GlacialSet"); if (cur) cur.value = Math.min(15, cur.value + 3); else t.debuffs.push({ stat: "vuln", value: 3, turns: 3, name: "GlacialSet" }); } // Sopro Glacial 4pç (buffado)
     // Protocolo de Ruína em Cadeia (4pç): todo DoT aplicado dá Falha Estrutural — +18% de dano de DoT por 2 turnos
     if (f.setRuina4) { const ex2 = t.debuffs.find(d => d.name === "Falha Estrutural"); if (ex2) { ex2.turns = 2; } else t.debuffs.push({ stat: "dotAmp", value: 18, turns: 2, name: "Falha Estrutural" }); }
   });
@@ -4538,7 +4684,7 @@ function miyabiBasicAttack(s, u, enemy, fx, ampB) {
   let msg = "";
   if (inPostura && f.miC6 && u.posturePH >= 4) {
     const fb = (f.miC1 && !u._firstCut) ? 1.5 : 1; let killed = false, tot = 0;
-    aliveEnemies(s).forEach((e) => { const r = dealDamage(u, e, 450 * 1.20 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 50, enhanced: true }); tot += r.dmg; if (!e.alive) killed = true; if (e.alive) applyDot([e], { type: "freeze", mul: 180, turns: 3 }, u, fx); });
+    aliveEnemies(s).forEach((e) => { const r = dealDamage(u, e, 680 * 1.20 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 50, enhanced: true }); tot += r.dmg; if (!e.alive) killed = true; if (e.alive) applyDot([e], { type: "freeze", mul: 260, turns: 3 }, u, fx); });
     msg = `❄️ MIYABI DESFERE O CORTE DO FIM DOS TEMPOS! ${tot} de Dano Glacial em TODOS, ignorando 50% da DEF, e aplica Congelamento.`;
     if (killed) { u._avMul = 0; msg += " Um alvo foi eliminado — Miyabi joga novamente!"; }
     u._firstCut = true; if (!frostZone) u.posturePH = 0;
@@ -4697,7 +4843,7 @@ function EnemyAvatar({ e, size = 40 }) {
   if (url) return <img src={url} alt={e.name} style={{ width: size, height: size, objectFit: "cover", objectPosition: "top", borderRadius: 8, border: `2px solid ${el.color}88`, flexShrink: 0 }} />;
   return <span style={{ fontSize: e.boss ? 30 : 26, lineHeight: 1 }}>{e.avatar}</span>;
 }
-function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flash }) {
+function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNext, flash }) {
   const [state, setState] = useState(() => {
     const heroes = team.map((id, i) => (ownedMap[id] ? makeUnit(ownedMap[id], "H", i) : null)).filter(Boolean);
     if (ally) heroes.push(makeAllyUnit(ally, heroes.length));
@@ -4779,6 +4925,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
       const heroesHp = state.heroes.filter(h => !h.isSummon).map(h => ({ id: h.id, hpPct: Math.max(0, h.hp / Math.max(1, h.maxHp)), alive: h.alive }));
       // Derrota fora do Abismo: não navega sozinho — espera o jogador escolher "Jogar Novamente" ou "Voltar"
       if (!state.win && context !== "abismo") return;
+      // Vitória em conteúdo farmável (ou torre, com botão de avançar direto): também espera escolha do jogador, sem navegar sozinho
+      if (state.win && ["farm", "tagdungeon", "coop", "relicfarm", "relicrotate", "tower", "darktower"].includes(context)) return;
       const t = setTimeout(() => onEnd({ win: state.win, turns: state.heroTurns, heroesHp }), 1500);
       return () => clearTimeout(t);
     }
@@ -5380,10 +5528,10 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
               // Superávit de Enteléquia (Rastro 2): excedente de cada aliado vira Escudo de Dados para o time todo
               // Só restaura se o aliado estiver com 900 ou menos de escudo; cap individual de 5000
               if (u.stFlags?.shkT2) {
-                const SHK_SHIELD_CAP = 5000;
+                const SHK_SHIELD_CAP = 14000;
                 healLog.forEach(({ a, done, amt }) => {
                   const over = amt - done;
-                  if (over > 0 && (a.shield || 0) <= 900) {
+                  if (over > 0 && (a.shield || 0) <= 3000) {
                     const add = Math.max(0, Math.min(over, SHK_SHIELD_CAP - (a.shield || 0)));
                     if (add > 0) { a.shield = (a.shield || 0) + add; fx.push({ uid: a.uid, txt: "🛡️+" + add, heal: true, id: Math.random() }); }
                   }
@@ -6928,6 +7076,16 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, flas
                 <Btn kind="primary" onClick={() => onRetry && onRetry()} style={{ padding: "10px 18px", fontWeight: 800 }}>🔁 Jogar Novamente</Btn>
                 <Btn kind="soft" onClick={() => onEnd({ win: false, turns: state.heroTurns, heroesHp: state.heroes.filter(h => !h.isSummon).map(h => ({ id: h.id, hpPct: Math.max(0, h.hp / Math.max(1, h.maxHp)), alive: h.alive })) })} style={{ padding: "10px 18px" }}>↩ Voltar</Btn>
               </div>
+            ) : state.win && ["farm", "tagdungeon", "coop", "relicfarm", "relicrotate"].includes(context) ? (
+              <div className="flex gap-2" style={{ justifyContent: "center", marginTop: 12 }}>
+                <Btn kind="primary" onClick={() => onRetry && onRetry()} style={{ padding: "10px 18px", fontWeight: 800 }}>🔁 Farmar de novo</Btn>
+                <Btn kind="soft" onClick={() => onEnd({ win: true, turns: state.heroTurns, heroesHp: state.heroes.filter(h => !h.isSummon).map(h => ({ id: h.id, hpPct: Math.max(0, h.hp / Math.max(1, h.maxHp)), alive: h.alive })) })} style={{ padding: "10px 18px" }}>↩ Voltar</Btn>
+              </div>
+            ) : state.win && ["tower", "darktower"].includes(context) ? (
+              <div className="flex gap-2" style={{ justifyContent: "center", marginTop: 12 }}>
+                {onNext && <Btn kind="primary" onClick={() => onNext({ win: true, turns: state.heroTurns, heroesHp: state.heroes.filter(h => !h.isSummon).map(h => ({ id: h.id, hpPct: Math.max(0, h.hp / Math.max(1, h.maxHp)), alive: h.alive })) })} style={{ padding: "10px 18px", fontWeight: 800 }}>⏭ Próximo Andar</Btn>}
+                <Btn kind="soft" onClick={() => onEnd({ win: true, turns: state.heroTurns, heroesHp: state.heroes.filter(h => !h.isSummon).map(h => ({ id: h.id, hpPct: Math.max(0, h.hp / Math.max(1, h.maxHp)), alive: h.alive })) })} style={{ padding: "10px 18px" }}>↩ Voltar</Btn>
+              </div>
             ) : (
               <div style={{ color: C.mute, fontSize: 12, marginTop: 4 }}>voltando…</div>
             )}
@@ -7213,12 +7371,33 @@ async function fetchRandomAlly() {
   try { const res = await SS.list(PUB_KEY, true); if (res?.keys?.length) { const r = await SS.get(pick(res.keys), true); if (r) return JSON.parse(r.value); } } catch {}
   return null;
 }
+async function fetchAllyList() {
+  const cloud = await cloudAllyList(); if (cloud.length) return cloud;
+  try {
+    const res = await SS.list(PUB_KEY, true);
+    if (res?.keys?.length) {
+      const items = await Promise.all(res.keys.slice(0, 30).map(async (k) => { try { const r = await SS.get(k, true); return r ? JSON.parse(r.value) : null; } catch { return null; } }));
+      return items.filter(Boolean);
+    }
+  } catch {}
+  return [];
+}
 function defaultAlly() { const o = { id: "yoruichi", level: 70, eidolon: 2, weapon: "thunderclaws", relics: EMPTY_RELICS() }; const st = computeStats(o); return { player: "Aliada IA", name: "Yoruichi", avatar: CHAR_MAP.yoruichi.avatar, element: "Eletro", role: "dps", rarity: 5, level: 70, eidolon: 2, stats: st, skill: CHAR_MAP.yoruichi.skill }; }
 
 function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, setRelicMats, flash, setBattle }) {
   const [setName, setSetName] = useState(RELIC_SET_NAMES[0]);
   const [ally, setAlly] = useState(null);
+  const [allyList, setAllyList] = useState([]);
+  const [picking, setPicking] = useState(false);
+  const [loadingList, setLoadingList] = useState(false);
   useEffect(() => { (async () => setAlly((await fetchRandomAlly()) || defaultAlly()))(); }, []);
+
+  async function openPicker() {
+    setPicking(true); setLoadingList(true);
+    const list = await fetchAllyList();
+    setAllyList(list.length ? list : [defaultAlly()]);
+    setLoadingList(false);
+  }
 
   function start() {
     if (stamina < 40) { flash("Stamina insuficiente (precisa 40)", C.bad); return; }
@@ -7245,9 +7424,29 @@ function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, setRelicMats, 
       <Panel>
         <b>Aliado co-op</b>
         {ally && <div className="flex items-center gap-3 mt-2"><Avatar ch={{ id: ally.player === "Aliada IA" ? "yoruichi" : "ally", element: ally.element, avatar: ally.avatar }} size={48} /><div><div style={{ fontWeight: 700 }}>{ally.name} <Rarity n={ally.rarity} /></div><div style={{ fontSize: 12, color: C.mute }}>de <Glow color={C.gold}>{ally.player}</Glow> · Nv {ally.level}{ally.eidolon ? ` · E${ally.eidolon}` : ""} · {ROLES[ally.role]?.label}</div></div></div>}
-        <Btn kind="ghost" style={{ marginTop: 10, padding: "6px 12px" }} onClick={async () => setAlly((await fetchRandomAlly()) || defaultAlly())}>Trocar aliado</Btn>
+        <div className="flex gap-2 mt-2">
+          <Btn kind="ghost" style={{ padding: "6px 12px" }} onClick={async () => setAlly((await fetchRandomAlly()) || defaultAlly())}>🎲 Aleatório</Btn>
+          <Btn kind="ghost" style={{ padding: "6px 12px" }} onClick={openPicker}>📋 Escolher parceiro</Btn>
+        </div>
         <div style={{ fontSize: 11, color: C.mute, marginTop: 8 }}>Publique seus personagens no Elenco para aparecerem para outros jogadores.</div>
       </Panel>
+      {picking && (
+        <Panel glow={C.gold}>
+          <div className="flex items-center justify-between"><b>Escolher aliado</b><button onClick={() => setPicking(false)} style={{ color: C.mute, fontSize: 12 }}>fechar ✕</button></div>
+          {loadingList ? <div style={{ color: C.mute, fontSize: 12, marginTop: 8 }}>Carregando aliados…</div> :
+            <div className="flex flex-col gap-2 mt-2" style={{ maxHeight: 320, overflowY: "auto" }}>
+              {allyList.map((a, i) => (
+                <button key={i} onClick={() => { setAlly(a); setPicking(false); }} className="flex items-center gap-3 text-left" style={{ background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: 8 }}>
+                  <Avatar ch={{ id: a.player === "Aliada IA" ? "yoruichi" : "ally", element: a.element, avatar: a.avatar }} size={40} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13 }}>{a.name} <Rarity n={a.rarity} /></div>
+                    <div style={{ fontSize: 11, color: C.mute }}>de <Glow color={C.gold}>{a.player}</Glow> · Nv {a.level}{a.eidolon ? ` · E${a.eidolon}` : ""} · {ROLES[a.role]?.label} · {ELEMENTS[a.element]?.glyph} {a.element}</div>
+                  </div>
+                </button>
+              ))}
+            </div>}
+        </Panel>
+      )}
       <Panel>
         <b>Conjunto a farmar</b>
         <div className="flex gap-1 flex-wrap mt-2">{RELIC_SET_NAMES.map((s) => <Chip key={s} active={setName === s} color={RELIC_SETS[s].color} onClick={() => setSetName(s)}>{s}</Chip>)}</div>
@@ -7264,23 +7463,106 @@ function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, setRelicMats, 
 /* ==========================================================================
    RELÍQUIAS
    ========================================================================== */
-function RelicsScreen({ relicInv }) {
+function RelicsScreen({ relicInv, setRelicInv, owned, setRelicMats, flash }) {
+  const [group, setGroup] = useState("set"); // "set" | "slot"
+  const [confirmSell, setConfirmSell] = useState(null); // relic id pending sell confirmation
+  const [onlyFree, setOnlyFree] = useState(false); // só não-equipadas
+  const [confirmBulk, setConfirmBulk] = useState(false);
   if (!relicInv.length) return <Empty msg="Sem relíquias. Vá ao Farm → Rede Corrompida ☢️ para farmar o set Protocolo Ômega, ou ao Co-op para outros sets." />;
-  const bySet = {}; relicInv.forEach((r) => (bySet[r.set] = bySet[r.set] || []).push(r));
-  return <div className="flex flex-col gap-4">{Object.entries(bySet).map(([set, list]) => (
-    <Panel key={set} glow={RELIC_SETS[set]?.color}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <ItemIcon id={RELIC_ITEM_ID[set]} emoji={RELIC_EMOJI[set] || "💎"} size={22} />
-          <b style={{ color: RELIC_SETS[set]?.color }}>{set}</b>
+
+  // Mapa de relíquias equipadas: relicId -> [{charName, avatar}]
+  const equippedBy = {};
+  (owned || []).forEach((o) => {
+    const oc = normChar(o); const def = CHAR_MAP[o.id];
+    (oc.relics || []).forEach((r) => { if (r && r.id) { (equippedBy[r.id] = equippedBy[r.id] || []).push(def?.name || o.id); } });
+  });
+
+  function sellRelic(id) {
+    setRelicInv((p) => p.filter((r) => r.id !== id));
+    setRelicMats((v) => v + 8);
+    setConfirmSell(null);
+    flash && flash("Relíquia vendida · +8 🔷 Matéria de Relíquia", C.gold);
+  }
+  const junk = relicInv.filter((r) => !equippedBy[r.id] && (r.level || 0) === 0);
+  function sellJunk() {
+    if (!junk.length) return;
+    const ids = new Set(junk.map((r) => r.id));
+    setRelicInv((p) => p.filter((r) => !ids.has(r.id)));
+    setRelicMats((v) => v + junk.length * 8);
+    setConfirmBulk(false);
+    flash && flash(`${junk.length} relíquias vendidas · +${junk.length * 8} 🔷 Matéria de Relíquia`, C.gold);
+  }
+
+  const filtered = onlyFree ? relicInv.filter((r) => !equippedBy[r.id]) : relicInv;
+  const groups = (group === "set"
+    ? Object.entries(filtered.reduce((acc, r) => { (acc[r.set] = acc[r.set] || []).push(r); return acc; }, {}))
+    : RELIC_SLOTS.map((sl) => [sl.name, filtered.filter((r) => (r.slot ?? 0) === sl.i)]).filter(([, list]) => list.length)
+  ).map(([label, list]) => [label, list.slice().sort((a, b) => (b.level || 0) - (a.level || 0))]);
+
+  return <div className="flex flex-col gap-4">
+    <Panel>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <b>💠 Relíquias ({relicInv.length})</b>
+        <div className="flex gap-1 flex-wrap">
+          <Chip active={group === "set"} onClick={() => setGroup("set")}>Por conjunto</Chip>
+          <Chip active={group === "slot"} onClick={() => setGroup("slot")}>Por slot</Chip>
+          <Chip active={onlyFree} onClick={() => setOnlyFree((v) => !v)}>Só não-equipadas</Chip>
         </div>
-        <span style={{ fontSize: 12, color: C.mute }}>{list.length} peças</span>
       </div>
-      <div style={{ fontSize: 12, color: C.mute, marginTop: 2 }}>4pç: {RELIC_SETS[set]?.d4}</div>
-      <div className="grid gap-2 mt-3" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(130px,1fr))" }}>
-        {list.map((r) => <div key={r.id} style={{ background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: 8 }}><div style={{ fontSize: 10, color: C.mute }}>{RELIC_SLOTS[r.slot ?? 0]?.name}</div><div style={{ fontSize: 12 }}>{relicMainText(r)} <span style={{color:C.mute}}>+{r.level||0}</span></div></div>)}
-      </div>
-    </Panel>))}</div>;
+      {junk.length > 0 && (
+        <div className="flex items-center justify-between mt-3" style={{ background: "#2a1414", border: `1px solid ${C.bad}55`, borderRadius: 10, padding: "8px 12px" }}>
+          <div style={{ fontSize: 12 }}>🗑️ <b>{junk.length}</b> relíquias nível 0 sem uso — dá pra vender.</div>
+          {confirmBulk ? (
+            <div className="flex gap-1">
+              <button onClick={sellJunk} style={{ fontSize: 11, fontWeight: 700, color: "#fff", background: C.bad, borderRadius: 6, padding: "4px 10px" }}>Confirmar</button>
+              <button onClick={() => setConfirmBulk(false)} style={{ fontSize: 11, color: C.mute, background: C.panel, borderRadius: 6, padding: "4px 10px" }}>Cancelar</button>
+            </div>
+          ) : <button onClick={() => setConfirmBulk(true)} style={{ fontSize: 11, fontWeight: 700, color: C.bad }}>Vender todas (+{junk.length * 8} 🔷)</button>}
+        </div>
+      )}
+    </Panel>
+    {groups.map(([label, list]) => {
+      const setData = group === "set" ? RELIC_SETS[label] : null;
+      return (
+        <Panel key={label} glow={setData?.color}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {group === "set" && <ItemIcon id={RELIC_ITEM_ID[label]} emoji={RELIC_EMOJI[label] || "💎"} size={22} />}
+              <b style={{ color: setData?.color }}>{label}</b>
+            </div>
+            <span style={{ fontSize: 12, color: C.mute }}>{list.length} peças</span>
+          </div>
+          {setData && <div style={{ fontSize: 11, color: C.mute, marginTop: 6, lineHeight: 1.5 }}>
+            {setData.d2 && <div><b style={{ color: setData.color }}>2pç:</b> {setData.d2}</div>}
+            {setData.d4 && <div style={{ marginTop: 2 }}><b style={{ color: setData.color }}>4pç:</b> {setData.d4}</div>}
+            {setData.d6 && <div style={{ marginTop: 2 }}><b style={{ color: setData.color }}>6pç:</b> {setData.d6}</div>}
+          </div>}
+          <div className="grid gap-2 mt-3" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(140px,1fr))" }}>
+            {list.map((r) => {
+              const equipped = equippedBy[r.id];
+              return (
+                <div key={r.id} style={{ background: equipped ? "#1d2f22" : C.panelHi, border: `1px solid ${equipped ? C.good : C.line}`, borderRadius: 10, padding: 8, position: "relative" }}>
+                  {equipped && <div style={{ position: "absolute", top: 6, right: 6, fontSize: 9, fontWeight: 800, color: C.good, background: "#0d1f13", border: `1px solid ${C.good}`, borderRadius: 6, padding: "1px 5px" }}>✓ EQUIPADA</div>}
+                  <div style={{ fontSize: 10, color: C.mute }}>{RELIC_SLOTS[r.slot ?? 0]?.name}{group === "slot" && r.set ? ` · ${r.set}` : ""}</div>
+                  <div style={{ fontSize: 12 }}>{relicMainText(r)} <span style={{ color: C.mute }}>+{r.level || 0}</span></div>
+                  <div style={{ fontSize: 10, color: C.mute, lineHeight: 1.35, marginTop: 2 }}>{(r.subs || []).map((s) => `${relicSubLabel(s)} +${s.value.toFixed(1)}`).join(" · ")}</div>
+                  {equipped && <div style={{ fontSize: 10, color: C.good, marginTop: 4 }}>em {equipped.join(", ")}</div>}
+                  {!equipped && (confirmSell === r.id ? (
+                    <div className="flex gap-1 mt-2">
+                      <button onClick={() => sellRelic(r.id)} style={{ flex: 1, fontSize: 11, fontWeight: 700, color: "#fff", background: C.bad, borderRadius: 6, padding: "3px 0" }}>Confirmar</button>
+                      <button onClick={() => setConfirmSell(null)} style={{ flex: 1, fontSize: 11, color: C.mute, background: C.panel, borderRadius: 6, padding: "3px 0" }}>Cancelar</button>
+                    </div>
+                  ) : (
+                    <button onClick={() => setConfirmSell(r.id)} style={{ marginTop: 6, fontSize: 11, color: C.bad, fontWeight: 700 }}>🗑️ Vender (+8 🔷)</button>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        </Panel>
+      );
+    })}
+  </div>;
 }
 
 /* ==========================================================================
