@@ -112,6 +112,11 @@ const FEATURED_LIMITEDS = ["yanagi", "kaiba", "shorekeeper"]; // banners ativos 
 const BANNER_DURATIONS = { yanagi: 3 * 24 * 60 * 60 * 1000, kaiba: 3 * 24 * 60 * 60 * 1000, shorekeeper: 4 * 24 * 60 * 60 * 1000 }; // Yanagi/Kaiba: 3 dias restantes · Shorekeeper: 4 dias restantes
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
 const DEFAULT_FEATURED_CHAR = "yanagi";
+// Banner Especial Limitado — pool de 5, dura 3 dias corridos pra TODO mundo (data fixa, não reseta por dispositivo)
+const SPECIAL_BANNER_CHARS = ["soifon", "omegamon", "ryoshu", "wonderofyou", "frieren"];
+const SPECIAL_BANNER_START = new Date("2026-07-20T18:00:00Z").getTime();
+const SPECIAL_BANNER_DURATION_MS = 3 * 24 * 60 * 60 * 1000;
+const SPECIAL_BANNER_END = SPECIAL_BANNER_START + SPECIAL_BANNER_DURATION_MS;
 
 /* ---------- ARMAS ---------- */
 // Valores de atk e stats secundários = nível MÁXIMO (80). Escalam via weaponLevelMul().
@@ -1232,7 +1237,7 @@ function Game({ email, isAdmin, onLogout }) {
         setFeaturedWeapon("tecelao_tempo");
       }
     }, []);
-  const [pity, setPity] = useState({ char: 0, weapon: 0, standard: 0, guaranteeChar: false });
+  const [pity, setPity] = useState({ char: 0, weapon: 0, standard: 0, special: 0, guaranteeChar: false });
   const [pullHistory, setPullHistory] = useState([]);
   const [owned, setOwned] = useState([
     { id: "ace", level: 1, eidolon: 0, weapon: null, relics: EMPTY_RELICS() },
@@ -1276,7 +1281,6 @@ function Game({ email, isAdmin, onLogout }) {
   const [mail4Claimed, setMail4Claimed] = useState(() => { try { return localStorage.getItem('sr_mail4_claimed_v2') === '1'; } catch { return false; } });
   const [mail5Claimed, setMail5Claimed] = useState(() => { try { return localStorage.getItem('sr_mail5_claimed_v2') === '1'; } catch { return false; } });
   const [mail6Claimed, setMail6Claimed] = useState(() => { try { return localStorage.getItem('sr_mail6_claimed_v1') === '1'; } catch { return false; } });
-  const [mail7Claimed, setMail7Claimed] = useState(() => { try { return localStorage.getItem('sr_mail7_claimed_v1') === '1'; } catch { return false; } });
   const [relicMats, setRelicMats] = useState(0);
   const [rouletteCleared, setRouletteCleared] = useState(false);
   const [nextRouletteClaimAt, setNextRouletteClaimAt] = useState(0);
@@ -1305,7 +1309,7 @@ function Game({ email, isAdmin, onLogout }) {
       setStandardTickets(s.standardTickets ?? 10);
       setFeaturedChar(FEATURED_LIMITEDS.includes(s.featuredChar) ? s.featuredChar : DEFAULT_FEATURED_CHAR);
       setFeaturedWeapon(WEAPON_5_IDS.includes(s.featuredWeapon) ? s.featuredWeapon : DEFAULT_FEATURED_WEAPON);
-      setPity({ char: 0, weapon: 0, standard: 0, guaranteeChar: false, ...(s.pity || {}) });
+      setPity({ char: 0, weapon: 0, standard: 0, special: 0, guaranteeChar: false, ...(s.pity || {}) });
       setPullHistory(s.pullHistory ?? []);
       if (s.owned) setOwned(s.owned.map(normChar).filter((o) => CHAR_MAP[o.id])); setOwnedWeapons((Array.isArray(s.ownedWeapons) ? s.ownedWeapons : []).map((x) => typeof x === "string" ? { id: x, lv: 1 } : x).filter((x) => x && WEAPON_MAP[x.id])); setRelicInv((Array.isArray(s.relicInv) ? s.relicInv : []).filter(isValidRelic));
       if (s.team) setTeam(s.team); if (s.teamPresets) setTeamPresets(s.teamPresets); setStamina(s.stamina ?? 320); setLastStamina(s.lastStamina ?? Date.now());
@@ -1376,8 +1380,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1422,14 +1426,6 @@ function Game({ email, isAdmin, onLogout }) {
     else if (alreadyOwned) { const cur = owned.find(o => o.id === charId); const newE = Math.min(6, (cur?.eidolon || 0) + 1); flash(`📬 ${char.name} já era seu — Constelação E${newE} desbloqueada!`, C.gold); }
     else flash(`📬 ${char.name} entra no seu elenco!`, C.gold);
   }
-  function claimMail7Reward() {
-    if (mail7Claimed) return;
-    setJade((j) => j + 22000);
-    setMail7Claimed(true);
-    try { localStorage.setItem('sr_mail7_claimed_v1', '1'); } catch {}
-    flash(`📬 +22.000💎 coletadas!`, C.gold);
-  }
-
   function claimMail6Reward() {
     if (mail6Claimed) return;
     setJade((j) => j + 16000);
@@ -1541,16 +1537,17 @@ function Game({ email, isAdmin, onLogout }) {
   }
 
   function doPull(kind, count) {
-    // kind: "char" (evento), "standard" (permanente), "weapon"
-    const isChar = kind === "char", isStd = kind === "standard", isWeapon = kind === "weapon";
-    const tickets = isChar ? charTickets : isStd ? standardTickets : weaponTickets;
+    // kind: "char" (evento), "standard" (permanente), "weapon", "special" (Especial Limitado, 3 dias)
+    const isChar = kind === "char", isStd = kind === "standard", isWeapon = kind === "weapon", isSpecial = kind === "special";
+    if (isSpecial && Date.now() >= SPECIAL_BANNER_END) { flash("O Banner Especial já encerrou.", C.bad); return; }
+    const tickets = isChar ? charTickets : isStd ? standardTickets : isSpecial ? 0 : weaponTickets;
     const affordableJade = isAdmin ? count : Math.floor(jade / 160);
     if (tickets + affordableJade < count) { flash("Recursos insuficientes", C.bad); return; }
     const useTickets = Math.min(tickets, count);
     const jadeSpent = (count - useTickets) * 160;
 
     const pool4 = isWeapon ? WEAPONS.filter((w) => w.rarity === 4) : ROSTER.filter((c) => c.rarity === 4);
-    let curPity = isChar ? pity.char : isStd ? pity.standard : pity.weapon;
+    let curPity = isChar ? pity.char : isStd ? pity.standard : isSpecial ? (pity.special || 0) : pity.weapon;
     let guar = pity.guaranteeChar;
     let chroniclesGain = 0;
     const results = [];
@@ -1558,7 +1555,7 @@ function Game({ email, isAdmin, onLogout }) {
     const ownedRef = new Set(owned.map((o) => o.id));
 
     for (let i = 0; i < count; i++) {
-      const rar = rollRarity(curPity, isChar); // banner de evento: 5★ mais raro fora do pity 90
+      const rar = rollRarity(curPity, isChar || isSpecial); // evento e especial: 5★ mais raro fora do pity 90
       if (rar === 5) {
         curPity = 0;
         if (isWeapon) {
@@ -1571,6 +1568,12 @@ function Game({ email, isAdmin, onLogout }) {
           const dup = grantChar(id, ownedRef);
           results.push({ rarity: 5, kind, id, name: CHAR_MAP[id].name, dup });
           fives.push({ id, name: CHAR_MAP[id].name, banner: "Permanente" });
+        } else if (isSpecial) {
+          // Especial Limitado: sem 50/50, sai aleatoriamente entre os 5 do evento
+          const id = pick(SPECIAL_BANNER_CHARS);
+          const dup = grantChar(id, ownedRef);
+          results.push({ rarity: 5, kind, id, name: CHAR_MAP[id].name, dup, won: true });
+          fives.push({ id, name: CHAR_MAP[id].name, banner: "✦ Especial Limitado" });
         } else {
           // SEM 50/50: todo 5★ do banner de evento É o personagem destaque, sempre
           const id = featuredChar; guar = false;
@@ -1590,8 +1593,9 @@ function Game({ email, isAdmin, onLogout }) {
     }
     if (isChar) setPity((p) => ({ ...p, char: curPity, guaranteeChar: guar }));
     else if (isStd) setPity((p) => ({ ...p, standard: curPity }));
+    else if (isSpecial) setPity((p) => ({ ...p, special: curPity }));
     else setPity((p) => ({ ...p, weapon: curPity }));
-    if (isChar) setCharTickets((t) => t - useTickets); else if (isStd) setStandardTickets((t) => t - useTickets); else setWeaponTickets((t) => t - useTickets);
+    if (isChar) setCharTickets((t) => t - useTickets); else if (isStd) setStandardTickets((t) => t - useTickets); else if (!isSpecial) setWeaponTickets((t) => t - useTickets);
     if (jadeSpent && !isAdmin) setJade((j) => j - jadeSpent);
     if (chroniclesGain) setChronicles((c) => c + chroniclesGain);
     if (fives.length) setPullHistory((h) => [...fives.map((f) => ({ ...f, t: Date.now() })), ...h].slice(0, 30));
@@ -2012,7 +2016,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} setRelicMats={setRelicMats} flash={flash} setBattle={setBattle} />}
               {screen === "relics" && <RelicsScreen relicInv={relicInv} setRelicInv={setRelicInv} owned={owned} setRelicMats={setRelicMats} flash={flash} />}
               {screen === "loja" && <Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} />}
-              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mailIniciante={mailIniciante} setMailIniciante={setMailIniciante} mail2Claimed={mail2Claimed} claimMail2Reward={claimMail2Reward} mail3Claimed={mail3Claimed} mail3CharPicked={mail3CharPicked} claimMail3Reward={claimMail3Reward} mail4Claimed={mail4Claimed} claimMail4Reward={claimMail4Reward} mail5Claimed={mail5Claimed} claimMail5Reward={claimMail5Reward} mail6Claimed={mail6Claimed} claimMail6Reward={claimMail6Reward} mail7Claimed={mail7Claimed} claimMail7Reward={claimMail7Reward} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setAscMats={setAscMats} playerName={playerName} towerTop1Claimed={towerTop1Claimed} claimTop1Reward={claimTop1Reward} flash={flash} owned={owned} />}
+              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mailIniciante={mailIniciante} setMailIniciante={setMailIniciante} mail2Claimed={mail2Claimed} claimMail2Reward={claimMail2Reward} mail3Claimed={mail3Claimed} mail3CharPicked={mail3CharPicked} claimMail3Reward={claimMail3Reward} mail4Claimed={mail4Claimed} claimMail4Reward={claimMail4Reward} mail5Claimed={mail5Claimed} claimMail5Reward={claimMail5Reward} mail6Claimed={mail6Claimed} claimMail6Reward={claimMail6Reward} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setAscMats={setAscMats} playerName={playerName} towerTop1Claimed={towerTop1Claimed} claimTop1Reward={claimTop1Reward} flash={flash} owned={owned} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
               {screen === "roleta" && <RouletteEvent jade={jade} setJade={setJade} rouletteCleared={rouletteCleared} setRouletteCleared={setRouletteCleared} nextRouletteClaimAt={nextRouletteClaimAt} setNextRouletteClaimAt={setNextRouletteClaimAt} />}
@@ -2509,6 +2513,14 @@ function useBannerTimer(key, durationMs = 5 * 24 * 60 * 60 * 1000) {
   }, [key]); // eslint-disable-line
   return remaining;
 }
+function useAbsoluteTimer(endTs) {
+  const [remaining, setRemaining] = useState(() => Math.max(0, endTs - Date.now()));
+  useEffect(() => {
+    const id = setInterval(() => setRemaining(Math.max(0, endTs - Date.now())), 1000);
+    return () => clearInterval(id);
+  }, [endTs]);
+  return remaining;
+}
 function BannerTimer({ ms, color }) {
   if (ms == null) return null;
   const total = Math.floor(ms / 1000);
@@ -2530,24 +2542,27 @@ function BannerTimer({ ms, color }) {
 function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, setFeaturedChar, featuredWeapon, setFeaturedWeapon, pullHistory, owned, ownedWeapons }) {
   const [tab, setTab] = useState("char");
   const ownedSet = new Set((owned || []).map((o) => o.id));
-  const isChar = tab === "char", isStd = tab === "standard", isWeapon = tab === "weapon";
-  const ticketCount = isChar ? charTickets : isStd ? standardTickets : weaponTickets;
-  const ticketIcon = isChar ? "🎴" : isStd ? "🪙" : "🔧";
-  const curPity = isChar ? pity.char : isStd ? pity.standard : pity.weapon;
+  const isChar = tab === "char", isStd = tab === "standard", isWeapon = tab === "weapon", isSpecial = tab === "special";
+  const ticketCount = isChar ? charTickets : isStd ? standardTickets : isSpecial ? 0 : weaponTickets;
+  const ticketIcon = isChar ? "🎴" : isStd ? "🪙" : isSpecial ? "✦" : "🔧";
+  const curPity = isChar ? pity.char : isStd ? pity.standard : isSpecial ? (pity.special || 0) : pity.weapon;
   const fc = CHAR_MAP[featuredChar] || CHAR_MAP[DEFAULT_FEATURED_CHAR];
   const fw = WEAPON_MAP[featuredWeapon] || WEAPON_MAP[DEFAULT_FEATURED_WEAPON];
   const cycleChar = (d) => { const i = FEATURED_LIMITEDS.indexOf(featuredChar); setFeaturedChar(FEATURED_LIMITEDS[(i + d + FEATURED_LIMITEDS.length) % FEATURED_LIMITEDS.length]); };
   const cycleWeapon = (d) => { const i = WEAPON_5_IDS.indexOf(featuredWeapon); setFeaturedWeapon(WEAPON_5_IDS[(i + d + WEAPON_5_IDS.length) % WEAPON_5_IDS.length]); };
-  const headColor = isWeapon ? "#B98BFF" : isStd ? C.gold : ELEMENTS[fc.element].color;
+  const headColor = isWeapon ? "#B98BFF" : isStd ? C.gold : isSpecial ? "#FF5E9E" : ELEMENTS[fc.element].color;
   const arrow = { background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 8, color: C.text, width: 28, height: 28, fontWeight: 800 };
   const charMs = useBannerTimer("char_" + featuredChar, BANNER_DURATIONS[featuredChar] || (7 * 24 * 60 * 60 * 1000)); // cada personagem tem seu próprio prazo de encerramento
   const weaponMs = useBannerTimer("weapon");
-  const bannerMs = isChar ? charMs : isWeapon ? weaponMs : null;
+  const specialMs = useAbsoluteTimer(SPECIAL_BANNER_END); // data fixa de verdade — acaba pra todo mundo junto, não reseta por dispositivo
+  const specialExpired = specialMs <= 0;
+  const bannerMs = isChar ? charMs : isWeapon ? weaponMs : isSpecial ? specialMs : null;
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-2" style={{ flexWrap: "wrap" }}>
         <TabBtn active={isChar} onClick={() => setTab("char")}>Evento 🎴</TabBtn>
+        {!specialExpired && <TabBtn active={isSpecial} onClick={() => setTab("special")}>Especial ✦</TabBtn>}
         <TabBtn active={isStd} onClick={() => setTab("standard")}>Permanente 🪙</TabBtn>
         <TabBtn active={isWeapon} onClick={() => setTab("weapon")}>Armas 🔧</TabBtn>
       </div>
@@ -2555,7 +2570,7 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
       <Panel glow={headColor} style={{ position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, background: `radial-gradient(520px 240px at 82% 18%, ${headColor}26, transparent)` }} />
         <div style={{ position: "relative" }}>
-          <div style={{ fontSize: 12, letterSpacing: 2, color: C.mute }}>{isChar ? "BANNER DE EVENTO · rate-up 50/50" : isStd ? "BANNER PERMANENTE · pool padrão" : "BANNER DE ARMAS · sem 50/50"}</div>
+          <div style={{ fontSize: 12, letterSpacing: 2, color: C.mute }}>{isChar ? "BANNER DE EVENTO · rate-up 50/50" : isStd ? "BANNER PERMANENTE · pool padrão" : isSpecial ? "✦ BANNER ESPECIAL LIMITADO · 3 DIAS · SEM 50/50" : "BANNER DE ARMAS · sem 50/50"}</div>
           {!isStd && <BannerTimer ms={bannerMs} color={headColor} />}
 
           {isChar && <>
@@ -2573,6 +2588,14 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
               </div>
             </div>
           </>}
+
+          {isSpecial && (specialExpired ? (
+            <div style={{ padding: "16px 0", textAlign: "center", color: C.mute }}>O Banner Especial encerrou. Volte na Loja/Roteiro pra saber do próximo!</div>
+          ) : <>
+            <div style={{ ...ORB, fontSize: 20, fontWeight: 800, margin: "4px 0 10px" }}>Convergência Estelar <Rarity n={5} /></div>
+            <PoolRow ids={SPECIAL_BANNER_CHARS} ownedSet={ownedSet} />
+            <div style={{ fontSize: 13, color: C.mute, marginTop: 10 }}>Evento por tempo limitado — <b style={{ color: "#FF5E9E" }}>3 dias corridos</b>, a mesma data pra todo mundo. Todo 5★ deste banner sai <b>aleatoriamente entre os 5 personagens acima</b> (sem 50/50, sem repetir taxa).</div>
+          </>)}
 
           {isStd && <>
             <div style={{ ...ORB, fontSize: 20, fontWeight: 800, margin: "4px 0 10px" }}>Pool Padrão <Rarity n={5} /></div>
@@ -2592,15 +2615,17 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
             </div>
           </>}
 
+          {(!isSpecial || !specialExpired) && <>
           <div style={{ marginTop: 12 }}>
-            <div style={{ fontSize: 12, color: C.mute }}>Garantia: 5★ em até 90 · sem 5★ há <b style={{ color: C.gold }}>{curPity}</b>/90{isChar ? " · todo 5★ é o personagem destaque (sem 50/50)" : ""}</div>
+            <div style={{ fontSize: 12, color: C.mute }}>Garantia: 5★ em até 90 · sem 5★ há <b style={{ color: C.gold }}>{curPity}</b>/90{isChar ? " · todo 5★ é o personagem destaque (sem 50/50)" : isSpecial ? " · todo 5★ vem do pool especial (sem 50/50)" : ""}</div>
             <Bar value={curPity} max={90} color={C.gold} />
           </div>
           <div className="flex gap-2 mt-4">
-            <Btn onClick={() => doPull(tab, 1)}>Invocar x1</Btn>
-            <Btn kind="soft" onClick={() => doPull(tab, 10)}>Invocar x10</Btn>
+            <Btn disabled={isSpecial && specialExpired} onClick={() => doPull(tab, 1)}>Invocar x1</Btn>
+            <Btn kind="soft" disabled={isSpecial && specialExpired} onClick={() => doPull(tab, 10)}>Invocar x10</Btn>
           </div>
-          <div style={{ fontSize: 11, color: C.mute, marginTop: 8 }}>Bilhete {ticketIcon} ou 160💎 por puxada · você tem <b style={{ color: C.text }}>{ticketCount}</b> {ticketIcon}, <b style={{ color: C.text }}>{jade}</b>💎 e <b style={{ color: C.text }}>{chronicles}</b>📜</div>
+          <div style={{ fontSize: 11, color: C.mute, marginTop: 8 }}>{isSpecial ? "160💎 por puxada (sem bilhete próprio)" : `Bilhete ${ticketIcon} ou 160💎 por puxada`} · você tem {!isSpecial && <><b style={{ color: C.text }}>{ticketCount}</b> {ticketIcon}, </>}<b style={{ color: C.text }}>{jade}</b>💎 e <b style={{ color: C.text }}>{chronicles}</b>📜</div>
+          </>}
         </div>
       </Panel>
 
@@ -2610,7 +2635,7 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
         <b>Taxas</b>
         <div style={{ fontSize: 13, color: C.mute, marginTop: 6, lineHeight: 1.7 }}>
           5★: 0,6% (sobe a partir da 74ª, garantido na 90ª) · 4★: 5,1% · resto vira Crônicas (+1📜).
-          {isChar ? " Evento: 50/50 com garantia — perdeu, o próximo 5★ é o destaque. Use ‹ › para escolher qual limitado fica em destaque." : isStd ? " Permanente: sem 50/50, sai do pool padrão." : " Armas: sem 50/50. Use ‹ › para escolher a arma em destaque."}
+          {isChar ? " Evento: 50/50 com garantia — perdeu, o próximo 5★ é o destaque. Use ‹ › para escolher qual limitado fica em destaque." : isStd ? " Permanente: sem 50/50, sai do pool padrão." : isSpecial ? " Especial Limitado: sem 50/50 — todo 5★ sai aleatoriamente entre os 5 personagens do evento. Banner acaba de vez em 3 dias." : " Armas: sem 50/50. Use ‹ › para escolher a arma em destaque."}
         </div>
       </Panel>
 
@@ -2781,6 +2806,18 @@ function Roster({ owned, ownedWeapons, relicInv, setOwnedField, levelUp, ascendC
 
 function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, ascendChar, ascMats, jade, isAdmin, expItems, bossMats, traceLevelUp, unlockTraceNode, unlockSpecialTrace, publish, onUpgradeRelic, weaponLevelUp, weaponMats, skillMats, tagMats }) {
   const def = CHAR_MAP[o.id]; const [tab, setTab] = useState("status");
+  if (!def) {
+    // Corrige crash de tela branca: personagem com id desconhecido/desatualizado (save antigo ou fora de sincronia)
+    return (
+      <div className="flex flex-col gap-4">
+        <button onClick={back} style={{ color: C.mute, fontSize: 13, textAlign: "left" }}>‹ voltar ao elenco</button>
+        <Panel glow={C.bad}>
+          <div style={{ fontWeight: 800, fontSize: 16, color: C.bad }}>⚠️ Não foi possível carregar este personagem</div>
+          <div style={{ fontSize: 13, color: C.mute, marginTop: 6 }}>O ID "{o.id}" não existe mais nos dados do jogo (provavelmente de uma versão antiga do save). Isso não deveria travar o app — volte ao Elenco e tente outro personagem. Se isso aconteceu com vários personagens de uma vez, me avisa que reviso o save.</div>
+        </Panel>
+      </div>
+    );
+  }
   const oc = normChar(o);
   const stats = computeStats(o); const el = ELEMENTS[def.element]; const nodes = constellationNodes(def);
   const pass = passiveOf(def); const sts = specialTraces(def);
@@ -4567,8 +4604,21 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     }
   }
   if (!defender.alive && defender.side === "H" && defender._uti) { defender._uti = false; defender.hp = 1; defender.alive = true; fx.push({ uid: defender.uid, txt: "UTI: +1 HP!", heal: true, id: Math.random() }); }
+  // ── Yoruichi — Frequência Shunpo: gatilho central p/ QUALQUER Ataque Extra aliado (corrige clones que quase nunca disparavam) ──
+  if (dmg > 0 && opts?.isFollowup && !opts?.isYoruClone && attacker.side === "H" && !attacker.isSummon && attacker.alive) {
+    yoruFollowupProc(attacker, defender, dmg, fx);
+  }
   fx.push({ uid: defender.uid, txt: String(dmg), crit, id: Math.random(), el: opts?.el || attacker.element, enhanced: !!opts?.enhanced });
   return { dmg, crit };
+}
+// Sistema de dano de DoT: aleatório, com piso mínimo que escala com o quanto o personagem está investido (ATK efetivo)
+function dotDamageRoll(source, m) {
+  const atk = effStat(source, "atk");
+  const scale = Math.max(1, atk / 700); // 700 = ATK de referência (personagem base pouco investido)
+  const floor = Math.round(80000 * scale); // piso mínimo de 80.000, cresce com o scale (investimento/build) do personagem
+  const variance = 0.85 + Math.random() * 0.30; // variação aleatória de ±15%
+  const scaled = Math.round(atk * (m / 100) * variance);
+  return Math.max(floor, scaled);
 }
 function applyDot(targets, spec, source, fx) {
   const f = source.stFlags || {};
@@ -4577,8 +4627,7 @@ function applyDot(targets, spec, source, fx) {
   if (f.pScorch && spec.type === "burn") m *= 1.3;
   if (f.setFire2 && spec.type === "burn") m *= 1.1; // Núcleo Ardente 2pç
   m *= 1 + (source.base.dotDmg || 0) / 100; // substatus "Dano de DoT"
-  let dmg = Math.max(1, Math.round(effStat(source, "atk") * (m / 100) * 1.4)); // buff geral +40% no dano de DoT (pedido: "12K é muito baixo")
-  if (source.id === "miyabi" && (spec.type === "freeze" || spec.type === "geada")) dmg = Math.max(100, Math.min(90000, dmg)); // trava ampliada: DoT da Miyabi agora entre 100 e 90.000
+  const dmg = dotDamageRoll(source, m); // novo sistema: aleatório, piso de 80k escalando com o personagem
   const glacial = spec.type === "freeze" || spec.type === "geada";
   targets.forEach((t) => {
     if (!t.alive) return;
@@ -4629,7 +4678,7 @@ function checkNamiFollowup(s, actor, fx) {
   const ae = s.enemies.filter(e => e.alive && (e.dots || []).some(d => d.type === "cyclone"));
   if (!ae.length) return;
   const tgt = ae[0];
-  const r = dealDamage(nami, tgt, 40 * (nami.tSkill || 1), fx, { breakW: 1, el: "Vento" });
+  const r = dealDamage(nami, tgt, 40 * (nami.tSkill || 1), fx, { breakW: 1, el: "Vento", isFollowup: true });
   s.log = [...s.log.slice(-40), `🌊 NAMI — Ataque Coordenado em ${tgt.name}: ${r.dmg} de Dano de Vento!`];
 }
 // Ataque Extra da Soi Fon — gatilho próprio do Talento dela (como no HSR, cada personagem define seu próprio gatilho de Ataque Extra; não existe um "sistema" único compartilhado entre personagens).
@@ -4752,7 +4801,7 @@ function tickDots(u, fx, allies) {
     const dotAmp = (u.debuffs || []).filter(b => b.stat === "dotAmp").reduce((a, b) => a + (b.value || 0), 0);
     if (dotAmp) dmg = Math.round(dmg * (1 + dotAmp / 100));
     // Ignis (trava anti-HK): o dano do tick nunca excede 10% do HP atual do alvo
-    if (d.type === "burn") dmg = Math.max(1, Math.min(dmg, Math.round(u.hp * 0.10)));
+    if (d.type === "burn") dmg = Math.max(1, Math.min(dmg, Math.round(u.hp * 0.25)));
     // Yanagi — Estase (Fagulha de Anomalia): DoTs recebidos ganham +25% de dano + escala com a Perfuração por Carga
     const sparkCt = (u.debuffs || []).filter(b => b.name === "Fagulha de Anomalia").length;
     if (sparkCt > 0) dmg = Math.round(dmg * 1.25 * (1 + Math.min(0.30, sparkCt * 0.05)));
@@ -9221,7 +9270,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared, nex
   );
 }
 
-function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante, mail2Claimed, claimMail2Reward, mail3Claimed, mail3CharPicked, claimMail3Reward, mail4Claimed, claimMail4Reward, mail5Claimed, claimMail5Reward, mail6Claimed, claimMail6Reward, mail7Claimed, claimMail7Reward, setJade, setExpItems, setWeaponMats, setRelicMats, setAscMats, playerName, towerTop1Claimed, claimTop1Reward, flash, owned }) {
+function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante, mail2Claimed, claimMail2Reward, mail3Claimed, mail3CharPicked, claimMail3Reward, mail4Claimed, claimMail4Reward, mail5Claimed, claimMail5Reward, mail6Claimed, claimMail6Reward, setJade, setExpItems, setWeaponMats, setRelicMats, setAscMats, playerName, towerTop1Claimed, claimTop1Reward, flash, owned }) {
   const [pickChar3, setPickChar3] = React.useState(null);
   const [pickChar4, setPickChar4] = React.useState(null);
   const [isTop1, setIsTop1] = React.useState(false);
@@ -9275,21 +9324,6 @@ function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante,
         <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>📬 Correio</div>
         <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>Mensagens e recompensas enviadas pelo sistema.</div>
       </Panel>
-
-      {!mail7Claimed && (
-        <Panel glow="#F6C95B">
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-            <div style={{ fontSize: 38 }}>💎</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>Bônus Especial de Gemas</div>
-              <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
-                <b style={{ color: C.gold }}>+22.000💎</b> de presente especial para todos os Pioneiros!
-              </div>
-              <Btn kind="primary" style={{ width: "100%", padding: "10px 18px", fontWeight: 800 }} onClick={() => claimMail7Reward()}>💎 Coletar</Btn>
-            </div>
-          </div>
-        </Panel>
-      )}
 
       {!mail6Claimed && (
         <Panel glow="#F6C95B">
