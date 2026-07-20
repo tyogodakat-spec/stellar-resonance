@@ -876,7 +876,22 @@ function computeStats(owned) {
   for (let i = 0; i < (owned.eidolon || 0); i++) { const n = nodes[i]; if (n && n.stat) addPctOrFlat(n.stat, n.value); }
   const tnodes = traceNodesOf(def);
   (owned.traceNodes || []).forEach((on, i) => { if (on && tnodes[i]) { const nd = tnodes[i]; if (nd.stat === "elemDmg") addElem(nd.element, nd.value); else addPctOrFlat(nd.stat, nd.value); } });
-  // Lupa C5 · Garra de Almas: +12% Taxa Crítica e +75% Dano de Fogo (bônus permanentes — não têm stat/value no nó)
+  // ── Hitori: passiva + constelações com stats permanentes (não têm stat/value no nó genérico) ──
+  if (owned.id === "hitori") {
+    // C1 · Rastreadora de Cinzas: +12 VEL permanente
+    if ((owned.eidolon || 0) >= 1) flat.spd += 12;
+    // C5 · Dissonância do Chaos: +80% Dano Crítico permanente
+    if ((owned.eidolon || 0) >= 5) flat.critDmg += 80;
+    // Passiva · Ansiedade Amplificada: a cada 3% de Dano Crítico = +1 VEL (C3 muda para a cada 2%)
+    // Calculamos com o CD total já acumulado (base + arma + relíquias + C5 acima)
+    const totalCd = def.base.critDmg + flat.critDmg;
+    const divisor = (owned.eidolon || 0) >= 3 ? 2 : 3;
+    flat.spd += Math.floor(totalCd / divisor);
+  }
+  // ── Lupa: constelações com stats permanentes ──
+  // C1 · Rastreadora de Cinzas: +15% Regen de Energia permanente
+  if (owned.id === "lupa" && (owned.eidolon || 0) >= 1) flat.energyRegen += 15;
+  // C5 · Garra de Almas: +12% Taxa Crítica e +75% Dano de Fogo (bônus permanentes)
   if (owned.id === "lupa" && (owned.eidolon || 0) >= 5) {
     flat.critRate += 12;
     addElem("Fogo", 75);
