@@ -82,6 +82,12 @@ const ROSTER = [
   // ---- Frieren (Limitada) ----
   mk({ id: "frieren", name: "Frieren", title: "Alem do Fim das Jornadas", element: "Holy", role: "aoe", rarity: 5, avatar: "🧝", hp: 1080, atk: 880, def: 430, spd: 103, energy: 110, cr: 8, cd: 58, elemDmg: 8.0, tags: ["Holy", "Maga", "AoE", "Elementalista", "Suporte"],
     skill: { basicMul: 90, frBasic: true, skillMul: 180, frSkill: true, ultMul: 470, frUlt: true } }),
+  // ---- Lupa · A Predadora de Fusão (Limitada) ----
+  mk({ id: "lupa", name: "Lupa", title: "A Predadora de Fusão", element: "Fogo", role: "dps", rarity: 5, avatar: "🐺", hp: 1240, atk: 940, def: 460, spd: 107, energy: 200, cr: 12, cd: 68, elemDmg: 6.0, tags: ["Fogo", "DPS", "Detonação de DoT", "Nuke"],
+    skill: { basicMul: 150, lupaBasic: true, skillMul: 300, lupaSkill: true, ultMul: 850, ultAoe: true, lupaUlt: true } }),
+  // ---- Hitori Gotoh · Bocchi the Rock! (Limitada) ----
+  mk({ id: "hitori", name: "Hitori Gotoh", title: "Bocchi the Rock!", element: "Chaos", role: "buffer", rarity: 5, avatar: "🎸", hp: 1120, atk: 480, def: 440, spd: 101, energy: 160, cr: 8, cd: 50, tags: ["Chaos", "Suporte", "Buffer", "Ansiedade Social"],
+    skill: { basicMul: 40, hitoriBasic: true, skillMul: 0, hitoriSkill: true, ultMul: 0, hitoriUlt: true } }),
   // ---- Soi Fon (Limitada) ----
   mk({ id: "soifon", name: "Soi Fon", title: "Capitã da 2ª Divisão", element: "Vento", role: "dps", rarity: 5, avatar: "🦋", hp: 1040, atk: 740, def: 420, spd: 118, energy: 120, cr: 8, cd: 56, tags: ["Vento", "Follow-up", "Sub DPS", "Assassina"],
     skill: { basicMul: 100, sfBasic: true, skillMul: 160, sfSkill: true, ultMul: 350, sfUlt: true } }),
@@ -107,11 +113,11 @@ const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 // Tag primária de um personagem (usada como requisito de nó) e todas as tags únicas do elenco
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
-const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon"];     // limitados (pool 50/50): só via rate-up
-const FEATURED_LIMITEDS = ["yanagi", "kaiba", "shorekeeper"]; // banners ativos agora: Yanagi, Kaiba e Shorekeeper (Miyabi/Agumon encerrados)
-const BANNER_DURATIONS = { yanagi: 3 * 24 * 60 * 60 * 1000, kaiba: 3 * 24 * 60 * 60 * 1000, shorekeeper: 4 * 24 * 60 * 60 * 1000 }; // Yanagi/Kaiba: 3 dias restantes · Shorekeeper: 4 dias restantes
+const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon", "lupa", "hitori"];     // limitados (pool 50/50): só via rate-up
+const FEATURED_LIMITEDS = ["lupa", "hitori"]; // banners ativos agora: só Lupa e Hitori Gotoh (demais limitados encerrados)
+const BANNER_DURATIONS = { lupa: 5 * 24 * 60 * 60 * 1000, hitori: 5 * 24 * 60 * 60 * 1000 }; // 5 dias cada
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
-const DEFAULT_FEATURED_CHAR = "yanagi";
+const DEFAULT_FEATURED_CHAR = "lupa";
 // Banner Especial Limitado — pool de 5, dura 3 dias corridos pra TODO mundo (data fixa, não reseta por dispositivo)
 const SPECIAL_BANNER_CHARS = ["soifon", "omegamon", "ryoshu", "wonderofyou", "frieren"];
 const SPECIAL_BANNER_START = new Date("2026-07-20T18:00:00Z").getTime();
@@ -122,6 +128,8 @@ const SPECIAL_BANNER_END = SPECIAL_BANNER_START + SPECIAL_BANNER_DURATION_MS;
 // Valores de atk e stats secundários = nível MÁXIMO (80). Escalam via weaponLevelMul().
 const WEAPONS = [
   // ── ★★★★★ 5-estrelas ────────────────────────────────────────────────────────
+  { id: "batera_kessoku", name: "Batera do Kessoku Band", rarity: 5, role: "buffer", atk: 650, critDmg: 64.0, passive: "Sempre que um aliado ataca, o usuário ganha 5 de energia. O usuário concede um avanço de ação de 50% após o uso do supremo. Se o usuário for Hitori Gotoh, a mesma poderá conceder 12% de perfuração quando usar sua perícia para o aliado do primeiro slot.", buff: { hitoriWeapon: true } },
+  { id: "presa_calamidade",  name: "Presa da Calamidade Eterna", rarity: 5, role: "dps", atk: 587, critDmg: 48.6, atkPct: 12.0, energyRegen: 12.0, passive: "Aniquilação do Purgatório — Fundição Térmica: +12% de ATK e +12% de Regen. de Energia permanentes. Acúmulo de Incinerador: sempre que causar Dano de Fogo a um inimigo sob DoT, ou detonar/consumir um DoT em campo, ganha 1 acúmulo de Incinerador por 2 turnos (máx 3) — cada acúmulo dá +10% de Dano de Fogo e faz a Ultimate ignorar +6% de DEF (até +30% de Dano de Fogo / 18% de Perfuração no máximo). Colapso Fissural: ao conjurar a Ultimate, consome todos os acúmulos pra ativar Supernova — +25% de Dano Crítico na Suprema, e por 2 turnos a Perícia e o Básico ganham +15% de Dano Final e aplicam Ignição com o dobro da taxa base.", buff: { lupaWeapon: true } },
   { id: "digivice",         name: "Digivice da Coragem",   rarity: 5, role: "dps",      atk: 500, hpFlat: 500, elemDmg: 30.0,    passive: "Sincronia Térmica: +50 de TamerSP máximo; Perícias geram 5 a menos de Calor. Ao Digivolver: restaura 10% do HP Máximo e +10 de VEL por 2 rodadas. No MODO X: a Gaia Force ganha +50% de CRIT DMG e inimigos derrotados por ela não podem ser ressuscitados nem curados por 1 rodada.", buff: { aguWeapon: true } },
   { id: "relampago_fugaz",  name: "Relâmpago Fugaz",       rarity: 5, role: "dps",      hpFlat: 1058, defFlat: 463, spd: 10,      passive: "Passo Fantasma: HP 1058 · DEF 463 · +10 de VEL Base fixa. Efeito 1: +12% da VEL total do portador, sempre ativo. Efeito 2: cada Ataque Extra do portador aumenta o dano dos PRÓXIMOS Ataques Extras dele mesmo em +10% (acumula até 3×, cada acúmulo renova a duração de 2 turnos). Efeito 3 (com VEL > 150): todo Ataque Extra do portador concede +12% de Taxa de CRIT e +24% de CRIT DMG a TODA a equipe por 2 turnos, e recupera 2 de Energia sempre que o Talento intercepta uma ação aliada (independe do limiar de 150 VEL).", buff: { yoruWeapon: true, spdPct: 12 } },
   { id: "sinfonia_estelar",  name: "Sinfonia Estelar",      rarity: 5, role: "healer",   hpFlat: 1270, atk: 423, defFlat: 463, hpPct: 40.0, energyRegen: 20.0, passive: "Atributos Base: Nv. 1: HP 58 | ATK 21 | DEF 21 — Nv. 80 (máximo): HP 1270 | ATK 423 | DEF 463. Efeito Passivo — Eco do Mar Negro (valores no nível máximo): Expansão de Hardware — aumenta o HP Máximo do portador incondicionalmente em 40%. Otimização de Bateria — aumenta a Taxa de Regeneração de Energia do portador em 20%. Sincronização de Rede — ao ativar a Habilidade Suprema, todos os aliados (exceto o portador) regeneram instantaneamente 14 de Energia; além disso, enquanto o efeito da Suprema estiver ativo em campo, o Dano Final de toda a equipe sobe 24%.", buff: { shkWeapon: true } },
@@ -148,8 +156,8 @@ const WEAPONS = [
   { id: "aegis",       name: "Egide Brilhante",     rarity: 4, role: "shield",   atk: 396, def: 396, shieldBonus: 38,    passive: "Muralha Brilhante: +38% no valor dos Escudos gerados pelo portador." },
 ];
 const WEAPON_MAP = Object.fromEntries(WEAPONS.map((w) => [w.id, w]));
-const WEAPON_5_IDS = WEAPONS.filter((w) => w.rarity === 5).map((w) => w.id);
-const DEFAULT_FEATURED_WEAPON = "starblade";
+const WEAPON_5_IDS = ["presa_calamidade", "batera_kessoku"]; // banner de armas ativo agora: só as armas de Lupa e Hitori
+const DEFAULT_FEATURED_WEAPON = "presa_calamidade";
 
 /* ---------- MOCHILEIRO (seletor de personagem inicial) ---------- */
 const BEGINNER_PICK_CHARS = [
@@ -274,7 +282,7 @@ const GAME_ITEMS = [
   { id: "item_relic_muralha",    name: "Relíquia · Muralha do Guardião",             icon: "🛡️" },
   { id: "item_relic_adapt",      name: "Relíquia · Protocolo de Adaptação Universal", icon: "🧬" },
 ];
-const STAT_LABEL = { hp: "HP", atk: "ATK", def: "DEF", spd: "VEL", critRate: "CRIT", critDmg: "CRIT DMG", dmgBonus: "DANO", energyRegen: "REGEN ENERGIA", healBonus: "CURA", energyMax: "EN", vuln: "VULN", defPen: "PENETRAÇÃO DEF", elemDmg: "DANO ELEM.", dotDmg: "DANO DE DoT", atkP: "ATK", hpP: "HP", defP: "DEF", atkFlat: "ATK", hpFlat: "HP", defFlat: "DEF", breakEffect: "EFEITO DE PERFURAÇÃO", breakEff: "EFICIÊNCIA DE PERFURAÇÃO" };
+const STAT_LABEL = { hp: "HP", atk: "ATK", def: "DEF", spd: "VEL", critRate: "CRIT", critDmg: "CRIT DMG", dmgBonus: "DANO", energyRegen: "REGEN ENERGIA", healBonus: "CURA", energyMax: "EN", vuln: "VULN", defPen: "PENETRAÇÃO DEF", elemDmg: "DANO ELEM.", dotDmg: "DANO DE DoT", atkP: "ATK", hpP: "HP", defP: "DEF", atkFlat: "ATK", hpFlat: "HP", defFlat: "DEF", breakEffect: "EFEITO DE PERFURAÇÃO", breakEff: "EFICIÊNCIA DE PERFURAÇÃO", followupDmg: "DANO DE ATAQUE EXTRA" };
 const PCT = { hp: 1, atk: 1, def: 1 };
 // Quais chaves são exibidas com "%": tudo menos VEL e os *Flat
 const isFlatKey = (k) => k === "spd" || k === "atkFlat" || k === "hpFlat" || k === "defFlat" || k === "energyMax";
@@ -335,6 +343,8 @@ const weaponTotalCostToMax = (fromLv) => { let tot = 0; for (let lv = fromLv; lv
 
 // Passiva de personagem (sempre ativa) — identidade única do kit, descrita em detalhe
 const PASSIVE = {
+  hitori: { name: "Ansiedade Amplificada", desc: "5 Estrelas - Suporte | Chaos. Ataques básicos não farão nada além de dar uma pequena quantidade de dano de Chaos. Passivas: A cada 3% de dano crítico, Hitori recebe 1 ponto de velocidade. Concede 30 de energia para todos os aliados após ativar seu supremo. Concede 30% de bônus de dano de Holy e Chaos para os aliados nos dois primeiros slots.", flag: "hitoriPassive" },
+  lupa: { name: "Fome da Predadora", desc: "Lupa opera como uma força da natureza que se alimenta do caos elemental presente no campo de batalha. Acúmulo de Voracidade: Sempre que Lupa causa Dano de Fogo a um inimigo sob o efeito de qualquer Dano Contínuo (DoT de Fogo, Sangramento, Choque, etc.), ela consome 1 rodada desse efeito e ganha 1 carga de Voracidade (máximo de 10 cargas). Cada carga concede +20% de Dano de Fogo (até +200% no máximo). Cada carga também restaura 5 pontos de Energia instantaneamente para Lupa. Chama Voraz: Quando Lupa possui 10 cargas de Voracidade, ela entra no estado \"Predadora Absoluta\". Seu próximo Ataque Básico ou Perícia ignora 20% da DEF do alvo e consome todas as cargas para garantir que sua próxima Liberação de Ressonância (Ultimate) cause Dano Crítico Garantido.", flag: "lupaVoracity" },
   miyabi:    { name: "Caçadora do Vazio · Geada Profunda", desc: "Talento: sempre que Miyabi atinge um inimigo que esteja sob QUALQUER efeito contínuo (Congelamento, Queimadura, Veneno, Choque ou Sangramento), o golpe causa +30% de dano. Como suas próprias Habilidade e Ultimate marcam congelamento, ela rapidamente se auto-habilita e escala o dano contra alvos já afligidos pela equipe — quanto mais DoTs no campo, mais letal ela fica.", flag: "pShatter" },
   kaiba:     { name: "Regra do Duelista", desc: "Kaiba é limitado a manter apenas 1 Monstro Invocado ativo no campo de batalha por vez. Mecânica de Substituição: se um novo Monstro for invocado enquanto já houver outro ativo, o monstro anterior é destruído imediatamente. Atributos da Invocação: o Monstro Invocado ativo possui sua própria barra de ação na Ordem de Turnos, agindo de forma autônoma. Ele herda 100% da VEL de Kaiba, 100% da Taxa/Dano Crítico dele, e 120% do ATK base dele. Quando Kaiba sofre um ataque, o Monstro Invocado intercepta 30% do dano recebido — como ele não possui uma barra de HP independente, esse dano nunca chega a ser subtraído da vida de Kaiba (na prática, isso se traduz em -30% de todo o dano sofrido por Kaiba enquanto houver um Monstro ativo em campo).", flag: null },
   renji:     { name: "Instinto de Caça · Execução", desc: "Talento: Renji fareja o sangue. Contra inimigos abaixo de 40% de HP, todos os seus ataques causam +25% de dano, transformando-o em um finalizador implacável. Combina com o Sangramento da Habilidade, que mantém o alvo perdendo vida até entrar no alcance de execução.", flag: "pExecute" },
@@ -362,6 +372,22 @@ const PASSIVE = {
 // Corrente de Ressonância / Eidolons — 6 nós ÚNICOS por personagem (estilo HSR/WuWa)
 const A_SKILL = { amp: "skill", ampV: 25 }, A_ULT = { amp: "ult", ampV: 50 };
 const CONS = {
+  hitori: [
+    { name: "C1 · Rastreadora de Cinzas", flag: "hitoriC1", desc: "Aumenta a velocidade de Hitori em 12 pontos. Quando Hitori usar o supremo, ela concederá 24% de taxa de perfuração para todos os aliados." },
+    { name: "C2 · Conexão de Palco", flag: "hitoriC2", desc: "Concede 10% de chance de crítico para todos os aliados no começo da batalha. Hitori regenera 20% do HP máximo de todos os aliados quando usa o supremo." },
+    { name: "C3 · Ansiedade Amplificada", flag: "hitoriC3", desc: "Foco: Otimização da Conversão de Atributos e Amplificação de ATK. Hitori transforma seu pânico interior em uma ressonância rítmica devastadora para a equipe: Aceleração Sinestésica: A taxa de conversão da sua Passiva é aprimorada: agora, a cada 2% de Dano Crítico, Hitori recebe 1 ponto de Velocidade. Impacto Sonoro: O bônus de ATK concedido pela Perícia \"Entoar da solidão\" aumenta de 1000 para 1500 de ATK e passa a ser aplicado para todos os aliados na batalha, e não apenas para um único alvo." },
+    { name: "C4 · Fuga de Emergência", flag: "hitoriC4", desc: "Constelação Mediana / Utilitário. Foco: Redução de Custo de Energia, Limpeza de Debuffs e Proteção Anti-Morte. Hitori cria uma zona de conforto para a equipe, garantindo que ninguém caia enquanto a música estiver tocando: Economia de Ritmo: O custo de energia da Liberação de Ressonância (Ult) \"Kessoku Band\" é reduzido permanentemente de 160 para 130 de Energia. Mecanismo de Salvação: Sempre que um aliado prestes a sofrer dano fatal estiver em campo, Hitori nega essa morte, restaura 30% do HP Máximo desse aliado e concede a ele um Escudo de Isolamento equivalente a 100% do Dano Crítico total de Hitori por 2 rodadas (pode ser ativado 1 vez por batalha). Purificação Térmica: Ao utilizar sua Perícia, Hitori remove 1 debuff de todos os aliados." },
+    { name: "C5 · Dissonância do Chaos", flag: "hitoriC5", desc: "Foco: Bônus Estatístico Massivo e Expansão Elemental. O domínio de Hitori sobre a energia Chaos atinge o ápice, rompendo as barreiras elementais tradicionais: Hitori ganha um bônus permanente e incondicional de +80% de Dano Crítico. O bônus da sua Passiva para os aliados nos dois primeiros slots aumenta de 30% para 60% de Dano de Holy e Chaos. Além disso, essa amplificação passa a cobrir todos os outros elementos do jogo na proporção de 30% de Bônus de Dano Elemental." },
+    { name: "C6 · Bocchi the Rock! — O Solo Lendário", flag: "hitoriC6", desc: "Constelação Absurda. Foco: Game-Breaker, Avanço de Ação Total, Overclock de Atributos e Quebra Absoluta de Defesas. Hitori supera todos os seus medos sociais e assume o controle absoluto do campo de batalha, transformando o combate em uma apresentação ininterrupta: Efeito Kessoku Overclock: Todos os multiplicadores de conversão do Supremo \"Kessoku Band\" são dobrados: Concede 16% do seu Dano Crítico total em forma de Chance de Crítico. Concede 60% do seu Dano Crítico total em forma de Dano Crítico para os aliados. Concede 30% da sua Velocidade em forma de Bônus de Dano Elemental para os dois primeiros slots. A duração do Supremo é estendida de 4 para 6 rodadas. Injeção de Energia & Transbordo Crítico: A regeneração de energia da sua Passiva pós-Supremo aumenta de 30 para 60 de Energia para todos os aliados. Qualquer energia que exceder o limite máximo do aliado é convertida em +2% de Dano Crítico adicional para esse aliado por cada 1 ponto de energia excedente (duração de 2 rodadas). Avanço de Ação Absoluto: Ao ativar o Supremo, os aliados posicionados nos dois primeiros slots recebem um Avanço de Ação de 100% (agindo imediatamente) e seus próximos ataques ignoram 50% da DEF e 30% da Resistência Elemental de todos os inimigos." },
+  ],
+  lupa: [
+    { name: "C1 · Rastreadora de Cinzas", flag: "lupaC1", desc: "Foco: Consistência de Acúmulo e Sustentabilidade de DoTs. Sempre que Lupa utilizar a Perícia de Ressonância \"Salto do Abismo\", a duração dos efeitos de Dano Contínuo (DoT) consumidos no alvo não é mais reduzida pela metade; em vez disso, ela extrai 100% do dano de detonação instantânea mantendo a duração original do efeito intacta no inimigo. Além disso, ao entrar em combate, Lupa aplica automaticamente 1 acúmulo de \"Ignição\" a todos os inimigos no campo por 3 turnos, e sua Taxa de Regeneração de Energia é aumentada em 15% de forma permanente." },
+    { name: "C2 · Instinto da Caçadora Implacável", flag: "lupaC2", desc: "Constelação Forte. Foco: Explosão de Multiplicadores, Dano em Área e Quebra de Defesa. Lupa otimiza sua capacidade de predação elemental, transformando o consumo de anomalias em uma onda de choque devastadora: Amplificação de Matilha: Sempre que Lupa consome qualquer efeito de DoT no campo de batalha, todo o grupo recebe um bônus de 30% de Dano de Fogo e 20% de Dano de DoT por 3 turnos. Eco de Detonação: Quando a Perícia de Ressonância \"Salto do Abismo\" detona os DoTs de um alvo principal, 100% do valor total dessa detonação é replicado como Dano de Fogo em área para todos os inimigos adjacentes. Predação Absoluta Aprimorada: Ao atingir o estado \"Predadora Absoluta\" (10 cargas de Voracidade), o efeito de ignorar DEF da próxima habilidade aumenta de 20% para 40%. Além disso, a próxima Liberação de Ressonância (Ultimate) conjurada neste estado recebe um bônus adicional e incondicional de +80% de Dano Crítico." },
+    { name: "C3 · Purgatório Terminal", flag: "lupaC3", desc: "Nova Mão Mecânica. Foco: Vulnerabilidade Elemental e Micro-Explosões em Cadeia. Ao consumir ou detonar qualquer efeito de DoT em um inimigo, Lupa grava nele a marca \"Chama Residual\" por 4 turnos. Inimigos marcados com Chama Residual têm sua Resistência a Fogo (RES) reduzida em 25%. Sempre que um inimigo marcado com Chama Residual sofrer dano de qualquer membro da equipe, a marca aciona uma reação térmica que causa 80% do ATK de Lupa como Dano de Fogo Adicional (pode ser ativado até 1 vez por segundo por inimigo)." },
+    { name: "C4 · Barreira de Incineradores", flag: "lupaC4", desc: "Constelação Mediana. Foco: Utilitário de Sobrevivência, Regeneração Elemental e Suporte Moderado. Lupa canaliza parte do calor gerado por suas detonações para proteger a si mesma e seus aliados durante o combate: Manto Flamejante: Ao conjurar a Liberação de Ressonância (Ultimate) ou entrar no estado \"Predadora Absoluta\", Lupa concede a todos os membros da equipe um Escudo de Chamas equivalente a 150% do ATK de Lupa por 3 turnos. Ressonância Térmica: Enquanto o Escudo de Chamas estiver ativo, os aliados protegidos ganham 15% de Resistência a Todos os Elementos e regeneram 3 pontos de Energia no início de cada um de seus turnos. Sincronia Ofensiva: Se Lupa atacar um inimigo enquanto estiver protegida por este escudo, seu próprio Dano de Fogo é aumentado em +25%." },
+    { name: "C5 · Garra de Almas", flag: "lupaC5", desc: "Foco: Amplificação Incondicional de Dano de Fogo e Consistência Crítica. O domínio de Lupa sobre o elemento Fogo atinge uma pureza devastadora, eliminando qualquer instabilidade em sua condução de energia elemental: Lupa recebe um bônus permanente e incondicional de +75% de Dano de Fogo e +12% de Taxa Crítica. Esse aumento é aplicado diretamente aos atributos base de Lupa, potencializando todas as suas instâncias de dano." },
+    { name: "C6 · Estigma Apocalíptico — A Fome Suprema", flag: "lupaC6", desc: "Constelação Absurda. Foco: Game-Breaker, Nuke Apocalíptico e Ignorar 100% de DEF. Lupa remove todas as amarras de sua natureza predatória, reescrevendo as leis de degradação elemental e transformando o campo de batalha em um inferno incondicional: Expansão do Estômago Voraz: O limite máximo de acúmulos de \"Voracidade\" do Circuito Forte é aumentado de 10 para 15 cargas. Para cada carga acima da 10ª (do acúmulo 11 ao 15), Lupa ganha +30% de Dano Crítico adicionais (chegando a um bônus total de +150% de Dano Crítico só pelo Circuito Forte) e reduz a Resistência a Fogo dos inimigos atingidos em 8% por carga. Colapso Sem Limites (Nuke Insano): O escalonamento bônus da Liberação de Ressonância (Ultimate) por rodada de DoT consumida deixa de ter teto e passa de +200% para +350% por rodada. Caso o Nuke consuma 6 ou mais rodadas de DoT simultaneamente, a Habilidade Suprema dispara um segundo impacto imediato denominado \"Cataclismo Secundário\", causando 1.000% do ATK de Lupa como Dano de Fogo Puro, o qual ignora 100% da DEF do inimigo e 50% de sua Resistência Elemental (RES). Estado Overclock Eterno & Re-aplicação Perfeita: A duração do estado Overclock ativado pós-Ultimate é estendida de 2 para 4 turnos. Durante este período, \"Julgamento Solar\" passa a ser engatilhado automaticamente após cada uso de Perícia ou Ataque Básico. Todos os DoTs re-aplicados pelo Overclock retornam com o dano base amplificado em +300% e não podem ser purificados ou removidos pelos inimigos de forma alguma." },
+  ],
   miyabi: [
     { name: "C1 · Saque Instantâneo", flag: "miC1", desc: "Ao entrar em combate, Miyabi começa imediatamente com 3 PH (máximo) e entra na Postura Iaido de graça. O primeiro corte aprimorado desta postura causa +50% de dano." },
     { name: "C2 · Fio Prorrogado", flag: "miC2", desc: "A Habilidade Lâminas de Gelo não consome mais PH se for usada contra inimigos Congelados. Além disso, cada acerto crítico recupera 5 de Energia para Miyabi." },
@@ -582,6 +608,8 @@ const SKILL_NAMES = {
     agumon: ["Garra Afiada", "Baby Flame", "Pepper Breath"],
     shorekeeper: ["Origem da Ciência", "Teoria do Caos", "Fim do Lamento"],
     yanagi: ["Corte Voltaico", "Ciclo de Anomalia", "Eclipse Voltaico"],
+  lupa: ["Presa Incandescente", "Salto do Abismo", "Eclipse de Fogo — Cataclismo Apocalíptico"],
+  hitori: ["Dedilhado Ansioso", "Entoar da Solidão", "Kessoku Band"],
   };
 const skillNamesOf = (id) => SKILL_NAMES[id] || ["Ataque Básico", "Habilidade", "Ultimate"];
 
@@ -682,6 +710,11 @@ const TRACE_MAX = 10;
 const traceMul = (level) => 1 + (Math.max(1, level || 1) - 1) * 0.08; // +8% por nível
 const traceCost = (level) => 600 + (level - 1) * 450; // jade p/ subir do nível atual
 function specialTraces(def) {
+    if (def.id === "lupa") return [
+      { name: "Rastro 1 · Rastro da Caçada (Ascensão 2)", desc: "Ao entrar em combate, Lupa ganha instantaneamente 3 cargas de Voracidade e 20 pontos de Energia. Além disso, a chance-base de aplicar \"Ignição\" com seus Ataques Básicos e Perícias é aumentada para 100%.", combat: "lupaT1", cost: 2 },
+      { name: "Rastro 2 · Combustão Espontânea (Ascensão 4)", desc: "Sempre que Lupa consome um efeito de DoT com sua Perícia ou Ultimate, o Dano Crítico do seu próximo ataque aumenta em +5% para cada rodada de DoT consumida (acumulável até +50% de Dano Crítico Bônus por 2 turnos).", combat: "lupaT2", cost: 2 },
+      { name: "Rastro 3 · Fúria Incandescente (Ascensão 6)", desc: "Durante os 2 turnos de Overclock (ativados após o Nuke da Suprema), todo o Dano de Fogo causado por Lupa ignora 15% da Resistência Elemental (RES) dos inimigos. Se um inimigo morrer enquanto estiver afetado pelo estado de Overclock de Lupa, ela regenera 30% da sua Energia Máxima imediatamente.", combat: "lupaT3", cost: 3 },
+    ];
     if (def.id === "yoruichi") return [
       { name: "Rastro Especial 1 · Passo de Sombra", desc: "Rastro Especial de combate: no início do combate, Yoruichi regenera 20 de Energia imediatamente. Sempre que um aliado desferir um Ataque Extra, a ação dela avança 6% na Ordem de Turnos — limitado a 3 ativações por Ciclo.", combat: "yoruT1", cost: 2 },
       { name: "Rastro Especial 2 · Condutor de Alta Voltagem", desc: "Rastro Especial de combate: quando o Colapso Elétrico do Talento ativa, o dano de todos os Ataques Extras da equipe sobe +25% por 2 turnos. Além disso, a detonação do Ponto de Aterramento reduz a barra de Resistência (Perfuração) do inimigo principal em um valor fixo, mesmo sem ser do elemento de fraqueza dele.", combat: "yoruT2", cost: 2 },
@@ -1170,8 +1203,8 @@ function Btn({ children, onClick, kind = "primary", disabled, style, ...rest }) 
   return <button onClick={onClick} disabled={disabled} className="px-4 py-2 rounded-xl font-bold text-sm transition active:scale-95"
     style={{ opacity: disabled ? 0.4 : 1, cursor: disabled ? "not-allowed" : "pointer", letterSpacing: 0.3, ...k, ...style }} {...rest}>{children}</button>;
 }
-function Panel({ children, style, glow }) {
-  return <div style={{ background: `linear-gradient(180deg, ${C.panel}, ${C.bg1})`, border: `1px solid ${C.line}`, borderRadius: 18, padding: 16, boxShadow: glow ? `0 0 34px ${glow}26` : "0 10px 28px #00000045", ...style }}>{children}</div>;
+function Panel({ children, style, glow, onClick, ...rest }) {
+  return <div onClick={onClick} style={{ background: `linear-gradient(180deg, ${C.panel}, ${C.bg1})`, border: `1px solid ${C.line}`, borderRadius: 18, padding: 16, boxShadow: glow ? `0 0 34px ${glow}26` : "0 10px 28px #00000045", ...style }} {...rest}>{children}</div>;
 }
 function TabBtn({ active, onClick, children }) {
   return <button onClick={onClick} className="px-4 py-2 rounded-xl text-sm font-bold transition"
@@ -1281,6 +1314,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [mail4Claimed, setMail4Claimed] = useState(() => { try { return localStorage.getItem('sr_mail4_claimed_v2') === '1'; } catch { return false; } });
   const [mail5Claimed, setMail5Claimed] = useState(() => { try { return localStorage.getItem('sr_mail5_claimed_v2') === '1'; } catch { return false; } });
   const [mail6Claimed, setMail6Claimed] = useState(() => { try { return localStorage.getItem('sr_mail6_claimed_v1') === '1'; } catch { return false; } });
+  const [mail7Claimed, setMail7Claimed] = useState(() => { try { return localStorage.getItem('sr_mail7_claimed_v1') === '1'; } catch { return false; } });
   const [relicMats, setRelicMats] = useState(0);
   const [rouletteCleared, setRouletteCleared] = useState(false);
   const [nextRouletteClaimAt, setNextRouletteClaimAt] = useState(0);
@@ -1380,8 +1414,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1432,6 +1466,13 @@ function Game({ email, isAdmin, onLogout }) {
     setMail6Claimed(true);
     try { localStorage.setItem('sr_mail6_claimed_v1', '1'); } catch {}
     flash(`📬 +16.000💎 coletadas!`, C.gold);
+  }
+  function claimMail7Reward() {
+    if (mail7Claimed) return;
+    setJade((j) => j + 12000);
+    setMail7Claimed(true);
+    try { localStorage.setItem('sr_mail7_claimed_v1', '1'); } catch {}
+    flash(`📬 +12.000💎 coletadas!`, C.gold);
   }
   function claimMail4Reward() {
     if (mail4Claimed) return;
@@ -1607,6 +1648,22 @@ function Game({ email, isAdmin, onLogout }) {
     if (floor <= towerCleared) { flash("Andar já concluído — não pode repetir.", C.bad); return; }
     if (floor > towerCleared + 1) { flash("Conclua os andares anteriores primeiro.", C.bad); return; }
     setBattle({ context: "tower", floor, encounter: towerEncounter(floor, teamPower()), ally: null });
+  }
+  // Avança direto pro próximo andar a partir da tela de vitória — não usa startTower() aqui pq towerCleared
+  // ainda não foi atualizado nesse mesmo tick (o setTowerCleared do onBattleEnd é assíncrono), o que sempre
+  // bloqueava o avanço por engano. Como já sabemos que o andar atual foi vencido, montamos o próximo direto.
+  function advanceTowerFloor(result) {
+    const cur = battle; const nextFloor = (cur?.floor || 0) + 1;
+    onBattleEnd(result);
+    if (nextFloor > TOWER_FLOORS) { flash("Você já venceu todos os andares da Torre!", C.gold); return; }
+    setBattle({ context: "tower", floor: nextFloor, encounter: towerEncounter(nextFloor, teamPower()), ally: null });
+  }
+  function advanceDarkTowerFloor(result) {
+    const cur = battle; const nextLevel = (cur?.floor || 0) + 1;
+    onBattleEnd(result);
+    if (nextLevel > DARK_TOWER_BOSSES.length) { flash("Você já venceu todos os níveis da Torre Sombria!", C.gold); return; }
+    const enc = darkTowerEncounter(nextLevel, teamPower());
+    if (enc) setBattle({ context: "darktower", floor: nextLevel, encounter: enc, ally: null });
   }
   function startDarkTower(level) {
     if (level <= darkTowerCleared) { flash("Nível já concluído — não pode repetir.", C.bad); return; }
@@ -1997,8 +2054,8 @@ function Game({ email, isAdmin, onLogout }) {
             <Battle key={battle._bid}
               team={battle.customTeam || team} ownedMap={battle.draftOwnedMap || ownedMap} encounter={battle.encounter} ally={battle.ally} context={battle.context}
               onEnd={onBattleEnd} onRetry={() => setBattle(battle)}
-              onNext={battle.context === "tower" ? (result) => { onBattleEnd(result); startTower((battle.floor || 0) + 1); }
-                : battle.context === "darktower" ? (result) => { onBattleEnd(result); startDarkTower((battle.floor || 0) + 1); }
+              onNext={battle.context === "tower" ? advanceTowerFloor
+                : battle.context === "darktower" ? advanceDarkTowerFloor
                 : null}
               flash={flash} />
           ) : pendingBoss ? (
@@ -2016,7 +2073,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} setRelicMats={setRelicMats} flash={flash} setBattle={setBattle} />}
               {screen === "relics" && <RelicsScreen relicInv={relicInv} setRelicInv={setRelicInv} owned={owned} setRelicMats={setRelicMats} flash={flash} />}
               {screen === "loja" && <Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} />}
-              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mailIniciante={mailIniciante} setMailIniciante={setMailIniciante} mail2Claimed={mail2Claimed} claimMail2Reward={claimMail2Reward} mail3Claimed={mail3Claimed} mail3CharPicked={mail3CharPicked} claimMail3Reward={claimMail3Reward} mail4Claimed={mail4Claimed} claimMail4Reward={claimMail4Reward} mail5Claimed={mail5Claimed} claimMail5Reward={claimMail5Reward} mail6Claimed={mail6Claimed} claimMail6Reward={claimMail6Reward} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setAscMats={setAscMats} playerName={playerName} towerTop1Claimed={towerTop1Claimed} claimTop1Reward={claimTop1Reward} flash={flash} owned={owned} />}
+              {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mailIniciante={mailIniciante} setMailIniciante={setMailIniciante} mail2Claimed={mail2Claimed} claimMail2Reward={claimMail2Reward} mail3Claimed={mail3Claimed} mail3CharPicked={mail3CharPicked} claimMail3Reward={claimMail3Reward} mail4Claimed={mail4Claimed} claimMail4Reward={claimMail4Reward} mail5Claimed={mail5Claimed} claimMail5Reward={claimMail5Reward} mail6Claimed={mail6Claimed} claimMail6Reward={claimMail6Reward} mail7Claimed={mail7Claimed} claimMail7Reward={claimMail7Reward} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setAscMats={setAscMats} playerName={playerName} towerTop1Claimed={towerTop1Claimed} claimTop1Reward={claimTop1Reward} flash={flash} owned={owned} />}
               {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
               {screen === "roleta" && <RouletteEvent jade={jade} setJade={setJade} rouletteCleared={rouletteCleared} setRouletteCleared={setRouletteCleared} nextRouletteClaimAt={nextRouletteClaimAt} setNextRouletteClaimAt={setNextRouletteClaimAt} />}
@@ -2993,6 +3050,49 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
 function St({ k, v }) { return <div className="flex justify-between" style={{ background: C.panelHi, padding: "8px 10px", borderRadius: 10 }}><span style={{ color: C.mute }}>{k}</span><b>{v}</b></div>; }
 function buffText(b) { const p = []; for (const k of ["atk", "def", "spd", "critRate", "critDmg", "dmgBonus"]) if (b[k]) p.push(`+${b[k]}${k === "spd" ? " VEL" : "% " + (STAT_LABEL[k] || k)}`); return `${p.join(", ")}${b.all ? " (time)" : ""} por ${b.turns}t`; }
 const SKILL_DESC = {
+  hitori: {
+    basic: [
+      "5 Estrelas - Suporte | Chaos.",
+      "Ataques básicos não farão nada além de dar uma pequena quantidade de dano de Chaos.",
+    ],
+    skill: [
+      "<b>Entoar da solidão</b> (Skill)",
+      "Concede um aumento fixo de <b>1000 de ATK</b> e <b>12% de velocidade</b> (quando a mesma está upada no máximo), por <b>3 rodadas</b>.",
+    ],
+    ult: [
+      "<b>Kessoku Band</b> (Ultimate)",
+      "Concede um aumento de <b>8% de seu dano crítico total</b> em forma de chance de crítico e <b>30% de seu dano crítico</b> na forma do mesmo atributo.",
+      "Além disso, Hitori concede um bônus de <b>15% da sua velocidade</b> em forma de bônus de dano elemental para os primeiros dois slots por <b>4 rodadas</b>.",
+      "Custo de <b>160</b> de Energia.",
+    ],
+  },
+  lupa: {
+    basic: [
+      "<b>Presa Incandescente</b>",
+      "Causa Dano de Fusão a um único inimigo equivalente a <b>150% do ATK</b> de Lupa.",
+      "Aplica \"Ignição\" por <b>3 turnos</b>.",
+      "Se o alvo possuir qualquer efeito de DoT ativo, o dano direto deste ataque ganha um multiplicador bônus de <b>+50%</b>.",
+    ],
+    skill: [
+      "<b>Salto do Abismo</b> — Perícia de Ressonância",
+      "Custo: <b>1 Ponto de Habilidade</b>",
+      "Causa Dano de Fusão massivo igual a <b>300% do ATK</b> de Lupa.",
+      "<b>Detonação Expressa:</b> Consome metade da duração restante de todos os DoTs do alvo para causar dano imediato de <b>200% do valor acumulado</b>.",
+      "<b>Avanço de Ação:</b> Ao utilizar esta habilidade, a ação de Lupa é avançada em <b>100%</b> (ela ganha um turno extra instantâneo sem consumir Ponto de Habilidade).",
+    ],
+    ult: [
+      "<b>Eclipse de Fogo — Cataclismo Apocalíptico</b> — Liberação de Ressonância (Ultimate)",
+      "Custo: <b>200 de Energia</b>",
+      "Lupa atinge o ápice de sua fome, colapsando todas as chamas e anomalias do campo de batalha para disparar um golpe definitivo.",
+      "<b>Consumo Absoluto:</b> Consome instantaneamente todos os efeitos de DoT de TODOS os inimigos na tela.",
+      "<b>Dano Nuke Devastador:</b> Causa Dano de Fusão em área equivalente a <b>850% do ATK</b> de Lupa.",
+      "<b>Escalonamento por Anomalia:</b> Para cada rodada de DoT consumida nesta ativação, o multiplicador final deste ataque aumenta em <b>+200%</b> (Exemplo: Consumir 5 rodadas de DoT acumuladas faz o golpe saltar para <b>1.850% do ATK</b> em área).",
+      "<b>Perfuração Apocalíptica:</b> O dano deste Nuke ignora automaticamente <b>30% da DEF</b> e <b>20% da Resistência Elemental (RES)</b> de todos os alvos atingidos.",
+      "<b>Estado Overclock (Pós-Nuke):</b> Por 2 turnos após conjurar a Suprema:",
+      "Seu Ataque Básico é substituído por \"Julgamento Solar\", causando <b>500% do ATK</b> em área com <b>100% de Taxa Crítica garantida</b> e <b>+100% de Dano Crítico Bônus</b>.",
+      "Re-aplica todos os DoTs que foram consumidos no Nuke, mas com o dano base desses DoTs amplificado em <b>+120%</b>.",
+    ],
+  },
   shorekeeper: {
     basic: [
       "<b>Origem da Ciência</b> — causa <b>115% do HP Máximo</b> de Shorekeeper (não do ATK!) em Dano Desconhecido a um único inimigo.",
@@ -4161,6 +4261,8 @@ function effStat(u, key) {
   }
   // Relâmpago Fugaz (Yoruichi): Passo Fantasma — +12% da VEL total
   if (key === "spd" && u && u.weapon?.buff?.yoruWeapon) { const raw = base + flat + pct; flat += raw * 0.12; }
+  // Hitori Gotoh: a cada 2-3% de Dano Crítico, +1 de VEL (Ansiedade Amplificada)
+  if (key === "spd" && u && u.id === "hitori") flat += hitoriSpdBonus(u);
   const v = PCT[key] ? base * (1 + pct / 100) + flat : base + flat + pct;
   return isFinite(v) ? v : base;
 }
@@ -4443,9 +4545,21 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   if (attacker.side === "enemy" && (defender._kaibaVirusTurns || 0) > 0 && mult >= 150) mult = mult * (50 / mult);
   let dmg = effStat(attacker, "atk") * (mult / 100);
   // Mutador Miasma Cegante: Chance Crítica travada em 0%
-  const crit = (attacker._mut || defender._mut) === "miasma" ? false : Math.random() * 100 < Math.min(100, effStat(attacker, "critRate"));
+  const _lupaC5Crit = (attacker.id === "lupa" && f.lupaC5) ? 12 : 0;
+  const crit = (attacker._mut || defender._mut) === "miasma" ? false : Math.random() * 100 < Math.min(100, effStat(attacker, "critRate") + _lupaC5Crit);
   if (crit) dmg *= 1 + effStat(attacker, "critDmg") / 100;
   dmg *= 1 + effStat(attacker, "dmgBonus") / 100;
+  if (attacker.id === "lupa" && f.lupaC5) dmg *= 1.75; // C5 · Garra de Almas: +75% de Dano de Fogo incondicional
+  // ── Hitori Gotoh — Ressonância de Palco: enquanto viva no time, TODO Ataque Extra (follow-up) causa +250% de dano ──
+  if (opts?.isFollowup) { const hitoriBuff = (attacker._sibs || []).find((h) => h.id === "hitori" && h.alive); if (hitoriBuff) dmg *= 3.5; }
+  // Hitori Gotoh: aura pros 2 primeiros slots — +30% Dano Holy/Chaos (60% com C5), +30% em qualquer elemento também com C5
+  { const hitoriAura = (attacker._sibs || []).find((h) => h.id === "hitori" && h.alive);
+    if (hitoriAura && attacker.side === "H" && !attacker.isSummon && ["H0", "H1"].includes(attacker.uid)) {
+      const el0 = opts?.el || attacker.element;
+      const hf = hitoriAura.stFlags || {};
+      if (el0 === "Holy" || el0 === "Chaos") dmg *= 1 + (hf.hitoriC5 ? 0.60 : 0.30);
+      else if (hf.hitoriC5) dmg *= 1.30;
+    } }
   if (f.omgC6 && attacker.id === "omegamon" && (attacker.hp / attacker.maxHp) < 0.3) dmg *= 2; // Final Defeat: +100% Dano de Vírus
   const afflicted = (defender.dots && defender.dots.length) || (defender.debuffs && defender.debuffs.some((d) => d.stat === "def" && d.value < 0));
   if ((f.dmgVsAfflicted || f.afflictedDmg) && afflicted) dmg *= 1.25;
@@ -4462,6 +4576,8 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   let elemResDebuff = (defender.debuffs || []).filter(d => d.stat === "elemRes").reduce((a, d) => a + (d.value || 0), 0);
   if (attacker.side === "H") { const shkC6b = (attacker._sibs || []).find(h => h.id === "shorekeeper" && h.alive && h.stFlags?.shkC6 && (h._domainStage || 0) >= 2); if (shkC6b) elemResDebuff -= 20; }
   if (elemResDebuff) dmg *= (1 - elemResDebuff / 100);
+  if (opts?.resPen) dmg *= (1 + opts.resPen / 100); // ignora X% da RES elemental do alvo (ex: Cataclismo de Lupa)
+  if (attacker.id === "lupa" && f.lupaT3 && (attacker._lupaOverclock || 0) > 0 && (opts?.el || attacker.element) === "Fogo") dmg *= 1.15; // Rastro 3: Overclock ignora +15% RES
   // Resistência de Perfuração: enquanto a barra de Resistência estiver ativa, -10% de todo dano recebido
   if (defender._hasToughness && (defender.toughness || 0) > 0 && !opts?.isDot) dmg *= 0.9;
   const universalAdv = el === "Unknown" || !!opts?.universalAdv || (attacker._universalAdvActive && attacker.side === "H" && Math.random() < 0.5); // Shorekeeper: vantagem elemental absoluta (Talento + Estelarador Estágio 2)
@@ -4517,6 +4633,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   if (dmg > 0 && defender.weapon && defender.weapon.omgWeapon && defender.alive && !defender.buffs.some(function(b){return b.name==="GlitchBoost";})) { defender.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "GlitchBoost" }); }
   if (defender.side === "H" && !defender.isSummon && defender.energyMax) { const heavy = attacker.boss || mult >= 300; defender.energy = Math.min(defender.energyMax, defender.energy + Math.round((heavy ? 12 : 6) * (1 + (effStat(defender, "energyRegen") || 0) / 100))); }
   if (!defender.alive && attacker.side === "H" && !attacker.isSummon && attacker.energyMax) { attacker.energy = Math.min(attacker.energyMax, attacker.energy + Math.round(6 * (1 + (effStat(attacker, "energyRegen") || 0) / 100))); } // kill: +6 ×ERR
+  if (!defender.alive && attacker.id === "lupa" && attacker.stFlags?.lupaT3 && (attacker._lupaOverclock || 0) > 0) { attacker.energy = Math.min(attacker.energyMax, attacker.energy + Math.round(attacker.energyMax * 0.30)); } // Rastro 3: abate no Overclock regenera 30% da Energia Máx
   // ── Afundamento (Limbus): ao ser atingido, sofre dano fixo (potência), perde 4 de energia, Count -1
   if (dmg > 0 && !opts?.isDot && !opts?.isCounter) {
     const snk = (defender.dots || []).find(d => d.type === "sinking");
@@ -4608,17 +4725,33 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   if (dmg > 0 && opts?.isFollowup && !opts?.isYoruClone && attacker.side === "H" && !attacker.isSummon && attacker.alive) {
     yoruFollowupProc(attacker, defender, dmg, fx);
   }
+  // ── Lupa — Fome da Predadora: TODO Dano de Fogo dela contra alvo com DoT ativo consome 1 rodada e ganha Voracidade ──
+  if (dmg > 0 && attacker.id === "lupa" && !attacker.isSummon && attacker.alive && (opts?.el || attacker.element) === "Fogo" && !opts?.noLupaProc) {
+    lupaVoracityProc(attacker, defender, fx);
+  }
+  // ── Lupa C3 · Purgatório Terminal: Chama Residual — qualquer aliado que acerte o alvo marcado dispara uma reação térmica ──
+  if (dmg > 0 && defender.alive && attacker.side === "H" && attacker.id !== "lupa" && !opts?.isDot) {
+    const cr3 = (defender.debuffs || []).find(d => d.name === "Chama Residual");
+    if (cr3 && (defender._lupaResidualHits || 0) < 1) {
+      const lupaC3 = (attacker._sibs || []).find(h => h.id === "lupa" && h.alive && h.stFlags?.lupaC3);
+      if (lupaC3) {
+        defender._lupaResidualHits = (defender._lupaResidualHits || 0) + 1;
+        const rd = Math.max(1, Math.round(effStat(lupaC3, "atk") * 0.8));
+        defender.hp -= rd; if (defender.hp <= 0) { defender.hp = 0; defender.alive = false; }
+        fx.push({ uid: defender.uid, txt: String(rd), crit: false, id: Math.random(), el: "Fogo" });
+      }
+    }
+  }
   fx.push({ uid: defender.uid, txt: String(dmg), crit, id: Math.random(), el: opts?.el || attacker.element, enhanced: !!opts?.enhanced });
   return { dmg, crit };
 }
 // Sistema de dano de DoT: aleatório, com piso mínimo que escala com o quanto o personagem está investido (ATK efetivo)
 function dotDamageRoll(source, m) {
   const atk = effStat(source, "atk");
-  const scale = Math.max(1, atk / 700); // 700 = ATK de referência (personagem base pouco investido)
-  const floor = Math.round(80000 * scale); // piso mínimo de 80.000, cresce com o scale (investimento/build) do personagem
+  const scale = Math.max(0.6, Math.min(2.2, atk / 700)); // 700 = ATK de referência; escala travada pra não estourar o teto
   const variance = 0.85 + Math.random() * 0.30; // variação aleatória de ±15%
-  const scaled = Math.round(atk * (m / 100) * variance);
-  return Math.max(floor, scaled);
+  const scaled = Math.round(atk * (m / 100) * variance * scale);
+  return Math.max(50000, Math.min(280000, scaled)); // faixa pedida: 50k a 280k de dano de DoT
 }
 function applyDot(targets, spec, source, fx) {
   const f = source.stFlags || {};
@@ -4733,6 +4866,239 @@ function miyabiDetonate(s, u, fx) {
   });
   return tot;
 }
+// ── Lupa · A Predadora de Fusão — sistema de Voracidade + Overclock (novo sistema no motor) ──
+// ── Hitori Gotoh · Bocchi the Rock! — Passiva de conversão CRIT→VEL, aura Holy/Chaos e Kessoku Band ──
+function hitoriSpdBonus(u) {
+  const f = u.stFlags || {};
+  const divisor = f.hitoriC3 ? 2 : 3; // C3: a cada 2% de Dano Crítico (era 3%)
+  return Math.floor(effStat(u, "critDmg") / divisor);
+}
+function hitoriBasicAttack(s, u, enemy, fx, ampB) {
+  if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
+  if (!enemy) return `${u.name} não encontra alvo.`;
+  const r = dealDamage(u, enemy, 40 * (u.tBasic || 1) * ampB, fx, { el: "Chaos" });
+  return `🎸 ${u.name} dedilha timidamente em ${enemy.name} — ${r.dmg} de Dano de Chaos${r.crit ? " (CRÍTICO!)" : ""}. (Ataques básicos dela não fazem muita coisa.)`;
+}
+function hitoriSkillAttack(s, u, fx) {
+  const f = u.stFlags || {};
+  const allies = s.heroes.filter((h) => h.alive && !h.isSummon);
+  const atkBonus = f.hitoriC3 ? 1500 : 1000;
+  const spdBonus = 12;
+  const targets = f.hitoriC3 ? allies : allies.filter((h) => h.uid !== u.uid).slice(0, 1).concat(allies.filter((h) => h.uid !== u.uid).length ? [] : [u]);
+  targets.forEach((h) => {
+    h.buffs = h.buffs.filter((b) => b.name !== "Entoar da Solidão");
+    h.buffs.push({ stat: "atk", value: atkBonus, turns: 3, name: "Entoar da Solidão" });
+    h.buffs.push({ stat: "spd", value: spdBonus, pct: true, turns: 3, name: "Entoar da Solidão" });
+  });
+  // C4: Purificação Térmica — remove 1 debuff de todos os aliados
+  if (f.hitoriC4) allies.forEach((h) => { if (h.debuffs.length) h.debuffs.shift(); });
+  // Arma: se a portadora for Hitori, concede 12% de Perfuração ao aliado do primeiro slot
+  if (u.weapon?.buff?.hitoriWeapon) { const slot0 = allies.find((h) => h.uid === "H0"); if (slot0) { slot0.buffs = slot0.buffs.filter((b) => b.name !== "Perfuração da Batera"); slot0.buffs.push({ stat: "defPen", value: 12, turns: 3, name: "Perfuração da Batera" }); } }
+  return `🎶 ${u.name} entoa "Entoar da Solidão" — ${targets.length > 1 ? "todo o time" : (targets[0]?.name || "um aliado")} ganha +${atkBonus} de ATK e +${spdBonus}% de VEL por 3 turnos.${f.hitoriC4 ? " Purificação Térmica: remove 1 debuff de todos." : ""}`;
+}
+function hitoriUltimate(s, u, fx) {
+  const f = u.stFlags || {};
+  const overclock = !!f.hitoriC6;
+  const cd = effStat(u, "critDmg");
+  const crGain = Math.round(cd * (overclock ? 0.16 : 0.08));
+  const cdGain = Math.round(cd * (overclock ? 0.60 : 0.30));
+  const spd = effStat(u, "spd");
+  const elemGain = Math.round(spd * (overclock ? 0.30 : 0.15));
+  const allies = s.heroes.filter((h) => h.alive && !h.isSummon);
+  const dur = overclock ? 6 : 4;
+  allies.forEach((h) => {
+    h.buffs = h.buffs.filter((b) => b.name !== "Kessoku Band");
+    h.buffs.push({ stat: "critRate", value: crGain, turns: dur, name: "Kessoku Band" });
+    h.buffs.push({ stat: "critDmg", value: cdGain, turns: dur, name: "Kessoku Band" });
+  });
+  const frontTwo = allies.filter((h) => ["H0", "H1"].includes(h.uid));
+  frontTwo.forEach((h) => { h.buffs = h.buffs.filter((b) => b.name !== "Solo de Hitori"); h.buffs.push({ stat: "elemDmg", value: elemGain, turns: dur, name: "Solo de Hitori" }); });
+  const enGain = overclock ? 60 : 30;
+  allies.forEach((h) => {
+    const before = h.energy; h.energy = Math.min(h.energyMax, h.energy + enGain);
+    const overflow = f.hitoriC6 ? Math.max(0, (before + enGain) - h.energyMax) : 0;
+    if (overflow > 0) { h.buffs.push({ stat: "critDmg", value: overflow * 2, turns: 2, name: "Transbordo Crítico" }); }
+  });
+  // C1: +24% Perfuração de DEF pra todo o time
+  if (f.hitoriC1) allies.forEach((h) => { h.buffs = h.buffs.filter((b) => b.name !== "Fio Perfurante"); h.buffs.push({ stat: "defPen", value: 24, turns: dur, name: "Fio Perfurante" }); });
+  // C2: regenera 20% do HP máximo de todos os aliados
+  if (f.hitoriC2) allies.forEach((h) => healUnit(h, Math.round(h.maxHp * 0.20), fx));
+  // C6: Avanço de Ação Absoluto pros 2 primeiros slots + ignoram 50% DEF / 30% RES por 1 ataque
+  if (overclock) {
+    frontTwo.forEach((h) => { h.av = 0.01; h.buffs.push({ stat: "defPen", value: 50, turns: 1, name: "Overclock: Solo" }); h.buffs.push({ stat: "elemRes", value: -30, turns: 1, name: "Overclock: Solo (alvo)" }); });
+  }
+  return `🎤🔥 ${u.name} solta o "KESSOKU BAND"! +${crGain}% CRIT, +${cdGain}% CRIT DMG pra equipe (${dur}t), +${elemGain}% Dano Elemental pros 2 primeiros slots, +${enGain}⚡ de energia pra todos.${overclock ? " OVERCLOCK: os 2 primeiros slots agem AGORA e ignoram DEF/RES no próximo golpe!" : ""}`;
+}
+function lupaVorCap(u) { return u.stFlags?.lupaC6 ? 15 : 10; }
+// Arma Presa da Calamidade Eterna — Acúmulo de Incinerador (máx 3, +10% Dano de Fogo cada, refresca 2 turnos)
+function lupaIncineratorStack(u) {
+  if (!u.weapon?.buff?.lupaWeapon) return;
+  const stacks = u.buffs.filter((b) => b.name === "Incinerador").length;
+  if (stacks < 3) u.buffs.push({ stat: "dmgBonus", value: 10, turns: 2, name: "Incinerador" });
+  else u.buffs.filter((b) => b.name === "Incinerador").forEach((b) => (b.turns = 2));
+}
+function lupaVoracityProc(u, target, fx) {
+  if (!target || !target.dots || !target.dots.length) return;
+  const dot = target.dots[0]; // consome 1 rodada do primeiro DoT ativo no alvo
+  dot.turns -= 1;
+  if (dot.turns <= 0) target.dots = target.dots.filter((d) => d !== dot);
+  const cap = lupaVorCap(u);
+  if ((u._lupaVor || 0) >= cap) return; // já no teto — nada a ganhar
+  u._lupaVor = Math.min(cap, (u._lupaVor || 0) + 1);
+  u.energy = Math.min(u.energyMax, u.energy + 5);
+  fx.push({ uid: u.uid, txt: "🍖+1", heal: true, id: Math.random() });
+  lupaIncineratorStack(u);
+  lupaPackAmp(u, fx); // C2: Amplificação de Matilha ao consumir qualquer DoT
+}
+// C2 · Amplificação de Matilha: sempre que Lupa consome QUALQUER DoT, o time ganha +30% Dano de Fogo / +20% Dano de DoT por 3 turnos
+function lupaPackAmp(u, fx) {
+  if (!u.stFlags?.lupaC2) return;
+  (u._sibs || []).filter((h) => h.alive).forEach((h) => {
+    h.buffs = h.buffs.filter((b) => b.name !== "Amplificação de Matilha");
+    h.buffs.push({ stat: "dmgBonus", value: 30, turns: 3, name: "Amplificação de Matilha" });
+    h.buffs.push({ stat: "dotDmg", value: 20, turns: 3, name: "Amplificação de Matilha" });
+  });
+}
+// C4 · Barreira de Incineradores: escudo de chamas ao conjurar Ultimate ou entrar em Predadora Absoluta
+function lupaFlameShield(u, s, fx) {
+  if (!u.stFlags?.lupaC4) return;
+  const sh0 = Math.round(effStat(u, "atk") * 1.5);
+  s.heroes.filter((h) => h.alive && !h.isSummon).forEach((h) => {
+    h.shield = (h.shield || 0) + capShieldAdd(h, sh0);
+    h.buffs = h.buffs.filter((b) => b.name !== "Manto Flamejante");
+    h.buffs.push({ stat: "elemRes", value: 15, turns: 3, name: "Manto Flamejante" });
+  });
+  pushLog(s, `🔥🛡️ ${u.name} — Manto Flamejante! Escudo de ${sh0} e +15% RES a todo elemento por 3 turnos ao time.`);
+}
+function lupaBasicAttack(s, u, enemy, fx, ampB) {
+  const f = u.stFlags || {}, sk = u.skill || {};
+  if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
+  if (!enemy) return `${u.name} não encontra alvo.`;
+  const cap = lupaVorCap(u);
+  const predAbs = (u._lupaVor || 0) >= cap;
+  const defPen = predAbs ? (f.lupaC2 ? 40 : 20) : 0;
+  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.20;
+  const overclock = (u._lupaOverclock || 0) > 0;
+  let msg = "";
+  if (overclock) {
+    // Overclock: o Básico é substituído por Julgamento Solar (área, crítico garantido, +100% CRIT DMG)
+    let tot = 0;
+    aliveEnemies(s).forEach((e) => { const r = dealDamage(u, e, 500 * (u.tBasic || 1) * ampB * vorMul, fx, { el: "Fogo", breakW: 1, forceCrit: true }); tot += r.dmg; });
+    msg = `☀️🔥 JULGAMENTO SOLAR em área — ${tot} de Dano de Fogo (CRÍTICO GARANTIDO)!`;
+    lupaReapplyDots(u, s, fx, 120); // reaplica DoTs consumidos com +120% de dano base
+  } else {
+    const hadDot = (enemy.dots || []).length > 0;
+    const bonusMul = hadDot ? 1.5 : 1; // +50% se o alvo já tem DoT ativo
+    const r = dealDamage(u, enemy, (sk.basicMul || 150) * (u.tBasic || 1) * ampB * bonusMul * vorMul, fx, { el: "Fogo", breakW: 1, defPen });
+    const ignChance = f.lupaT1 ? 1 : 0.85;
+    let ignMsg = "";
+    const ignMul = (u._lupaSupernova || 0) > 0 ? 120 : 60; // Supernova (arma): Ignição em dobro por 2 turnos pós-Ultimate
+    if (enemy.alive && Math.random() < ignChance) { applyDot([enemy], { type: "burn", mul: ignMul, turns: 3 }, u, fx); ignMsg = ignMul > 60 ? " Aplica Ignição (DOBRADA pela Supernova)." : " Aplica Ignição."; }
+    msg = `🔥 Presa Incandescente em ${enemy.name} — ${r.dmg} de Dano de Fogo${r.crit ? " (CRÍTICO!)" : ""}${hadDot ? " (+50% vs alvo com DoT)" : ""}.${ignMsg}`;
+  }
+  // C4: atacar protegida pelo próprio Manto Flamejante dá +25% de Dano de Fogo (aplicado como buff pessoal)
+  if (f.lupaC4 && u.buffs.some((b) => b.name === "Manto Flamejante") && !u.buffs.some((b) => b.name === "Sincronia Ofensiva")) {
+    u.buffs.push({ stat: "dmgBonus", value: 25, turns: 1, name: "Sincronia Ofensiva" });
+  }
+  if (predAbs) {
+    u._lupaVor = 0; u._lupaGuaranteedCritUlt = true;
+    if (f.lupaC4) lupaFlameShield(u, s, fx); // C4: também entra ao atingir Predadora Absoluta
+    msg += " 🍖 PREDADORA ABSOLUTA consumida — a próxima Ultimate crava CRÍTICO garantido!";
+  }
+  return msg;
+}
+function lupaSkillAttack(s, u, enemy, fx, ampS) {
+  const f = u.stFlags || {}, sk = u.skill || {};
+  if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
+  if (!enemy) return `${u.name} não encontra alvo.`;
+  const cap = lupaVorCap(u);
+  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.20;
+  const r = dealDamage(u, enemy, (sk.skillMul || 300) * (u.tSkill || 1) * ampS * vorMul, fx, { el: "Fogo", breakW: 2 });
+  let msg = `🌋 Salto do Abismo em ${enemy.name} — ${r.dmg} de Dano de Fogo${r.crit ? " (CRÍTICO!)" : ""}.`;
+  if ((u._lupaSupernova || 0) > 0 && enemy.alive) { applyDot([enemy], { type: "burn", mul: 120, turns: 3 }, u, fx); msg += " ☄️ Supernova: aplica Ignição em dobro."; }
+  // Detonação Expressa: consome metade da duração restante de todos os DoTs do alvo (C1: mantém a duração cheia)
+  const dots = (enemy.dots || []).slice();
+  if (enemy.alive && dots.length) {
+    let consumedRounds = 0, burstBase = 0;
+    dots.forEach((d) => {
+      const half = Math.max(1, Math.ceil((d.turns || 0) / 2));
+      consumedRounds += half; burstBase += d.dmg * half;
+      if (!f.lupaC1) d.turns = Math.max(0, d.turns - half); // C1: não reduz a duração
+    });
+    if (!f.lupaC1) enemy.dots = enemy.dots.filter((d) => d.turns > 0);
+    if (burstBase > 0) {
+      const burst = Math.round(burstBase * 2.0);
+      enemy.hp -= burst; if (enemy.hp <= 0) { enemy.hp = 0; enemy.alive = false; }
+      fx.push({ uid: enemy.uid, txt: String(burst), crit: false, id: Math.random(), el: "Fogo" });
+      msg += ` 💥 Detonação Expressa: +${burst} de Dano de Fogo (${consumedRounds} rodadas de DoT consumidas)!`;
+      const gained = Math.min(consumedRounds, cap - (u._lupaVor || 0));
+      if (gained > 0) { u._lupaVor = Math.min(cap, (u._lupaVor || 0) + gained); u.energy = Math.min(u.energyMax, u.energy + gained * 5); lupaIncineratorStack(u); lupaPackAmp(u, fx); }
+      // C2 · Eco de Detonação: 100% do burst replicado em área nos inimigos adjacentes
+      if (f.lupaC2) { const others = aliveEnemies(s).filter((e) => e.uid !== enemy.uid); if (others.length) { let echoTot = 0; others.forEach((e) => { e.hp -= burst; if (e.hp <= 0) { e.hp = 0; e.alive = false; } fx.push({ uid: e.uid, txt: String(burst), crit: false, id: Math.random(), el: "Fogo" }); echoTot += burst; }); msg += ` Eco de Detonação replica ${burst} em cada inimigo adjacente!`; } }
+      // C3 · Purgatório Terminal: marca Chama Residual no alvo
+      if (f.lupaC3 && enemy.alive) { const ex = enemy.debuffs.find((d) => d.name === "Chama Residual"); if (ex) ex.turns = 4; else enemy.debuffs.push({ stat: "elemRes", value: -25, el: "Fogo", turns: 4, name: "Chama Residual" }); }
+      // Rastro 2 · Combustão Espontânea: +5% CRIT DMG por rodada consumida (máx +50%) por 2 turnos
+      if (f.lupaT2) { u.buffs = u.buffs.filter((b) => b.name !== "Combustão Espontânea"); u.buffs.push({ stat: "critDmg", value: Math.min(50, consumedRounds * 5), turns: 2, name: "Combustão Espontânea" }); }
+    }
+  }
+  // Avanço de Ação: 100% — ela ganha um turno extra instantâneo sem gastar PH
+  u._avMul = 0; s.sp = Math.min(spCapOf(s), s.sp + 1); // devolve o PH gasto no início do bloco de skill (ver dispatcher)
+  msg += " ⏩ Avanço de Ação: Lupa age novamente agora!";
+  return msg;
+}
+// Reaplica os DoTs consumidos na Ultimate (guardados em u._lupaConsumedDots) com dano base amplificado — chamado durante o Overclock
+function lupaReapplyDots(u, s, fx, ampPct) {
+  const stash = u._lupaConsumedDots || [];
+  if (!stash.length) return;
+  stash.forEach((rec) => {
+    const target = [...aliveEnemies(s)].find((e) => e.uid === rec.uid);
+    if (target && target.alive) {
+      const mulAmped = Math.round(rec.mul * (1 + ampPct / 100));
+      applyDot([target], { type: rec.type, mul: mulAmped, turns: rec.turns }, u, fx);
+    }
+  });
+  if (!u.stFlags?.lupaC6) u._lupaConsumedDots = []; // C6: pode reaplicar em todos os turnos do Overclock (mantém a lista)
+}
+function lupaUltimate(s, u, fx, ampU) {
+  const f = u.stFlags || {}, sk = u.skill || {};
+  const enemies = aliveEnemies(s);
+  if (!enemies.length) return `${u.name} não encontra alvos.`;
+  const cap = lupaVorCap(u);
+  // Consumo Absoluto: consome TODOS os DoTs de TODOS os inimigos, somando rodadas pro escalonamento
+  let totalRounds = 0;
+  u._lupaConsumedDots = [];
+  enemies.forEach((e) => {
+    (e.dots || []).forEach((d) => { totalRounds += Math.max(0, d.turns); u._lupaConsumedDots.push({ uid: e.uid, type: d.type, mul: d.dmg > 0 ? Math.round((d.dmg / Math.max(1, effStat(u, "atk"))) * 100) : 40, turns: 2 }); });
+    e.dots = [];
+  });
+  const perRound = f.lupaC6 ? 3.5 : 2.0; // C6: +350%/rodada sem teto (era +200%)
+  const scaleMul = 1 + totalRounds * perRound;
+  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.20;
+  const forceCrit = !!u._lupaGuaranteedCritUlt; u._lupaGuaranteedCritUlt = false;
+  const incStacks = u.buffs.filter((b) => b.name === "Incinerador").length;
+  const defPen = 30 + incStacks * 6, resPen = 20;
+  const supernova = incStacks > 0 && !!u.weapon?.buff?.lupaWeapon;
+  let tot = 0;
+  enemies.forEach((e) => { const r = dealDamage(u, e, (sk.ultMul || 850) * (u.tUlt || 1) * ampU * scaleMul * vorMul * (supernova ? 1.25 : 1), fx, { el: "Fogo", breakW: 3, defPen, resPen, forceCrit, noLupaProc: true }); tot += r.dmg; });
+  let msg = `💥🔥 ECLIPSE DE FOGO — CATACLISMO APOCALÍPTICO! ${tot} de Dano de Fogo em área (${totalRounds} rodadas de DoT consumidas, escalonamento x${scaleMul.toFixed(1)})!`;
+  if (supernova) {
+    u.buffs = u.buffs.filter((b) => b.name !== "Incinerador" && b.name !== "Supernova");
+    u.buffs.push({ stat: "dmgBonus", value: 15, turns: 2, name: "Supernova" });
+    u._lupaSupernova = 2;
+    msg += ` ☄️ Colapso Fissural (arma): Supernova! +25% CRIT DMG na Suprema (já aplicado), e por 2 turnos a Perícia/Básico ganham +15% de Dano Final e Ignição em dobro.`;
+  }
+  // C6 · Cataclismo Secundário: 6+ rodadas consumidas de uma vez dispara um segundo impacto de 1000% ATK, ignora 100% DEF / 50% RES
+  if (f.lupaC6 && totalRounds >= 6) {
+    let tot2 = 0;
+    enemies.forEach((e) => { if (e.alive) { const r2 = dealDamage(u, e, 1000 * (u.tUlt || 1) * ampU, fx, { el: "Fogo", breakW: 2, defPen: 100, resPen: 50, forceCrit: true, noLupaProc: true }); tot2 += r2.dmg; } });
+    msg += ` ☄️ CATACLISMO SECUNDÁRIO! +${tot2} de Dano de Fogo Puro, ignorando 100% DEF e 50% RES!`;
+  }
+  // Estado Overclock: 2 turnos (4 com C6)
+  u._lupaOverclock = f.lupaC6 ? 4 : 2;
+  lupaFlameShield(u, s, fx); // C4: escudo de chamas ao conjurar a Ultimate
+  msg += ` 🔥 OVERCLOCK ativado por ${u._lupaOverclock} turnos — o Básico vira Julgamento Solar!`;
+  return msg;
+}
 function miyabiBasicAttack(s, u, enemy, fx, ampB) {
   const f = u.stFlags || {}, sk = u.skill || {};
   if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0]; // alvo caiu? redireciona em vez de falhar
@@ -4820,6 +5186,7 @@ function tickDots(u, fx, allies) {
     fx.push({ uid: u.uid, txt: "🌪️ COLAPSO!", crit: true, id: Math.random() });
   }
   u._fulgHits = 0; // Fulgur: reseta o limite de 4 ativações por rodada do alvo
+  u._lupaResidualHits = 0; // Lupa C3: reseta o limite de 1 reação de Chama Residual por rodada do alvo
   // Cooldown de reaplicação: todo tipo de DoT que encerra agora entra em recarga de 2 turnos antes de poder ser reaplicado
   { const expiring = u.dots.filter(d => d.turns <= 0);
     if (expiring.length) { u._dotCd = u._dotCd || {}; expiring.forEach(d => { u._dotCd[d.type] = 2; }); }
@@ -4926,12 +5293,20 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       } }
     { const yoru0 = heroes.find((h) => h.id === "yoruichi"); if (yoru0 && yoru0.stFlags?.yoruT1 && yoru0.energyMax) { yoru0.energy = Math.min(yoru0.energyMax, yoru0.energy + 20); yoru0._yoruT1Uses = 0; } }
     { const shk0 = heroes.find((h) => h.id === "shorekeeper"); if (shk0 && shk0.stFlags?.shkT1 && shk0.energyMax) { shk0.energy = Math.min(shk0.energyMax, shk0.energy + 25); } }
+    { const hitori0 = heroes.find((h) => h.id === "hitori" && h.alive);
+      if (hitori0) {
+        const FOLLOWUP_IDS = ["yoruichi", "soifon", "nami"]; // personagens com mecânica de Ataque Extra no jogo
+        heroes.forEach((h) => { if (!h.isSummon && h.alive && FOLLOWUP_IDS.includes(h.id)) h.buffs.push({ stat: "followupDmg", value: 250, turns: 9999, name: "Ressonância de Palco (Hitori)" }); });
+      } }
+    { const lp0 = heroes.find((h) => h.id === "lupa"); if (lp0) { lp0._lupaVor = 0; lp0._lupaOverclock = 0;
+        if (lp0.stFlags?.lupaT1 && lp0.energyMax) { lp0._lupaVor = 3; lp0.energy = Math.min(lp0.energyMax, lp0.energy + 20); } } } // Rastro 1 · Rastro da Caçada
     { const kb0 = heroes.find((h) => h.id === "kaiba"); if (kb0 && kb0.stFlags?.kaibaT1) { const starter = makeSummon(kb0, { uid: "S_" + kb0.uid + "_mon0", name: "Vorse Raider", avatar: "👹", imgKey: "card_vorse", kind: "monster", mul: 260, spd: effStat(kb0, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); starter.cardBleed = 0.5; heroes.push(starter); } }
     { const yana0 = heroes.find((h) => h.id === "yanagi"); if (yana0 && yana0.weapon?.buff?.teamCritRate) { const critBonus = yana0.weapon.buff.teamCritRate; heroes.forEach(h => { if (!h.isSummon) h.buffs.push({ stat: "critRate", value: critBonus, turns: 9999, name: "Ressonância de Equipe" }); }); } }
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
     // _sibs: referências dos aliados de cada lado (Fulgur Resonance precisa achar o de menor HP)
     heroes.forEach(h => { h._sibs = heroes; });
     enemies.forEach(e => { e._sibs = enemies; });
+    { const lp1 = heroes.find(h => h.id === "lupa" && h.stFlags?.lupaC1); if (lp1) { enemies.forEach(e => applyDot([e], { type: "burn", mul: 60, turns: 3 }, lp1, [])); lp1.buffs.push({ stat: "energyRegen", value: 15, turns: 9999, name: "Rastreadora de Cinzas" }); } } // C1 · Rastreadora de Cinzas: 1 Ignição em todos ao entrar em combate + Regen Energia +15% permanente
     { const yn0 = heroes.find(h => h.id === "yanagi"); if (yn0 && yn0.stFlags?.yanaT1) { enemies.forEach(e => { e.debuffs.push({ stat: "mark", value: 0, turns: 3, name: "Fagulha de Anomalia" }); }); } }
     // ══ ABISMO DE DADOS: HP persistente (permadeath), mutador do andar e glitches da run ══
     let abLog = [];
@@ -5249,6 +5624,14 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           msg = u.name + " conjura Magia Comum em área — " + frTot + " de Dano Holy" + (frCrit ? " (CRÍTICO!)" : "") + (f.frGrimoire ? (" [" + (u._frPoints||0) + "/4 pts]") : "") + ".";
           miyDone = true;
         }
+        if (!miyDone && u.id === "hitori") {
+          msg = hitoriBasicAttack(s, u, enemy, fx, ampB);
+          miyDone = true;
+        }
+        if (!miyDone && u.id === "lupa") {
+          msg = lupaBasicAttack(s, u, enemy, fx, ampB);
+          miyDone = true;
+        }
         if (!miyDone && u.id === "omegamon" && enemy) {
           const r = dealDamage(u, enemy, (sk.basicMul || 100) * u.tBasic * ampB, fx, { breakW: 1, el: "Virus" });
           let extra = "";
@@ -5396,6 +5779,12 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             tot += fd;
           });
           msg = u.name + " usa Marionetes de Sangue! Drena " + totalDrained + " HP" + (tensao ? " [Tensão x" + tensao + "]" : "") + " e causa " + tot + " de dano (" + Math.round(flatBase) + " Dano Fixo" + (inkMul > 1 ? " [Gotas de Tinta]" : "") + ")." + (f.ryoC2 ? " [Fio Guia] ao time!" : "");
+        }
+        else if (u.id === "hitori" && sk.hitoriSkill) {
+          msg = hitoriSkillAttack(s, u, fx);
+        }
+        else if (u.id === "lupa" && sk.lupaSkill) {
+          msg = lupaSkillAttack(s, u, enemy, fx, ampS);
         }
         else if (u.id === "frieren" && sk.frSkill) {
           const sMul = u.tSkill * ampS;
@@ -5766,7 +6155,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       } else if (kind === "ult") {
         // Athena C6: pode reabrir a seleção das 7 Casas a cada 2 turnos sem custo de energia
         const _athFreeUlt = u.id === "athena" && u.stFlags?.athC6 && s._athHouseActive && (u._athC6Cd || 0) <= 0;
-        if (u.energy < u.energyMax && !_athFreeUlt) return s;
+        const _hitoriUltCost = u.id === "hitori" ? (u.stFlags?.hitoriC4 ? 130 : 160) : null; // C4 · Economia de Ritmo: 160 → 130
+        if (_hitoriUltCost != null ? u.energy < _hitoriUltCost : (u.energy < u.energyMax && !_athFreeUlt)) return s;
         advanceServosSummon(s, u); // Servos de um Rei (4pç): a Invocação avança 15% ao ativar a Suprema
         shkGenButterfly(s, u.uid); // Shorekeeper: gera Borboleta Estelar quando um aliado usa a Suprema
         // Protocolo de Adaptação Universal (4pç): Suprema concede -20% DEF ignorada + Dano Global +25% por 2 rodadas
@@ -5954,6 +6344,12 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           const allLow = drainable.every(a => a.hp / a.maxHp < 0.5);
           if (f.ryoC6 && allLow) { u.av = 0.01; }
           msg = "A TELA DA ARANHA! " + u.name + " sacrifica " + totalDrained + " HP do time — " + tot2 + " de dano total!" + (defPenBonus > 0 ? " (perfura " + defPenBonus.toFixed(0) + "% DEF!)" : "") + (f.ryoC6 && allLow ? " [C6] Ryoshu age NOVAMENTE!" : "");
+        } else if (u.id === "hitori" && sk.hitoriUlt) {
+          u.energy = 0;
+          msg = hitoriUltimate(s, u, fx);
+        } else if (u.id === "lupa" && sk.lupaUlt) {
+          u.energy = enGain(5);
+          msg = lupaUltimate(s, u, fx, ampU);
         } else if (u.id === "frieren" && sk.frUlt) {
           u.energy = enGain(5);
           const sMul = u.tUlt * ampU;
@@ -6072,6 +6468,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       if (u._avMul != null) { u.av = Math.max(0.01, u.av * u._avMul); u._avMul = null; }
       if (u.id === "miyabi" && (s.frostZone || 0) > 0) s.frostZone -= 1;
+      if (u.id === "lupa" && (u._lupaOverclock || 0) > 0) { u._lupaOverclock -= 1; if (u._lupaOverclock <= 0) pushLog(s, `🔥 O Overclock de ${u.name} terminou.`); }
+      if (u.id === "lupa" && (u._lupaSupernova || 0) > 0) u._lupaSupernova -= 1;
       if (u.id === "soifon" && s.sfZona) { s.sfZona.turns -= 1; if (s.sfZona.turns <= 0) s.sfZona = null; }
       s.sfFollowThisTurn = 0;
       checkSoiFonFollowup(s, u, s.fx);
@@ -7094,18 +7492,21 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         {(state.frostZone || 0) > 0 && <div style={{ textAlign: "center", fontSize: 11, color: "#6FE3FF", fontWeight: 700, padding: "2px 0" }}>❄️ Zona de Geada ativa ({state.frostZone}) — Miyabi em Postura Iaido permanente</div>}
         {state.sfZona && <div style={{ textAlign: "center", fontSize: 11, color: ELEMENTS["Vento"]?.color || "#7CFFB0", fontWeight: 700, padding: "2px 0" }}>🦋 Zona de Condução ativa ({state.sfZona.turns}) — Follow-ups e CRIT amplificados!</div>}
         <div className="flex gap-2" style={{ flexWrap: "wrap" }}>
-          {state.heroes.map((h) => { const active = current && current.uid === h.uid; const el = ELEMENTS[h.element] || { color: C.line }; const full = !h.isSummon && h.energyMax > 0 && h.energy >= h.energyMax; return (
-            <div key={h.uid} onClick={() => setInspectUid(h.uid)} style={{ flex: 1, minWidth: 112, position: "relative", opacity: h.alive ? 1 : 0.35, border: `2px solid ${active ? C.gold : el.color + "55"}`, borderRadius: 12, padding: 8, background: C.panel, boxShadow: active ? `0 0 16px ${C.gold}55` : "none", cursor: "pointer" }}>
+          {state.heroes.map((h) => { const active = current && current.uid === h.uid; const el = ELEMENTS[h.element] || { color: C.line }; const full = !h.isSummon && h.energyMax > 0 && h.energy >= h.energyMax;
+            const lupaOC = h.id === "lupa" && (h._lupaOverclock || 0) > 0; return (
+            <div key={h.uid} onClick={() => setInspectUid(h.uid)} style={{ flex: 1, minWidth: 112, position: "relative", opacity: h.alive ? 1 : 0.35, border: `2px solid ${lupaOC ? "#FF3B30" : active ? C.gold : el.color + "55"}`, borderRadius: 12, padding: 8, background: lupaOC ? "linear-gradient(180deg,#3a0e08,#150402)" : C.panel, boxShadow: lupaOC ? "0 0 22px #FF3B30aa, 0 0 8px #FF7A2988 inset" : active ? `0 0 16px ${C.gold}55` : "none", cursor: "pointer", animation: lupaOC ? "srLupaFire 1.1s ease-in-out infinite" : "none" }}>
+              {lupaOC && <style>{`@keyframes srLupaFire{0%,100%{box-shadow:0 0 18px #FF3B30aa,0 0 6px #FF7A2988 inset}50%{box-shadow:0 0 30px #FF6A00cc,0 0 14px #FFD24988 inset}}`}</style>}
               <FX fx={state.fx} uid={h.uid} />
               <div className="flex items-center gap-2">
                 <CombatPortrait h={h} size={40} active={active} />
                 <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{h.name}{h.isSummon && <span style={{ color: el.color }}> ⟡</span>}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: lupaOC ? "#FF8A5C" : undefined }}>{lupaOC ? "🔥 " : ""}{h.name}{h.isSummon && <span style={{ color: el.color }}> ⟡</span>}</div>
                   {h.isSummon && isFinite(h.life) && <div style={{ fontSize: 9, color: el.color }}>⏳ {h.life} turno(s)</div>}
                   {!h.isSummon && h.energyMax > 0 && <div style={{ fontSize: 9, color: full ? C.gold : "#B98BFF" }}>⚡ {Math.round(h.energy)}/{h.energyMax}{full ? " · PRONTO" : ""}</div>}
                   {h.id === "agumon" && <div style={{ fontSize: 9, color: (h.agHeat || 0) > 70 ? "#FF7043" : "#FFB74D" }}>{AGU_FORMS[h.agForm || "agumon"]?.emoji} {AGU_FORMS[h.agForm || "agumon"]?.name}{(h.agModoX || 0) > 0 ? " · MODO X⚡" : ""} · 🔥{h.agHeat || 0} · 🧬{h.agSP || 0} SP{(h.agHeat || 0) >= 85 ? " ☢️" : ""}</div>}
                   {h.id === "miyabi" && (h.stFlags?.miPostura) && <div style={{ fontSize: 9, color: "#6FE3FF" }}>{"❄".repeat(Math.min(h.posturePH || 0, h.stFlags?.miC6 ? 4 : 3))}{"·".repeat(Math.max(0, (h.stFlags?.miC6 ? 4 : 3) - (h.posturePH || 0)))} {((h.posturePH || 0) >= (h.stFlags?.miC6 ? 4 : 3)) ? "Postura Iaido!" : "PH"}</div>}
                   {h.id === "soifon" && <div style={{ fontSize: 9, color: ELEMENTS["Vento"]?.color || "#7CFFB0" }}>{h.sfPostura ? "🦋 POSTURA DE FERRÃO!" : `🦋 Vibração ${h.sfCharges || 0}/3`}</div>}
+                  {h.id === "lupa" && <div style={{ fontSize: 9, color: lupaOC ? "#FF6A00" : "#FFB86B" }}>{lupaOC ? `🔥🔥 OVERCLOCK! ${h._lupaOverclock}t restantes` : `🍖 Voracidade ${h._lupaVor || 0}/${h.stFlags?.lupaC6 ? 15 : 10}`}</div>}
                 </div>
               </div>
               {h.shield > 0 && <div style={{ fontSize: 10, color: "#9fdcff", marginTop: 3 }}>🛡 {Math.round(h.shield)}</div>}
@@ -7239,6 +7640,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             )}
           </div>
         ) : isHeroTurn ? (() => { let nm = skillNamesOf(activeHero.id); if (activeHero.id === "agumon") { const _F = AGU_FORMS[activeHero.agForm || "agumon"]; if (_F) nm = _F.skills.map(x => x[0]); }
+          if (activeHero.id === "lupa" && (activeHero._lupaOverclock || 0) > 0) nm = [nm[0] + " → Julgamento Solar ☀️🔥", nm[1], nm[2]]; // Overclock: Básico vira Julgamento Solar
           const _kindLabel = { basic: "Ataque Básico", skill: "Perícia · 1 PH", ult: "Ultimate" };
           const _kindName  = { basic: nm[0], skill: nm[1], ult: nm[2] };
           const _holdBtn = (kind, btnProps, children) => <Btn {...btnProps} onClick={null}
@@ -7337,8 +7739,13 @@ function CombatPortrait({ h, size = 44, active }) {
   const el = ELEMENTS[h.element] || { color: C.line };
   const pct = h.energyMax ? h.energy / h.energyMax : 0;
   const full = h.energyMax && h.energy >= h.energyMax;
+  // Corrige bug: buffs ofensivos (dano/crítico) não refletiam visualmente no retrato — agora acende um selo dourado pulsante
+  const buffed = (h.buffs || []).some((b) => ["dmgBonus", "critRate", "critDmg", "elemDmg", "atk", "followupDmg"].includes(b.stat) && (b.value || 0) > 0);
   return <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
-    <Avatar ch={h} size={size} ring={active ? C.gold : el.color} />
+    <Avatar ch={h} size={size} ring={active ? C.gold : buffed ? "#FFD249" : el.color} />
+    {buffed && <div style={{ position: "absolute", inset: -3, borderRadius: 16, boxShadow: "0 0 10px #FFD249cc", animation: "srBuffPulse 1s ease-in-out infinite", pointerEvents: "none" }} />}
+    {buffed && <div style={{ position: "absolute", bottom: -4, right: -4, fontSize: Math.round(size * 0.32), filter: "drop-shadow(0 0 3px #000)" }}>⚔️↑</div>}
+    {buffed && <style>{`@keyframes srBuffPulse{0%,100%{opacity:.5}50%{opacity:1}}`}</style>}
     {!h.isSummon && h.energyMax > 0 && <EnergyRing pct={pct} full={full} size={size} />}
   </div>;
 }
@@ -9270,7 +9677,7 @@ function RouletteEvent({ jade, setJade, rouletteCleared, setRouletteCleared, nex
   );
 }
 
-function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante, mail2Claimed, claimMail2Reward, mail3Claimed, mail3CharPicked, claimMail3Reward, mail4Claimed, claimMail4Reward, mail5Claimed, claimMail5Reward, mail6Claimed, claimMail6Reward, setJade, setExpItems, setWeaponMats, setRelicMats, setAscMats, playerName, towerTop1Claimed, claimTop1Reward, flash, owned }) {
+function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante, mail2Claimed, claimMail2Reward, mail3Claimed, mail3CharPicked, claimMail3Reward, mail4Claimed, claimMail4Reward, mail5Claimed, claimMail5Reward, mail6Claimed, claimMail6Reward, mail7Claimed, claimMail7Reward, setJade, setExpItems, setWeaponMats, setRelicMats, setAscMats, playerName, towerTop1Claimed, claimTop1Reward, flash, owned }) {
   const [pickChar3, setPickChar3] = React.useState(null);
   const [pickChar4, setPickChar4] = React.useState(null);
   const [isTop1, setIsTop1] = React.useState(false);
@@ -9324,6 +9731,21 @@ function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante,
         <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>📬 Correio</div>
         <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>Mensagens e recompensas enviadas pelo sistema.</div>
       </Panel>
+
+      {!mail7Claimed && (
+        <Panel glow="#F6C95B">
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+            <div style={{ fontSize: 38 }}>💎</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>Presente de Gemas</div>
+              <div style={{ fontSize: 13, color: C.mute, lineHeight: 1.65, marginBottom: 14 }}>
+                <b style={{ color: C.gold }}>+12.000💎</b> de presente para todos os Pioneiros!
+              </div>
+              <Btn kind="primary" style={{ width: "100%", padding: "10px 18px", fontWeight: 800 }} onClick={() => claimMail7Reward()}>💎 Coletar</Btn>
+            </div>
+          </div>
+        </Panel>
+      )}
 
       {!mail6Claimed && (
         <Panel glow="#F6C95B">
