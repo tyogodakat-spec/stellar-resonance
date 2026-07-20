@@ -214,6 +214,19 @@ const RELIC_SETS = {
     d2: "+6 de VEL e +10% de Taxa de Regeneração de Energia.",
     d4: "Ao ativar uma Habilidade Suprema, Transformação ou Mudança de Postura: ignora 20% da DEF inimiga e ganha +25% de Dano Bônus Global por 2 rodadas.",
     d6: "Pulso de Emergência: enquanto o portador estiver sob um efeito de transformação ou postura ofensiva gerado por ele mesmo, ele acessa um Reservatório de TamerSP. 2× por batalha, ao usar o Ataque Básico com o TamerSP abaixo de 30% da capacidade total, converte energia ambiente em um Pulso de Emergência — recupera 50% de TamerSP instantaneamente. Ao ativar este Pulso, o próximo ataque ganha +100% de Dano Crítico adicional." },
+  "Crisol da Chama Primordial": { color: "#FF4500", el: "Fogo", p2: { elemDmg: 10 }, flag4: "setCrisol4",
+    d2: "+10% de Dano de Fogo.",
+    d4: "Ao usar a Perícia OU acertar um Crítico com Dano de Fogo, ganha 1 acúmulo de 'Núcleo Incandescente' (máx 3, 8 turnos). Cada acúmulo: +8% de ATK e +12% de Dano Crítico. Com 3 acúmulos, todos os ataques de Fogo ignoram 15% de DEF adicional. Ideal para DPS de Fogo hypercarry (Lupa, Ace, futuros personagens de Fogo)." },
+  "Inferno Devorador de Almas": { color: "#8B0000", el: "Fogo", six: true, flag2: "setInferno2", flag4: "setInferno4", flag6: "setInferno6",
+    d2: "+10% de Dano de Fogo. DoT de Fogo (Ignis/Queimadura) causa +10% de dano adicional.",
+    d4: "DoT de Fogo causa +30% de dano (acumula com o bônus de 2 peças, total +40%). Ao atacar um alvo que já possui qualquer DoT ativo, o portador ganha +12% de Taxa Crítica nesse golpe.",
+    d6: "Toda vez que um DoT de Fogo for consumido ou expirar naturalmente no campo, desencadeia uma Explosão Térmica: causa 180% do ATK do portador em Dano de Fogo em área, reduz a Resistência de Fogo de todos os alvos atingidos em 20% por 4 turnos, e o portador recupera 8 de Energia. Ideal para Lupa e futuros especialistas em DoT de Fogo." },
+  "Corrente Trovão-Relâmpago": { color: "#7B2FBE", el: "Eletro", p2: { elemDmg: 10 }, flag4: "setTrovao4",
+    d2: "+10% de Dano de Eletro.",
+    d4: "Cada vez que um DoT de Choque dá tick em um inimigo, o portador ganha 1 acúmulo de 'Condutividade' (máx 4 = +60% de Dano de Ataque Extra). Com 4 acúmulos, o próximo Ataque Extra consome todas as cargas: renova a duração de todos os DoTs de Choque no alvo e ignora 20% de DEF adicional. Ideal para Yoruichi e futuros personagens de Eletro/follow-up." },
+  "Sinfonia do Trono Prateado": { color: "#C0C0C0", p2: { energyRegen: 12 }, flag4: "setSinfonia4",
+    d2: "+12% de Taxa de Regeneração de Energia.",
+    d4: "Ao usar a Perícia ou a Habilidade Suprema, concede 'Ressonância Brilhante' a todos os aliados por 3 turnos: +25% de Dano Crítico. Efeito Bônus de Transbordo: se o portador possuir 200%+ de Dano Crítico total, concede adicionalmente +15% do seu próprio Dano Crítico como bônus ao aliado no 1º Slot. Ideal para Hitori Gotoh (Bocchi) e futuros buffers de CRIT DMG." },
 };
 const RELIC_SET_NAMES = Object.keys(RELIC_SETS);
 const ROTATING_FARM_SETS = RELIC_SET_NAMES.filter((s) => s !== "Protocolo Ômega"); // Ômega já tem domínio fixo (Rede Corrompida)
@@ -235,6 +248,10 @@ const RELIC_ITEM_ID = {
   "Traje do Astrólogo do Destino": "item_relic_astrologo",
   "Muralha do Guardião": "item_relic_muralha",
   "Protocolo de Adaptação Universal": "item_relic_adapt",
+  "Crisol da Chama Primordial": "item_relic_crisol",
+  "Inferno Devorador de Almas": "item_relic_inferno",
+  "Corrente Trovão-Relâmpago": "item_relic_trovao",
+  "Sinfonia do Trono Prateado": "item_relic_sinfonia",
 };
 const RELIC_EMOJI = {
   "Tempestade Eletro": "⚡",
@@ -253,6 +270,10 @@ const RELIC_EMOJI = {
   "Traje do Astrólogo do Destino": "🔯",
   "Muralha do Guardião": "🛡️",
   "Protocolo de Adaptação Universal": "🧬",
+  "Crisol da Chama Primordial": "🌋",
+  "Inferno Devorador de Almas": "🔴",
+  "Corrente Trovão-Relâmpago": "⚡",
+  "Sinfonia do Trono Prateado": "🎵",
 };
 const GAME_ITEMS = [
   { id: "item_jade",        name: "Jade Estelar",           icon: "💎" },
@@ -281,6 +302,10 @@ const GAME_ITEMS = [
   { id: "item_relic_astrologo",  name: "Relíquia · Traje do Astrólogo do Destino",  icon: "🔯" },
   { id: "item_relic_muralha",    name: "Relíquia · Muralha do Guardião",             icon: "🛡️" },
   { id: "item_relic_adapt",      name: "Relíquia · Protocolo de Adaptação Universal", icon: "🧬" },
+  { id: "item_relic_crisol",    name: "Relíquia · Crisol da Chama Primordial",       icon: "🌋" },
+  { id: "item_relic_inferno",   name: "Relíquia · Inferno Devorador de Almas",       icon: "🔴" },
+  { id: "item_relic_trovao",    name: "Relíquia · Corrente Trovão-Relâmpago",        icon: "⚡" },
+  { id: "item_relic_sinfonia",  name: "Relíquia · Sinfonia do Trono Prateado",       icon: "🎵" },
 ];
 const STAT_LABEL = { hp: "HP", atk: "ATK", def: "DEF", spd: "VEL", critRate: "CRIT", critDmg: "CRIT DMG", dmgBonus: "DANO", energyRegen: "REGEN ENERGIA", healBonus: "CURA", energyMax: "EN", vuln: "VULN", defPen: "PENETRAÇÃO DEF", elemDmg: "DANO ELEM.", dotDmg: "DANO DE DoT", atkP: "ATK", hpP: "HP", defP: "DEF", atkFlat: "ATK", hpFlat: "HP", defFlat: "DEF", breakEffect: "EFEITO DE PERFURAÇÃO", breakEff: "EFICIÊNCIA DE PERFURAÇÃO", followupDmg: "DANO DE ATAQUE EXTRA" };
 const PCT = { hp: 1, atk: 1, def: 1 };
@@ -4504,6 +4529,50 @@ function triggerDesordem(yanagi, target, fx, opts) {
   if (yanagi.stFlags?.yanaS1 && sparks.length >= 3 && target.alive) { target.debuffs.push({ stat: "elemRes", value: -15, turns: 2, name: "Ciclo de Ruído" }); yanagi.av = Math.max(0.01, (yanagi.av || 1) * 0.80); }
   return dmg;
 }
+// ── Crisol da Chama Primordial (4pç): adiciona 1 acúmulo de Núcleo Incandescente ──
+function crisolAddStack(u, fx) {
+  const existingBuff = u.buffs.find(b => b.name === "NúcleoIncandescente_atk");
+  const cur = Math.min(3, (existingBuff ? Math.round((existingBuff.value || 0) / 8) : 0) + 1);
+  u.buffs = u.buffs.filter(b => b.name !== "NúcleoIncandescente_atk" && b.name !== "NúcleoIncandescente_cd");
+  u.buffs.push({ stat: "atk", value: cur * 8, pct: true, turns: 8, name: "NúcleoIncandescente_atk" });
+  u.buffs.push({ stat: "critDmg", value: cur * 12, turns: 8, name: "NúcleoIncandescente_cd" });
+  fx.push({ uid: u.uid, txt: `🌋 Núcleo ${cur}/3`, heal: true, id: Math.random() });
+}
+// ── Inferno Devorador de Almas (6pç): Explosão Térmica ao consumir/expirar DoT de Fogo ──
+function infernoExplosao(owner, enemies, fx) {
+  if (!owner || !owner.stFlags?.setInferno6) return;
+  const atkVal = Math.max(1, effStat(owner, "atk"));
+  const dmgBase = Math.round(atkVal * 1.80);
+  (enemies || []).filter(e => e && e.alive).forEach(e => {
+    e.hp = Math.max(0, (e.hp || 0) - dmgBase);
+    if (e.hp <= 0) e.alive = false;
+    fx.push({ uid: e.uid, txt: String(dmgBase), crit: false, id: Math.random(), el: "Fogo" });
+    e.debuffs = e.debuffs || [];
+    const ex = e.debuffs.find(d => d.name === "CalorPenetrante");
+    if (ex) ex.turns = 4; else e.debuffs.push({ stat: "elemRes", value: -20, el: "Fogo", turns: 4, name: "CalorPenetrante" });
+  });
+  if (owner.energyMax) owner.energy = Math.min(owner.energyMax, owner.energy + 8);
+  fx.push({ uid: owner.uid, txt: "💥 Explosão Térmica!", heal: true, id: Math.random() });
+}
+// ── Sinfonia do Trono Prateado (4pç): concede Ressonância Brilhante ao time ao usar Perícia/Ult ──
+function sinfoniaProc(u, allies, fx) {
+  if (!u || !u.stFlags?.setSinfonia4) return;
+  const ownCd = effStat(u, "critDmg");
+  (allies || []).filter(h => h.alive && !h.isSummon).forEach(h => {
+    h.buffs = h.buffs.filter(b => b.name !== "RessonânciaBrilhante");
+    h.buffs.push({ stat: "critDmg", value: 25, turns: 3, name: "RessonânciaBrilhante" });
+  });
+  // Efeito de Transbordo: portador com 200%+ de CritDMG concede 15% do seu CritDMG ao slot 1
+  if (ownCd >= 200) {
+    const slot1 = (allies || []).find(h => h.uid === "H1" && h.alive && !h.isSummon);
+    if (slot1) {
+      const bonus = Math.round(ownCd * 0.15);
+      slot1.buffs = slot1.buffs.filter(b => b.name !== "RessonânciaSinfônica");
+      slot1.buffs.push({ stat: "critDmg", value: bonus, turns: 3, name: "RessonânciaSinfônica" });
+    }
+  }
+  fx.push({ uid: u.uid, txt: "🎵 +CRIT DMG!", heal: true, id: Math.random() });
+}
 function dealDamage(attacker, defender, mult, fx, opts) {
   // Lancer Esquiva Absoluta: bloqueia o próximo ataque
   if (defender.id === "lancer" && (defender.lancerDodges || 0) > 0 && attacker.side !== "H" && !opts?.pierceShield) {
@@ -4558,6 +4627,9 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   }
   if (defender.bossKind === "aizen") defender._aizenMissStreak = 0; // acertou — zera a sequência de erros (pity: nunca erra 2x seguidas)
   const f = attacker.stFlags || {};
+  // Corrente Trovão-Relâmpago (4pç): pré-computa acúmulos de Condutividade para uso no dano e na DEF
+  const _trovaoHitStacks = ((opts?.isFollowup || opts?.isYoruClone) && f.setTrovao4) ? Math.min(4, attacker._trovaoStacks || 0) : 0;
+  const _trovaoIsMax = _trovaoHitStacks >= 4;
   // Mutador Espelhos: 25% de chance de erro em qualquer ataque
   if ((attacker._mut || defender._mut) === "espelhos" && (attacker._espelhosMissStreak || 0) < 1 && Math.random() < 0.15) { attacker._espelhosMissStreak = (attacker._espelhosMissStreak || 0) + 1; fx.push({ uid: defender.uid, txt: "ERROU!", crit: false, id: Math.random() }); return { dmg: 0, crit: false }; }
   if ((attacker._mut || defender._mut) === "espelhos") attacker._espelhosMissStreak = 0;
@@ -4566,8 +4638,19 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   let dmg = effStat(attacker, "atk") * (mult / 100);
   // Mutador Miasma Cegante: Chance Crítica travada em 0%
   const _lupaC5Crit = (attacker.id === "lupa" && f.lupaC5) ? 12 : 0;
-  const crit = (attacker._mut || defender._mut) === "miasma" ? false : Math.random() * 100 < Math.min(100, effStat(attacker, "critRate") + _lupaC5Crit);
+  const _infernoCrit = (f.setInferno4 && (defender.dots || []).length > 0) ? 12 : 0; // Inferno Devorador de Almas 4pç: +12% Taxa Crítica ao atacar alvo com DoT
+  const crit = (attacker._mut || defender._mut) === "miasma" ? false : Math.random() * 100 < Math.min(100, effStat(attacker, "critRate") + _lupaC5Crit + _infernoCrit);
   if (crit) dmg *= 1 + effStat(attacker, "critDmg") / 100;
+  // Crisol da Chama Primordial (4pç): acerto crítico de Fogo → ganha 1 acúmulo de Núcleo Incandescente
+  if (crit && f.setCrisol4 && (opts?.el || attacker.element) === "Fogo") crisolAddStack(attacker, fx);
+  // Corrente Trovão-Relâmpago (4pç): consome acúmulos de Condutividade em Ataques Extra para bônus de dano
+  if (_trovaoHitStacks > 0) {
+    dmg *= (1 + _trovaoHitStacks * 0.15);
+    if (_trovaoIsMax) {
+      attacker._trovaoStacks = 0;
+      (defender.dots || []).filter(d => d.type === "shock").forEach(d => { d.turns = Math.max(d.turns, 3); }); // renova duração dos Choques
+    }
+  }
   dmg *= 1 + effStat(attacker, "dmgBonus") / 100;
   if (attacker.id === "lupa" && f.lupaC5) dmg *= 1.75; // C5 · Garra de Almas: +75% de Dano de Fogo incondicional
   // ── Hitori Gotoh — Ressonância de Palco: enquanto viva no time, TODO Ataque Extra (follow-up) causa +250% de dano ──
@@ -4623,6 +4706,13 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     else if (hasBleed || hasPoison) dmg *= 1.12;
   }
   let pen = Math.min(85, (effStat(attacker, "defPen") || 0) + (opts?.defPen || 0));
+  // Crisol da Chama Primordial (4pç): com 3 acúmulos de Núcleo Incandescente, ataques de Fogo ignoram 15% de DEF adicional
+  if (f.setCrisol4 && (opts?.el || attacker.element) === "Fogo") {
+    const crisolStacks = Math.round((attacker.buffs.find(b => b.name === "NúcleoIncandescente_atk")?.value || 0) / 8);
+    if (crisolStacks >= 3) pen = Math.min(100, pen + 15);
+  }
+  // Corrente Trovão-Relâmpago (4pç): 4 acúmulos consumidos ignoram 20% de DEF adicional
+  if (_trovaoIsMax) pen = Math.min(100, pen + 20);
   // Protocolo de Ruína em Cadeia (6pç): qualquer aliado ganha +20% de Perfuração de DEF contra um alvo com 3+ DoTs diferentes
   const teamDefPenVal = (defender.debuffs || []).filter(d => d.stat === "teamDefPen").reduce((a, d) => a + (d.value || 0), 0);
   if (teamDefPenVal && attacker.side === "H") pen = Math.min(100, pen + teamDefPenVal);
@@ -4779,6 +4869,8 @@ function applyDot(targets, spec, source, fx) {
   if (f.dotBoost) m *= 1.4;
   if (f.pScorch && spec.type === "burn") m *= 1.3;
   if (f.setFire2 && spec.type === "burn") m *= 1.1; // Núcleo Ardente 2pç
+  if (f.setInferno2 && spec.type === "burn") m *= 1.10; // Inferno Devorador de Almas 2pç: DoT de Fogo +10%
+  if (f.setInferno4 && spec.type === "burn") m *= 1.30; // Inferno Devorador de Almas 4pç: DoT de Fogo +30% adicional
   m *= 1 + (source.base.dotDmg || 0) / 100; // substatus "Dano de DoT"
   const dmg = dotDamageRoll(source, m); // novo sistema: aleatório, piso de 80k escalando com o personagem
   const glacial = spec.type === "freeze" || spec.type === "geada";
@@ -4961,7 +5053,12 @@ function lupaVoracityProc(u, target, fx) {
   if (!target || !target.dots || !target.dots.length) return;
   const dot = target.dots[0]; // consome 1 rodada do primeiro DoT ativo no alvo
   dot.turns -= 1;
-  if (dot.turns <= 0) target.dots = target.dots.filter((d) => d !== dot);
+  if (dot.turns <= 0) {
+    const wasBurn = dot.type === "burn";
+    target.dots = target.dots.filter((d) => d !== dot);
+    // Inferno Devorador de Almas (6pç): Explosão Térmica ao consumir DoT de Fogo (Voracidade)
+    if (wasBurn && u.stFlags?.setInferno6) infernoExplosao(u, [target], fx);
+  }
   const cap = lupaVorCap(u);
   if ((u._lupaVor || 0) >= cap) return; // já no teto — nada a ganhar
   u._lupaVor = Math.min(cap, (u._lupaVor || 0) + 1);
@@ -5050,6 +5147,8 @@ function lupaSkillAttack(s, u, enemy, fx, ampS) {
       const burst = Math.round(burstBase * 2.0);
       enemy.hp -= burst; if (enemy.hp <= 0) { enemy.hp = 0; enemy.alive = false; }
       fx.push({ uid: enemy.uid, txt: String(burst), crit: false, id: Math.random(), el: "Fogo" });
+      // Inferno Devorador de Almas (6pç): Explosão Térmica ao consumir DoTs pela Detonação Expressa
+      if (u.stFlags?.setInferno6 && dots.some(d => d.type === "burn")) infernoExplosao(u, aliveEnemies(s), fx);
       msg += ` 💥 Detonação Expressa: +${burst} de Dano de Fogo (${consumedRounds} rodadas de DoT consumidas)!`;
       const gained = Math.min(consumedRounds, cap - (u._lupaVor || 0));
       if (gained > 0) { u._lupaVor = Math.min(cap, (u._lupaVor || 0) + gained); u.energy = Math.min(u.energyMax, u.energy + gained * 5); lupaIncineratorStack(u); lupaPackAmp(u, fx); }
@@ -5087,9 +5186,13 @@ function lupaUltimate(s, u, fx, ampU) {
   // Consumo Absoluto: consome TODOS os DoTs de TODOS os inimigos, somando rodadas pro escalonamento
   let totalRounds = 0;
   u._lupaConsumedDots = [];
+  let _infernoUltFired = false;
   enemies.forEach((e) => {
+    const _hadBurns = (e.dots || []).some(d => d.type === "burn");
     (e.dots || []).forEach((d) => { totalRounds += Math.max(0, d.turns); u._lupaConsumedDots.push({ uid: e.uid, type: d.type, mul: d.dmg > 0 ? Math.round((d.dmg / Math.max(1, effStat(u, "atk"))) * 100) : 40, turns: 2 }); });
     e.dots = [];
+    // Inferno Devorador de Almas (6pç): Explosão Térmica ao consumir DoTs de Fogo pela Ultimate (1 explosão em área)
+    if (_hadBurns && !_infernoUltFired && u.stFlags?.setInferno6) { infernoExplosao(u, enemies, fx); _infernoUltFired = true; }
   });
   const perRound = f.lupaC6 ? 3.5 : 2.0; // C6: +350%/rodada sem teto (era +200%)
   const scaleMul = 1 + totalRounds * perRound;
@@ -5192,6 +5295,11 @@ function tickDots(u, fx, allies) {
     const sparkCt = (u.debuffs || []).filter(b => b.name === "Fagulha de Anomalia").length;
     if (sparkCt > 0) dmg = Math.round(dmg * 1.25 * (1 + Math.min(0.30, sparkCt * 0.05)));
     u.hp -= dmg; total += dmg; d.turns -= 1; fx.push({ uid: u.uid, txt: String(dmg), dot: d.type, id: Math.random() });
+    // Corrente Trovão-Relâmpago (4pç): quando Choque dá tick em inimigo, herói com setTrovao4 ganha +1 acúmulo de Condutividade (máx 4)
+    if (d.type === "shock" && allies) {
+      const trovaoHero = allies.find(h => h.stFlags?.setTrovao4 && !h.isSummon);
+      if (trovaoHero) trovaoHero._trovaoStacks = Math.min(4, (trovaoHero._trovaoStacks || 0) + 1);
+    }
     if (d.type === "corrosao" && allies && allies.length) { const h = Math.round(dmg * 0.25 * (d.healMul || 1)); allies.forEach((a) => { if (a.alive && !a.isSummon) healUnit(a, h, fx); }); } // Corrosão cura o time
     // Yanagi S4: DoT em alvo sob Isolamento Corrosivo cura o time dela em 15% do ATK atual dela
     { const yanaS4h = allies && allies.find(h => h.id === "yanagi" && h.alive && h.stFlags?.yanaS4);
@@ -5210,6 +5318,11 @@ function tickDots(u, fx, allies) {
   // Cooldown de reaplicação: todo tipo de DoT que encerra agora entra em recarga de 2 turnos antes de poder ser reaplicado
   { const expiring = u.dots.filter(d => d.turns <= 0);
     if (expiring.length) { u._dotCd = u._dotCd || {}; expiring.forEach(d => { u._dotCd[d.type] = 2; }); }
+    // Inferno Devorador de Almas (6pç): Explosão Térmica quando DoT de Fogo expira naturalmente num inimigo
+    if (allies && expiring.some(d => d.type === "burn")) {
+      const infH = allies.find(h => h.stFlags?.setInferno6 && !h.isSummon);
+      if (infH) infernoExplosao(infH, [u], fx);
+    }
   }
   u.dots = u.dots.filter((d) => d.turns > 0);
   if (u.hp <= 0) { u.hp = 0; u.alive = false; }
@@ -5740,6 +5853,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       } else if (kind === "skill") {
         if (u.id === "uraraka" && sk.uraSkill) { s.choice = { uid: u.uid, kind: "uraraka" }; return s; }
         s.sp -= 1; u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enSkill || 22)); advanceServosSummon(s, u); shkGenButterfly(s, u.uid);
+        // Crisol da Chama Primordial (4pç): uso da Perícia concede 1 acúmulo de Núcleo Incandescente
+        if (f.setCrisol4) crisolAddStack(u, fx);
         // Shorekeeper: Estelarador Estágio 2 — evolui ao acumular 3 PH gastos com o domínio ativo
         { const shkH = s.heroes.find(h => h.id === "shorekeeper" && h.alive);
           if (shkH && shkH._domainStage === 1) {
@@ -6172,6 +6287,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         }
         if (u.weapon?.buff?.onSkill && !u.weapon?.buff?.athWeapon) { applyBuff([u], u.weapon.buff.onSkill, u.weapon.name, fx, u); msg += ` [${u.weapon.name}]`; }
         if (sk.energyGift) { const t = allies.filter((a) => a.uid !== u.uid && !a.isSummon)[0]; if (t) { t.energy = Math.min(t.energyMax, t.energy + sk.energyGift); msg += ` Doa ${sk.energyGift} de energia a ${t.name}.`; } }
+        // Sinfonia do Trono Prateado (4pç): ao usar a Perícia, concede Ressonância Brilhante ao time
+        sinfoniaProc(u, allies, fx);
       } else if (kind === "ult") {
         // Athena C6: pode reabrir a seleção das 7 Casas a cada 2 turnos sem custo de energia
         const _athFreeUlt = u.id === "athena" && u.stFlags?.athC6 && s._athHouseActive && (u._athC6Cd || 0) <= 0;
@@ -6185,6 +6302,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           u.buffs.push({ stat: "defPen", value: 20, turns: 2, name: "Protocolo de Adaptação" });
           u.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "Protocolo de Adaptação" });
         }
+        // Sinfonia do Trono Prateado (4pç): ao usar a Habilidade Suprema, concede Ressonância Brilhante ao time
+        sinfoniaProc(u, allies, fx);
         if (u.id === "kirara" && (u.stFlags?.kirC4)) { u.energy = Math.min(u.energyMax, u.energy + 20); } // C4: recupera 20 energia ao usar ult
         if (u.id === "kaiba" && sk.kaibaUlt) {
           const oldMon = activeMonster(s, u.uid);
