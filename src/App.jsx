@@ -876,6 +876,11 @@ function computeStats(owned) {
   for (let i = 0; i < (owned.eidolon || 0); i++) { const n = nodes[i]; if (n && n.stat) addPctOrFlat(n.stat, n.value); }
   const tnodes = traceNodesOf(def);
   (owned.traceNodes || []).forEach((on, i) => { if (on && tnodes[i]) { const nd = tnodes[i]; if (nd.stat === "elemDmg") addElem(nd.element, nd.value); else addPctOrFlat(nd.stat, nd.value); } });
+  // Lupa C5 · Garra de Almas: +12% Taxa Crítica e +75% Dano de Fogo (bônus permanentes — não têm stat/value no nó)
+  if (owned.id === "lupa" && (owned.eidolon || 0) >= 5) {
+    flat.critRate += 12;
+    addElem("Fogo", 75);
+  }
   const sts = specialTraces(def);
   (owned.specialTraces || []).forEach((on, i) => { if (on && sts[i] && sts[i].stat) addPctOrFlat(sts[i].stat, sts[i].value); });
 
