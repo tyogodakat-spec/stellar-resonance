@@ -380,7 +380,7 @@ const PASSIVE = {
   kirara:    { name: "Baluarte Estelar", desc: "Talento: os escudos de Kirara são 25% mais resistentes. Ela provoca os inimigos para atrair os ataques e converte a própria DEF altíssima em barreiras grossas para todo o time, sustentando a linha de frente contra os golpes mais pesados dos chefes.", flag: "pBulwark" },
   yoruichi:  { name: "Frequência Shunpo", desc: "Yoruichi opera em uma linha temporal acelerada. Todos os seus multiplicadores de dano ignoram os atributos de ATK e escalam exclusivamente com sua Velocidade (VEL) total. A cada 10 pontos de VEL que Yoruichi possuir acima de 120, o Dano Crítico de todos os Ataques Extras da equipe aumenta em 6% (até um máximo de 60% por padrão, ou 160% com a S6). Clones Residuais (Ataque Extra): sempre que um aliado desferir um Ataque Extra contra um inimigo, Yoruichi intercepta a ação e conjura um Clone Residual instantâneo que ataca o mesmo alvo, causando Dano Eletro equivalente a 500% de sua VEL total. Colapso Elétrico: o jogo contabiliza os Clones Residuais gerados. A cada 3 Clones acionados, o alvo atual sofre uma sobrecarga, recebendo Dano Eletro em Área equivalente a 1500% da VEL de Yoruichi e sofrendo uma redução de 20% na Resistência a Ataques Extras por 2 turnos. Não há limite de vezes que Clones Residuais podem ser ativados por ciclo de turnos.", flag: "pSwift" },
   kiritsugu: { name: "Análise · Caçador de Magos", desc: "Talento: o frio cálculo de Kiritsugu encontra a falha do alvo — toda vulnerabilidade que ele aplica é +12% mais forte. Combinado com o Veneno da Habilidade, ele transforma qualquer inimigo em um alvo que recebe dano amplificado de toda a equipe e ainda derrete ao longo dos turnos.", flag: "pAnalyze" },
-  soifon: { name: "Ciclo do Ferrão · Vibração da Morte", desc: "Talento: QUALQUER aliado que agir concede 1 carga de [Vibração de Ferrão] para Soi Fon (máx 3). Com 3 cargas, ela entra em Postura de Ferrão — próximo Ataque Básico causa Dano Verdadeiro (120% ATK, ignora DEF e Escudos). Com [Ferrão da Morte] em algum inimigo, cada ação aliada dispara Ataques Extras instantâneos de Vento nos alvos marcados (máx 2/turno de aliado) — e esses golpes contam pro sistema de Ataque Extra do jogo (reagem com kits como o da Yoruichi).", flag: "sfFollowup" },
+  soifon: { name: "Ciclo do Ferrão · Vibração da Morte", desc: "Talento: QUALQUER aliado que agir concede 1 carga de [Vibração de Ferrão] para Soi Fon (máx 3). Com 3 cargas, ela entra em Postura de Ferrão — a próxima ação dela (Ataque Básico, Perícia OU Ultimate) causa Dano Verdadeiro (+20% de dano, ignora DEF e Escudos). Com [Ferrão da Morte] em algum inimigo, cada ação aliada dispara Ataques Extras instantâneos de Vento nos alvos marcados (máx 2/turno de aliado) — e esses golpes contam pro sistema de Ataque Extra do jogo (reagem com kits como o da Yoruichi).", flag: "sfFollowup" },
   omegamon: { name: "Digital Hazard", desc: "Talento: enquanto Omegamon Zwart D está em campo, o HP Máximo de todos os aliados aumenta em 25%. Sempre que o portador ou um aliado com [Protocolo de Infecção] é atacado, acumula 1 carga de [Vírus Defeat] (máx 5). Cada carga concede +15% de CRIT DMG e reduz a DEF do atacante em 10%. Ao atingir 5 cargas, o próximo ataque remove todos os buffs do alvo e causa Dano Verdadeiro igual a 20% do HP Máximo do portador.", flag: "omgTalent" },
   lancer: { name: "Rune da Imortalidade · Survivance", desc: "Talento: Lancer não pode ser morto por um golpe fatal — a primeira vez por batalha que recebesse dano suficiente para zerar o HP, ele sobrevive com 1 de HP e recupera imediatamente 20% do HP máximo. Esse instinto de sobrevivência o torna o herói mais difícil de abater e combina com a Ultimate de ignição de baixo HP.", flag: "lancerRevive" },
   nanami: { name: "Postura Profissional · Cálculo 7:3", desc: "Talento: Nanami está sempre dentro do expediente — se a batalha ultrapassar o 5º turno de heróis, ele entra em [Hora Extra], ganhando permanentemente +30% de ATK pelo resto do combate. Combinado com a mecânica 7:3 da Habilidade (que dispara Crítico Garantido em danos terminados em 7 ou 3), cada turno longo o torna exponencialmente mais letal.", flag: "nanamHoraExtra" },
@@ -5966,12 +5966,19 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         }
         else if (u.id === "soifon" && sk.sfSkill && enemy) {
           const sMul = u.tSkill * ampS;
-          const r = dealDamage(u, enemy, (sk.skillMul || 160) * sMul, fx, { breakW: 2, el: "Vento" });
+          const postura = u.sfPostura;
+          const wpnCharges = postura && u.weapon?.id === "ferrao_borboleta" ? (u.sfWpnCharges || 0) : 0;
+          const wpnBonus = wpnCharges * 0.24;
+          if (postura) { u.sfPostura = false; if (wpnCharges > 0) u.sfWpnCharges = 0; }
+          const skillMul = (sk.skillMul || 160) * sMul * (postura ? 1.20 * (1 + wpnBonus) : 1);
+          const r = dealDamage(u, enemy, skillMul, fx, postura ? { breakW: 2, el: "Vento", pierceShield: true, defPen: f.sfC6 ? 40 : 100, enhanced: true } : { breakW: 2, el: "Vento" });
           const markCount = (enemy.debuffs || []).filter(d => d.name === "Ferrão da Morte").length;
           if (markCount < 3) enemy.debuffs.push({ stat: "mark", value: 0, turns: 3, name: "Ferrão da Morte" });
           if (f.sfC2) { if (!enemy.debuffs.some(d => d.name === "EletroRES↓")) enemy.debuffs.push({ stat: "elemRes", value: -15, turns: 3, name: "EletroRES↓" }); }
-          if (u.weapon?.id === "ferrao_borboleta") u.sfWpnCharges = Math.min(5, (u.sfWpnCharges || 0) + 1);
-          msg = `🦋 ${u.name} usa Nigeki Kessatsu em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " (CRÍTICO!)" : ""}! [Ferrão da Morte] marcado por 3 turnos — follow-ups de aliados Eletro ativarão golpes de acompanhamento!`;
+          if (!postura && u.weapon?.id === "ferrao_borboleta") u.sfWpnCharges = Math.min(5, (u.sfWpnCharges || 0) + 1);
+          msg = postura
+            ? `🦋✨🌿 ${u.name} usa Nigeki Kessatsu em POSTURA DE FERRÃO — ${r.dmg} de DANO VERDADEIRO de Vento${r.crit ? " (CRÍTICO!)" : ""}, ignora DEF e escudos!${wpnBonus ? ` +${Math.round(wpnBonus * 100)}% (${wpnCharges} Cargas)` : ""} [Ferrão da Morte] marcado por 3 turnos!`
+            : `🦋 ${u.name} usa Nigeki Kessatsu em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " (CRÍTICO!)" : ""}! [Ferrão da Morte] marcado por 3 turnos — follow-ups de aliados Eletro ativarão golpes de acompanhamento!`;
         }
         else if (u.id === "wonderofyou" && sk.wooSkill) {
             const sMul = u.tSkill * ampS;
@@ -6359,19 +6366,25 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         if (u.id === "soifon" && sk.sfUlt) {
           u.energy = enGain(5);
           if (enemy) {
+            const postura = u.sfPostura;
+            const wpnCharges = postura && u.weapon?.id === "ferrao_borboleta" ? (u.sfWpnCharges || 0) : 0;
+            const wpnBonus = wpnCharges * 0.24;
+            if (postura) { u.sfPostura = false; if (wpnCharges > 0) u.sfWpnCharges = 0; }
             const fmMarks = (enemy.debuffs || []).filter(d => d.name === "Ferrão da Morte").length;
             enemy.debuffs = (enemy.debuffs || []).filter(d => d.name !== "Ferrão da Morte");
             const bankaiBuff = (f.sfBankai && enemy.hp / enemy.maxHp < 0.3) ? 1.3 : 1;
-            const totalMul = (sk.ultMul || 350) * (u.tUlt || 1) * ampU * bankaiBuff * (1 + fmMarks * 0.15);
+            const totalMul = (sk.ultMul || 350) * (u.tUlt || 1) * ampU * bankaiBuff * (1 + fmMarks * 0.15) * (postura ? 1.20 * (1 + wpnBonus) : 1);
             let origCR = null;
             if (f.sfBankai && enemy.hp / enemy.maxHp < 0.3) { origCR = u.base.critRate; u.base = { ...u.base, critRate: 200 }; }
-            const r = dealDamage(u, enemy, totalMul, fx, { breakW: 3, el: "Vento" });
+            const r = dealDamage(u, enemy, totalMul, fx, postura ? { breakW: 3, el: "Vento", pierceShield: true, defPen: f.sfC6 ? 40 : 100, enhanced: true } : { breakW: 3, el: "Vento" });
             if (origCR !== null) u.base.critRate = origCR;
             const zonaTurns = f.sfBankai ? 2 : 1;
             s.sfZona = { turns: zonaTurns };
             if (f.sfC4) s.heroes.filter(h => h.alive && !h.isSummon).forEach(h => h.buffs.push({ stat: "critRate", value: 10, pct: false, turns: zonaTurns + 1, name: "AuraCond" }));
             if (!enemy.alive && f.sfC6) { u.energy = u.energyMax; u.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); }
-            msg = `💥🦋 JAKUHŌ RAIKŌBEN! ${u.name} dispara o míssil definitivo em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " CRÍTICO!" : ""}!${fmMarks ? ` (+${fmMarks * 15}% de marcas!)` : ""} Zona de Condução por ${zonaTurns} turno(s)!${f.sfC4 ? " +10% CRIT ao time!" : ""}`;
+            msg = postura
+              ? `💥🦋✨ JAKUHŌ RAIKŌBEN EM POSTURA DE FERRÃO! ${u.name} dispara o míssil em ${enemy.name} com DANO VERDADEIRO — ${r.dmg}${r.crit ? " CRÍTICO!" : ""}, ignora DEF e escudos!${wpnBonus ? ` +${Math.round(wpnBonus * 100)}% (${wpnCharges} Cargas)` : ""}${fmMarks ? ` (+${fmMarks * 15}% de marcas!)` : ""} Zona de Condução por ${zonaTurns} turno(s)!${f.sfC4 ? " +10% CRIT ao time!" : ""}`
+              : `💥🦋 JAKUHŌ RAIKŌBEN! ${u.name} dispara o míssil definitivo em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " CRÍTICO!" : ""}!${fmMarks ? ` (+${fmMarks * 15}% de marcas!)` : ""} Zona de Condução por ${zonaTurns} turno(s)!${f.sfC4 ? " +10% CRIT ao time!" : ""}`;
           }
         } else if (u.id === "wonderofyou" && sk.wooUlt) {
             u.energy = enGain(5);
@@ -6402,13 +6415,22 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             if (f.wooE6) s._wooJudgment = { uid: u.uid };
             msg = `☠️ LEI DA CALAMIDADE ABSOLUTA! ${u.name} — ${wooTot} de Dano Chaos${wooCrit ? " (CRÍTICO!)" : ""}! Debuffs ${(f.wooE2||f.wooE6) ? "PERMANENTES" : `por ${debuffDurUlt}t`}${f.wooE6 ? ", intensidade×2, JULGAMENTO DA CALAMIDADE ativado!" : f.wooE4 ? ` [E4: bônus dinâmicos aplicados!]` : ""}!`;
           } else if (u.id === "yoruichi" && sk.yoruUlt && enemy) {
+            u.energy = enGain(5); // corrige bug: faltava consumir a energia — ela ultava toda hora sem parar
             const ySpd = effStat(u, "spd"), yAtk = Math.max(1, effStat(u, "atk"));
             const yMul = (ySpd * 22.0 / yAtk) * 100; // 2200% da VEL
             const r = dealDamage(u, enemy, yMul, fx, { el: "Eletro", breakW: 3 });
             allies.filter(a => a.uid !== u.uid && a.alive).forEach(a => { a.av = (a.av || 1) * 0.75; });
             msg = `⚡⚡ SHUNKO: RAIJIN! ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} em ${enemy.name}! O resto do time avança 25% na Ordem de Turnos!`;
-            // Insere 2 Clones Residuais forçados (conta pro Colapso Elétrico e pro registro do Ponto de Aterramento)
-            for (let ci = 0; ci < 2 && enemy.alive; ci++) { dealDamage(u, enemy, yMul * 0.5, fx, { el: "Eletro", isYoruClone: true, isFollowup: true, breakW: 1 }); }
+            // Insere 2 Clones Residuais forçados — agora conta de verdade pro Colapso Elétrico (a cada 3 clones)
+            for (let ci = 0; ci < 2 && enemy.alive; ci++) {
+              dealDamage(u, enemy, yMul * 0.5, fx, { el: "Eletro", isYoruClone: true, breakW: 1 });
+              u._yoruClones = (u._yoruClones || 0) + 1;
+              if (u._yoruClones % 3 === 0 && enemy._sibs) {
+                const burstMul = (ySpd * 15.0 / yAtk) * 100;
+                enemy._sibs.filter((e) => e.alive).forEach((e) => { dealDamage(u, e, burstMul, fx, { el: "Eletro", isYoruClone: true, breakW: 2 }); e.debuffs.push({ stat: "vuln", value: 20, turns: 2, name: "Colapso Elétrico" }); });
+                pushLogGlobalFx(fx, u.uid, "COLAPSO ELÉTRICO!");
+              }
+            }
           } else if (u.id === "shorekeeper" && sk.shkUlt) {
             const f = u.stFlags || {};
             // Estágio 1: time inteiro ganha +15% CRIT e +30% CRIT DMG por 3 turnos (Rastro 3 + C3 amplificam o CRIT DMG)
@@ -7812,6 +7834,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           </div>
         ) : isHeroTurn ? (() => { let nm = skillNamesOf(activeHero.id); if (activeHero.id === "agumon") { const _F = AGU_FORMS[activeHero.agForm || "agumon"]; if (_F) nm = _F.skills.map(x => x[0]); }
           if (activeHero.id === "lupa" && (activeHero._lupaOverclock || 0) > 0) nm = [nm[0] + " → Julgamento Solar ☀️🔥", nm[1], nm[2]]; // Overclock: Básico vira Julgamento Solar
+          if (activeHero.id === "soifon" && activeHero.sfPostura) nm = [nm[0] + " 🦋 DANO VERDADEIRO", nm[1] + " 🦋 DANO VERDADEIRO", nm[2] + " 🦋 DANO VERDADEIRO"]; // Postura de Ferrão: qualquer ação consome e vira Dano Verdadeiro
           const _kindLabel = { basic: "Ataque Básico", skill: "Perícia · 1 PH", ult: "Ultimate" };
           const _kindName  = { basic: nm[0], skill: nm[1], ult: nm[2] };
           const _holdBtn = (kind, btnProps, children) => <Btn {...btnProps} onClick={null}
@@ -7872,7 +7895,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
               {activeHero.id === "agumon" && (activeHero.agForm || "agumon") !== "wargreymon" &&
                 <Btn kind="soft" style={{ borderColor: "#FF9E45", color: "#FFB74D" }} onClick={() => setState(s0 => ({ ...s0, choice: { uid: activeHero.uid, kind: "agumon_evo" } }))}>🧬 Digievoluir</Btn>}
               {_holdBtn("basic", { kind: "soft" }, <>⚔️ {nm[0]}</>)}
-              {_holdBtn("skill", { disabled: state.sp <= 0 }, <>✦ {nm[1]} <span style={{ fontSize: 10, opacity: 0.8 }}>(1 PH)</span></>)}
+              {(() => { const sfGlow = activeHero.id === "soifon" && activeHero.sfPostura; return _holdBtn("skill", { disabled: state.sp <= 0, style: sfGlow ? { borderColor: "#7CFFB0", boxShadow: "0 0 14px #7CFFB088", color: "#7CFFB0", animation: "srSfPostura 1s ease-in-out infinite" } : {} }, <>✦ {nm[1]} <span style={{ fontSize: 10, opacity: 0.8 }}>(1 PH)</span>{sfGlow && <style>{`@keyframes srSfPostura{0%,100%{opacity:.75}50%{opacity:1}}`}</style>}</>); })()}
               {_holdBtn("ult", { kind: canUlt ? "primary" : "soft", disabled: !canUlt }, <>{canUlt ? "💥 " : "⏳ "}{nm[2]}</>)}
             </div>
             <div style={{ textAlign: "center", fontSize: 11, color: C.mute, marginTop: 6 }}>{abilityHint(activeHero)}</div>
