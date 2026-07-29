@@ -88,6 +88,12 @@ const ROSTER = [
   // ---- Hitori Gotoh · Bocchi the Rock! (Limitada) ----
   mk({ id: "hitori", name: "Hitori Gotoh", title: "Bocchi the Rock!", element: "Chaos", role: "buffer", rarity: 5, avatar: "🎸", hp: 1120, atk: 480, def: 440, spd: 101, energy: 160, cr: 8, cd: 50, tags: ["Chaos", "Suporte", "Buffer", "Ansiedade Social"],
     skill: { basicMul: 40, hitoriBasic: true, skillMul: 0, hitoriSkill: true, ultMul: 0, hitoriUlt: true } }),
+  // ---- Alter Saber · Hypercarry Chaos Sem Caminho (Limitada) ----
+  mk({ id: "altersaber", name: "Alter Saber", title: "O Rei do Fim de Todas as Eras", element: "Chaos", role: "dps", rarity: 5, avatar: "⚔️", hp: 1180, atk: 980, def: 470, spd: 110, energy: 160, cr: 20, cd: 92, elemDmg: 22.4, tags: ["Chaos", "DPS", "Hypercarry", "Sem Caminho", "Ruína"],
+    skill: { basicMul: 100, asBasic: true, skillMul: 0, asSkill: true, ultMul: 760, asUlt: true } }),
+  // ---- Gilgamesh (Caster) · Limitado · Sem Caminho ----
+  mk({ id: "gilgamesh", name: "Gilgamesh", title: "Rei dos Heróis", element: "Unknown", role: "dps", rarity: 5, avatar: "👑", hp: 1150, atk: 1000, def: 450, spd: 109, energy: 240, cr: 12, cd: 74, elemDmg: 22.4, energyRegen: 10, tags: ["Unknown", "DPS", "Sub-DPS", "Sem Caminho", "Ataque Extra"],
+    skill: { basicMul: 120, gilBasic: true, skillMul: 0, gilSkill: true, ultMul: 980, gilUlt: true } }),
   // ---- Soi Fon (Limitada) ----
   mk({ id: "soifon", name: "Soi Fon", title: "Capitã da 2ª Divisão", element: "Vento", role: "dps", rarity: 5, avatar: "🦋", hp: 1040, atk: 790, def: 420, spd: 118, energy: 120, cr: 8, cd: 56, tags: ["Vento", "Follow-up", "Sub DPS", "Assassina"],
     skill: { basicMul: 115, sfBasic: true, skillMul: 185, sfSkill: true, ultMul: 410, sfUlt: true } }),
@@ -113,9 +119,9 @@ const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 // Tag primária de um personagem (usada como requisito de nó) e todas as tags únicas do elenco
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
-const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon", "lupa", "hitori"];     // limitados (pool 50/50): só via rate-up
-const FEATURED_LIMITEDS = ["lupa", "hitori"]; // banners ativos agora: só Lupa e Hitori Gotoh (demais limitados encerrados)
-const BANNER_DURATIONS = { lupa: 5 * 24 * 60 * 60 * 1000, hitori: 5 * 24 * 60 * 60 * 1000 }; // 5 dias cada
+const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon", "lupa", "hitori", "altersaber", "gilgamesh"];     // limitados (pool 50/50): só via rate-up
+const FEATURED_LIMITEDS = ["gilgamesh", "altersaber", "lupa", "hitori"]; // banners ativos: Gilgamesh e Alter Saber (RELÂMPAGO: 3 HORAS!), Lupa e Hitori
+const BANNER_DURATIONS = { gilgamesh: 3 * 60 * 60 * 1000, altersaber: 3 * 60 * 60 * 1000, lupa: 5 * 24 * 60 * 60 * 1000, hitori: 5 * 24 * 60 * 60 * 1000 }; // Gilgamesh e Alter Saber: banners RELÂMPAGO de 3 HORAS · Lupa/Hitori: 5 dias
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
 const DEFAULT_FEATURED_CHAR = "lupa";
 // Banner Especial Limitado — pool de 5, dura 3 dias corridos pra TODO mundo (data fixa, não reseta por dispositivo)
@@ -128,6 +134,8 @@ const SPECIAL_BANNER_END = SPECIAL_BANNER_START + SPECIAL_BANNER_DURATION_MS;
 // Valores de atk e stats secundários = nível MÁXIMO (80). Escalam via weaponLevelMul().
 const WEAPONS = [
   // ── ★★★★★ 5-estrelas ────────────────────────────────────────────────────────
+  { id: "portao_ea", name: "Portão da Criação — Ea", rarity: 5, role: "dps", atk: 714, hpFlat: 1058, defFlat: 397, atkPct: 30.0, elemDmg: 24.0, passive: "O Primeiro Rei Jamais Conheceu a Derrota — Aumenta o ATQ do usuário em 30% e o Dano Unknown em 24%. Sempre que o usuário realizar um Ataque Extra, recebe 1 acúmulo de Tesouro Verdadeiro (máx 12): cada acúmulo concede +4% de Dano de Ataques Extras e +2% de Dano CRÍTICO. Ao atingir 12 acúmulos, todos são consumidos para entrar em Portão da Origem por 2 turnos: ignora 20% da DEF, +40% de Dano Unknown, +50% de dano da Suprema, +70% de dano dos Ataques Extras, recupera 8 de Energia a cada Ataque Extra (máx 6 por turno) e, sempre que consumir Pontos de Perícia, recupera 1 Tesouro Real. Ao usar a Suprema em Portão da Origem: recupera 30 de Energia e o primeiro Ataque Extra seguinte causa +120% de dano, ignorando 30% da Resistência a Unknown. Cone exclusivo Sem Caminho — sem Superposição.", buff: { gilWeapon: true } },
+  { id: "excalibur_morgan", name: "Excalibur Morgan — A Coroa do Crepúsculo", rarity: 5, role: "dps", atk: 687, hpFlat: 952, defFlat: 463, elemDmg: 30.0, passive: "O Rei Além do Destino — Aumenta o Dano Chaos do usuário em 30%. Após entrar em Modo Alter, recebe 1 acúmulo de Reino Eterno (máx 3): cada acúmulo dá +12% ATQ, +10% DEF e +8% Velocidade. Sempre que consumir Ruínas, recebe 1 acúmulo de Fim Inevitável (máx 10): cada acúmulo dá +4% de Dano CRÍTICO e +2% de Penetração de Resistência Chaos. Com 10 acúmulos, todos são consumidos para entrar em Trono Absoluto por 2 turnos: +40% de Dano Chaos, ignora 20% da DEF, Ataques Extras e Cópias Espectrais causam +35% de dano, e após a Suprema recupera 25 Energia e recebe 4 Ruínas. Cone exclusivo Sem Caminho — sem sistema de Superposição.", buff: { asWeapon: true } },
   { id: "batera_kessoku", name: "Batera do Kessoku Band", rarity: 5, role: "buffer", atk: 650, critDmg: 64.0, passive: "Sempre que um aliado ataca, o usuário ganha 5 de energia. O usuário concede um avanço de ação de 50% após o uso do supremo. Se o usuário for Hitori Gotoh, a mesma poderá conceder 12% de perfuração quando usar sua perícia para o aliado do primeiro slot.", buff: { hitoriWeapon: true } },
   { id: "presa_calamidade",  name: "Presa da Calamidade Eterna", rarity: 5, role: "dps", atk: 587, critDmg: 48.6, atkPct: 12.0, energyRegen: 12.0, passive: "Aniquilação do Purgatório — Fundição Térmica: +12% de ATK e +12% de Regen. de Energia permanentes. Acúmulo de Incinerador: sempre que causar Dano de Fogo a um inimigo sob DoT, ou detonar/consumir um DoT em campo, ganha 1 acúmulo de Incinerador por 2 turnos (máx 3) — cada acúmulo dá +10% de Dano de Fogo e faz a Ultimate ignorar +6% de DEF (até +30% de Dano de Fogo / 18% de Perfuração no máximo). Colapso Fissural: ao conjurar a Ultimate, consome todos os acúmulos pra ativar Supernova — +25% de Dano Crítico na Suprema, e por 2 turnos a Perícia e o Básico ganham +15% de Dano Final e aplicam Ignição com o dobro da taxa base.", buff: { lupaWeapon: true } },
   { id: "digivice",         name: "Digivice da Coragem",   rarity: 5, role: "dps",      atk: 500, hpFlat: 500, elemDmg: 30.0,    passive: "Sincronia Térmica: +50 de TamerSP máximo; Perícias geram 5 a menos de Calor. Ao Digivolver: restaura 10% do HP Máximo e +10 de VEL por 2 rodadas. No MODO X: a Gaia Force ganha +50% de CRIT DMG e inimigos derrotados por ela não podem ser ressuscitados nem curados por 1 rodada.", buff: { aguWeapon: true } },
@@ -156,7 +164,7 @@ const WEAPONS = [
   { id: "aegis",       name: "Egide Brilhante",     rarity: 4, role: "shield",   atk: 396, def: 396, shieldBonus: 38,    passive: "Muralha Brilhante: +38% no valor dos Escudos gerados pelo portador." },
 ];
 const WEAPON_MAP = Object.fromEntries(WEAPONS.map((w) => [w.id, w]));
-const WEAPON_5_IDS = ["presa_calamidade", "batera_kessoku"]; // banner de armas ativo agora: só as armas de Lupa e Hitori
+const WEAPON_5_IDS = ["excalibur_morgan", "presa_calamidade", "batera_kessoku"]; // banner de armas: cones de Alter Saber, Lupa e Hitori
 const DEFAULT_FEATURED_WEAPON = "presa_calamidade";
 
 /* ---------- MOCHILEIRO (seletor de personagem inicial) ---------- */
@@ -224,6 +232,12 @@ const RELIC_SETS = {
   "Corrente Trovão-Relâmpago": { color: "#7B2FBE", el: "Eletro", p2: { elemDmg: 10 }, flag4: "setTrovao4",
     d2: "+10% de Dano de Eletro.",
     d4: "Cada vez que um DoT de Choque dá tick em um inimigo, o portador ganha 1 acúmulo de 'Condutividade' (máx 4 = +60% de Dano de Ataque Extra). Com 4 acúmulos, o próximo Ataque Extra consome todas as cargas: renova a duração de todos os DoTs de Choque no alvo e ignora 20% de DEF adicional. Ideal para Yoruichi e futuros personagens de Eletro/follow-up." },
+  "Vestígios do Trono Profanado": { color: "#B24BFF", p2: { elemDmg: 18, critRate: 10 }, flag4: "setTronoProf4",
+    d2: "Aumenta o Dano Chaos em 18%. Aumenta a Taxa CRÍTICA em 10%.",
+    d4: "O Rei que Devora o Destino — Sempre que o usuário obtiver ou consumir Ruínas, recebe 1 acúmulo de Coroa Quebrada (máx 10): cada acúmulo concede +4% Dano CRÍTICO e +2% Dano Chaos. Ao atingir 10 acúmulos, todos são consumidos e o usuário entra em Reinado do Fim por 2 turnos: ignora 25% DEF, Ataques Extras causam 60% mais dano, a Suprema causa 45% mais dano, e sempre que uma Cópia Espectral ou Ataque Extra atingir um inimigo recupera 3 de Energia. Caso o usuário entre em Reino Absoluto, Reinado do Fim é prolongado em 1 turno." },
+  "Tesouros da Primeira Babilônia": { color: "#FFD249", p2: { atkP: 12, elemDmg: 18 }, flag4: "setBabilonia4",
+    d2: "Aumenta o ATQ em 12%. Aumenta o Dano Unknown em 18%.",
+    d4: "O Portão do Rei dos Heróis — Sempre que o usuário realizar um Ataque Extra, recebe 1 acúmulo de Tesouro Antigo (máx 15): cada acúmulo concede +3% de Dano de Ataques Extras e +2% de Dano CRÍTICO. Ao utilizar a Suprema, todos os acúmulos são consumidos e cada um aumenta o dano da Suprema em 5%. Após a Suprema, o usuário entra em Arsenal Dourado por 2 turnos: +30% ATQ, +30% Dano Unknown, Ataques Extras ignoram 20% DEF, cada Ataque Extra recupera 4 de Energia, e sempre que um Ataque Extra derrotar um inimigo recupera 1 Ponto de Perícia (máx 2 por turno). O primeiro Ataque Extra de cada turno dispara imediatamente mais 3 Armas Nobres, cada uma causando 90% do ATQ como Dano Unknown." },
   "Matilha Voraz": { color: "#FF6A3D", p2: { elemDmg: 14, critDmg: 12 }, flag4: "setMatilha4",
     d2: "+14% de Dano Elemental e +12% de Dano Crítico.",
     d4: "Sempre que o portador consumir ou detonar um efeito de DoT, ganha +12% de Dano de Fogo por 3 turnos (acumula até 3× / +36%). Ao conjurar a Ultimate, se houver 3 acúmulos ativos, a Suprema ganha +25% de Perfuração de DEF. Set dedicado da Lupa — a Fome da Predadora em forma de relíquia." },
@@ -254,6 +268,8 @@ const RELIC_ITEM_ID = {
   "Crisol da Chama Primordial": "item_relic_crisol",
   "Inferno Devorador de Almas": "item_relic_inferno",
   "Corrente Trovão-Relâmpago": "item_relic_trovao",
+  "Vestígios do Trono Profanado": "item_relic_trono",
+  "Tesouros da Primeira Babilônia": "item_relic_babilonia",
   "Matilha Voraz": "item_relic_matilha",
   "Sinfonia do Trono Prateado": "item_relic_sinfonia",
 };
@@ -277,6 +293,8 @@ const RELIC_EMOJI = {
   "Crisol da Chama Primordial": "🌋",
   "Inferno Devorador de Almas": "🔴",
   "Corrente Trovão-Relâmpago": "⚡",
+  "Vestígios do Trono Profanado": "👑",
+  "Tesouros da Primeira Babilônia": "🗝️",
   "Matilha Voraz": "🐺",
   "Sinfonia do Trono Prateado": "🎵",
 };
@@ -373,6 +391,8 @@ const weaponTotalCostToMax = (fromLv) => { let tot = 0; for (let lv = fromLv; lv
 
 // Passiva de personagem (sempre ativa) — identidade única do kit, descrita em detalhe
 const PASSIVE = {
+  gilgamesh: { name: "Rei dos Heróis", desc: "Sempre que Gilgamesh causar dano, executar Ataque Extra, derrotar um inimigo ou consumir Tesouros, recebe Autoridade Real (máximo: 12). Ao atingir o máximo, entra automaticamente em Trono do Rei por 2 turnos. Enquanto ativo: todos os ataques sempre causam CRÍTICO, +140% Dano CRÍTICO, +50 Velocidade, ataques ignoram Escudos, e Ataques Extras ignoram 40% DEF. Além disso, cada Ataque Extra executa imediatamente Tesouro Celestial: dispara 6 armas, cada uma causando 90% do ATQ, e cada arma possui um efeito aleatório — causar dano adicional, gerar Tesouro, recuperar 3 Energia, reduzir DEF do alvo em 10% por 2 turnos, ou reduzir Resistência Unknown em 10% por 2 turnos. Quando Tesouro Celestial for executado três vezes, Gilgamesh dispara automaticamente Ea Fragmentada: um corte dimensional causando 450% do ATQ em todos os inimigos. — Mecânica Exclusiva · Portão da Babilônia: recurso exclusivo chamado Tesouros Reais (máximo inicial: 16). Obtém Tesouros ao usar Ataque Básico (+1), Perícia (+4), Ataque Extra (+1), derrotar um inimigo (+2) e Suprema (+8). Ao atingir 16 Tesouros, entra automaticamente em Reinado Dourado por 3 turnos: todos os ataques se tornam Dano Unknown, Ataques Extras ignoram 30% DEF, todo Ataque Extra gera outro disparo do Portão (máximo de 3 cadeias), o limite passa para 30 Tesouros e cada Tesouro acima de 16 aumenta o dano em 4%. — Técnica · A Chave do Rei: antes da batalha, obtém 10 Tesouros, recupera 70 de Energia e ativa imediatamente o Portão da Babilônia. Nos dois primeiros turnos, todos os Ataques Extras disparam o dobro de armas.", flag: "gilTalent" },
+  altersaber: { name: "O Rei Nunca Cai", desc: "Talento: sempre que Alter Saber acertar um CRÍTICO, executar um Ataque Extra, derrotar um inimigo ou usar a Suprema, recebe uma Marca do Rei (máx 10). Ao atingir 10 marcas, todas são consumidas e ela entra automaticamente em Reino Absoluto por 2 turnos: todos os ataques SEMPRE causam CRIT, +140% de Dano CRÍTICO, +40% de Penetração de Resistência, +50 de Velocidade, ataques ignoram Escudos, e cada golpe cria uma Cópia Espectral (55% do dano do ataque original; a cada 3ª cópia, dispara Excalibur Negra: 300% do ATQ em Dano Chaos em todos os inimigos). Mecânica exclusiva — Reino da Ruína: acumule 12 Ruínas (ataques, contra-ataques, Suprema, abates e Ataques Extras) para entrar em Reino da Ruína, um estado que não pode ser dissipado: não consome Pontos de Perícia, todos os ataques viram Dano Chaos e ignoram 25% DEF, todo CRIT gera uma Ruína Fantasma (sem limite normal), e a cada 3 Ruínas Fantasma consumidas realiza imediatamente um Ataque Extra. Ao terminar o estado, todas as Ruínas Fantasma explodem causando dano proporcional ao acumulado.", flag: "asTalent" },
   hitori: { name: "Ansiedade Amplificada", desc: "5 Estrelas - Suporte | Chaos. Ataques básicos não farão nada além de dar uma pequena quantidade de dano de Chaos. Passivas: A cada 3% de dano crítico, Hitori recebe 1 ponto de velocidade. Concede 30 de energia para todos os aliados após ativar seu supremo. Concede 30% de bônus de dano de Holy e Chaos para os aliados nos dois primeiros slots.", flag: "hitoriPassive" },
   lupa: { name: "Fome da Predadora", desc: "Lupa opera como uma força da natureza que se alimenta do caos elemental presente no campo de batalha. Acúmulo de Voracidade: Sempre que Lupa causa Dano de Fogo a um inimigo sob o efeito de qualquer Dano Contínuo (DoT de Fogo, Sangramento, Choque, etc.), ela consome 1 rodada desse efeito e ganha 1 carga de Voracidade (máximo de 10 cargas). Cada carga concede +20% de Dano de Fogo (até +200% no máximo). Cada carga também restaura 5 pontos de Energia instantaneamente para Lupa. Chama Voraz: Quando Lupa possui 10 cargas de Voracidade, ela entra no estado \"Predadora Absoluta\". Seu próximo Ataque Básico ou Perícia ignora 20% da DEF do alvo e consome todas as cargas para garantir que sua próxima Liberação de Ressonância (Ultimate) cause Dano Crítico Garantido.", flag: "lupaVoracity" },
   miyabi:    { name: "Caçadora do Vazio · Geada Profunda", desc: "Talento: sempre que Miyabi atinge um inimigo que esteja sob QUALQUER efeito contínuo (Congelamento, Queimadura, Veneno, Choque ou Sangramento), o golpe causa +30% de dano. Como suas próprias Habilidade e Ultimate marcam congelamento, ela rapidamente se auto-habilita e escala o dano contra alvos já afligidos pela equipe — quanto mais DoTs no campo, mais letal ela fica.", flag: "pShatter" },
@@ -383,7 +403,7 @@ const PASSIVE = {
   sakura:    { name: "Selo Centenário · Mãos que Curam", desc: "Talento: o chakra de cura de Sakura é refinado — a cura do seu Ultimate é 25% mais forte. Ela equilibra dano e suporte: bate forte com os punhos e, no Ultimate, devolve uma parcela enorme de HP a todo o time, segurando a equipe em lutas longas.", flag: "pMedic" },
   chopper:   { name: "Pontos Vitais · Médico Dedicado", desc: "Talento: como médico de bordo, todas as curas de Chopper (Habilidade e Ultimate) são 25% mais fortes. Ele prioriza sempre o aliado mais ferido e ainda distribui energia ao time, mantendo o grupo vivo e com os Ultimates carregados.", flag: "pRegen" },
   kirara:    { name: "Baluarte Estelar", desc: "Talento: os escudos de Kirara são 25% mais resistentes. Ela provoca os inimigos para atrair os ataques e converte a própria DEF altíssima em barreiras grossas para todo o time, sustentando a linha de frente contra os golpes mais pesados dos chefes.", flag: "pBulwark" },
-  yoruichi:  { name: "Frequência Shunpo", desc: "Yoruichi opera em uma linha temporal acelerada. Todos os seus multiplicadores de dano ignoram os atributos de ATK e escalam exclusivamente com sua Velocidade (VEL) total. A cada 10 pontos de VEL que Yoruichi possuir acima de 120, o Dano Crítico de todos os Ataques Extras da equipe aumenta em 6% (até um máximo de 60% por padrão, ou 160% com a S6). Clones Residuais (Ataque Extra): sempre que um aliado desferir um Ataque Extra contra um inimigo, Yoruichi intercepta a ação e conjura um Clone Residual instantâneo que ataca o mesmo alvo, causando Dano Eletro equivalente a 600% de sua VEL total. Colapso Elétrico: o jogo contabiliza os Clones Residuais gerados. A cada 3 Clones acionados, o alvo atual sofre uma sobrecarga, recebendo Dano Eletro em Área equivalente a 1500% da VEL de Yoruichi e sofrendo uma redução de 20% na Resistência a Ataques Extras por 2 turnos. Não há limite de vezes que Clones Residuais podem ser ativados por ciclo de turnos.", flag: "pSwift" },
+  yoruichi:  { name: "Frequência Shunpo", desc: "Yoruichi opera em uma linha temporal acelerada. Todos os seus multiplicadores de dano ignoram os atributos de ATK e escalam exclusivamente com sua Velocidade (VEL) total. A cada 10 pontos de VEL que Yoruichi possuir acima de 120, o Dano Crítico de todos os Ataques Extras da equipe aumenta em 6% (até um máximo de 60% por padrão, ou 160% com a S6). Clones Residuais (Ataque Extra): sempre que um aliado desferir um Ataque Extra contra um inimigo, Yoruichi intercepta a ação e conjura um Clone Residual instantâneo que ataca o mesmo alvo, causando Dano Eletro equivalente a 10.000% de sua VEL total (100× a VEL). Colapso Elétrico: o jogo contabiliza os Clones Residuais gerados. A cada 3 Clones acionados, o alvo atual sofre uma sobrecarga, recebendo Dano Eletro em Área equivalente a 25.000% da VEL de Yoruichi (250× a VEL) e sofrendo uma redução de 20% na Resistência a Ataques Extras por 2 turnos. Não há limite de vezes que Clones Residuais podem ser ativados por ciclo de turnos.", flag: "pSwift" },
   kiritsugu: { name: "Análise · Caçador de Magos", desc: "Talento: o frio cálculo de Kiritsugu encontra a falha do alvo — toda vulnerabilidade que ele aplica é +12% mais forte. Combinado com o Veneno da Habilidade, ele transforma qualquer inimigo em um alvo que recebe dano amplificado de toda a equipe e ainda derrete ao longo dos turnos.", flag: "pAnalyze" },
   soifon: { name: "Ciclo do Ferrão · Vibração da Morte", desc: "Talento: QUALQUER aliado que agir concede 1 carga de [Vibração de Ferrão] para Soi Fon (máx 3). Com 3 cargas, ela entra em Postura de Ferrão — a próxima ação dela (Ataque Básico, Perícia OU Ultimate) causa Dano Verdadeiro (+20% de dano, ignora DEF e Escudos). Com [Ferrão da Morte] em algum inimigo, cada ação aliada dispara Ataques Extras instantâneos de Vento nos alvos marcados (máx 2/turno de aliado) — e esses golpes contam pro sistema de Ataque Extra do jogo (reagem com kits como o da Yoruichi).", flag: "sfFollowup" },
   omegamon: { name: "Digital Hazard", desc: "Talento: enquanto Omegamon Zwart D está em campo, o HP Máximo de todos os aliados aumenta em 25%. Sempre que o portador ou um aliado com [Protocolo de Infecção] é atacado, acumula 1 carga de [Vírus Defeat] (máx 5). Cada carga concede +15% de CRIT DMG e reduz a DEF do atacante em 10%. Ao atingir 5 cargas, o próximo ataque remove todos os buffs do alvo e causa Dano Verdadeiro igual a 20% do HP Máximo do portador.", flag: "omgTalent" },
@@ -402,6 +422,22 @@ const PASSIVE = {
 // Corrente de Ressonância / Eidolons — 6 nós ÚNICOS por personagem (estilo HSR/WuWa)
 const A_SKILL = { amp: "skill", ampV: 25 }, A_ULT = { amp: "ult", ampV: 50 };
 const CONS = {
+  gilgamesh: [
+    { name: "E1 · A Biblioteca do Rei dos Heróis", flag: "gilE1", desc: "\"Todas as armas, feitiços e mistérios da humanidade pertencem ao primeiro rei. O mundo apenas acreditou tê-los criado.\" Sempre que um Ataque Extra for realizado por Gilgamesh, ele registra 1 Registro Real (máximo de 20). Ao utilizar Enuma Elish, todos os Registros são consumidos: cada Registro aumenta o dano da Suprema em 5%. Além disso, após a Suprema ser utilizada, o Portão da Babilônia dispara automaticamente 6 Armas Nobres, cada uma causando 140% do ATQ como Dano Unknown — esses disparos contam como Ataques Extras e podem gerar Tesouros. Como efeito secundário, todos os aliados recebem 12% de Dano Final durante 2 turnos." },
+    { name: "E2 · A Verdadeira Chave do Tesouro", flag: "gilE2", desc: "\"Quem ousa tocar nos tesouros do rei sem sua permissão conhecerá apenas o desespero.\" Enquanto o Portão da Babilônia estiver ativo, sempre que Gilgamesh realizar um Ataque Extra existe 50% de chance de disparar uma Arma Nobre Suprema, causando 260% do ATQ como Dano Unknown. Caso seja disparada: recupera 1 Ponto de Perícia, recupera 10 de Energia e gera 2 Tesouros. Esse efeito pode ocorrer até 3 vezes por turno. Além disso, sempre que um aliado utilizar sua Suprema, Gilgamesh dispara imediatamente uma Arma Nobre Suprema adicional." },
+    { name: "E3 · O Rei Acima das Eras", ...A_ULT, flag: "gilE3", desc: "Aumenta o nível da Suprema em +2. Aumenta o nível do Talento em +2. Nível máximo: 15." },
+    { name: "E4 · Ea, Aquela Que Rasga os Céus", flag: "gilE4", desc: "\"O início e o fim da criação jamais pertenceram aos deuses. Sempre estiveram nas mãos do rei.\" A mecânica de Enuma Elish é completamente aprimorada. Após utilizar a Suprema, Gilgamesh entra no estado Manifestação de Ea por 2 turnos. Durante esse estado: +80% Dano Unknown, +50% Penetração de Resistência, +40% Ignorar DEF, +120% Dano dos Ataques Extras, e todos os Ataques Extras sempre causam Acerto CRÍTICO. Além disso, sempre que Gilgamesh atacar durante Manifestação de Ea, uma onda dimensional é liberada imediatamente após o ataque, causando 350% do ATQ em todos os inimigos." },
+    { name: "E5 · O Trono Que Governa o Firmamento", ...A_SKILL, flag: "gilE5", desc: "Aumenta o nível da Perícia em +2. Aumenta o nível do Ataque Básico em +2. Nível máximo: 15." },
+    { name: "E6 · Enuma Elish — Genesis Reversa", flag: "gilE6", desc: "\"Contemplem. Esta é a verdadeira autoridade do primeiro rei. Nem mesmo o céu ousa permanecer intacto diante dela.\" Após utilizar Enuma Elish, Gilgamesh entra automaticamente no estado Rei Absoluto por 3 turnos. Enquanto ativo: todos os ataques ignoram 60% da DEF dos inimigos, a Penetração de Resistência Unknown aumenta em 60%, o Dano CRÍTICO aumenta em 150%, todos os Ataques Extras causam 180% do dano original e o limite de Tesouros Reais é removido. Sempre que Gilgamesh realizar qualquer ataque, o Portão da Babilônia dispara automaticamente 12 Armas Nobres, cada uma causando 110% do ATQ como Dano Unknown, e cada terceira arma que atingir um inimigo invoca Ea Fragmentada, causando 450% do ATQ em área. Além disso, a primeira vez que Enuma Elish for utilizada durante Rei Absoluto, ela não consome Energia e é seguida imediatamente por Enuma Elish: Genesis Reversa, um segundo golpe que causa 700% do ATQ ao alvo principal e 450% do ATQ aos demais inimigos. Essa segunda execução não pode ser repetida até o fim da batalha." },
+  ],
+  altersaber: [
+    { name: "E1 · A Coroa do Rei Esquecido", flag: "asE1", desc: "\"Quando o rei perdeu seu nome, o mundo perdeu o direito de julgá-lo.\" Ao entrar em Modo Alter, cria automaticamente o campo Trono do Rei Esquecido por 3 turnos. Enquanto o campo estiver ativo: o limite de Ruínas aumenta de 12 para 18; cada Ruína acima de 12 concede +3% Dano Chaos, +2% Penetração de Resistência Chaos e +4% Dano CRÍTICO. A primeira vez que atingir o limite máximo de Ruínas durante o campo, entra imediatamente em Reino da Ruína sem consumir sua ação e recupera 30 Energia. Além disso, a primeira Excalibur Negra lançada em cada batalha causa 120% de dano adicional." },
+    { name: "E2 · A Espada que Divide Destinos", flag: "asE2", desc: "\"Todo golpe apaga um futuro possível.\" Sempre que Alter Saber causar dano, aplica Destino Fragmentado (máx 15 acúmulos). Ao atingir o máximo, consome todas as marcas para executar automaticamente Ruptura do Destino: 520% do ATQ como Dano Chaos em todos os inimigos, ignora 35% da DEF, gera 6 Ruínas, recupera 25 Energia e reinicia as Marcas do Rei do Talento para 5. Caso Ruptura do Destino elimine um inimigo, Alter Saber recebe imediatamente outro turno." },
+    { name: "E3 · O Nome Gravado no Trono", ...A_ULT, flag: "asE3", desc: "Aumenta o nível da Suprema em +2. Aumenta o nível do Talento em +2. Nível máximo: 15." },
+    { name: "E4 · O Reino Além da Eternidade", flag: "asE4", desc: "\"Mesmo que o tempo termine, o rei permanecerá sentado em seu trono.\" Durante Reino Absoluto: as Cópias Espectrais passam a causar 100% do dano do ataque original (antes 55%); as cópias também podem gerar outras cópias, porém apenas uma vez por ataque; cada Cópia Espectral concede 1 Ruína Fantasma. Sempre que uma Cópia Espectral derrotar um inimigo: prolonga Reino Absoluto em 1 turno (máx +3), recupera 15 Energia e recupera 1 Ponto de Perícia." },
+    { name: "E5 · A Última Excalibur", ...A_SKILL, flag: "asE5", desc: "Aumenta o nível da Perícia em +2. Aumenta o nível do Ataque Básico em +2. Nível máximo: 15." },
+    { name: "E6 · Excalibur Morgan • O Rei do Fim de Todas as Eras", flag: "asE6", desc: "\"Não existe esperança diante do verdadeiro rei. Apenas o inevitável.\" A mecânica é permanentemente aprimorada. Ao entrar em Reino Absoluto: o limite de Ruínas Fantasma é removido, e cada Ruína Fantasma concede +2% Dano Chaos, +1,5% Penetração de Resistência e +2% Dano CRÍTICO. Sempre que usar a Suprema, uma Sombra do Rei é invocada imediatamente após o golpe: repete exatamente a Suprema utilizada causando 85% do dano original, podendo gerar Ruínas, ativar Cópias Espectrais, Talento, Rastros e demais efeitos do kit. Após a Sombra concluir seu ataque, libera automaticamente Excalibur Morgan • Ruptura do Mundo: 900% do ATQ ao alvo principal, 500% aos demais inimigos, ignora 50% da DEF e 40% da Resistência Chaos, redefine a duração de Modo Alter e Reino da Ruína para o máximo e concede imediatamente 12 Ruínas e 10 Marcas do Rei. Além disso, enquanto Reino Absoluto estiver ativo, recebe apenas 50% do dano de ataques inimigos e não pode ser interrompida durante suas ações." },
+  ],
   hitori: [
     { name: "C1 · Rastreadora de Cinzas", flag: "hitoriC1", desc: "Aumenta a velocidade de Hitori em 12 pontos. Quando Hitori usar o supremo, ela concederá 24% de taxa de perfuração para todos os aliados." },
     { name: "C2 · Conexão de Palco", flag: "hitoriC2", desc: "Concede 10% de chance de crítico para todos os aliados no começo da batalha. Hitori regenera 20% do HP máximo de todos os aliados quando usa o supremo." },
@@ -639,6 +675,8 @@ const SKILL_NAMES = {
     shorekeeper: ["Origem da Ciência", "Teoria do Caos", "Fim do Lamento"],
     yanagi: ["Corte Voltaico", "Ciclo de Anomalia", "Eclipse Voltaico"],
   lupa: ["Presa Incandescente", "Salto do Abismo", "Eclipse de Fogo — Cataclismo Apocalíptico"],
+  gilgamesh: ["Espada do Primeiro Rei", "Portão da Babilônia", "Enuma Elish — A Ruptura da Criação"],
+  altersaber: ["Espada do Rei Caído", "Coroa do Rei Profanado", "Excalibur Morgan — O Fim do Trono"],
   hitori: ["Dedilhado Ansioso", "Entoar da Solidão", "Kessoku Band"],
   };
 const skillNamesOf = (id) => SKILL_NAMES[id] || ["Ataque Básico", "Habilidade", "Ultimate"];
@@ -740,6 +778,16 @@ const TRACE_MAX = 10;
 const traceMul = (level) => 1 + (Math.max(1, level || 1) - 1) * 0.08; // +8% por nível
 const traceCost = (level) => 600 + (level - 1) * 450; // jade p/ subir do nível atual
 function specialTraces(def) {
+    if (def.id === "gilgamesh") return [
+      { name: "A2 — O Primeiro Rei", desc: "Cada Tesouro aumenta permanentemente o dano dos Ataques Extras em 2%. Máximo: 60%.", combat: "gilA2", cost: 2 },
+      { name: "A4 — Dono da Humanidade", desc: "Sempre que Gilgamesh realizar 15 Ataques Extras durante uma batalha, recupera 60 de Energia. Esse efeito pode ocorrer até 2 vezes por batalha.", combat: "gilA4", cost: 2 },
+      { name: "A6 — O Verdadeiro Tesouro do Mundo", desc: "Enquanto Trono do Rei estiver ativo: Ataques Extras podem realizar um segundo Ataque Extra com 50% do dano original (máximo de uma repetição por ataque). Sempre que Gilgamesh derrotar um inimigo, recupera 2 Pontos de Perícia. Se houver apenas um inimigo em campo, todo o dano em área é convertido em dano concentrado contra esse alvo, aumentando o dano final em 35%.", combat: "gilA6", cost: 3 },
+    ];
+    if (def.id === "altersaber") return [
+      { name: "A2 — Trono da Ruína", desc: "Durante Reino da Ruína: cada Ruína Fantasma aumenta o dano causado em 2,5%, até um máximo de 50%. Ao sair do estado, todas as Ruínas Fantasma explodem causando 20% do ATQ por carga como Dano Chaos em todos os inimigos.", combat: "asA2", cost: 2 },
+      { name: "A4 — Além do Destino", desc: "Sempre que Alter Saber consumir Ruínas: recupera 4 Energia para cada Ruína consumida. Se consumir 10 ou mais Ruínas de uma vez, recebe imediatamente um turno adicional. Esse efeito pode ocorrer uma vez por ativação da Suprema.", combat: "asA4", cost: 2 },
+      { name: "A6 — Coroa do Último Rei", desc: "Enquanto Reino Absoluto estiver ativo: todo dano excedente causado a um inimigo derrotado é redistribuído entre os demais inimigos. Ataques Extras ignoram completamente efeitos que reduzam dano ou impeçam ataques adicionais. Ao derrotar um inimigo, prolonga Reino Absoluto em 1 turno (máximo +2 turnos).", combat: "asA6", cost: 3 },
+    ];
     if (def.id === "lupa") return [
       { name: "Rastro 1 · Rastro da Caçada (Ascensão 2)", desc: "Ao entrar em combate, Lupa ganha instantaneamente 3 cargas de Voracidade e 20 pontos de Energia. Além disso, a chance-base de aplicar \"Ignição\" com seus Ataques Básicos e Perícias é aumentada para 100%.", combat: "lupaT1", cost: 2 },
       { name: "Rastro 2 · Combustão Espontânea (Ascensão 4)", desc: "Sempre que Lupa consome um efeito de DoT com sua Perícia ou Ultimate, o Dano Crítico do seu próximo ataque aumenta em +5% para cada rodada de DoT consumida (acumulável até +50% de Dano Crítico Bônus por 2 turnos).", combat: "lupaT2", cost: 2 },
@@ -2684,7 +2732,7 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
   const cycleWeapon = (d) => { const i = WEAPON_5_IDS.indexOf(featuredWeapon); setFeaturedWeapon(WEAPON_5_IDS[(i + d + WEAPON_5_IDS.length) % WEAPON_5_IDS.length]); };
   const headColor = isWeapon ? "#B98BFF" : isStd ? C.gold : isSpecial ? "#FF5E9E" : ELEMENTS[fc.element].color;
   const arrow = { background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 8, color: C.text, width: 28, height: 28, fontWeight: 800 };
-  const charMs = useBannerTimer("char_" + featuredChar, BANNER_DURATIONS[featuredChar] || (7 * 24 * 60 * 60 * 1000)); // cada personagem tem seu próprio prazo de encerramento
+  const charMs = useBannerTimer("char_" + featuredChar + ((featuredChar === "altersaber" || featuredChar === "gilgamesh") ? "_3h_v2" : ""), BANNER_DURATIONS[featuredChar] || (7 * 24 * 60 * 60 * 1000)); // cada personagem tem seu próprio prazo de encerramento
   const weaponMs = useBannerTimer("weapon");
   const specialMs = useAbsoluteTimer(SPECIAL_BANNER_END); // data fixa de verdade — acaba pra todo mundo junto, não reseta por dispositivo
   const specialExpired = specialMs <= 0;
@@ -3057,7 +3105,7 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
         <div className="flex flex-col gap-2 mt-2">
           {[["basic", "Ataque Básico", skillNamesOf(def.id)[0]], ["skill", "Habilidade", skillNamesOf(def.id)[1]], ["ult", "Ultimate", skillNamesOf(def.id)[2]]].map(([key, lbl, nm]) => { const lvl = oc.traces[key] || 1; const max = lvl >= TRACE_MAX; return (
             <div key={key} className="flex items-center justify-between" style={{ background: C.panelHi, borderRadius: 10, padding: "8px 10px" }}>
-              <div><div style={{ fontWeight: 700, fontSize: 13 }}>{lbl} <span style={{ color: C.mute, fontWeight: 400 }}>· {nm}</span></div><div style={{ fontSize: 11, color: C.mute }}>Nv {lvl}/{TRACE_MAX} · {key === "basic" ? "dano" : (key === "ult" && (def.id === "sakura" || def.id === "usopp")) ? "dano/cura" : (key === "ult" && def.id === "shorekeeper") ? "cura/CRIT DMG dado ao time" : def.id === "omegamon" ? "dano/escudo" : def.role === "healer" ? "cura" : def.role === "shield" ? "escudo" : "dano"} +{Math.round((traceMul(lvl) - 1) * 100)}%</div></div>
+              <div><div style={{ fontWeight: 700, fontSize: 13 }}>{lbl} <span style={{ color: C.mute, fontWeight: 400 }}>· {nm}</span></div><div style={{ fontSize: 11, color: C.mute }}>Nv {lvl}/{TRACE_MAX} · {key === "basic" ? "dano" : (key === "ult" && (def.id === "sakura" || def.id === "usopp")) ? "dano/cura" : (key === "ult" && def.id === "shorekeeper") ? "cura/CRIT DMG dado ao time" : def.id === "omegamon" ? "dano/escudo" : def.role === "healer" ? "cura" : def.role === "shield" ? "escudo" : (def.role === "buffer" || def.role === "debuffer") ? "efeito de suporte" : "dano"} +{Math.round((traceMul(lvl) - 1) * 100)}%</div></div>
               <Btn kind={max ? "ghost" : "soft"} disabled={max} style={{ padding: "5px 10px" }} onClick={() => traceLevelUp(o.id, key)}>{max ? "MÁX" : isAdmin ? "Subir" : (<span className="flex items-center gap-1 flex-wrap" style={{ justifyContent: "center" }}><span className="flex items-center gap-1"><ItemIcon id="item_skill_mat" emoji="💠" size={13} />{1 + Math.floor(lvl / 3)}</span>{lvl >= 5 && <span className="flex items-center gap-1">+<ItemIcon id="item_boss_mat" emoji="🔮" size={13} />1</span>}</span>)}</Btn>
             </div>); })}
         </div>
@@ -3155,6 +3203,31 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
 function St({ k, v }) { return <div className="flex justify-between" style={{ background: C.panelHi, padding: "8px 10px", borderRadius: 10 }}><span style={{ color: C.mute }}>{k}</span><b>{v}</b></div>; }
 function buffText(b) { const p = []; for (const k of ["atk", "def", "spd", "critRate", "critDmg", "dmgBonus"]) if (b[k]) p.push(`+${b[k]}${k === "spd" ? " VEL" : "% " + (STAT_LABEL[k] || k)}`); return `${p.join(", ")}${b.all ? " (time)" : ""} por ${b.turns}t`; }
 const SKILL_DESC = {
+  gilgamesh: {
+    basic: ["<b>Espada do Primeiro Rei</b>", "Causa <b>120% do ATQ</b> como Dano Unknown.", "Recebe <b>1 Tesouro</b>.",
+      "<b>Ataque Básico Aprimorado · Arsenal do Rei</b> — disponível apenas durante Reinado Dourado.", "Invoca oito armas. Cada arma causa <b>65% do ATQ</b>. A última arma explode causando <b>280% do ATQ</b>.", "Cada golpe possui chance de disparar um Ataque Extra."],
+    skill: ["<b>Portão da Babilônia</b>", "Consome <b>2 Pontos de Perícia</b>.", "No início de cada turno de Gilgamesh, enquanto o Portão estiver aberto, consome automaticamente 1 Ponto de Perícia para permanecer ativo. Caso não haja Pontos de Perícia disponíveis, o Portão é fechado imediatamente.", "Duração: <b>3 turnos</b>.", "Gilgamesh recebe: <b>+80% Dano Unknown</b>, <b>+40% Taxa CRÍTICA</b>, <b>+90% Dano CRÍTICO</b>, <b>+40 Velocidade</b>.", "Enquanto o Portão estiver aberto, após qualquer ataque de Gilgamesh são disparadas <b>2 armas</b> automaticamente, cada uma causando <b>130% do ATQ</b>. Esses ataques contam como Ataques Extras.", "Se Gilgamesh utilizar uma Suprema, o Portão dispara imediatamente <b>10 armas</b>.", "Efeito secundário: todos os aliados recebem apenas <b>+15% Dano Final</b>."],
+    ult: ["<b>Enuma Elish — A Ruptura da Criação</b>", "Energia: <b>240</b>.", "Consome todos os Tesouros. Executa um golpe colossal.", "Causa <b>980% do ATQ</b> ao alvo principal e <b>580% do ATQ</b> aos inimigos adjacentes.", "Após isso ativa <b>Jardim do Rei</b> por <b>2 turnos</b>.", "Enquanto estiver ativo, Gilgamesh recebe: <b>+60% Penetração de Resistência</b>, <b>+100% Dano dos Ataques Extras</b>, <b>+30% Ignorar DEF</b>, <b>+25% Regeneração de Energia</b>.", "Sempre que Gilgamesh atacar, o Portão dispara automaticamente <b>Chuva de Tesouros</b>: 12 armas, cada uma causando <b>80% do ATQ</b>. Cada arma pode gerar Tesouros.", "Efeito secundário: aliados recebem <b>+20% ATQ</b> e recuperam <b>5 de Energia</b> quando Gilgamesh dispara uma Chuva de Tesouros (máximo de uma vez por turno)."],
+  },
+  altersaber: {
+    basic: [
+      "<b>Espada do Rei Caído</b> — causa <b>100% do ATQ</b> como Dano Chaos a um inimigo. Recebe <b>1 Ruína</b>.",
+      "<b>Ataque Básico Aprimorado · Espada da Coroa Negra</b> (disponível apenas durante Reino da Ruína): realiza <b>cinco cortes consecutivos</b> — cada golpe causa <b>70% do ATQ</b> e o último causa <b>220% do ATQ</b>. Cada golpe possui chance independente de gerar Ruína Fantasma.",
+      "Caso o alvo esteja abaixo de <b>50% de HP</b>: o último golpe causa dano adicional equivalente a <b>12% da Vida Máxima do inimigo</b> (limitado contra chefes).",
+    ],
+    skill: [
+      "<b>Coroa do Rei Profanado</b> — Consome 1 Ponto de Perícia. Entra imediatamente em <b>Modo Alter</b> por 3 turnos.",
+      "Durante Alter: <b>+60 Velocidade</b>, <b>+70% Dano Chaos</b>, <b>+35% Taxa CRIT</b>, <b>+90% Dano CRIT</b>, <b>+30% Penetração de Resistência Chaos</b> e imunidade a Controle.",
+      "Enquanto Alter estiver ativo: cada ataque executa automaticamente um <b>corte dimensional</b> causando <b>90% do ATQ</b> — esses cortes contam como Ataques Extras e geram Ruína.",
+      "Sempre que gerar 4 Ruínas durante Alter: recupera <b>15 Energia</b>. Caso Reino da Ruína seja ativado durante Alter, a duração de Alter é reiniciada.",
+    ],
+    ult: [
+      "<b>Excalibur Morgan — O Fim do Trono</b> — Energia: <b>160</b>. Consome todas as Ruínas existentes.",
+      "Executa um corte único que atravessa o campo inteiro: <b>760% do ATQ</b> ao alvo principal e <b>430%</b> aos inimigos adjacentes.",
+      "Depois cria o domínio <b>Trono do Rei Caído</b> por 2 turnos: todos os ataques de Alter Saber ignoram <b>40% DEF</b> e <b>25% Resistência Chaos</b>, causam <b>+35% de Dano Final</b> e geram Ruína Fantasma.",
+      "Se a Suprema eliminar um inimigo: recebe imediatamente outro turno.",
+    ],
+  },
   hitori: {
     basic: [
       "5 Estrelas - Suporte | Chaos.",
@@ -3415,7 +3488,7 @@ const SKILL_DESC = {
       "Além disso, a Suprema insere compulsoriamente <b>2 Clones Residuais</b> diretamente no alvo atingido, acelerando de forma autônoma a ativação do Colapso Elétrico do Talento — sem precisar de nenhum Ataque Extra real de um aliado pra isso.",
     ],
     talent: [
-      "✦ <b>Clones Residuais (Ataque Extra):</b> sempre que um aliado desferir um Ataque Extra contra um inimigo, Yoruichi intercepta a ação e conjura um Clone Residual instantâneo que ataca o mesmo alvo, causando Dano Eletro equivalente a <b>600% de sua VEL total</b>.",
+      "✦ <b>Clones Residuais (Ataque Extra):</b> sempre que um aliado desferir um Ataque Extra contra um inimigo, Yoruichi intercepta a ação e conjura um Clone Residual instantâneo que ataca o mesmo alvo, causando Dano Eletro equivalente a <b>10.000% de sua VEL total (100× a VEL)</b>.",
       "✦ <b>Colapso Elétrico:</b> o jogo contabiliza os Clones Residuais gerados. A cada 3 Clones acionados, o alvo atual sofre uma sobrecarga, recebendo Dano Eletro em Área equivalente a <b>1500% da VEL</b> de Yoruichi e sofrendo uma redução de 20% na Resistência a Ataques Extras por 2 turnos.",
       "Não há limite de vezes que Clones Residuais podem ser ativados por ciclo de turnos — quanto mais a equipe contra-atacar, mais ela dispara.",
     ],
@@ -4535,10 +4608,10 @@ function capShieldAdd(u, amt, customCap) {
   return Math.max(0, Math.min(amt, cap - cur));
 }
 // Yoruichi — Frequência Shunpo: reage a Ataques Extras de qualquer aliado (contra-ataques da equipe)
-function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx) {
+function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx, allowSelf) {
   if (!follower || follower.side !== "H" || !enemyTarget || !enemyTarget.alive) return;
   const yoru = (follower._sibs || []).find(h => h.id === "yoruichi" && h.alive);
-  if (!yoru || yoru.uid === follower.uid) return;
+  if (!yoru || (!allowSelf && yoru.uid === follower.uid)) return;
   const ySpd = effStat(yoru, "spd"), yAtk = Math.max(1, effStat(yoru, "atk"));
   // Visual: um Clone Residual "aparece" no card da Yoruichi e some rápido (badge com fade-out)
   fx.push({ uid: yoru.uid, yoruCloneFlash: true, id: Math.random() });
@@ -4546,8 +4619,9 @@ function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx) {
   if (yoru.stFlags?.yoruT1 && (yoru._yoruT1Uses || 0) < 3) { yoru._yoruT1Uses = (yoru._yoruT1Uses || 0) + 1; yoru.av = Math.max(0.01, (yoru.av || 1) * 0.94); }
   // Rastro Especial 3 · Relâmpago Causal: se a VEL dela for maior que a do alvo, ignora 18% de DEF
   const t3DefPen = (yoru.stFlags?.yoruT3 && ySpd > effStat(enemyTarget, "spd")) ? 18 : 0;
-  const cloneMul = (ySpd * 6.0 / yAtk) * 100; // Clone Residual: 600% da VEL (buffado)
+  const cloneMul = (ySpd * 100.0 / yAtk) * 100; // Clone Residual: 100× a VEL total (mega buff: alvo 100k-450k com boa build)
   const cr = dealDamage(yoru, enemyTarget, cloneMul, fx, { el: "Eletro", isYoruClone: true, breakW: 1, defPen: t3DefPen });
+  fx.push({ uid: enemyTarget.uid, txt: "CLONE RESIDUAL!", crit: false, id: Math.random(), el: "Eletro" }); // rótulo visível do golpe do clone na área de dano
   yoru._yoruClones = (yoru._yoruClones || 0) + 1;
   // Relâmpago Fugaz: dano próprio de Ataque Extra +10% por acúmulo (máx 3, dura 2 turnos)
   if (yoru.weapon?.buff?.yoruWeapon) {
@@ -4568,7 +4642,7 @@ function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx) {
   }
   let burstDmg = 0;
   if (yoru._yoruClones % 3 === 0 && enemyTarget._sibs) {
-    const burstMul = (ySpd * 15.0 / yAtk) * 100; // Colapso Elétrico: 1500% da VEL em área
+    const burstMul = (ySpd * 250.0 / yAtk) * 100; // Colapso Elétrico: 1500% da VEL em área
     enemyTarget._sibs.filter(e => e.alive).forEach(e => {
       const br = dealDamage(yoru, e, burstMul, fx, { el: "Eletro", isYoruClone: true, breakW: 2, defPen: t3DefPen });
       if (e.uid === enemyTarget.uid) burstDmg = br.dmg;
@@ -4753,7 +4827,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   // Mutador Miasma Cegante: Chance Crítica travada em 0%
   const _lupaC5Crit = (attacker.id === "lupa" && f.lupaC5) ? 12 : 0;
   const _infernoCrit = (f.setInferno4 && (defender.dots || []).length > 0) ? 12 : 0; // Inferno Devorador de Almas 4pç: +12% Taxa Crítica ao atacar alvo com DoT
-  const crit = (attacker._mut || defender._mut) === "miasma" ? false : Math.random() * 100 < Math.min(100, effStat(attacker, "critRate") + _lupaC5Crit + _infernoCrit);
+  const crit = (attacker._mut || defender._mut) === "miasma" ? false : (((attacker._asAbs || 0) > 0 || (attacker._gilTrono || 0) > 0 || ((attacker._gilEa || 0) > 0 && opts?.isFollowup)) ? true : Math.random() * 100 < Math.min(100, effStat(attacker, "critRate") + _lupaC5Crit + _infernoCrit)); // Reino Absoluto: CRIT garantido
   if (crit) dmg *= 1 + effStat(attacker, "critDmg") / 100;
   // Crisol da Chama Primordial (4pç): acerto crítico de Fogo → ganha 1 acúmulo de Núcleo Incandescente
   if (crit && f.setCrisol4 && (opts?.el || attacker.element) === "Fogo") crisolAddStack(attacker, fx);
@@ -4766,7 +4840,70 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     }
   }
   dmg *= 1 + effStat(attacker, "dmgBonus") / 100;
-  if (attacker.id === "lupa" && f.lupaC5) dmg *= 1.75; // C5 · Garra de Almas: +75% de Dano de Fogo incondicional
+  if (attacker.id === "lupa" && f.lupaC5) dmg *= 1.40; // C5 · Garra de Almas: +75% de Dano de Fogo incondicional
+  // ── Gilgamesh — Tesouros / Reinado / Trono / Jardim / Ea / Rei Absoluto ──
+  if (attacker.id === "gilgamesh" && !opts?.isDot) {
+    const gf = attacker.stFlags || {};
+    attacker._ignoresShield = (attacker._gilTrono || 0) > 0; // Trono do Rei: ataques ignoram Escudos
+    if (opts?.isFollowup) { // Extras: Reinado 30% DEF, Trono 40% DEF, Arsenal Dourado 20% DEF, Portão da Origem 20% DEF
+      let pen = 0;
+      if ((attacker._gilReinado || 0) > 0) pen = Math.max(pen, 30);
+      if ((attacker._gilTrono || 0) > 0) pen = Math.max(pen, 40);
+      if ((attacker._gilArsenal || 0) > 0) pen = Math.max(pen, 20);
+      if ((attacker._gilOrigem || 0) > 0) pen = Math.max(pen, 20);
+      if (pen) dmg = Math.round(dmg * (1 + pen / 100));
+    }
+    if ((attacker._gilReinado || 0) > 0) dmg = Math.round(dmg * (1 + Math.max(0, (attacker._gilTes || 0) - 16) * 0.04)); // cada Tesouro acima de 16: +4%
+    if (opts?.isFollowup) { // buffs de Ataque Extra
+      let fu = 1;
+      if (gf.gilA2) fu += Math.min(0.60, (attacker._gilTes || 0) * 0.02);
+      if ((attacker._gilJardim || 0) > 0) fu += 1.0;
+      if ((attacker._gilEa || 0) > 0) fu += 1.2;
+      if ((attacker._gilAbs || 0) > 0) fu += 0.8;
+      if ((attacker._gilOrigem || 0) > 0) fu += 0.70;
+      if (gf.setBabilonia4) fu += Math.min(0.45, (attacker._gilBab || 0) * 0.03);
+      if ((attacker._gilRFim || 0) > 0) fu += 0.60;
+      dmg = Math.round(dmg * fu);
+    }
+    if ((attacker._gilJardim || 0) > 0) dmg = Math.round(dmg * 1.30);
+    if ((attacker._gilEa || 0) > 0) dmg = Math.round(dmg * 1.40);
+    if ((attacker._gilAbs || 0) > 0) dmg = Math.round(dmg * 1.60);
+    if ((attacker._gilOrigem || 0) > 0) dmg = Math.round(dmg * 1.40);
+    if (gf.gilA6 && (attacker._gilTrono || 0) > 0 && aliveEnemies({ enemies: defender._sibs || [defender] }).length === 1) dmg = Math.round(dmg * 1.35); // A6: alvo único
+    if (crit || opts?.isFollowup) attacker._gilAuthPend = (attacker._gilAuthPend || 0) + 1;
+  }
+  if (!defender.alive && attacker.id === "gilgamesh") { attacker._gilAuthPend = (attacker._gilAuthPend || 0) + 1; attacker._gilKillTes = (attacker._gilKillTes || 0) + 2; if (attacker.stFlags?.gilA6 && (attacker._gilTrono || 0) > 0) attacker._gilSpPend = (attacker._gilSpPend || 0) + 2; }
+  // ── Alter Saber — Reino da Ruína / Trono / Reino Absoluto ──
+  if (attacker.id === "altersaber" && !opts?.isDot) {
+    attacker._ignoresShield = (attacker._asAbs || 0) > 0; // Reino Absoluto: ataques ignoram Escudos
+    if ((attacker._asReino || 0) > 0) { dmg = Math.round(dmg * 1.20); if (attacker.stFlags?.asA2) dmg = Math.round(dmg * (1 + Math.min(0.5, (attacker._asPhantom || 0) * 0.025))); } // Reino: ignora 25% DEF (aprox.) + A2
+    if ((attacker._asTrono || 0) > 0) dmg = Math.round(dmg * 1.35);
+    if ((attacker._asRFim || 0) > 0) { dmg = Math.round(dmg * 1.25); if (opts?.isFollowup || opts?.isAsCopy) { dmg = Math.round(dmg * 1.60); attacker.energy = Math.min(attacker.energyMax, attacker.energy + 3); } }
+    if ((attacker._asTronoW || 0) > 0) dmg = Math.round(dmg * 1.40); // Trono do Rei Caído: +35% Dano Final
+    if (crit && (attacker._asReino || 0) > 0) attacker._asPhantom = (attacker._asPhantom || 0) + 1; // CRIT no Reino gera Ruína Fantasma
+    if (crit || opts?.isFollowup) attacker._asMarksPend = (attacker._asMarksPend || 0) + 1; // Marca do Rei: CRIT / Ataque Extra
+    if ((attacker._asAbs || 0) > 0 && !opts?.isAsCopy && dmg > 0) { // Cópia Espectral: repete o golpe
+      const cp = Math.round(dmg * (attacker.stFlags?.asE4 ? 1.0 : 0.55));
+      defender.hp -= cp; if (defender.hp <= 0) { defender.hp = 0; defender.alive = false; }
+      fx.push({ uid: defender.uid, txt: "👻 " + cp, crit: false, id: Math.random(), el: "Chaos" });
+      attacker._asCopies = (attacker._asCopies || 0) + 1;
+      if (attacker.stFlags?.asE4) attacker._asPhantom = (attacker._asPhantom || 0) + 1;
+      if (attacker._asCopies % 3 === 0) { const xb = Math.round(effStat(attacker, "atk") * 3.0); (defender._sibs || [defender]).filter((e) => e.alive).forEach((e) => { e.hp -= xb; if (e.hp <= 0) { e.hp = 0; e.alive = false; } fx.push({ uid: e.uid, txt: "⚔️ EXCALIBUR NEGRA " + xb, crit: true, id: Math.random(), el: "Chaos" }); }); }
+    }
+  }
+  if (attacker.id === "altersaber" && attacker.stFlags?.asE2 && dmg > 0 && !opts?.isDot && !opts?.isAsE2) {
+    attacker._asE2 = (attacker._asE2 || 0) + 1; // E2 · A Espada que Divide Destinos: acumula Destino Fragmentado
+    if (attacker._asE2 >= 15) { attacker._asE2 = 0;
+      const rp = Math.round(effStat(attacker, "atk") * 5.2 * 1.35); // Ruptura do Destino: 520% ATQ, ignora 35% DEF (aprox.)
+      let killedE2 = false;
+      (defender._sibs || [defender]).filter((e) => e.alive).forEach((e) => { e.hp -= rp; if (e.hp <= 0) { e.hp = 0; e.alive = false; killedE2 = true; } fx.push({ uid: e.uid, txt: "⚔️💫 " + rp, crit: true, id: Math.random(), el: "Chaos" }); });
+      attacker._asRuinas = Math.min(asRuinaCap(attacker), (attacker._asRuinas || 0) + 6);
+      attacker.energy = Math.min(attacker.energyMax, attacker.energy + 25);
+      attacker._asMarks = Math.max(attacker._asMarks || 0, 5); // reinicia a contagem de Marcas do Rei para 5
+      if (killedE2) attacker._avMul = 0; // eliminou → outro turno
+    }
+  }
+  if (!defender.alive && attacker.id === "altersaber") { attacker._asMarksPend = (attacker._asMarksPend || 0) + 1; if ((attacker._asAbs || 0) > 0 && attacker.stFlags?.asA6 && (attacker._asA6Ext || 0) < 2) { attacker._asA6Ext = (attacker._asA6Ext || 0) + 1; attacker._asAbs += 1; } } // abate: marca + A6 prolonga Absoluto
   // ── Hitori Gotoh — Ressonância de Palco: enquanto viva no time, TODO Ataque Extra (follow-up) causa +250% de dano ──
   if (opts?.isFollowup) { const hitoriBuff = (attacker._sibs || []).find((h) => h.id === "hitori" && h.alive); if (hitoriBuff) dmg *= 3.5; }
   // Hitori Gotoh: aura pros 2 primeiros slots — +30% Dano Holy/Chaos (60% com C5), +30% em qualquer elemento também com C5
@@ -4978,7 +5115,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
       }
     }
   }
-  fx.push({ uid: defender.uid, txt: String(dmg), crit, id: Math.random(), el: opts?.el || attacker.element, enhanced: !!opts?.enhanced });
+  fx.push({ uid: defender.uid, txt: (opts?.isYoruClone ? "🐈‍⬛ " : "") + String(dmg), crit, id: Math.random(), el: opts?.el || attacker.element, enhanced: !!opts?.enhanced || !!opts?.isYoruClone }); // clones da Yoruichi: número de dano aparece rotulado com 🐈‍⬛
   return { dmg, crit };
 }
 // Sistema de dano de DoT: aleatório, com piso mínimo que escala com o quanto o personagem está investido (ATK efetivo)
@@ -5167,6 +5304,118 @@ function hitoriUltimate(s, u, fx) {
   }
   return `🎤🔥 ${u.name} solta o "KESSOKU BAND"! +${crGain}% CRIT, +${cdGain}% CRIT DMG pra equipe (${dur}t), +${elemGain}% Dano Elemental pros 2 primeiros slots, +${enGain}⚡ de energia pra todos.${overclock ? " OVERCLOCK: os 2 primeiros slots agem AGORA e ignoram DEF/RES no próximo golpe!" : ""}`;
 }
+// ── Gilgamesh · Portão da Babilônia / Tesouros Reais / Trono do Rei ──
+function gilCap(u) { return u.stFlags?.gilE6 && (u._gilAbs || 0) > 0 ? 9999 : ((u._gilReinado || 0) > 0 ? 30 : 16); }
+function gilGainTesouro(u, n, s) {
+  if (n <= 0) return;
+  u._gilTes = Math.min(gilCap(u), (u._gilTes || 0) + n);
+  if ((u._gilReinado || 0) <= 0 && u._gilTes >= 16) { u._gilReinado = 3; pushLog(s, `👑 ${u.name} entra em REINADO DOURADO por 3 turnos — limite sobe pra 30 Tesouros, Extras ignoram 30% DEF!`); }
+}
+function gilAuth(u, s) {
+  u._gilAuth = Math.min(12, (u._gilAuth || 0) + 1);
+  if (u._gilAuth >= 12 && (u._gilTrono || 0) <= 0) {
+    u._gilAuth = 0; u._gilTrono = 2;
+    u.buffs = u.buffs.filter((b) => b.name !== "Trono do Rei");
+    u.buffs.push({ stat: "critDmg", value: 140, turns: 2, name: "Trono do Rei" }, { stat: "spd", value: 50, turns: 2, name: "Trono do Rei" });
+    pushLog(s, `👑⚡ ${u.name} atinge 12 de Autoridade Real — TRONO DO REI por 2 turnos: CRIT garantido, +140% CRIT DMG, +50 VEL!`);
+  }
+}
+// Dispara N Armas Nobres do Portão (contam como Ataques Extras)
+function gilFireWeapons(u, s, fx, count, mulEach, label) {
+  const dbl = (s.cycle || 1) <= 2 ? 2 : 1; // Técnica: nos 2 primeiros turnos, dobro de armas
+  const total = count * dbl;
+  let sum = 0;
+  for (let i = 0; i < total; i++) {
+    const tgt = aliveEnemies(s)[0]; if (!tgt) break;
+    const r = dealDamage(u, tgt, mulEach, fx, { el: "Unknown", isFollowup: true, isGilWeapon: true });
+    sum += r.dmg; gilExtraProc(u, s, fx);
+  }
+  if (sum > 0) pushLog(s, `🗡️ ${label}: ${total} Armas Nobres — ${sum} de Dano Unknown!`);
+  return sum;
+}
+// Processa tudo que um Ataque Extra do Gilgamesh dispara
+function gilExtraProc(u, s, fx) {
+  if (u.id !== "gilgamesh") return;
+  // Reinado Dourado: todo Ataque Extra gera outro disparo do Portão (máx 3 cadeias)
+  if ((u._gilReinado || 0) > 0 && !u._gilChainLock) {
+    u._gilChainLock = true;
+    for (let ch = 0; ch < 3; ch++) { const tgt = aliveEnemies(s)[0]; if (!tgt) break; dealDamage(u, tgt, 130, fx, { el: "Unknown", isFollowup: true, isGilWeapon: true }); }
+    u._gilChainLock = false;
+  }
+  u._gilExtras = (u._gilExtras || 0) + 1;
+  gilGainTesouro(u, 1, s); gilAuth(u, s);
+  if (u.stFlags?.gilE1) u._gilReg = Math.min(20, (u._gilReg || 0) + 1);
+  // A4: a cada 15 Ataques Extras, +60 Energia (até 2x por batalha)
+  if (u.stFlags?.gilA4 && u._gilExtras % 15 === 0 && (u._gilA4Uses || 0) < 2) { u._gilA4Uses = (u._gilA4Uses || 0) + 1; u.energy = Math.min(u.energyMax, u.energy + 60); }
+  // Cone Portão da Criação: acúmulos de Tesouro Verdadeiro → Portão da Origem
+  if (u.weapon?.buff?.gilWeapon) {
+    if ((u._gilOrigem || 0) > 0) { if ((u._gilOrigemEn || 0) < 6) { u._gilOrigemEn = (u._gilOrigemEn || 0) + 1; u.energy = Math.min(u.energyMax, u.energy + 8); } }
+    else { u._gilTV = (u._gilTV || 0) + 1; if (u._gilTV >= 12) { u._gilTV = 0; u._gilOrigem = 2; pushLog(s, "🗝️ Portão da Origem ativado pelo Cone — +40% Dano Unknown, +70% Dano de Ataques Extras!"); } }
+  }
+  // Set Tesouros da Primeira Babilônia (4pç)
+  if (u.stFlags?.setBabilonia4) { u._gilBab = Math.min(15, (u._gilBab || 0) + 1); if ((u._gilArsenal || 0) > 0) u.energy = Math.min(u.energyMax, u.energy + 4);
+    if (!u._gilBabTurn) { u._gilBabTurn = true; gilFireWeapons(u, s, fx, 3, 90, "Arsenal Dourado"); } }
+  // E2: 50% de chance de Arma Nobre Suprema (até 3x/turno)
+  if (u.stFlags?.gilE2 && (u._gilPortao || 0) > 0 && (u._gilE2Turn || 0) < 3 && Math.random() < 0.5) {
+    u._gilE2Turn = (u._gilE2Turn || 0) + 1;
+    const tgt = aliveEnemies(s)[0];
+    if (tgt) { dealDamage(u, tgt, 260, fx, { el: "Unknown", isFollowup: true, isGilWeapon: true }); s.sp = Math.min(spCapOf(s), s.sp + 1); u.energy = Math.min(u.energyMax, u.energy + 10); gilGainTesouro(u, 2, s); }
+  }
+  // Talento · Tesouro Celestial a cada Ataque Extra durante Trono do Rei
+  if ((u._gilTrono || 0) > 0 && !u._gilCelestialLock) {
+    u._gilCelestialLock = true;
+    for (let i = 0; i < 6; i++) { const tgt = aliveEnemies(s)[0]; if (!tgt) break;
+      dealDamage(u, tgt, 90, fx, { el: "Unknown", isFollowup: true, isGilWeapon: true });
+      const roll = Math.floor(Math.random() * 5);
+      if (roll === 1) gilGainTesouro(u, 1, s);
+      else if (roll === 2) u.energy = Math.min(u.energyMax, u.energy + 3);
+      else if (roll === 3) tgt.debuffs.push({ stat: "defDown", value: 10, turns: 2, name: "Tesouro Celestial" });
+      else if (roll === 4) tgt.debuffs.push({ stat: "elemRes", value: -10, turns: 2, name: "Tesouro Celestial" });
+    }
+    u._gilCelestial = (u._gilCelestial || 0) + 1;
+    if (u._gilCelestial % 3 === 0) { const ea = Math.round(effStat(u, "atk") * 4.5); aliveEnemies(s).forEach((e) => { e.hp -= ea; if (e.hp <= 0) { e.hp = 0; e.alive = false; } fx.push({ uid: e.uid, txt: "⚔️ EA FRAGMENTADA " + ea, crit: true, id: Math.random(), el: "Unknown" }); }); }
+    u._gilCelestialLock = false;
+  }
+}
+// Dispara tudo que acontece DEPOIS de cada ataque do Gilgamesh (Portão, Jardim, Ea, Rei Absoluto)
+function gilAfterAttack(u, s, fx) {
+  if (u.id !== "gilgamesh" || u._gilAfterLock) return;
+  u._gilAfterLock = true;
+  if ((u._gilPortao || 0) > 0) gilFireWeapons(u, s, fx, 2, 130, "Portão da Babilônia");
+  if ((u._gilJardim || 0) > 0) { gilFireWeapons(u, s, fx, 12, 80, "Chuva de Tesouros"); if (!u._gilRainTurn) { u._gilRainTurn = true; s.heroes.filter((h) => h.alive && !h.isSummon && h.energyMax).forEach((h) => { h.energy = Math.min(h.energyMax, h.energy + 5); }); } }
+  if ((u._gilEa || 0) > 0) { const w = Math.round(effStat(u, "atk") * 3.5); aliveEnemies(s).forEach((e) => { e.hp -= w; if (e.hp <= 0) { e.hp = 0; e.alive = false; } fx.push({ uid: e.uid, txt: "🌌 " + w, crit: true, id: Math.random(), el: "Unknown" }); }); }
+  if ((u._gilAbs || 0) > 0) { for (let i = 0; i < 12; i++) { const tgt = aliveEnemies(s)[0]; if (!tgt) break; dealDamage(u, tgt, 110, fx, { el: "Unknown", isFollowup: true, isGilWeapon: true }); gilExtraProc(u, s, fx); if ((i + 1) % 3 === 0) { const ea = Math.round(effStat(u, "atk") * 4.5); aliveEnemies(s).forEach((e) => { e.hp -= ea; if (e.hp <= 0) { e.hp = 0; e.alive = false; } fx.push({ uid: e.uid, txt: "⚔️ EA " + ea, crit: true, id: Math.random(), el: "Unknown" }); }); } } }
+  u._gilAfterLock = false;
+}
+// ── Alter Saber · Reino da Ruína / Modo Alter / Reino Absoluto ──
+function asRuinaCap(u) { return (u._asE1Field || 0) > 0 ? 18 : 12; }
+function asEnterReino(u, s) { u._asReino = 3; u._asRuinas = 0; u._asPhantom = u._asPhantom || 0; if ((u._asAlter || 0) > 0) u._asAlter = 3; pushLog(s, `👑 ${u.name} entra em REINO DA RUÍNA por 3 turnos — sem custo de PH, Dano Chaos, ignora 25% DEF!`); }
+function asCoroaStack(u, s) { // Set Vestígios do Trono Profanado (4pç)
+  if (!u.stFlags?.setTronoProf4) return;
+  u._asCoroa = (u._asCoroa || 0) + 1;
+  u.buffs.push({ stat: "critDmg", value: 4, turns: 9999, name: "Coroa Quebrada" }, { stat: "dmgBonus", value: 2, turns: 9999, name: "Coroa Quebrada" });
+  if (u._asCoroa >= 10) { u._asCoroa = 0; u.buffs = u.buffs.filter((b) => b.name !== "Coroa Quebrada"); u._asRFim = 2; pushLog(s, "👑 REINADO DO FIM ativado — ignora 25% DEF, Ataques Extras +60%, Suprema +45%!"); }
+}
+function asGainRuina(u, n, s, fx) {
+  if (n <= 0) return;
+  asCoroaStack(u, s);
+  if ((u._asAlter || 0) > 0) { u._asAlterRuinas = (u._asAlterRuinas || 0) + n; while (u._asAlterRuinas >= 4) { u._asAlterRuinas -= 4; u.energy = Math.min(u.energyMax, u.energy + 15); } }
+  if (u.weapon?.buff?.asWeapon) { /* Fim Inevitável acumula no CONSUMO, não no ganho */ }
+  if ((u._asReino || 0) > 0) return;
+  const cap = asRuinaCap(u);
+  u._asRuinas = Math.min(cap, (u._asRuinas || 0) + n);
+  if (u._asRuinas >= cap) { asEnterReino(u, s); if (cap > 12 && !u._asE1Reino) { u._asE1Reino = true; u.energy = Math.min(u.energyMax, u.energy + 30); } }
+}
+function asMark(u, s) {
+  u._asMarks = Math.min(10, (u._asMarks || 0) + 1);
+  if (u._asMarks >= 10 && (u._asAbs || 0) <= 0) {
+    u._asMarks = 0; u._asAbs = 2; if ((u._asRFim || 0) > 0) u._asRFim += 1; // Reino Absoluto prolonga Reinado do Fim
+    u.buffs = u.buffs.filter((b) => b.name !== "Reino Absoluto");
+    u.buffs.push({ stat: "critDmg", value: 140, turns: 2, name: "Reino Absoluto" }, { stat: "spd", value: 50, turns: 2, name: "Reino Absoluto" });
+    pushLog(s, `👑⚡ ${u.name} atinge 10 Marcas do Rei — REINO ABSOLUTO por 2 turnos: CRIT garantido, +140% CRIT DMG, Cópias Espectrais!`);
+  }
+}
+function asAlterCut(u, enemy, s, fx) { if (!enemy || !enemy.alive) return; dealDamage(u, enemy, 90, fx, { el: "Chaos", isFollowup: true, isAsCopy: true }); asGainRuina(u, 1, s, fx); }
 function lupaVorCap(u) { return u.stFlags?.lupaC6 ? 15 : 10; }
 // Arma Presa da Calamidade Eterna — Acúmulo de Incinerador (máx 3, +10% Dano de Fogo cada, refresca 2 turnos)
 function lupaIncineratorStack(u) {
@@ -5222,7 +5471,7 @@ function lupaBasicAttack(s, u, enemy, fx, ampB) {
   const cap = lupaVorCap(u);
   const predAbs = (u._lupaVor || 0) >= cap;
   const defPen = predAbs ? (f.lupaC2 ? 40 : 20) : 0;
-  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.20;
+  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.10; // nerf: 10% por carga
   const overclock = (u._lupaOverclock || 0) > 0;
   let msg = "";
   if (overclock) {
@@ -5257,7 +5506,7 @@ function lupaSkillAttack(s, u, enemy, fx, ampS) {
   if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
   if (!enemy) return `${u.name} não encontra alvo.`;
   const cap = lupaVorCap(u);
-  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.20;
+  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.10; // nerf: 10% por carga
   const r = dealDamage(u, enemy, (sk.skillMul || 300) * (u.tSkill || 1) * ampS * vorMul, fx, { el: "Fogo", breakW: 2 });
   let msg = `🌋 Salto do Abismo em ${enemy.name} — ${r.dmg} de Dano de Fogo${r.crit ? " (CRÍTICO!)" : ""}.`;
   if ((u._lupaSupernova || 0) > 0 && enemy.alive) { applyDot([enemy], { type: "burn", mul: 120, turns: 3 }, u, fx); msg += " ☄️ Supernova: aplica Ignição em dobro."; }
@@ -5292,7 +5541,7 @@ function lupaSkillAttack(s, u, enemy, fx, ampS) {
   // Avanço de Ação: corrige loop infinito — antes TODA Perícia devolvia o PH e dava turno instantâneo,
   // então dava pra spammar sem fim. Agora o salto só dispara 1x a cada 2 turnos dela.
   if ((u._lupaLeapCd || 0) <= 0) {
-    u._avMul = 0; s.sp = Math.min(spCapOf(s), s.sp + 1); u._lupaLeapCd = 2;
+    u._avMul = 0; u._lupaLeapCd = 4; // nerf anti-spam: avança a ação mas NÃO devolve mais o PH, e recarrega em 3 turnos
     msg += " ⏩ Avanço de Ação: Lupa age novamente agora!";
   } else {
     msg += ` (Avanço de Ação recarregando: ${u._lupaLeapCd} turno(s))`;
@@ -5328,9 +5577,10 @@ function lupaUltimate(s, u, fx, ampU) {
     // Inferno Devorador de Almas (6pç): Explosão Térmica ao consumir DoTs de Fogo pela Ultimate (1 explosão em área)
     if (_hadBurns && !_infernoUltFired && u.stFlags?.setInferno6) { infernoExplosao(u, enemies, fx); _infernoUltFired = true; }
   });
-  const perRound = f.lupaC6 ? 3.5 : 2.0; // C6: +350%/rodada sem teto (era +200%)
+  if (f.setMatilha4 && totalRounds > 0) { const cur = u.buffs.filter((b) => b.name === "Matilha Voraz").length; for (let mi = cur; mi < Math.min(3, cur + totalRounds); mi++) u.buffs.push({ stat: "dmgBonus", value: 12, turns: 3, name: "Matilha Voraz" }); } // Matilha Voraz 4pç: o Consumo Absoluto da Ultimate também gera acúmulos
+  const perRound = f.lupaC6 ? 1.8 : 1.0; // nerf: +100%/rodada (C6: +180%)
   const scaleMul = 1 + totalRounds * perRound;
-  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.20;
+  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.10; // nerf: 10% por carga
   const forceCrit = !!u._lupaGuaranteedCritUlt; u._lupaGuaranteedCritUlt = false;
   const incStacks = u.buffs.filter((b) => b.name === "Incinerador").length;
   const matilhaStacks = u.buffs.filter((b) => b.name === "Matilha Voraz").length;
@@ -5499,7 +5749,9 @@ function cloneU(u) { return { ...u, buffs: u.buffs.map((b) => ({ ...b })), debuf
 function findUnit(s, uid) { return [...s.heroes, ...s.enemies].find((u) => u.uid === uid); }
 // Suportes: buffs/debuffs escalam com o nível da habilidade + amps de constelação, com teto de +12%
 function supAmp(spec, t, amp) {
-  const m = Math.min(1.12, Math.max(1, (t || 1) * (amp || 1) - ((t || 1) * (amp || 1) > 1 ? ((t || 1) * (amp || 1) - 1) * 0 : 0)));
+  // Corrigido: antes o ganho de buff era travado em +12%, tornando quase inútil subir o nível de habilidade
+  // dos SUPORTES. Agora escala igual ao dano — +8% por nível — para que upar suporte melhore o suporte.
+  const m = Math.max(1, (t || 1) * (amp || 1));
   const out = { ...spec };
   ["atk", "def", "spd", "critRate", "critDmg", "value", "defDown", "vuln", "dmgBonus"].forEach(k => { if (typeof out[k] === "number" && out[k] > 0) out[k] = Math.round(out[k] * m * 10) / 10; });
   return out;
@@ -5566,6 +5818,14 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         const FOLLOWUP_IDS = ["yoruichi", "soifon", "nami"]; // personagens com mecânica de Ataque Extra no jogo
         heroes.forEach((h) => { if (!h.isSummon && h.alive && FOLLOWUP_IDS.includes(h.id)) h.buffs.push({ stat: "followupDmg", value: 250, turns: 9999, name: "Ressonância de Palco (Hitori)" }); });
       } }
+    { const gg0 = heroes.find((h) => h.id === "gilgamesh"); if (gg0) { // Técnica · A Chave do Rei
+        gg0._gilTes = 10; gg0.energy = Math.min(gg0.energyMax, gg0.energy + 70); gg0._gilPortao = 3;
+        gg0.buffs.push({ stat: "dmgBonus", value: 80, turns: 3, name: "Portão da Babilônia" }, { stat: "critRate", value: 40, turns: 3, name: "Portão da Babilônia" }, { stat: "critDmg", value: 90, turns: 3, name: "Portão da Babilônia" }, { stat: "spd", value: 40, turns: 3, name: "Portão da Babilônia" }); } }
+    { const as0 = heroes.find((h) => h.id === "altersaber"); if (as0) { // Técnica · A Rainha do Crepúsculo
+        as0._asRuinas = 8; as0.energy = Math.min(as0.energyMax, as0.energy + 40);
+        as0._asAlter = 3;
+        as0.buffs.push({ stat: "spd", value: 60, turns: 3, name: "Modo Alter" }, { stat: "dmgBonus", value: 70, turns: 3, name: "Modo Alter" }, { stat: "critRate", value: 35, turns: 3, name: "Modo Alter" }, { stat: "critDmg", value: 90, turns: 3, name: "Modo Alter" });
+        enemies.forEach((e) => e.debuffs.push({ stat: "vuln", value: 15, turns: 2, name: "Marca do Fim" })); } }
     { const lp0 = heroes.find((h) => h.id === "lupa"); if (lp0) { lp0._lupaVor = 0; lp0._lupaOverclock = 0;
         if (lp0.stFlags?.lupaT1 && lp0.energyMax) { lp0._lupaVor = 3; lp0.energy = Math.min(lp0.energyMax, lp0.energy + 20); } } } // Rastro 1 · Rastro da Caçada
     { const kb0 = heroes.find((h) => h.id === "kaiba"); if (kb0 && kb0.stFlags?.kaibaT1) { const starter = makeSummon(kb0, { uid: "S_" + kb0.uid + "_mon0", name: "Vorse Raider", avatar: "👹", imgKey: "card_vorse", kind: "monster", mul: 260, spd: effStat(kb0, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); starter.cardBleed = 0.5; heroes.push(starter); } }
@@ -5892,6 +6152,39 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           msg = u.name + " conjura Magia Comum em área — " + frTot + " de Dano Holy" + (frCrit ? " (CRÍTICO!)" : "") + (f.frGrimoire ? (" [" + (u._frPoints||0) + "/4 pts]") : "") + ".";
           miyDone = true;
         }
+        if (!miyDone && u.id === "gilgamesh") {
+          if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
+          if (enemy) {
+            if ((u._gilReinado || 0) > 0) { // Arsenal do Rei: 8 armas
+              let tot = 0;
+              for (let i = 0; i < 8 && enemy.alive; i++) { const mul = i === 7 ? 280 : 65; const r = dealDamage(u, enemy, mul * (u.tBasic || 1) * ampB, fx, { el: "Unknown" }); tot += r.dmg; if (Math.random() < 0.35) gilExtraProc(u, s, fx); }
+              msg = `👑🗡️ ARSENAL DO REI — 8 armas nobres: ${tot} de Dano Unknown!`;
+            } else {
+              const r = dealDamage(u, enemy, (sk.basicMul || 120) * (u.tBasic || 1) * ampB, fx, { el: "Unknown" });
+              msg = `⚔️ Espada do Primeiro Rei em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} de Dano Unknown.`;
+            }
+            gilGainTesouro(u, 1, s); gilAuth(u, s);
+            gilAfterAttack(u, s, fx);
+            msg += ` (Tesouros: ${u._gilTes || 0}/${gilCap(u)})`;
+          }
+          miyDone = true;
+        }
+        if (!miyDone && u.id === "altersaber") {
+          if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
+          if ((u._asReino || 0) > 0 && enemy) {
+            let tot = 0;
+            for (let ci = 0; ci < 5 && enemy.alive; ci++) { const mul = ci === 4 ? 220 : 70; const r = dealDamage(u, enemy, mul * (u.tBasic || 1) * ampB, fx, { el: "Chaos" }); tot += r.dmg; if (Math.random() < 0.5) u._asPhantom = (u._asPhantom || 0) + 1; }
+            if (enemy.alive && enemy.hp / enemy.maxHp < 0.5) { const exec = Math.min(Math.round(enemy.maxHp * 0.12), enemy.boss ? 25000 : 999999); enemy.hp -= exec; if (enemy.hp <= 0) { enemy.hp = 0; enemy.alive = false; } fx.push({ uid: enemy.uid, txt: String(exec) + "!", crit: true, id: Math.random(), el: "Chaos" }); tot += exec; }
+            msg = `⚔️👑 Espada da Coroa Negra — 5 cortes consecutivos: ${tot} de Dano Chaos! (Fantasmas: ${u._asPhantom || 0})`;
+            while ((u._asPhantom || 0) >= 3) { u._asPhantom -= 3; const tgt = aliveEnemies(s)[0]; if (tgt) { dealDamage(u, tgt, 120 * (u.tBasic || 1), fx, { el: "Chaos", isFollowup: true, isAsCopy: true }); asMark(u, s); } msg += " ⚡ 3 Ruínas Fantasma consumidas → Ataque Extra!"; }
+          } else if (enemy) {
+            const r = dealDamage(u, enemy, (sk.basicMul || 100) * (u.tBasic || 1) * ampB, fx, { el: "Chaos" });
+            asGainRuina(u, 1, s, fx);
+            msg = `⚔️ Espada do Rei Caído em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} de Dano Chaos. +1 Ruína (${u._asRuinas || 0}/${asRuinaCap(u)}).`;
+          }
+          if ((u._asAlter || 0) > 0 && enemy) { asAlterCut(u, enemy, s, fx); msg += " 🌀 Corte dimensional do Modo Alter!"; }
+          miyDone = true;
+        }
         if (!miyDone && u.id === "hitori") {
           msg = hitoriBasicAttack(s, u, enemy, fx, ampB);
           miyDone = true;
@@ -5910,9 +6203,10 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         }
         if (!miyDone && u.id === "yoruichi" && enemy) {
           const ySpd = effStat(u, "spd"), yAtk = Math.max(1, effStat(u, "atk"));
-          const yMul = (ySpd * 3.0 / yAtk) * 100; // 300% da VEL (convertido pra fórmula de %ATK do motor)
+          const yMul = (ySpd * 25.0 / yAtk) * 100; // 300% da VEL (convertido pra fórmula de %ATK do motor)
           const r = dealDamage(u, enemy, yMul, fx, { el: "Eletro" });
           msg = `⚡ Golpe Relâmpago em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}.`;
+          yoruFollowupProc(u, enemy, r.dmg, fx, true); // o próprio Básico dela agora conjura um Clone Residual (funciona em qualquer time)
           miyDone = true;
         }
         if (!miyDone && u.id === "shorekeeper" && enemy) {
@@ -6049,6 +6343,26 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             tot += fd;
           });
           msg = u.name + " usa Marionetes de Sangue! Drena " + totalDrained + " HP" + (tensao ? " [Tensão x" + tensao + "]" : "") + " e causa " + tot + " de dano (" + Math.round(flatBase) + " Dano Fixo" + (inkMul > 1 ? " [Gotas de Tinta]" : "") + ")." + (f.ryoC2 ? " [Fio Guia] ao time!" : "");
+        }
+        else if (u.id === "gilgamesh" && sk.gilSkill) {
+          if (s.sp >= 1) s.sp -= 1; // custa 2 PH no total (1 já foi debitado pelo dispatcher)
+          u._gilPortao = 3; u._gilE2Turn = 0;
+          u.buffs = u.buffs.filter((b) => b.name !== "Portão da Babilônia");
+          u.buffs.push({ stat: "dmgBonus", value: 80, turns: 3, name: "Portão da Babilônia" }, { stat: "critRate", value: 40, turns: 3, name: "Portão da Babilônia" }, { stat: "critDmg", value: 90, turns: 3, name: "Portão da Babilônia" }, { stat: "spd", value: 40, turns: 3, name: "Portão da Babilônia" });
+          allies.filter((a) => a.alive).forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Autoridade do Rei"); a.buffs.push({ stat: "dmgBonus", value: 15, turns: 3, name: "Autoridade do Rei" }); });
+          gilGainTesouro(u, 4, s); gilAuth(u, s);
+          if (u.weapon?.buff?.gilWeapon && (u._gilOrigem || 0) > 0) gilGainTesouro(u, 1, s); // Cone: PH consumido → +1 Tesouro
+          gilAfterAttack(u, s, fx);
+          msg = `👑 PORTÃO DA BABILÔNIA aberto por 3 turnos — +80% Dano Unknown, +40% CRIT, +90% CRIT DMG, +40 VEL. Cada ataque dispara 2 Armas Nobres! Aliados: +15% Dano Final. (Tesouros: ${u._gilTes || 0}/${gilCap(u)})`;
+        }
+        else if (u.id === "altersaber" && sk.asSkill) {
+          if ((u._asReino || 0) > 0) s.sp = Math.min(spCapOf(s), s.sp + 1); // Reino da Ruína: não consome Pontos de Perícia
+          u._asAlter = 3; u._asAlterRuinas = 0;
+          u.buffs = u.buffs.filter((b) => b.name !== "Modo Alter");
+          u.buffs.push({ stat: "spd", value: 60, turns: 3, name: "Modo Alter" }, { stat: "dmgBonus", value: 70, turns: 3, name: "Modo Alter" }, { stat: "critRate", value: 35, turns: 3, name: "Modo Alter" }, { stat: "critDmg", value: 90, turns: 3, name: "Modo Alter" });
+          if (u.weapon?.buff?.asWeapon) { const st = u.buffs.filter((b) => b.name === "Reino Eterno").length / 2; if (st < 3) u.buffs.push({ stat: "atk", value: Math.round(u.base.atk * 0.12), turns: 9999, name: "Reino Eterno" }, { stat: "spd", value: 8, turns: 9999, name: "Reino Eterno" }); }
+          if (u.stFlags?.asE1) { u._asE1Field = 3; }
+          msg = `👑 Coroa do Rei Profanado — MODO ALTER por 3 turnos: +60 VEL, +70% Dano Chaos, +35% CRIT, +90% CRIT DMG, cortes dimensionais em cada ataque!${u.stFlags?.asE1 ? " E1: Trono do Rei Esquecido — limite de Ruínas sobe pra 18!" : ""}`;
         }
         else if (u.id === "hitori" && sk.hitoriSkill) {
           msg = hitoriSkillAttack(s, u, fx);
@@ -6530,7 +6844,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           } else if (u.id === "yoruichi" && sk.yoruUlt && enemy) {
             u.energy = enGain(5); // corrige bug: faltava consumir a energia — ela ultava toda hora sem parar
             const ySpd = effStat(u, "spd"), yAtk = Math.max(1, effStat(u, "atk"));
-            const yMul = (ySpd * 22.0 / yAtk) * 100; // 2200% da VEL
+            const yMul = (ySpd * 45.0 / yAtk) * 100; // 2200% da VEL
             const r = dealDamage(u, enemy, yMul, fx, { el: "Eletro", breakW: 3 });
             allies.filter(a => a.uid !== u.uid && a.alive).forEach(a => { a.av = (a.av || 1) * 0.75; });
             msg = `⚡⚡ SHUNKO: RAIJIN! ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} em ${enemy.name}! O resto do time avança 25% na Ordem de Turnos!`;
@@ -6540,7 +6854,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
               dealDamage(u, enemy, yMul * 0.5, fx, { el: "Eletro", isYoruClone: true, breakW: 1 });
               u._yoruClones = (u._yoruClones || 0) + 1;
               if (u._yoruClones % 3 === 0 && enemy._sibs) {
-                const burstMul = (ySpd * 15.0 / yAtk) * 100;
+                const burstMul = (ySpd * 250.0 / yAtk) * 100;
                 enemy._sibs.filter((e) => e.alive).forEach((e) => { dealDamage(u, e, burstMul, fx, { el: "Eletro", isYoruClone: true, breakW: 2 }); e.debuffs.push({ stat: "vuln", value: 20, turns: 2, name: "Colapso Elétrico" }); });
                 pushLogGlobalFx(fx, u.uid, "COLAPSO ELÉTRICO!");
               }
@@ -6651,6 +6965,52 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           const allLow = drainable.every(a => a.hp / a.maxHp < 0.5);
           if (f.ryoC6 && allLow) { u.av = 0.01; }
           msg = "A TELA DA ARANHA! " + u.name + " sacrifica " + totalDrained + " HP do time — " + tot2 + " de dano total!" + (defPenBonus > 0 ? " (perfura " + defPenBonus.toFixed(0) + "% DEF!)" : "") + (f.ryoC6 && allLow ? " [C6] Ryoshu age NOVAMENTE!" : "");
+        } else if (u.id === "gilgamesh" && sk.gilUlt && enemy) {
+          const freeE6 = u.stFlags?.gilE6 && (u._gilAbs || 0) > 0 && !u._gilE6Used;
+          u.energy = freeE6 ? u.energy : enGain(5);
+          const tes = u._gilTes || 0; u._gilTes = 0;
+          let mulBonus = 1 + tes * 0.02;
+          if (u.stFlags?.gilE1) { mulBonus += (u._gilReg || 0) * 0.05; u._gilReg = 0; }
+          if (u.stFlags?.setBabilonia4) { mulBonus += (u._gilBab || 0) * 0.05; u._gilBab = 0; u._gilArsenal = 2; u.buffs.push({ stat: "atk", value: Math.round(u.base.atk * 0.30), turns: 2, name: "Arsenal Dourado" }, { stat: "dmgBonus", value: 30, turns: 2, name: "Arsenal Dourado" }); }
+          if (u.weapon?.buff?.gilWeapon && (u._gilOrigem || 0) > 0) { mulBonus += 0.50; u.energy = Math.min(u.energyMax, u.energy + 30); }
+          const r = dealDamage(u, enemy, (sk.ultMul || 980) * (u.tUlt || 1) * ampU * mulBonus, fx, { el: "Unknown", breakW: 3, defPen: 30 });
+          let tot = r.dmg;
+          aliveEnemies(s).filter((e) => e.uid !== enemy.uid).forEach((e) => { const r2 = dealDamage(u, e, 580 * (u.tUlt || 1) * ampU * mulBonus, fx, { el: "Unknown", breakW: 2, defPen: 30 }); tot += r2.dmg; });
+          u._gilJardim = 2; gilGainTesouro(u, 8, s); gilAuth(u, s);
+          u.buffs = u.buffs.filter((b) => b.name !== "Jardim do Rei");
+          u.buffs.push({ stat: "energyRegen", value: 25, turns: 2, name: "Jardim do Rei" });
+          allies.filter((a) => a.alive).forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Jardim do Rei"); a.buffs.push({ stat: "atk", value: Math.round((a.base.atk || 500) * 0.20), turns: 2, name: "Jardim do Rei" }); });
+          msg = `👑💥 ENUMA ELISH — A RUPTURA DA CRIAÇÃO! ${tot} de Dano Unknown (${tes} Tesouros consumidos)! Jardim do Rei por 2 turnos: +60% Pen. RES, +100% Dano de Ataques Extras, +30% Ignorar DEF.`;
+          gilAfterAttack(u, s, fx);
+          if ((u._gilPortao || 0) > 0) { const w = gilFireWeapons(u, s, fx, 10, 130, "Portão da Babilônia · Suprema"); msg += ` O Portão dispara 10 armas: ${w}!`; }
+          if (u.stFlags?.gilE1) { gilFireWeapons(u, s, fx, 6, 140, "E1 · Biblioteca do Rei"); allies.filter((a) => a.alive).forEach((a) => a.buffs.push({ stat: "dmgBonus", value: 12, turns: 2, name: "Biblioteca do Rei" })); }
+          if (u.stFlags?.gilE4) { u._gilEa = 2; u.buffs.push({ stat: "dmgBonus", value: 80, turns: 2, name: "Manifestação de Ea" }); msg += " 🌌 E4: MANIFESTAÇÃO DE EA por 2 turnos!"; }
+          if (u.stFlags?.gilE6) {
+            u._gilAbs = 3; u.buffs.push({ stat: "critDmg", value: 150, turns: 3, name: "Rei Absoluto" });
+            msg += " 👑✨ E6: REI ABSOLUTO por 3 turnos!";
+            if (freeE6) { u._gilE6Used = true; let g2 = 0;
+              aliveEnemies(s).forEach((e) => { const rg = dealDamage(u, e, (e.uid === enemy.uid ? 700 : 450) * (u.tUlt || 1) * ampU, fx, { el: "Unknown", defPen: 60, resPen: 60 }); g2 += rg.dmg; });
+              msg += ` 💫 ENUMA ELISH: GENESIS REVERSA — ${g2} de dano adicional!`; }
+          }
+        } else if (u.id === "altersaber" && sk.asUlt && enemy) {
+          u.energy = enGain(5);
+          const ru = u._asRuinas || 0; u._asRuinas = 0;
+          if (u.stFlags?.asA4 && ru > 0) { u.energy = Math.min(u.energyMax, u.energy + ru * 4); if (ru >= 10 && !u._asA4Used) { u._asA4Used = true; u._avMul = 0; } } // A4: +4 energia/Ruína, 10+ → turno extra (1x)
+          if (u.weapon?.buff?.asWeapon && ru > 0) { const st = u.buffs.filter((b) => b.name === "Fim Inevitável").length; const add = Math.min(10 - st, ru); for (let i = 0; i < add; i++) u.buffs.push({ stat: "critDmg", value: 4, turns: 9999, name: "Fim Inevitável" }); if (st + add >= 10) { u.buffs = u.buffs.filter((b) => b.name !== "Fim Inevitável"); u.buffs.push({ stat: "dmgBonus", value: 40, turns: 2, name: "Trono Absoluto" }); u._asTronoW = 2; } }
+          const scale = 1 + ru * 0.06; // cada Ruína consumida potencializa o corte
+          const r = dealDamage(u, enemy, (sk.ultMul || 760) * (u.tUlt || 1) * ampU * scale, fx, { el: "Chaos", breakW: 3, defPen: 40 });
+          let tot = r.dmg;
+          aliveEnemies(s).filter((e) => e.uid !== enemy.uid).forEach((e) => { const r2 = dealDamage(u, e, 430 * (u.tUlt || 1) * ampU * scale, fx, { el: "Chaos", breakW: 2, defPen: 40 }); tot += r2.dmg; });
+          u._asTrono = 2; asMark(u, s);
+          if (!enemy.alive) u._avMul = 0; // Suprema eliminou → outro turno
+          if (u.weapon?.buff?.asWeapon && (u._asTronoW || 0) > 0) { u.energy = Math.min(u.energyMax, u.energy + 25); asGainRuina(u, 4, s, fx); }
+          msg = `⚔️👑 EXCALIBUR MORGAN — O FIM DO TRONO! ${tot} de Dano Chaos (${ru} Ruínas consumidas)! Domínio Trono do Rei Caído por 2 turnos: +35% Dano Final, ignora 40% DEF!${!enemy.alive ? " Alvo eliminado — TURNO EXTRA!" : ""}`;
+          if (u.stFlags?.asE6) {
+            let st6 = 0; aliveEnemies(s).forEach((e) => { const rs = dealDamage(u, e, (e.uid === enemy.uid ? 760 : 430) * 0.85 * (u.tUlt || 1) * ampU, fx, { el: "Chaos", isAsCopy: true }); st6 += rs.dmg; });
+            let rt6 = 0; aliveEnemies(s).forEach((e) => { const rr = dealDamage(u, e, (e.uid === enemy.uid ? 900 : 500) * (u.tUlt || 1) * ampU, fx, { el: "Chaos", defPen: 50, resPen: 40, isAsCopy: true }); rt6 += rr.dmg; });
+            u._asAlter = 3; u._asReino = 3; u._asMarks = 10; asMark(u, s);
+            msg += ` 👑💀 E6: a Sombra do Rei repete a Suprema (${st6}) e libera EXCALIBUR MORGAN · RUPTURA DO MUNDO (${rt6})! Modo Alter e Reino da Ruína redefinidos ao máximo — o ciclo recomeça!`;
+          }
         } else if (u.id === "hitori" && sk.hitoriUlt) {
           u.energy = 0;
           msg = hitoriUltimate(s, u, fx);
@@ -6779,10 +7139,41 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       if (u.id === "lupa" && (u._lupaOverclock || 0) > 0) { u._lupaOverclock -= 1; if (u._lupaOverclock <= 0) pushLog(s, `🔥 O Overclock de ${u.name} terminou.`); }
       if (u.id === "lupa" && (u._lupaSupernova || 0) > 0) u._lupaSupernova -= 1;
       if (u.id === "lupa" && (u._lupaLeapCd || 0) > 0) u._lupaLeapCd -= 1;
+      if (u.id === "gilgamesh") {
+        while ((u._gilAuthPend || 0) > 0) { u._gilAuthPend -= 1; gilAuth(u, s); }
+        if ((u._gilKillTes || 0) > 0) { gilGainTesouro(u, u._gilKillTes, s); u._gilKillTes = 0; }
+        if ((u._gilSpPend || 0) > 0) { s.sp = Math.min(spCapOf(s), s.sp + u._gilSpPend); u._gilSpPend = 0; }
+        u._gilE2Turn = 0; u._gilRainTurn = false; u._gilBabTurn = false; u._gilOrigemEn = 0;
+        // Portão consome 1 PH por turno para continuar aberto
+        if ((u._gilPortao || 0) > 0) { if (s.sp >= 1) { s.sp -= 1; u._gilPortao -= 1; } else { u._gilPortao = 0; pushLog(s, "👑 Sem Pontos de Perícia — o Portão da Babilônia se fecha."); } }
+        if ((u._gilReinado || 0) > 0) u._gilReinado -= 1;
+        if ((u._gilTrono || 0) > 0) u._gilTrono -= 1;
+        if ((u._gilJardim || 0) > 0) u._gilJardim -= 1;
+        if ((u._gilEa || 0) > 0) u._gilEa -= 1;
+        if ((u._gilAbs || 0) > 0) u._gilAbs -= 1;
+        if ((u._gilOrigem || 0) > 0) u._gilOrigem -= 1;
+        if ((u._gilArsenal || 0) > 0) u._gilArsenal -= 1;
+      }
+      if (u.id === "altersaber") {
+        while ((u._asMarksPend || 0) > 0) { u._asMarksPend -= 1; asMark(u, s); }
+        if ((u._asAlter || 0) > 0) u._asAlter -= 1;
+        if ((u._asAbs || 0) > 0) { u._asAbs -= 1; if (u._asAbs <= 0) { u._asA6Ext = 0; u._asCopies = 0; pushLog(s, "👑 O Reino Absoluto se encerra."); } }
+        if ((u._asTrono || 0) > 0) u._asTrono -= 1;
+        if ((u._asTronoW || 0) > 0) u._asTronoW -= 1;
+        if ((u._asRFim || 0) > 0) u._asRFim -= 1;
+        if ((u._asE1Field || 0) > 0) u._asE1Field -= 1;
+        if ((u._asReino || 0) > 0) { u._asReino -= 1;
+          if (u._asReino <= 0) { const ph = u._asPhantom || 0; u._asPhantom = 0;
+            if (ph > 0) { const per = u.stFlags?.asA2 ? 0.20 : 0.15; const dmX = Math.round(effStat(u, "atk") * per * ph);
+              s.enemies.filter((e) => e.alive).forEach((e) => { e.hp -= dmX; if (e.hp <= 0) { e.hp = 0; e.alive = false; } s.fx.push({ uid: e.uid, txt: "💥 " + dmX, crit: true, id: Math.random(), el: "Chaos" }); });
+              pushLog(s, `👑 Fim do Reino da Ruína — ${ph} Ruínas Fantasma explodem: ${dmX} de Dano Chaos em todos os inimigos!`); } } }
+      }
       // Lupa C4 · Ressonância Térmica: aliados sob o Manto Flamejante regeneram 3 de energia no início do turno deles
       if (u.energyMax && u.buffs.some((b) => b.name === "Manto Flamejante")) u.energy = Math.min(u.energyMax, u.energy + 3);
       if (s.sfZona) { s.sfZona.turns -= 1; if (s.sfZona.turns <= 0) s.sfZona = null; } // corrige "ult infinita": antes só descontava no turno da própria Soi Fon
       s.sfFollowThisTurn = 0;
+      if (kind === "ult") { const gilE2 = s.heroes.find((h) => h.id === "gilgamesh" && h.alive && h.stFlags?.gilE2 && h.uid !== u.uid);
+        if (gilE2) { const tgt = aliveEnemies(s)[0]; if (tgt) { dealDamage(gilE2, tgt, 260, s.fx, { el: "Unknown", isFollowup: true, isGilWeapon: true }); gilExtraProc(gilE2, s, s.fx); pushLog(s, "👑 E2: a Suprema aliada faz Gilgamesh disparar uma Arma Nobre Suprema!"); } } }
       checkSoiFonFollowup(s, u, s.fx);
       // Batera do Kessoku Band: sempre que um aliado age, portadores da arma ganham +5 de energia (efeito da descrição, agora funcional)
       s.heroes.filter((h) => h.alive && !h.isSummon && h.uid !== u.uid && h.weapon?.buff?.hitoriWeapon && h.energyMax).forEach((h) => { h.energy = Math.min(h.energyMax, h.energy + 5); });
@@ -6793,11 +7184,11 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         const t3 = yoru3 && targetEnemy(s);
         if (yoru3 && t3 && t3.alive) {
           const ySpd = effStat(yoru3, "spd"), yAtk = Math.max(1, effStat(yoru3, "atk"));
-          const cloneMul = (ySpd * 6.0 / yAtk) * 100;
+          const cloneMul = (ySpd * 100.0 / yAtk) * 100; // 100× a VEL
           const cr3 = dealDamage(yoru3, t3, cloneMul, s.fx, { el: "Eletro", isYoruClone: true, breakW: 1 });
           yoru3._yoruClones = (yoru3._yoruClones || 0) + 1;
           if (yoru3._yoruClones % 3 === 0 && t3._sibs) {
-            const burstMul = (ySpd * 15.0 / yAtk) * 100;
+            const burstMul = (ySpd * 250.0 / yAtk) * 100;
             t3._sibs.filter(e => e.alive).forEach(e => { dealDamage(yoru3, e, burstMul, s.fx, { el: "Eletro", isYoruClone: true, breakW: 2 }); e.debuffs.push({ stat: "vuln", value: 20, turns: 2, name: "Colapso Elétrico" }); });
             pushLog(s, "⚡💥 S3: a Suprema aliada dispara o COLAPSO ELÉTRICO de Yoruichi!");
           }
