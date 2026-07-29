@@ -164,8 +164,8 @@ const WEAPONS = [
   { id: "aegis",       name: "Egide Brilhante",     rarity: 4, role: "shield",   atk: 396, def: 396, shieldBonus: 38,    passive: "Muralha Brilhante: +38% no valor dos Escudos gerados pelo portador." },
 ];
 const WEAPON_MAP = Object.fromEntries(WEAPONS.map((w) => [w.id, w]));
-const WEAPON_5_IDS = ["excalibur_morgan", "presa_calamidade", "batera_kessoku"]; // banner de armas: cones de Alter Saber, Lupa e Hitori
-const DEFAULT_FEATURED_WEAPON = "presa_calamidade";
+const WEAPON_5_IDS = ["portao_ea", "excalibur_morgan", "presa_calamidade", "batera_kessoku"]; // banner de armas: cones de Gilgamesh, Alter Saber, Lupa e Hitori
+const DEFAULT_FEATURED_WEAPON = "portao_ea";
 
 /* ---------- MOCHILEIRO (seletor de personagem inicial) ---------- */
 const BEGINNER_PICK_CHARS = [
@@ -1354,21 +1354,12 @@ function Game({ email, isAdmin, onLogout }) {
   const [featuredStandard, setFeaturedStandard] = useState(STANDARD_5[0]); // Banner do Mochileiro: qual padrão o jogador quer que venha
   const [featuredWeapon, setFeaturedWeapon] = useState(DEFAULT_FEATURED_WEAPON);
     const [featuredChar2, setFeaturedChar2] = useState(null);
+    // Removido: rotação antiga por data que FORÇAVA os banners pra Miyabi/Agumon (ou Yanagi/Kaiba) e a arma
+    // "calamidade"/"tecelao_tempo" ao abrir o app, sobrescrevendo os banners atuais. Agora os destaques vêm de
+    // FEATURED_LIMITEDS / WEAPON_5_IDS e da escolha salva do jogador.
     useEffect(() => {
-      // Rotação de banners por data — ajuste BANNER1_START se precisar adiar/antecipar a troca.
-      const BANNER1_START = new Date("2026-07-01T00:00:00Z").getTime(); // Miyabi + Agumon
-      const BANNER_DURATION_MS = 21 * 24 * 3600 * 1000; // 21 dias por banner
-      const elapsed = Date.now() - BANNER1_START;
-      if (elapsed < BANNER_DURATION_MS) {
-        setFeaturedChar("miyabi");
-        setFeaturedChar2("agumon");
-        setFeaturedWeapon("calamidade");
-      } else {
-        // Banner seguinte: Yanagi + Kaiba, assim que o da Miyabi/Agumon terminar
-        setFeaturedChar("yanagi");
-        setFeaturedChar2("kaiba");
-        setFeaturedWeapon("tecelao_tempo");
-      }
+      setFeaturedChar((cur) => (FEATURED_LIMITEDS.includes(cur) ? cur : DEFAULT_FEATURED_CHAR));
+      setFeaturedWeapon((cur) => (WEAPON_5_IDS.includes(cur) ? cur : DEFAULT_FEATURED_WEAPON));
     }, []);
   const [pity, setPity] = useState({ char: 0, weapon: 0, standard: 0, special: 0, guaranteeChar: false });
   const [pullHistory, setPullHistory] = useState([]);
@@ -1784,7 +1775,7 @@ function Game({ email, isAdmin, onLogout }) {
   }
   function startTest() {
     const lv = Math.round(team.reduce((a, id) => a + (ownedMap[id]?.level || 1), 0) / Math.max(1, team.length)) + 4;
-    setBattle({ context: "test", encounter: { level: lv, count: 3, boss: false, teamPower: teamPower() }, ally: null });
+    setBattle({ context: "test", encounter: { level: lv, count: 3, boss: false, teamPower: teamPower(), dummy: true }, ally: null }); // Batalha de teste: bonecos com HP infinito
   }
   function startFarm(stage) {
     if (stamina < stage.cost) { flash(`Stamina insuficiente (precisa ${stage.cost})`, C.bad); return; }
@@ -2733,7 +2724,7 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
   const headColor = isWeapon ? "#B98BFF" : isStd ? C.gold : isSpecial ? "#FF5E9E" : ELEMENTS[fc.element].color;
   const arrow = { background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 8, color: C.text, width: 28, height: 28, fontWeight: 800 };
   const charMs = useBannerTimer("char_" + featuredChar + ((featuredChar === "altersaber" || featuredChar === "gilgamesh") ? "_3h_v2" : ""), BANNER_DURATIONS[featuredChar] || (7 * 24 * 60 * 60 * 1000)); // cada personagem tem seu próprio prazo de encerramento
-  const weaponMs = useBannerTimer("weapon");
+  const weaponMs = useBannerTimer("weapon_3h_v2", 3 * 60 * 60 * 1000); // banner de armas: relâmpago de 3 HORAS junto com Gilgamesh/Alter Saber
   const specialMs = useAbsoluteTimer(SPECIAL_BANNER_END); // data fixa de verdade — acaba pra todo mundo junto, não reseta por dispositivo
   const specialExpired = specialMs <= 0;
   const bannerMs = isChar ? charMs : isWeapon ? weaponMs : isSpecial ? specialMs : null;
@@ -4399,6 +4390,7 @@ function refreshKaibaBuffs(s) {
   }
 }
 function makeEnemy(idx, enc) {
+  const _dummy = !!enc.dummy; // Boneco de Treino: HP infinito (modo de teste)
   const lvl = enc.level, boss = enc.boss && idx === 0, finalBoss = enc.finalBoss && idx === 0, weekly = enc.weekly && idx === 0, ascend = enc.ascend && idx === 0;
   const power = enc.teamPower || 2500;
   let baseHp;
@@ -4454,7 +4446,7 @@ function makeEnemy(idx, enc) {
   const _espLordMul = (enc.bossKind === "espiral_lord" && (boss || finalBoss) && idx === 0) ? (enc.espiralLordHpMul || 2.2) : 1;
   const _finalHp = Math.round(hp * _espLordMul);
   return {
-    uid: "E" + idx, side: "enemy", name: enc.bossName && (boss || finalBoss) && idx === 0 ? enc.bossName : name, bossTitle: enc.bossTitle || null, bossImgId: enc.bossImgId || null, avatar: ascend ? "🗿" : weekly ? "🦂" : finalBoss ? "🕳️" : boss ? "👑" : ["👾", "👹", "🐲"][idx % 3],
+    uid: "E" + idx, side: "enemy", _dummy, name: _dummy ? "Boneco de Treino ∞" : (enc.bossName && (boss || finalBoss) && idx === 0 ? enc.bossName : name), bossTitle: enc.bossTitle || null, bossImgId: enc.bossImgId || null, avatar: ascend ? "🗿" : weekly ? "🦂" : finalBoss ? "🕳️" : boss ? "👑" : ["👾", "👹", "🐲"][idx % 3],
     element: (enc.bossElement && (boss || finalBoss) && idx === 0) ? enc.bossElement : (boss ? bossEl : pick(ELEMENT_NAMES)), level: lvl, roleKey: "dps", bossKind: (idx === 0 ? enc.bossKind : null) || (finalBoss ? "void" : weekly ? "venom" : ascend ? "stone" : "guardian"),
     boss: boss || weekly || ascend, finalBoss, weekly, ascend, elite: !boss && lvl >= 18 && idx === 0, res, weak,
     base: { atk, def, spd, critRate: boss ? 12 : 6, critDmg: 55, dmgBonus: 0 },
@@ -4983,6 +4975,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   if (defender.shield > 0 && !opts?.pierceShield && !attacker._ignoresShield) { const shBefore = defender.shield; const a = Math.min(defender.shield, dmg); defender.shield -= a; dmg -= a; if (shBefore > 0 && defender.shield === 0 && defender.id === "omegamon" && defender.stFlags && defender.stFlags.omgContagio && attacker.side !== "H") { attacker.dots = attacker.dots || []; if (!attacker.dots.some(function(d){return d.type==="corrosao";})) attacker.dots.push({ type: "corrosao", dmg: Math.max(1, Math.round(defender.base.atk * 0.35)), turns: 2 }); fx.push({ uid: attacker.uid, txt: "CORROSAO", dot: "corrosao", id: Math.random() }); } }
   else if (defender.shield > 0 && attacker._ignoresShield && !opts?.pierceShield) { fx.push({ uid: defender.uid, txt: "ESCUDO IGNORADO!", crit: true, id: Math.random(), el: "Chaos" }); }
   defender.hp -= dmg;
+  if (defender._dummy) { defender.hp = defender.maxHp; defender.alive = true; } // Boneco de Treino: HP infinito, só serve pra medir dano
   if (dmg > 0 && (defender.debuffs || []).some(d => d.name === "Colapso Entrópico")) defender._chaosHits = (defender._chaosHits || 0) + 1;
   if (defender.hp <= 0) {
     if (defender.stFlags?.lancerRevive && !defender._lancerRevived && defender.side === "H") {
@@ -5919,6 +5912,10 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     });
   }
   function checkEnd(s) {
+    // Modo de teste: inimigos com HP infinito — nunca morrem e o HP volta ao máximo, pra você testar builds à vontade
+    if (context === "test") {
+      s.enemies.forEach((en) => { en.alive = true; en.hp = en.maxHp; if (en.shield < 0) en.shield = 0; });
+    }
     const h = s.heroes.some((u) => u.alive && !u.isSummon);
     if (!h) return { ...s, over: true, win: false };
     const e = s.enemies.some((u) => u.alive);
@@ -8080,7 +8077,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
               <EnemyAvatar e={e} size={e.boss ? 48 : 36} />
               <div style={{ fontSize: 10, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.name}</div>
               <Bar value={e.hp} max={e.maxHp} color={C.bad} />
-              <div style={{ fontSize: 9, color: C.mute }}>{Math.round(e.hp)} / {e.maxHp}</div>
+              <div style={{ fontSize: 9, color: C.mute }}>{context === "test" ? "∞ (manequim de teste)" : `${Math.round(e.hp)} / ${e.maxHp}`}</div>
               {e._hasToughness && <>
                 <Bar value={e.toughness} max={e.maxToughness} color={e.toughness > 0 ? "#F2C245" : "#555"} />
                 <div style={{ fontSize: 8, color: e.toughness > 0 ? "#F2C245" : "#7CFFB0" }}>{e.toughness > 0 ? `🛡 Resistência ${Math.round(e.toughness)}/${e.maxToughness}` : "💢 PERFURADO!"}</div>
