@@ -73,7 +73,7 @@ const ROSTER = [
   mk({ id: "kirara", name: "Kirara", title: "Encontro Estelar", element: "Chaos", role: "shield", rarity: 5, avatar: "💫", hp: 1360, atk: 560, def: 620, spd: 99, energy: 90, tags: ["Caos", "Guardião", "Escudo", "Provocar"],
     skill: { basicMul: 80, shield: { defMul: 90, flat: 320 }, taunt: true, ultShield: { defMul: 10, flat: 2000, all: true }, ultBuff: { def: 30, all: true, turns: 2 }, energyGift: 8 } }),
   mk({ id: "yoruichi", name: "Yoruichi", title: "Deusa do Relâmpago", element: "Eletro", role: "dps", rarity: 5, avatar: "🐈‍⬛", hp: 1040, atk: 800, def: 410, spd: 125, energy: 120, cr: 10, cd: 62, tags: ["Eletro", "DPS", "Velocidade", "Ataque Extra"],
-    skill: { basicMul: 300, yoruBasic: true, skillMul: 0, yoruSkill: true, ultMul: 2200, yoruUlt: true } }),
+    skill: { basicMul: 340, yoruBasic: true, skillMul: 0, yoruSkill: true, ultMul: 2500, yoruUlt: true } }),
   mk({ id: "kiritsugu", name: "Kiritsugu", title: "Caçador de Magos", element: "Virus", role: "debuffer", rarity: 5, avatar: "🔫", hp: 1080, atk: 725, def: 450, spd: 108, energy: 120, cr: 8, cd: 56, tags: ["Vírus", "Debuffador", "Veneno"],
     skill: { basicMul: 100, skillMul: 205, skillDebuff: { defDown: 40, vuln: 22, turns: 3 }, skillDot: { type: "poison", mul: 70, turns: 3 }, ultMul: 365, ultDebuff: { vuln: 30, all: true, turns: 3 } } }),
   // ---- Ryoshu (Limitada) ----
@@ -89,8 +89,8 @@ const ROSTER = [
   mk({ id: "hitori", name: "Hitori Gotoh", title: "Bocchi the Rock!", element: "Chaos", role: "buffer", rarity: 5, avatar: "🎸", hp: 1120, atk: 480, def: 440, spd: 101, energy: 160, cr: 8, cd: 50, tags: ["Chaos", "Suporte", "Buffer", "Ansiedade Social"],
     skill: { basicMul: 40, hitoriBasic: true, skillMul: 0, hitoriSkill: true, ultMul: 0, hitoriUlt: true } }),
   // ---- Soi Fon (Limitada) ----
-  mk({ id: "soifon", name: "Soi Fon", title: "Capitã da 2ª Divisão", element: "Vento", role: "dps", rarity: 5, avatar: "🦋", hp: 1040, atk: 740, def: 420, spd: 118, energy: 120, cr: 8, cd: 56, tags: ["Vento", "Follow-up", "Sub DPS", "Assassina"],
-    skill: { basicMul: 100, sfBasic: true, skillMul: 160, sfSkill: true, ultMul: 350, sfUlt: true } }),
+  mk({ id: "soifon", name: "Soi Fon", title: "Capitã da 2ª Divisão", element: "Vento", role: "dps", rarity: 5, avatar: "🦋", hp: 1040, atk: 790, def: 420, spd: 118, energy: 120, cr: 8, cd: 56, tags: ["Vento", "Follow-up", "Sub DPS", "Assassina"],
+    skill: { basicMul: 115, sfBasic: true, skillMul: 185, sfSkill: true, ultMul: 410, sfUlt: true } }),
   // ---- Omegamon Zwart D (Limitado) ----
   mk({ id: "omegamon", name: "Omegamon Zwart D", title: "Digital Hazard · Defeat", element: "Virus", role: "shield", rarity: 5, avatar: "🛡️", hp: 1900, atk: 950, def: 740, spd: 99, energy: 130, cr: 10, cd: 58, er: 22, elemDmg: 0, tags: ["Vírus", "Guardião", "Tanque", "Corrosão"],
     skill: { basicMul: 100, omgBasic: true, skillMul: 120, omgSkill: true, ultMul: 150, omgUlt: true } }),
@@ -383,7 +383,7 @@ const PASSIVE = {
   sakura:    { name: "Selo Centenário · Mãos que Curam", desc: "Talento: o chakra de cura de Sakura é refinado — a cura do seu Ultimate é 25% mais forte. Ela equilibra dano e suporte: bate forte com os punhos e, no Ultimate, devolve uma parcela enorme de HP a todo o time, segurando a equipe em lutas longas.", flag: "pMedic" },
   chopper:   { name: "Pontos Vitais · Médico Dedicado", desc: "Talento: como médico de bordo, todas as curas de Chopper (Habilidade e Ultimate) são 25% mais fortes. Ele prioriza sempre o aliado mais ferido e ainda distribui energia ao time, mantendo o grupo vivo e com os Ultimates carregados.", flag: "pRegen" },
   kirara:    { name: "Baluarte Estelar", desc: "Talento: os escudos de Kirara são 25% mais resistentes. Ela provoca os inimigos para atrair os ataques e converte a própria DEF altíssima em barreiras grossas para todo o time, sustentando a linha de frente contra os golpes mais pesados dos chefes.", flag: "pBulwark" },
-  yoruichi:  { name: "Frequência Shunpo", desc: "Yoruichi opera em uma linha temporal acelerada. Todos os seus multiplicadores de dano ignoram os atributos de ATK e escalam exclusivamente com sua Velocidade (VEL) total. A cada 10 pontos de VEL que Yoruichi possuir acima de 120, o Dano Crítico de todos os Ataques Extras da equipe aumenta em 6% (até um máximo de 60% por padrão, ou 160% com a S6). Clones Residuais (Ataque Extra): sempre que um aliado desferir um Ataque Extra contra um inimigo, Yoruichi intercepta a ação e conjura um Clone Residual instantâneo que ataca o mesmo alvo, causando Dano Eletro equivalente a 500% de sua VEL total. Colapso Elétrico: o jogo contabiliza os Clones Residuais gerados. A cada 3 Clones acionados, o alvo atual sofre uma sobrecarga, recebendo Dano Eletro em Área equivalente a 1500% da VEL de Yoruichi e sofrendo uma redução de 20% na Resistência a Ataques Extras por 2 turnos. Não há limite de vezes que Clones Residuais podem ser ativados por ciclo de turnos.", flag: "pSwift" },
+  yoruichi:  { name: "Frequência Shunpo", desc: "Yoruichi opera em uma linha temporal acelerada. Todos os seus multiplicadores de dano ignoram os atributos de ATK e escalam exclusivamente com sua Velocidade (VEL) total. A cada 10 pontos de VEL que Yoruichi possuir acima de 120, o Dano Crítico de todos os Ataques Extras da equipe aumenta em 6% (até um máximo de 60% por padrão, ou 160% com a S6). Clones Residuais (Ataque Extra): sempre que um aliado desferir um Ataque Extra contra um inimigo, Yoruichi intercepta a ação e conjura um Clone Residual instantâneo que ataca o mesmo alvo, causando Dano Eletro equivalente a 600% de sua VEL total. Colapso Elétrico: o jogo contabiliza os Clones Residuais gerados. A cada 3 Clones acionados, o alvo atual sofre uma sobrecarga, recebendo Dano Eletro em Área equivalente a 1500% da VEL de Yoruichi e sofrendo uma redução de 20% na Resistência a Ataques Extras por 2 turnos. Não há limite de vezes que Clones Residuais podem ser ativados por ciclo de turnos.", flag: "pSwift" },
   kiritsugu: { name: "Análise · Caçador de Magos", desc: "Talento: o frio cálculo de Kiritsugu encontra a falha do alvo — toda vulnerabilidade que ele aplica é +12% mais forte. Combinado com o Veneno da Habilidade, ele transforma qualquer inimigo em um alvo que recebe dano amplificado de toda a equipe e ainda derrete ao longo dos turnos.", flag: "pAnalyze" },
   soifon: { name: "Ciclo do Ferrão · Vibração da Morte", desc: "Talento: QUALQUER aliado que agir concede 1 carga de [Vibração de Ferrão] para Soi Fon (máx 3). Com 3 cargas, ela entra em Postura de Ferrão — a próxima ação dela (Ataque Básico, Perícia OU Ultimate) causa Dano Verdadeiro (+20% de dano, ignora DEF e Escudos). Com [Ferrão da Morte] em algum inimigo, cada ação aliada dispara Ataques Extras instantâneos de Vento nos alvos marcados (máx 2/turno de aliado) — e esses golpes contam pro sistema de Ataque Extra do jogo (reagem com kits como o da Yoruichi).", flag: "sfFollowup" },
   omegamon: { name: "Digital Hazard", desc: "Talento: enquanto Omegamon Zwart D está em campo, o HP Máximo de todos os aliados aumenta em 25%. Sempre que o portador ou um aliado com [Protocolo de Infecção] é atacado, acumula 1 carga de [Vírus Defeat] (máx 5). Cada carga concede +15% de CRIT DMG e reduz a DEF do atacante em 10%. Ao atingir 5 cargas, o próximo ataque remove todos os buffs do alvo e causa Dano Verdadeiro igual a 20% do HP Máximo do portador.", flag: "omgTalent" },
@@ -416,7 +416,7 @@ const CONS = {
     { name: "C3 · Purgatório Terminal", flag: "lupaC3", desc: "Nova Mão Mecânica. Foco: Vulnerabilidade Elemental e Micro-Explosões em Cadeia. Ao consumir ou detonar qualquer efeito de DoT em um inimigo, Lupa grava nele a marca \"Chama Residual\" por 4 turnos. Inimigos marcados com Chama Residual têm sua Resistência a Fogo (RES) reduzida em 25%. Sempre que um inimigo marcado com Chama Residual sofrer dano de qualquer membro da equipe, a marca aciona uma reação térmica que causa 80% do ATK de Lupa como Dano de Fogo Adicional (pode ser ativado até 1 vez por segundo por inimigo)." },
     { name: "C4 · Barreira de Incineradores", flag: "lupaC4", desc: "Constelação Mediana. Foco: Utilitário de Sobrevivência, Regeneração Elemental e Suporte Moderado. Lupa canaliza parte do calor gerado por suas detonações para proteger a si mesma e seus aliados durante o combate: Manto Flamejante: Ao conjurar a Liberação de Ressonância (Ultimate) ou entrar no estado \"Predadora Absoluta\", Lupa concede a todos os membros da equipe um Escudo de Chamas equivalente a 150% do ATK de Lupa por 3 turnos. Ressonância Térmica: Enquanto o Escudo de Chamas estiver ativo, os aliados protegidos ganham 15% de Resistência a Todos os Elementos e regeneram 3 pontos de Energia no início de cada um de seus turnos. Sincronia Ofensiva: Se Lupa atacar um inimigo enquanto estiver protegida por este escudo, seu próprio Dano de Fogo é aumentado em +25%." },
     { name: "C5 · Garra de Almas", flag: "lupaC5", desc: "Foco: Amplificação Incondicional de Dano de Fogo e Consistência Crítica. O domínio de Lupa sobre o elemento Fogo atinge uma pureza devastadora, eliminando qualquer instabilidade em sua condução de energia elemental: Lupa recebe um bônus permanente e incondicional de +75% de Dano de Fogo e +12% de Taxa Crítica. Esse aumento é aplicado diretamente aos atributos base de Lupa, potencializando todas as suas instâncias de dano." },
-    { name: "C6 · Estigma Apocalíptico — A Fome Suprema", flag: "lupaC6", desc: "Constelação Absurda. Foco: Game-Breaker, Nuke Apocalíptico e Ignorar 100% de DEF. Lupa remove todas as amarras de sua natureza predatória, reescrevendo as leis de degradação elemental e transformando o campo de batalha em um inferno incondicional: Expansão do Estômago Voraz: O limite máximo de acúmulos de \"Voracidade\" do Circuito Forte é aumentado de 10 para 15 cargas. Para cada carga acima da 10ª (do acúmulo 11 ao 15), Lupa ganha +30% de Dano Crítico adicionais (chegando a um bônus total de +150% de Dano Crítico só pelo Circuito Forte) e reduz a Resistência a Fogo dos inimigos atingidos em 8% por carga. Colapso Sem Limites (Nuke Insano): O escalonamento bônus da Liberação de Ressonância (Ultimate) por rodada de DoT consumida deixa de ter teto e passa de +200% para +350% por rodada. Caso o Nuke consuma 6 ou mais rodadas de DoT simultaneamente, a Habilidade Suprema dispara um segundo impacto imediato denominado \"Cataclismo Secundário\", causando 1.000% do ATK de Lupa como Dano de Fogo Puro, o qual ignora 100% da DEF do inimigo e 50% de sua Resistência Elemental (RES). Estado Overclock Eterno & Re-aplicação Perfeita: A duração do estado Overclock ativado pós-Ultimate é estendida de 2 para 4 turnos. Durante este período, \"Julgamento Solar\" passa a ser engatilhado automaticamente após cada uso de Perícia ou Ataque Básico. Todos os DoTs re-aplicados pelo Overclock retornam com o dano base amplificado em +300% e não podem ser purificados ou removidos pelos inimigos de forma alguma." },
+    { name: "C6 · Estigma Apocalíptico — A Fome Suprema", flag: "lupaC6", desc: "Constelação Absurda. Foco: Game-Breaker, Nuke Apocalíptico e Ignorar 100% de DEF. Lupa remove todas as amarras de sua natureza predatória, reescrevendo as leis de degradação elemental e transformando o campo de batalha em um inferno incondicional: Expansão do Estômago Voraz: O limite máximo de acúmulos de \"Voracidade\" do Circuito Forte é aumentado de 10 para 15 cargas. Para cada carga acima da 10ª (do acúmulo 11 ao 15), Lupa ganha +30% de Dano Crítico adicionais (chegando a um bônus total de +150% de Dano Crítico só pelo Circuito Forte) e reduz a Resistência a Fogo dos inimigos atingidos em 8% por carga. Colapso Sem Limites (Nuke Insano): O escalonamento bônus da Liberação de Ressonância (Ultimate) por rodada de DoT consumida deixa de ter teto e passa de +200% para +350% por rodada. Caso o Nuke consuma 6 ou mais rodadas de DoT simultaneamente, a Habilidade Suprema dispara um segundo impacto imediato denominado \"Cataclismo Secundário\", causando 700% do ATK de Lupa como Dano de Fogo Puro, o qual ignora 100% da DEF do inimigo e 50% de sua Resistência Elemental (RES). Estado Overclock Eterno & Re-aplicação Perfeita: A duração do estado Overclock ativado pós-Ultimate é estendida de 2 para 4 turnos. Durante este período, \"Julgamento Solar\" passa a ser engatilhado automaticamente após cada uso de Perícia ou Ataque Básico. Todos os DoTs re-aplicados pelo Overclock retornam com o dano base amplificado em +300% e não podem ser purificados ou removidos pelos inimigos de forma alguma." },
   ],
   miyabi: [
     { name: "C1 · Saque Instantâneo", flag: "miC1", desc: "Ao entrar em combate, Miyabi começa imediatamente com 3 PH (máximo) e entra na Postura Iaido de graça. O primeiro corte aprimorado desta postura causa +50% de dano." },
@@ -1303,6 +1303,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [standardTickets, setStandardTickets] = useState(10);
   const [featuredChar, setFeaturedChar] = useState(DEFAULT_FEATURED_CHAR);
   const [featuredSpecial, setFeaturedSpecial] = useState(SPECIAL_BANNER_CHARS[0]); // qual dos 5 do Banner Especial o jogador escolheu puxar
+  const [featuredStandard, setFeaturedStandard] = useState(STANDARD_5[0]); // Banner do Mochileiro: qual padrão o jogador quer que venha
   const [featuredWeapon, setFeaturedWeapon] = useState(DEFAULT_FEATURED_WEAPON);
     const [featuredChar2, setFeaturedChar2] = useState(null);
     useEffect(() => {
@@ -1395,6 +1396,7 @@ function Game({ email, isAdmin, onLogout }) {
       setStandardTickets(s.standardTickets ?? 10);
       setFeaturedChar(FEATURED_LIMITEDS.includes(s.featuredChar) ? s.featuredChar : DEFAULT_FEATURED_CHAR);
       setFeaturedSpecial(SPECIAL_BANNER_CHARS.includes(s.featuredSpecial) ? s.featuredSpecial : SPECIAL_BANNER_CHARS[0]);
+      setFeaturedStandard(STANDARD_5.includes(s.featuredStandard) ? s.featuredStandard : STANDARD_5[0]);
       setFeaturedWeapon(WEAPON_5_IDS.includes(s.featuredWeapon) ? s.featuredWeapon : DEFAULT_FEATURED_WEAPON);
       setPity({ char: 0, weapon: 0, standard: 0, special: 0, guaranteeChar: false, ...(s.pity || {}) });
       setPullHistory(s.pullHistory ?? []);
@@ -1467,8 +1469,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredSpecial, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed, mail8Claimed });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredSpecial, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed, mail8Claimed]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredSpecial, featuredStandard, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed, mail8Claimed });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredSpecial, featuredStandard, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed, mail8Claimed]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1665,7 +1667,7 @@ function Game({ email, isAdmin, onLogout }) {
           results.push({ rarity: 5, kind, id, name: WEAPON_MAP[id].name, weapon: true });
           fives.push({ id, name: WEAPON_MAP[id].name, banner: "Armas" });
         } else if (isStd) {
-          const id = pick(STANDARD_5); // permanente: pool padrão
+          const id = featuredStandard || pick(STANDARD_5); // Banner do Mochileiro: todo 5★ é o padrão que o jogador escolheu
           const dup = grantChar(id, ownedRef);
           results.push({ rarity: 5, kind, id, name: CHAR_MAP[id].name, dup });
           fives.push({ id, name: CHAR_MAP[id].name, banner: "Permanente" });
@@ -2135,7 +2137,7 @@ function Game({ email, isAdmin, onLogout }) {
             <>
               {screen === "home" && <Home email={email} isAdmin={isAdmin} playerName={playerName} setPlayerName={setPlayerName} owned={owned} setScreen={setScreen} setJade={setJade} setCharTickets={setCharTickets} setStandardTickets={setStandardTickets} setWeaponTickets={setWeaponTickets} flash={flash} towerCleared={towerCleared} bossRushCleared={bossRushCleared} startBossRush={startBossRush} images={images} setImages={setImages} />}
               {screen === "social" && <Social email={email} flash={flash} />}
-              {screen === "gacha" && <Gacha doPull={doPull} pity={pity} jade={jade} chronicles={chronicles} charTickets={charTickets} weaponTickets={weaponTickets} standardTickets={standardTickets} featuredChar={featuredChar} setFeaturedChar={setFeaturedChar} featuredSpecial={featuredSpecial} setFeaturedSpecial={setFeaturedSpecial} featuredWeapon={featuredWeapon} setFeaturedWeapon={setFeaturedWeapon} pullHistory={pullHistory} owned={owned} ownedWeapons={ownedWeapons} />}
+              {screen === "gacha" && <Gacha doPull={doPull} pity={pity} jade={jade} chronicles={chronicles} charTickets={charTickets} weaponTickets={weaponTickets} standardTickets={standardTickets} featuredChar={featuredChar} setFeaturedChar={setFeaturedChar} featuredSpecial={featuredSpecial} setFeaturedSpecial={setFeaturedSpecial} featuredStandard={featuredStandard} setFeaturedStandard={setFeaturedStandard} featuredWeapon={featuredWeapon} setFeaturedWeapon={setFeaturedWeapon} pullHistory={pullHistory} owned={owned} ownedWeapons={ownedWeapons} />}
               {screen === "roster" && <Roster owned={owned} ownedWeapons={ownedWeapons} relicInv={relicInv} setOwnedField={setOwnedField} levelUp={levelUp} ascendChar={ascendChar} ascMats={ascMats} jade={jade} isAdmin={isAdmin} expItems={expItems} bossMats={bossMats} traceLevelUp={traceLevelUp} unlockTraceNode={unlockTraceNode} unlockSpecialTrace={unlockSpecialTrace} publish={async (o) => { await publishChar(playerName, o); flash("Publicado no Co-op global", C.good); }} onUpgradeRelic={onUpgradeRelic} weaponLevelUp={weaponLevelUp} weaponMats={weaponMats} skillMats={skillMats} tagMats={tagMats} team={team} setTeam={setTeam} teamPresets={teamPresets} setTeamPresets={setTeamPresets} startTest={startTest} flash={flash} />}
               {screen === "farm" && <Farm stamina={stamina} start={startFarm} expItems={expItems} startTagDungeon={startTagDungeon} tagMats={tagMats} weaponMats={weaponMats} skillMats={skillMats} startRelicDungeon={startRelicDungeon} startRotatingRelicDungeon={startRotatingRelicDungeon} dailyClaimedAt={dailyClaimedAt} weeklyClaimedAt={weeklyClaimedAt} claimDaily={claimDaily} claimWeekly={claimWeekly} />}
               {screen === "tower" && <Tower towerCleared={towerCleared} towerClaimed={towerClaimed} start={startTower} team={team} flash={flash} />}
@@ -2667,7 +2669,7 @@ function BannerTimer({ ms, color }) {
     </div>
   );
 }
-function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, setFeaturedChar, featuredSpecial, setFeaturedSpecial, featuredWeapon, setFeaturedWeapon, pullHistory, owned, ownedWeapons }) {
+function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, setFeaturedChar, featuredSpecial, setFeaturedSpecial, featuredStandard, setFeaturedStandard, featuredWeapon, setFeaturedWeapon, pullHistory, owned, ownedWeapons }) {
   const [tab, setTab] = useState("char");
   const ownedSet = new Set((owned || []).map((o) => o.id));
   const isChar = tab === "char", isStd = tab === "standard", isWeapon = tab === "weapon", isSpecial = tab === "special";
@@ -2744,11 +2746,24 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
             <div style={{ fontSize: 12, color: C.mute, marginTop: 10 }}>Evento por tempo limitado — <b style={{ color: "#FF5E9E" }}>3 dias corridos</b>, a mesma data pra todo mundo. Toque num nome acima (ou use ‹ ›) pra escolher quem você quer puxar.</div>
           </>)}
 
-          {isStd && <>
-            <div style={{ ...ORB, fontSize: 20, fontWeight: 800, margin: "4px 0 10px" }}>Pool Padrão <Rarity n={5} /></div>
-            <PoolRow ids={STANDARD_5} ownedSet={ownedSet} />
-            <div style={{ fontSize: 12, color: C.mute, marginTop: 8 }}>Sem rate-up: todo 5★ vem deste pool. É aqui que você farma os 3 padrão direto.</div>
-          </>}
+          {isStd && (() => { const fstd = CHAR_MAP[featuredStandard] || CHAR_MAP[STANDARD_5[0]]; return <>
+            <div style={{ ...ORB, fontSize: 20, fontWeight: 800, margin: "4px 0 10px" }}>Banner do Mochileiro <Rarity n={5} /></div>
+            <div className="flex items-center gap-4">
+              <Avatar ch={fstd} size={76} />
+              <div style={{ fontSize: 13, color: C.mute }}>
+                <ElTag el={fstd.element} /> · {ROLES[fstd.role].label}
+                <div style={{ marginTop: 4 }}>Todo 5★ deste banner é <b style={{ color: C.gold }}>garantidamente {fstd.name}</b> — você escolhe quem quer.</div>
+              </div>
+            </div>
+            <div className="flex gap-1 flex-wrap mt-3">
+              {STANDARD_5.map((id) => { const ch = CHAR_MAP[id]; const sel = id === featuredStandard; return (
+                <button key={id} onClick={() => setFeaturedStandard(id)} className="flex items-center gap-1" style={{ background: sel ? C.gold + "33" : C.panelHi, border: `1px solid ${sel ? C.gold : C.line}`, borderRadius: 99, padding: "4px 10px 4px 4px" }}>
+                  <Avatar ch={ch} size={22} /> <span style={{ fontSize: 12, fontWeight: sel ? 800 : 500, color: sel ? C.gold : C.text }}>{ch.name}{ownedSet.has(id) ? " ✓" : ""}</span>
+                </button>
+              ); })}
+            </div>
+            <div style={{ fontSize: 12, color: C.mute, marginTop: 8 }}>Toque num nome pra escolher qual padrão você quer farmar direto.</div>
+          </>; })()}
 
           {isWeapon && <>
             <div className="flex items-center gap-2" style={{ margin: "4px 0 12px" }}>
@@ -3400,7 +3415,7 @@ const SKILL_DESC = {
       "Além disso, a Suprema insere compulsoriamente <b>2 Clones Residuais</b> diretamente no alvo atingido, acelerando de forma autônoma a ativação do Colapso Elétrico do Talento — sem precisar de nenhum Ataque Extra real de um aliado pra isso.",
     ],
     talent: [
-      "✦ <b>Clones Residuais (Ataque Extra):</b> sempre que um aliado desferir um Ataque Extra contra um inimigo, Yoruichi intercepta a ação e conjura um Clone Residual instantâneo que ataca o mesmo alvo, causando Dano Eletro equivalente a <b>500% de sua VEL total</b>.",
+      "✦ <b>Clones Residuais (Ataque Extra):</b> sempre que um aliado desferir um Ataque Extra contra um inimigo, Yoruichi intercepta a ação e conjura um Clone Residual instantâneo que ataca o mesmo alvo, causando Dano Eletro equivalente a <b>600% de sua VEL total</b>.",
       "✦ <b>Colapso Elétrico:</b> o jogo contabiliza os Clones Residuais gerados. A cada 3 Clones acionados, o alvo atual sofre uma sobrecarga, recebendo Dano Eletro em Área equivalente a <b>1500% da VEL</b> de Yoruichi e sofrendo uma redução de 20% na Resistência a Ataques Extras por 2 turnos.",
       "Não há limite de vezes que Clones Residuais podem ser ativados por ciclo de turnos — quanto mais a equipe contra-atacar, mais ela dispara.",
     ],
@@ -4531,7 +4546,7 @@ function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx) {
   if (yoru.stFlags?.yoruT1 && (yoru._yoruT1Uses || 0) < 3) { yoru._yoruT1Uses = (yoru._yoruT1Uses || 0) + 1; yoru.av = Math.max(0.01, (yoru.av || 1) * 0.94); }
   // Rastro Especial 3 · Relâmpago Causal: se a VEL dela for maior que a do alvo, ignora 18% de DEF
   const t3DefPen = (yoru.stFlags?.yoruT3 && ySpd > effStat(enemyTarget, "spd")) ? 18 : 0;
-  const cloneMul = (ySpd * 5.0 / yAtk) * 100; // Clone Residual: 500% da VEL
+  const cloneMul = (ySpd * 6.0 / yAtk) * 100; // Clone Residual: 600% da VEL (buffado)
   const cr = dealDamage(yoru, enemyTarget, cloneMul, fx, { el: "Eletro", isYoruClone: true, breakW: 1, defPen: t3DefPen });
   yoru._yoruClones = (yoru._yoruClones || 0) + 1;
   // Relâmpago Fugaz: dano próprio de Ataque Extra +10% por acúmulo (máx 3, dura 2 turnos)
@@ -5333,7 +5348,7 @@ function lupaUltimate(s, u, fx, ampU) {
   // C6 · Cataclismo Secundário: 6+ rodadas consumidas de uma vez dispara um segundo impacto de 1000% ATK, ignora 100% DEF / 50% RES
   if (f.lupaC6 && totalRounds >= 6) {
     let tot2 = 0;
-    enemies.forEach((e) => { if (e.alive) { const r2 = dealDamage(u, e, 1000 * (u.tUlt || 1) * ampU, fx, { el: "Fogo", breakW: 2, defPen: 100, resPen: 50, forceCrit: true, noLupaProc: true }); tot2 += r2.dmg; } });
+    enemies.forEach((e) => { if (e.alive) { const r2 = dealDamage(u, e, 700 * (u.tUlt || 1) * ampU, fx, { el: "Fogo", breakW: 2, defPen: 100, resPen: 50, forceCrit: true, noLupaProc: true }); tot2 += r2.dmg; } });
     msg += ` ☄️ CATACLISMO SECUNDÁRIO! +${tot2} de Dano de Fogo Puro, ignorando 100% DEF e 50% RES!`;
   }
   // Estado Overclock: 2 turnos (4 com C6)
@@ -5530,7 +5545,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       if (omg) { omg.omgCharges = 0; omg._c6Used = false; } }
     if (heroes.some((h) => h.stFlags?.pTeamEnergy)) heroes.forEach((h) => { if (h.energyMax) h.energy = Math.min(h.energyMax, h.energy + 15); });
     { const fr = heroes.find((h) => h.id === "frieren" && h.stFlags?.frC4); if (fr) { fr.buffs.push({ stat: "energyRegen", value: 30, pct: false, turns: 99, name: "CicloMilenar" }); } }
-    { const fr = heroes.find((h) => h.id === "frieren"); if (fr) { fr._frPoints = 2; } } // Talento + C1: começa com 2 Pontos de Elemento
+    { const fr = heroes.find((h) => h.id === "frieren"); if (fr) { fr._frPoints = fr.stFlags?.frC1 ? 2 : 0; } } // C1 · Despertar da Preguiça: começa com 2 Pontos de Elemento (sem C1: 0)
     { const lc = heroes.find((h) => h.id === "lancer" && h.stFlags?.lancerC1); if (lc) { lc.lancerDodges = 1; } } // C1: 1 Esquiva Absoluta grátis
     { const ag = heroes.find((h) => h.id === "agumon"); if (ag) {
         ag.agHeat = 0; ag.agSP = 0; ag.agForm = "agumon"; ag.agTrident = 0; ag.agModoX = 0; ag.agTempForm = 0; ag.agBrave = 0; ag.imgId = "agumon";
@@ -6356,7 +6371,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           else if (u.id === "omegamon" && sk.omgSkill) {
           const sMul = u.tSkill * ampS;
           const red = 62 + (f.omgContagio ? 28 : 0); // 62% redirect + 28% extra resist
-          allies.forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Protocolo"); a.buffs.push({ stat: "dmgReduce", value: red, turns: 2, name: "Protocolo" }); if (f.omgC2) a.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "Contágio+" }); });
+          allies.forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Protocolo"); a.buffs.push({ stat: "dmgReduce", value: red, turns: 2, name: "Protocolo" }); if (f.omgC2) a.buffs.push({ stat: "dmgBonus", value: 20, turns: 2, name: "Protocolo" }); if (f.omgC2) a.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "Contágio+" }); });
           const sh = Math.round(u.maxHp * 0.42); u.shield = Math.max(u.shield, sh);
           // Omegamon agora concede escudo ao time todo (não só a si mesmo)
           const teamSh = Math.round(u.maxHp * 0.22);
@@ -6778,7 +6793,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         const t3 = yoru3 && targetEnemy(s);
         if (yoru3 && t3 && t3.alive) {
           const ySpd = effStat(yoru3, "spd"), yAtk = Math.max(1, effStat(yoru3, "atk"));
-          const cloneMul = (ySpd * 5.0 / yAtk) * 100;
+          const cloneMul = (ySpd * 6.0 / yAtk) * 100;
           const cr3 = dealDamage(yoru3, t3, cloneMul, s.fx, { el: "Eletro", isYoruClone: true, breakW: 1 });
           yoru3._yoruClones = (yoru3._yoruClones || 0) + 1;
           if (yoru3._yoruClones % 3 === 0 && t3._sibs) {
