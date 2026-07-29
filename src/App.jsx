@@ -224,6 +224,9 @@ const RELIC_SETS = {
   "Corrente Trovão-Relâmpago": { color: "#7B2FBE", el: "Eletro", p2: { elemDmg: 10 }, flag4: "setTrovao4",
     d2: "+10% de Dano de Eletro.",
     d4: "Cada vez que um DoT de Choque dá tick em um inimigo, o portador ganha 1 acúmulo de 'Condutividade' (máx 4 = +60% de Dano de Ataque Extra). Com 4 acúmulos, o próximo Ataque Extra consome todas as cargas: renova a duração de todos os DoTs de Choque no alvo e ignora 20% de DEF adicional. Ideal para Yoruichi e futuros personagens de Eletro/follow-up." },
+  "Matilha Voraz": { color: "#FF6A3D", p2: { elemDmg: 14, critDmg: 12 }, flag4: "setMatilha4",
+    d2: "+14% de Dano Elemental e +12% de Dano Crítico.",
+    d4: "Sempre que o portador consumir ou detonar um efeito de DoT, ganha +12% de Dano de Fogo por 3 turnos (acumula até 3× / +36%). Ao conjurar a Ultimate, se houver 3 acúmulos ativos, a Suprema ganha +25% de Perfuração de DEF. Set dedicado da Lupa — a Fome da Predadora em forma de relíquia." },
   "Sinfonia do Trono Prateado": { color: "#C0C0C0", p2: { energyRegen: 12 }, flag4: "setSinfonia4",
     d2: "+12% de Taxa de Regeneração de Energia.",
     d4: "Ao usar a Perícia ou a Habilidade Suprema, concede 'Ressonância Brilhante' a todos os aliados por 3 turnos: +25% de Dano Crítico. Efeito Bônus de Transbordo: se o portador possuir 200%+ de Dano Crítico total, concede adicionalmente +15% do seu próprio Dano Crítico como bônus ao aliado no 1º Slot. Ideal para Hitori Gotoh (Bocchi) e futuros buffers de CRIT DMG." },
@@ -251,6 +254,7 @@ const RELIC_ITEM_ID = {
   "Crisol da Chama Primordial": "item_relic_crisol",
   "Inferno Devorador de Almas": "item_relic_inferno",
   "Corrente Trovão-Relâmpago": "item_relic_trovao",
+  "Matilha Voraz": "item_relic_matilha",
   "Sinfonia do Trono Prateado": "item_relic_sinfonia",
 };
 const RELIC_EMOJI = {
@@ -273,6 +277,7 @@ const RELIC_EMOJI = {
   "Crisol da Chama Primordial": "🌋",
   "Inferno Devorador de Almas": "🔴",
   "Corrente Trovão-Relâmpago": "⚡",
+  "Matilha Voraz": "🐺",
   "Sinfonia do Trono Prateado": "🎵",
 };
 const GAME_ITEMS = [
@@ -1734,7 +1739,7 @@ function Game({ email, isAdmin, onLogout }) {
   function startFarm(stage) {
     if (stamina < stage.cost) { flash(`Stamina insuficiente (precisa ${stage.cost})`, C.bad); return; }
     setStamina((v) => v - stage.cost);
-    setBattle({ context: "farm", reward: stage.exp, encounter: { level: stage.level, count: stage.count, boss: !!stage.boss, teamPower: teamPower() }, ally: null });
+    setBattle({ context: "farm", reward: stage.exp, staminaCost: stage.cost, encounter: { level: stage.level, count: stage.count, boss: !!stage.boss, teamPower: teamPower() }, ally: null });
   }
   function startTagDungeon(tag) {
     if (!team.length) { flash("Monte uma equipe", C.bad); return; }
@@ -1742,28 +1747,28 @@ function Game({ email, isAdmin, onLogout }) {
     setStamina((v) => v - 30);
     const lv = Math.round(team.reduce((a, id) => a + (ownedMap[id]?.level || 1), 0) / Math.max(1, team.length)) + 6;
     // tagDungeon=true → HP fixo baseado no nível, não escala com poder do time (estilo HSR)
-    setBattle({ context: "tagdungeon", tag, encounter: { level: lv, count: 3, waves: 6, boss: true, tag, bossName: `Guardião da Tag · ${tag}`, bossKind: "guardian", teamPower: teamPower(), tagDungeon: true }, ally: null });
+    setBattle({ context: "tagdungeon", tag, staminaCost: 30, encounter: { level: lv, count: 3, waves: 6, boss: true, tag, bossName: `Guardião da Tag · ${tag}`, bossKind: "guardian", teamPower: teamPower(), tagDungeon: true }, ally: null });
   }
   function startWeekly() {
     if (stamina < 50) { flash("Stamina insuficiente (precisa 50)", C.bad); return; }
     setStamina((v) => v - 50);
     const weeklyReady = Date.now() - lastWeeklyBoss > 7 * 24 * 3600 * 1000;
-    setBattle({ context: "weekly", weeklyReady, encounter: { level: 55, count: 1, boss: true, weekly: true, finalBoss: false, bossName: "Tirano do Vazio", teamPower: teamPower() }, ally: null });
+    setBattle({ context: "weekly", weeklyReady, staminaCost: 50, encounter: { level: 55, count: 1, boss: true, weekly: true, finalBoss: false, bossName: "Tirano do Vazio", teamPower: teamPower() }, ally: null });
   }
   function claimDaily() {
     if (Date.now() - dailyClaimedAt < 24 * 3600 * 1000) { flash("Já resgatado hoje. Volte amanhã.", C.bad); return; }
     const tags = ALL_TAGS; const tag = tags[Math.floor(Math.random() * tags.length)];
-    setWeaponMats((v) => v + 10); setSkillMats((v) => v + 10); setRelicMats((v) => v + 8);
+    setWeaponMats((v) => v + 25); setSkillMats((v) => v + 25); setRelicMats((v) => v + 15);
     setTagMats((m) => ({ ...m, [tag]: (m[tag] || 0) + 2 }));
     setDailyClaimedAt(Date.now());
-    flash(`Diária resgatada! +10 ⚙️ +10 💠 +8 🔷 +2 material "${tag}"`, C.good);
+    flash(`Diária resgatada! +25 ⚙️ +25 💠 +15 🔷 +2 material "${tag}"`, C.good);
   }
   function claimWeekly() {
     if (Date.now() - weeklyClaimedAt < 7 * 24 * 3600 * 1000) { flash("Já resgatado esta semana.", C.bad); return; }
     ALL_TAGS.forEach((tag) => setTagMats((m) => ({ ...m, [tag]: (m[tag] || 0) + 3 })));
-    setWeaponMats((v) => v + 40); setSkillMats((v) => v + 40); setBossMats((v) => v + 4); setAscMats((v) => v + 4); setRelicMats((v) => v + 30);
+    setWeaponMats((v) => v + 90); setSkillMats((v) => v + 90); setBossMats((v) => v + 6); setAscMats((v) => v + 6); setRelicMats((v) => v + 50);
     setWeeklyClaimedAt(Date.now());
-    flash(`Semanal resgatada! +40 ⚙️ +40 💠 +4 🔮 +4 🔶 +30 🔷 +3 de cada material de tag`, C.good);
+    flash(`Semanal resgatada! +90 ⚙️ +90 💠 +6 🔮 +6 🔶 +50 🔷 +3 de cada material de tag`, C.good);
   }
   function startAscension() {
     if (stamina < 40) { flash("Stamina insuficiente (precisa 40)", C.bad); return; }
@@ -1914,13 +1919,13 @@ function Game({ email, isAdmin, onLogout }) {
     setStamina(function(v){ return v - cost; });
     const level = tier === 2 ? 85 : tier === 1 ? 65 : 45;
     const bossNames = ["Núcleo Corrompido", "Servidor Infectado", "Matriz Fantasma"];
-    setBattle({ context: "relicfarm", tier, encounter: { level, count: 2, boss: true, bossName: bossNames[tier] || bossNames[1], bossKind: "guardian", teamPower: teamPower(), relicFarm: true }, ally: null });
+    setBattle({ context: "relicfarm", tier, staminaCost: cost, encounter: { level, count: 2, boss: true, bossName: bossNames[tier] || bossNames[1], bossKind: "guardian", teamPower: teamPower(), relicFarm: true }, ally: null });
   }
   function startRotatingRelicDungeon() {
     const cost = 35;
     if (stamina < cost) { flash("Stamina insuficiente (precisa " + cost + ")", C.bad); return; }
     setStamina(function(v){ return v - cost; });
-    setBattle({ context: "relicrotate", encounter: { level: 60, count: 2, boss: true, bossName: "Guardião do Domínio Rotativo · " + featuredFarmSet(), bossKind: "guardian", teamPower: teamPower() }, ally: null });
+    setBattle({ context: "relicrotate", staminaCost: cost, encounter: { level: 60, count: 2, boss: true, bossName: "Guardião do Domínio Rotativo · " + featuredFarmSet(), bossKind: "guardian", teamPower: teamPower() }, ally: null });
   }
     function onBattleEnd(result) {
     const b = battle; setBattle(null);
@@ -1982,7 +1987,7 @@ function Game({ email, isAdmin, onLogout }) {
         flash(`Domínio Rotativo vencido! +${count} Relíquia(s) "${setN}" · +15 🔷 Matéria de Relíquia`, C.gold);
       } else { flash("O Domínio Rotativo resistiu…", C.bad); }
     } else if (b.context === "tagdungeon") {
-      if (result.win) { const t = b.tag; const drop = Math.floor(Math.random() * 2) + 1; setTagMats((m) => ({ ...m, [t]: (m[t] || 0) + drop })); setWeaponMats((v) => v + 14); setSkillMats((v) => v + 14); setBossMats((v) => v + 1); setRelicMats((v) => v + 12); flash(`Dungeon de ${t} concluída! +${drop} material "${t}", +14 ⚙️ Arma, +14 💠 Habilidade, +1 🔮, +12 🔷 Matéria de Relíquia`, C.gold); }
+      if (result.win) { const t = b.tag; const drop = Math.floor(Math.random() * 3) + 3; setTagMats((m) => ({ ...m, [t]: (m[t] || 0) + drop })); setWeaponMats((v) => v + 30); setSkillMats((v) => v + 30); setBossMats((v) => v + 2); setRelicMats((v) => v + 18); flash(`Dungeon de ${t} concluída! +${drop} material "${t}", +30 ⚙️ Arma, +30 💠 Habilidade, +2 🔮, +18 🔷 Matéria de Relíquia`, C.gold); }
       else flash("A dungeon resistiu…", C.bad);
     } else if (b.context === "weekly") {
       if (result.win) {
@@ -2071,6 +2076,17 @@ function Game({ email, isAdmin, onLogout }) {
       if (result.win && !bossRushCleared.includes(b.bossId)) { setBossRushCleared(function(prev){return [...prev, b.bossId];}); const _bd = BOSS_RUSH_BOSSES.find(x => x.id === b.bossId); const _rw = (_bd && _bd.reward) || 1000; setJade(function(j){return j + _rw;}); flash("Boss Rush concluido! +" + _rw + "💎", C.gold); } else if (result.win) { flash("Boss ja foi derrotado — sem recompensa extra.", C.mute); } else { flash("Voce foi derrotado no Boss Rush...", C.bad); }
     }
   }
+  // Corrige bug: "Farmar de novo" / "Jogar Novamente" só reiniciava a MESMA batalha sem processar a recompensa
+  // da que acabou de ser vencida nem cobrar Stamina de novo. Agora processa o resultado e cobra o custo de novo.
+  function retryActivity(result) {
+    const b = battle;
+    if (!b) return;
+    const cost = b.staminaCost || 0;
+    onBattleEnd(result); // processa a recompensa da corrida que acabou de terminar
+    if (cost > 0 && stamina < cost) { flash(`Stamina insuficiente para repetir (precisa ${cost})`, C.bad); return; }
+    if (cost > 0) setStamina((v) => v - cost);
+    setBattle({ ...b }); // reabre a mesma atividade — setBattle já gera um _bid novo, forçando uma batalha fresca
+  }
 
   if (!loaded) return <div style={{ minHeight: "100vh", background: C.bg0, color: C.mute, display: "flex", alignItems: "center", justifyContent: "center" }}>Sincronizando ressonância…</div>;
 
@@ -2108,7 +2124,7 @@ function Game({ email, isAdmin, onLogout }) {
           {battle ? (
             <Battle key={battle._bid}
               team={battle.customTeam || team} ownedMap={battle.draftOwnedMap || ownedMap} encounter={battle.encounter} ally={battle.ally} context={battle.context}
-              onEnd={onBattleEnd} onRetry={() => setBattle(battle)}
+              onEnd={onBattleEnd} onRetry={retryActivity}
               onNext={battle.context === "tower" ? advanceTowerFloor
                 : battle.context === "darktower" ? advanceDarkTowerFloor
                 : null}
@@ -2480,11 +2496,11 @@ function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, 
       <div style={{ color: C.mute, fontSize: 12, marginTop: 2 }}>Materiais garantidos, sem precisar farmar rastro no braço. Grátis, sem custo de Stamina.</div>
       <div className="flex flex-col gap-2 mt-3">
         <div className="flex items-center justify-between" style={{ background: C.panelHi, borderRadius: 10, padding: "10px 14px" }}>
-          <div><b style={{ fontSize: 13 }}>Diária</b><div style={{ fontSize: 11, color: C.mute }}>+10 ⚙️ · +10 💠 · +8 🔷 · +2 de uma tag aleatória</div></div>
+          <div><b style={{ fontSize: 13 }}>Diária</b><div style={{ fontSize: 11, color: C.mute }}>+25 ⚙️ · +25 💠 · +15 🔷 · +2 de uma tag aleatória</div></div>
           <Btn kind={dailyReady ? "primary" : "soft"} disabled={!dailyReady} onClick={claimDaily} style={{ padding: "6px 14px" }}>{dailyReady ? "Resgatar" : "Feito ✓"}</Btn>
         </div>
         <div className="flex items-center justify-between" style={{ background: C.panelHi, borderRadius: 10, padding: "10px 14px" }}>
-          <div><b style={{ fontSize: 13 }}>Semanal</b><div style={{ fontSize: 11, color: C.mute }}>+40 ⚙️ · +40 💠 · +4 🔮 · +4 🔶 · +30 🔷 · +3 de cada tag</div></div>
+          <div><b style={{ fontSize: 13 }}>Semanal</b><div style={{ fontSize: 11, color: C.mute }}>+90 ⚙️ · +90 💠 · +6 🔮 · +6 🔶 · +50 🔷 · +3 de cada tag</div></div>
           <Btn kind={weeklyReady ? "primary" : "soft"} disabled={!weeklyReady} onClick={claimWeekly} style={{ padding: "6px 14px" }}>{weeklyReady ? "Resgatar" : "Feito ✓"}</Btn>
         </div>
       </div>
@@ -3026,7 +3042,7 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
         <div className="flex flex-col gap-2 mt-2">
           {[["basic", "Ataque Básico", skillNamesOf(def.id)[0]], ["skill", "Habilidade", skillNamesOf(def.id)[1]], ["ult", "Ultimate", skillNamesOf(def.id)[2]]].map(([key, lbl, nm]) => { const lvl = oc.traces[key] || 1; const max = lvl >= TRACE_MAX; return (
             <div key={key} className="flex items-center justify-between" style={{ background: C.panelHi, borderRadius: 10, padding: "8px 10px" }}>
-              <div><div style={{ fontWeight: 700, fontSize: 13 }}>{lbl} <span style={{ color: C.mute, fontWeight: 400 }}>· {nm}</span></div><div style={{ fontSize: 11, color: C.mute }}>Nv {lvl}/{TRACE_MAX} · {key === "basic" ? "dano" : (key === "ult" && (def.id === "sakura" || def.id === "usopp")) ? "dano/cura" : def.id === "omegamon" ? "dano/escudo" : def.role === "healer" ? "cura" : def.role === "shield" ? "escudo" : "dano"} +{Math.round((traceMul(lvl) - 1) * 100)}%</div></div>
+              <div><div style={{ fontWeight: 700, fontSize: 13 }}>{lbl} <span style={{ color: C.mute, fontWeight: 400 }}>· {nm}</span></div><div style={{ fontSize: 11, color: C.mute }}>Nv {lvl}/{TRACE_MAX} · {key === "basic" ? "dano" : (key === "ult" && (def.id === "sakura" || def.id === "usopp")) ? "dano/cura" : (key === "ult" && def.id === "shorekeeper") ? "cura/CRIT DMG dado ao time" : def.id === "omegamon" ? "dano/escudo" : def.role === "healer" ? "cura" : def.role === "shield" ? "escudo" : "dano"} +{Math.round((traceMul(lvl) - 1) * 100)}%</div></div>
               <Btn kind={max ? "ghost" : "soft"} disabled={max} style={{ padding: "5px 10px" }} onClick={() => traceLevelUp(o.id, key)}>{max ? "MÁX" : isAdmin ? "Subir" : (<span className="flex items-center gap-1 flex-wrap" style={{ justifyContent: "center" }}><span className="flex items-center gap-1"><ItemIcon id="item_skill_mat" emoji="💠" size={13} />{1 + Math.floor(lvl / 3)}</span>{lvl >= 5 && <span className="flex items-center gap-1">+<ItemIcon id="item_boss_mat" emoji="🔮" size={13} />1</span>}</span>)}</Btn>
             </div>); })}
         </div>
@@ -3183,7 +3199,7 @@ const SKILL_DESC = {
     ult: [
       "Custo: <b>130 de Energia</b>.",
       "<b>Fim do Lamento</b> — ativa o domínio Estelarador por 3 turnos.",
-      "<b>Estágio 1 (imediato):</b> todo o time ganha <b>+15% de Taxa de CRIT</b> e <b>+30% de Dano Crítico</b>.",
+      "<b>Estágio 1 (imediato):</b> todo o time ganha <b>+22% de Taxa de CRIT</b> e <b>+95% de Dano Crítico</b> (escala com o Nível da Ultimate — subir o nível aumenta esse % de CRIT DMG).",
       "<b>Estágio 2 (Sincronia):</b> quando o time gastar 3 Pontos de Habilidade com o domínio ativo, 50% de todo dano aliado passa a herdar a Vantagem Universal de Shorekeeper (sempre quebra Firmeza).",
       "<b>Estágio 3 (Supernova):</b> se a Firmeza de um inimigo quebrar durante o Estágio 2, dispara um feixe que causa <b>330% do HP</b> de Shorekeeper em TODOS os inimigos e atrasa a ação deles em 40%.",
     ],
@@ -3809,18 +3825,53 @@ function WeaponRow({ w, active, match, lv }) {
     </div>
   );
 }
+// ── Sistema estilo ZZZ: pontua cada relíquia pelo quanto o stat principal e os substatus servem AO PERSONAGEM ──
+const ROLE_WANTED = {
+  dps:      { mains: ["atkFlat", "atkP", "critRate", "critDmg", "spd", "elemDmg"], subs: ["critRate", "critDmg", "atkP", "spd", "atkFlat"] },
+  aoe:      { mains: ["atkFlat", "atkP", "critRate", "critDmg", "spd", "elemDmg"], subs: ["critRate", "critDmg", "atkP", "spd", "dotDmg"] },
+  summoner: { mains: ["atkFlat", "atkP", "critRate", "critDmg", "spd", "elemDmg", "energyRegen"], subs: ["critRate", "critDmg", "atkP", "spd"] },
+  healer:   { mains: ["hpFlat", "hpP", "spd", "energyRegen"], subs: ["hpP", "spd", "hpFlat", "defP"] },
+  shield:   { mains: ["hpFlat", "defP", "hpP", "spd", "energyRegen"], subs: ["defP", "hpP", "spd", "defFlat", "hpFlat"] },
+  buffer:   { mains: ["hpFlat", "atkFlat", "spd", "energyRegen"], subs: ["spd", "hpP", "energyRegen"] },
+  debuffer: { mains: ["atkFlat", "atkP", "spd", "elemDmg", "energyRegen"], subs: ["spd", "atkP", "critRate"] },
+};
+const CHAR_WANTED_OVERRIDE = { // personagens com build fora do padrão do papel
+  hitori: { mains: ["atkFlat", "critDmg", "spd", "energyRegen"], subs: ["critDmg", "spd", "critRate", "energyRegen"] }, // converte CRIT DMG em tudo
+  shorekeeper: { mains: ["hpFlat", "hpP", "spd", "energyRegen"], subs: ["hpP", "hpFlat", "spd"] }, // escala de HP
+  lupa: { mains: ["atkFlat", "atkP", "critRate", "critDmg", "spd", "elemDmg"], subs: ["critDmg", "critRate", "atkP", "dotDmg", "spd"] },
+};
+function relicFitScore(r, def) {
+  if (!def) return 0;
+  const want = CHAR_WANTED_OVERRIDE[def.id] || ROLE_WANTED[def.role] || ROLE_WANTED.dps;
+  let score = 0;
+  if (want.mains.includes(r.main)) {
+    if (r.main === "elemDmg") score += r.mainElement === def.element ? 60 : 4; // esfera do elemento certo vale muito; errado quase nada
+    else score += 50;
+  }
+  (r.subs || []).forEach((s) => { if (want.subs.includes(s.stat)) { const hi = (SUB_TIERS[s.stat] || [1, 1, 1])[2]; score += Math.min(4, s.value / hi) * 10; } });
+  score += (r.level || 0) * 1.5; // desempate leve por investimento
+  return score;
+}
+function relicIsIdealMain(r, def) {
+  if (!def) return false;
+  const want = CHAR_WANTED_OVERRIDE[def.id] || ROLE_WANTED[def.role] || ROLE_WANTED.dps;
+  return want.mains.includes(r.main) && (r.main !== "elemDmg" || r.mainElement === def.element);
+}
 function RelicEquip({ o, setOwnedField, relicInv, onUpgradeRelic }) {
   const oc = normChar(o);
+  const def = CHAR_MAP[o.id];
   const [pickSlot, setPickSlot] = useState(null);
   const [setFilter, setSetFilter] = useState(null);
+  const [mainFilter, setMainFilter] = useState(null);
+  const [onlyIdeal, setOnlyIdeal] = useState(false);
   const setR = (slot, relic) => { const r = [...oc.relics]; r[slot] = relic; setOwnedField(o.id, { relics: r }); };
-  const subScore = (r) => (r.subs || []).reduce((a, s) => a + s.value, 0) + (r.level || 0) * 2;
+  const subScore = (r) => relicFitScore(r, def); // ordenação estilo ZZZ: o que o personagem precisa vem primeiro
   return <Panel>
     <b>Relíquias · 6 slots</b>
     <p style={{ fontSize: 11, color: C.mute, marginTop: 2 }}>Corpo aceita DANO/CRIT como principal. Esfera aceita Dano Elemental (de qualquer elemento) ou Regen de Energia. Corda aceita Regen de Energia ou Perfuração.</p>
     <div className="grid grid-cols-2 gap-2 mt-2">
       {RELIC_SLOTS.map((sl) => { const r = oc.relics[sl.i]; const active = pickSlot === sl.i; return (
-        <button key={sl.i} onClick={() => { setPickSlot(active ? null : sl.i); setSetFilter(null); }} className="text-left" style={{ background: active ? C.panel : C.panelHi, border: `1px solid ${active ? C.gold : r ? relicSetData(r.set).color : C.line}`, borderRadius: 12, padding: 10, minHeight: 70 }}>
+        <button key={sl.i} onClick={() => { setPickSlot(active ? null : sl.i); setSetFilter(null); setMainFilter(null); }} className="text-left" style={{ background: active ? C.panel : C.panelHi, border: `1px solid ${active ? C.gold : r ? relicSetData(r.set).color : C.line}`, borderRadius: 12, padding: 10, minHeight: 70 }}>
           <div style={{ fontSize: 11, color: C.mute }}>{sl.i + 1}. {sl.name}</div>
           {r ? <><div style={{ fontSize: 12, fontWeight: 700, color: relicSetData(r.set).color, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.set} <span style={{ color: C.mute, fontWeight: 600 }}>+{r.level || 0}</span></div><div style={{ fontSize: 12 }}>{relicMainText(r)}</div><div style={{ fontSize: 10, color: C.mute, lineHeight: 1.35 }}>{(r.subs || []).map((s) => `${relicSubLabel(s)} +${s.value.toFixed(1)}`).join(" · ")}</div></> : <div style={{ color: C.mute, fontSize: 12 }}>vazio · toque p/ equipar</div>}
         </button>); })}
@@ -3828,24 +3879,38 @@ function RelicEquip({ o, setOwnedField, relicInv, onUpgradeRelic }) {
     {pickSlot != null && (() => {
       const allOpts = relicInv.filter((r) => r.slot === pickSlot);
       const setsHere = [...new Set(allOpts.map((r) => r.set))];
-      const opts = (setFilter ? allOpts.filter((r) => r.set === setFilter) : allOpts).slice().sort((a, b) => subScore(b) - subScore(a));
+      const mainsHere = [...new Set(allOpts.map((r) => r.main))];
+      let opts = setFilter ? allOpts.filter((r) => r.set === setFilter) : allOpts;
+      if (mainFilter) opts = opts.filter((r) => r.main === mainFilter);
+      if (onlyIdeal) opts = opts.filter((r) => relicIsIdealMain(r, def));
+      opts = opts.slice().sort((a, b) => subScore(b) - subScore(a));
       const bestId = opts.length ? opts[0].id : null;
+      // Nota S/A/B/C: identifica de cara o quanto a relíquia serve pro personagem
+      const maxFit = 50 + 40 + 22.5; // main certo + 4 subs perfeitos + nv15
+      const grade = (r) => { const p = relicFitScore(r, def) / maxFit; return p >= 0.62 ? ["S", "#FFD249"] : p >= 0.45 ? ["A", "#B98BFF"] : p >= 0.28 ? ["B", "#6FB8FF"] : ["C", C.mute]; };
       return (
       <div style={{ borderTop: `1px solid ${C.line}`, margin: "12px 0 0", paddingTop: 12 }}>
-        <div className="flex items-center justify-between"><b style={{ fontSize: 13 }}>Equipar em {RELIC_SLOTS[pickSlot].name}</b>{oc.relics[pickSlot] && <button onClick={() => { setR(pickSlot, null); }} style={{ color: C.bad, fontSize: 12 }}>remover atual</button>}</div>
+        <div className="flex items-center justify-between"><b style={{ fontSize: 13 }}>Equipar em {RELIC_SLOTS[pickSlot].name} <span style={{ color: C.mute, fontWeight: 400, fontSize: 11 }}>({opts.length}/{allOpts.length})</span></b>{oc.relics[pickSlot] && <button onClick={() => { setR(pickSlot, null); }} style={{ color: C.bad, fontSize: 12 }}>remover atual</button>}</div>
+        <div className="flex gap-1 flex-wrap mt-2">
+          <Chip active={onlyIdeal} color={C.good} onClick={() => setOnlyIdeal((v) => !v)}>✓ Só stat certo p/ {def?.name?.split(" ")[0] || "ele"}</Chip>
+          {mainsHere.length > 1 && mainsHere.map((mk) => <Chip key={mk} active={mainFilter === mk} onClick={() => setMainFilter(mainFilter === mk ? null : mk)}>{statName(mk)}</Chip>)}
+        </div>
         {setsHere.length > 1 && <div className="flex gap-1 flex-wrap mt-2">
-          <Chip active={!setFilter} onClick={() => setSetFilter(null)}>Todos</Chip>
+          <Chip active={!setFilter} onClick={() => setSetFilter(null)}>Todos os conjuntos</Chip>
           {setsHere.map((s) => <Chip key={s} active={setFilter === s} color={relicSetData(s).color} onClick={() => setSetFilter(s)}>{s}</Chip>)}
         </div>}
-        {opts.length === 0 ? <div style={{ color: C.mute, fontSize: 12, marginTop: 8 }}>Nenhuma relíquia deste slot. Farme no Co-op ou no Farm.</div> :
+        {opts.length === 0 ? <div style={{ color: C.mute, fontSize: 12, marginTop: 8 }}>{allOpts.length ? "Nenhuma relíquia passa nesses filtros — limpa um filtro aí." : "Nenhuma relíquia deste slot. Farme no Co-op ou no Farm."}</div> :
           <div className="grid grid-cols-2 gap-2 mt-2" style={{ maxHeight: 260, overflowY: "auto" }}>
-            {opts.map((r) => <button key={r.id} onClick={() => { setR(pickSlot, r); setPickSlot(null); }} className="text-left" style={{ background: C.panel, border: `1px solid ${r.id === bestId ? C.gold : relicSetData(r.set).color + "55"}`, borderRadius: 10, padding: 8, position: "relative" }}>
-              {r.id === bestId && <div style={{ position: "absolute", top: 6, right: 6, fontSize: 9, fontWeight: 800, color: C.gold }}>★ MELHOR</div>}
+            {opts.map((r) => { const [g, gc] = grade(r); return (<button key={r.id} onClick={() => { setR(pickSlot, r); setPickSlot(null); }} className="text-left" style={{ background: C.panel, border: `1px solid ${r.id === bestId ? C.gold : gc + "66"}`, borderRadius: 10, padding: 8, position: "relative" }}>
+              <div style={{ position: "absolute", top: 6, right: 6, display: "flex", gap: 4, alignItems: "center" }}>
+                {r.id === bestId && <span style={{ fontSize: 9, fontWeight: 800, color: C.gold }}>★ IDEAL</span>}
+                <span style={{ fontSize: 10, fontWeight: 900, color: gc, border: `1px solid ${gc}`, borderRadius: 5, padding: "0 4px" }}>{g}</span>
+              </div>
               <div style={{ fontSize: 12, fontWeight: 700, color: relicSetData(r.set).color }}>{r.set} <span style={{ color: C.mute }}>+{r.level || 0}</span></div>
-              <div style={{ fontSize: 12 }}>{relicMainText(r)}</div>
-              <div style={{ fontSize: 10, color: C.mute, lineHeight: 1.35 }}>{(r.subs || []).map((s) => `${relicSubLabel(s)} +${s.value.toFixed(1)}`).join(" · ")}</div>
+              <div style={{ fontSize: 12 }}>{relicMainText(r)}{relicIsIdealMain(r, def) && <span style={{ color: C.good, fontSize: 10, fontWeight: 800 }}> ✓ stat certo</span>}</div>
+              <div style={{ fontSize: 10, color: C.mute, lineHeight: 1.35 }}>{(r.subs || []).map((s, si) => { const want = (CHAR_WANTED_OVERRIDE[def?.id] || ROLE_WANTED[def?.role] || ROLE_WANTED.dps).subs.includes(s.stat); return <span key={si} style={want ? { color: C.good, fontWeight: 700 } : undefined}>{si > 0 ? " · " : ""}{relicSubLabel(s)} +{s.value.toFixed(1)}</span>; })}</div>
               {onUpgradeRelic && r.level < 15 && <div onClick={(e) => { e.stopPropagation(); onUpgradeRelic(r.id); }} className="flex items-center gap-1" style={{ marginTop: 4, fontSize: 11, color: C.gold, fontWeight: 700 }}>⬆ Subir (<ItemIcon id="item_relic_mat" emoji="🔷" size={11} /> Matéria)</div>}
-            </button>)}
+            </button>); })}
           </div>}
       </div>); })()}
   </Panel>;
@@ -4460,6 +4525,8 @@ function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx) {
   const yoru = (follower._sibs || []).find(h => h.id === "yoruichi" && h.alive);
   if (!yoru || yoru.uid === follower.uid) return;
   const ySpd = effStat(yoru, "spd"), yAtk = Math.max(1, effStat(yoru, "atk"));
+  // Visual: um Clone Residual "aparece" no card da Yoruichi e some rápido (badge com fade-out)
+  fx.push({ uid: yoru.uid, yoruCloneFlash: true, id: Math.random() });
   // Rastro Especial 1 · Passo de Sombra: Ataque Extra aliado avança a ação dela em 6% (máx 3× entre os turnos dela)
   if (yoru.stFlags?.yoruT1 && (yoru._yoruT1Uses || 0) < 3) { yoru._yoruT1Uses = (yoru._yoruT1Uses || 0) + 1; yoru.av = Math.max(0.01, (yoru.av || 1) * 0.94); }
   // Rastro Especial 3 · Relâmpago Causal: se a VEL dela for maior que a do alvo, ignora 18% de DEF
@@ -4863,6 +4930,18 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     }
   }
   if (!defender.alive && defender.side === "H" && defender._uti) { defender._uti = false; defender.hp = 1; defender.alive = true; fx.push({ uid: defender.uid, txt: "UTI: +1 HP!", heal: true, id: Math.random() }); }
+  // Hitori C4 · Mecanismo de Salvação: 1x por batalha, nega a morte de um aliado, restaura 30% do HP Máx e dá Escudo de Isolamento
+  if (!defender.alive && defender.side === "H" && !defender.isSummon) {
+    const hitoriSave = (defender._sibs || []).find((h) => h.id === "hitori" && h.alive && h.stFlags?.hitoriC4 && !h._hitoriSaveUsed);
+    if (hitoriSave) {
+      hitoriSave._hitoriSaveUsed = true;
+      defender.alive = true; defender.hp = Math.max(1, Math.round(defender.maxHp * 0.30));
+      const iso = Math.max(200, Math.round(effStat(hitoriSave, "critDmg") * 10)); // Escudo = 100% do Dano Crítico total (×10 em valor absoluto)
+      defender.shield = (defender.shield || 0) + iso;
+      fx.push({ uid: defender.uid, txt: "🎸 SALVAÇÃO! +30% HP", heal: true, id: Math.random() });
+      fx.push({ uid: defender.uid, txt: `🛡 ${iso}`, heal: true, id: Math.random() });
+    }
+  }
   // ── Yoruichi — Frequência Shunpo: gatilho central p/ QUALQUER Ataque Extra aliado (corrige clones que quase nunca disparavam) ──
   if (dmg > 0 && opts?.isFollowup && !opts?.isYoruClone && attacker.side === "H" && !attacker.isSummon && attacker.alive) {
     yoruFollowupProc(attacker, defender, dmg, fx);
@@ -4934,7 +5013,7 @@ function soiFonBasicAttack(s, u, enemy, fx, ampB) {
     targets.forEach(e => {
       const r = dealDamage(u, e, finalMul, fx, { breakW: 1, el: "Vento", pierceShield: true, defPen: f.sfC6 ? 40 : 100, enhanced: true });
       tot += r.dmg;
-      if (!e.alive && f.sfC6) { u.energy = u.energyMax; u.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); }
+      if (!e.alive && f.sfC6) { u.energy = Math.min(u.energyMax, u.energy + Math.round(u.energyMax * 0.55)); u.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); } // corrige bug: energia ia pro máximo e ultava sem parar
     });
     msg = `🦋✨🌿 SOI FON — DANO VERDADEIRO (Postura de Ferrão, APRIMORADO)! ${tot} de Dano de Vento${f.sfC6 ? " em TODOS" : ""}${wpnBonus ? ` +${Math.round(wpnBonus * 100)}% (${wpnCharges} Cargas)` : ""}, ignora DEF e escudos!`;
   } else {
@@ -4991,7 +5070,7 @@ function checkSoiFonFollowup(s, actor, fx) {
     const r = dealDamage(sf, tgt, fuMul, fx, { breakW: 1, el: "Vento", isFollowup: true });
     if (f2.sfPrecisao) { const cdStacks = sf.buffs.filter(b => b.name === "PrecisaoFU").length; if (cdStacks < 2) sf.buffs.push({ stat: "critDmg", value: 15, turns: 99, name: "PrecisaoFU" }); }
     fuMsgs.push(`${tgt.name}: ${r.dmg}${r.crit ? " CRÍTICO" : ""}`);
-    if (!tgt.alive && f2.sfC6) { sf.energy = sf.energyMax; sf.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); fuMsgs.push("KILL! Energia máx"); }
+    if (!tgt.alive && f2.sfC6) { sf.energy = Math.min(sf.energyMax, sf.energy + Math.round(sf.energyMax * 0.55)); sf.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); fuMsgs.push("KILL! +55% Energia"); }
   }
   s.sfFollowThisTurn = fuDone;
   if (fuMsgs.length || posturaMsg) s.log = [...s.log.slice(-40), `🦋 SOI FON follow-up Vento [${fuMsgs.join(", ")}]${posturaMsg}`];
@@ -5097,6 +5176,8 @@ function lupaVoracityProc(u, target, fx) {
   u.energy = Math.min(u.energyMax, u.energy + 5);
   fx.push({ uid: u.uid, txt: "🍖+1", heal: true, id: Math.random() });
   lupaIncineratorStack(u);
+  // Set Matilha Voraz 4pç: +12% Dano de Fogo por consumo de DoT (acumula 3×)
+  if (u.stFlags?.setMatilha4) { const stacks = u.buffs.filter((b) => b.name === "Matilha Voraz").length; if (stacks < 3) u.buffs.push({ stat: "dmgBonus", value: 12, turns: 3, name: "Matilha Voraz" }); else u.buffs.filter((b) => b.name === "Matilha Voraz").forEach((b) => (b.turns = 3)); }
   lupaPackAmp(u, fx); // C2: Amplificação de Matilha ao consumir qualquer DoT
 }
 // C2 · Amplificação de Matilha: sempre que Lupa consome QUALQUER DoT, o time ganha +30% Dano de Fogo / +20% Dano de DoT por 3 turnos
@@ -5193,8 +5274,14 @@ function lupaSkillAttack(s, u, enemy, fx, ampS) {
     }
   }
   // Avanço de Ação: 100% — ela ganha um turno extra instantâneo sem gastar PH
-  u._avMul = 0; s.sp = Math.min(spCapOf(s), s.sp + 1); // devolve o PH gasto no início do bloco de skill (ver dispatcher)
-  msg += " ⏩ Avanço de Ação: Lupa age novamente agora!";
+  // Avanço de Ação: corrige loop infinito — antes TODA Perícia devolvia o PH e dava turno instantâneo,
+  // então dava pra spammar sem fim. Agora o salto só dispara 1x a cada 2 turnos dela.
+  if ((u._lupaLeapCd || 0) <= 0) {
+    u._avMul = 0; s.sp = Math.min(spCapOf(s), s.sp + 1); u._lupaLeapCd = 2;
+    msg += " ⏩ Avanço de Ação: Lupa age novamente agora!";
+  } else {
+    msg += ` (Avanço de Ação recarregando: ${u._lupaLeapCd} turno(s))`;
+  }
   return msg;
 }
 // Reaplica os DoTs consumidos na Ultimate (guardados em u._lupaConsumedDots) com dano base amplificado — chamado durante o Overclock
@@ -5231,7 +5318,8 @@ function lupaUltimate(s, u, fx, ampU) {
   const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.20;
   const forceCrit = !!u._lupaGuaranteedCritUlt; u._lupaGuaranteedCritUlt = false;
   const incStacks = u.buffs.filter((b) => b.name === "Incinerador").length;
-  const defPen = 30 + incStacks * 6, resPen = 20;
+  const matilhaStacks = u.buffs.filter((b) => b.name === "Matilha Voraz").length;
+  const defPen = 30 + incStacks * 6 + (u.stFlags?.setMatilha4 && matilhaStacks >= 3 ? 25 : 0), resPen = 20;
   const supernova = incStacks > 0 && !!u.weapon?.buff?.lupaWeapon;
   let tot = 0;
   enemies.forEach((e) => { const r = dealDamage(u, e, (sk.ultMul || 850) * (u.tUlt || 1) * ampU * scaleMul * vorMul * (supernova ? 1.25 : 1), fx, { el: "Fogo", breakW: 3, defPen, resPen, forceCrit, noLupaProc: true }); tot += r.dmg; });
@@ -5971,14 +6059,19 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           const wpnBonus = wpnCharges * 0.24;
           if (postura) { u.sfPostura = false; if (wpnCharges > 0) u.sfWpnCharges = 0; }
           const skillMul = (sk.skillMul || 160) * sMul * (postura ? 1.20 * (1 + wpnBonus) : 1);
-          const r = dealDamage(u, enemy, skillMul, fx, postura ? { breakW: 2, el: "Vento", pierceShield: true, defPen: f.sfC6 ? 40 : 100, enhanced: true } : { breakW: 2, el: "Vento" });
-          const markCount = (enemy.debuffs || []).filter(d => d.name === "Ferrão da Morte").length;
-          if (markCount < 3) enemy.debuffs.push({ stat: "mark", value: 0, turns: 3, name: "Ferrão da Morte" });
-          if (f.sfC2) { if (!enemy.debuffs.some(d => d.name === "EletroRES↓")) enemy.debuffs.push({ stat: "elemRes", value: -15, turns: 3, name: "EletroRES↓" }); }
+          const sfSkillTargets = (postura && f.sfC6) ? aliveEnemies(s) : [enemy];
+          let sfSkillTot = 0, sfSkillCrit = false;
+          sfSkillTargets.forEach((e) => {
+            const r = dealDamage(u, e, skillMul, fx, postura ? { breakW: 2, el: "Vento", pierceShield: true, defPen: f.sfC6 ? 40 : 100, enhanced: true } : { breakW: 2, el: "Vento" });
+            sfSkillTot += r.dmg; if (r.crit) sfSkillCrit = true;
+            const mc = (e.debuffs || []).filter(d => d.name === "Ferrão da Morte").length;
+            if (mc < 3) e.debuffs.push({ stat: "mark", value: 0, turns: 3, name: "Ferrão da Morte" });
+            if (f.sfC2) { if (!e.debuffs.some(d => d.name === "EletroRES↓")) e.debuffs.push({ stat: "elemRes", value: -15, turns: 3, name: "EletroRES↓" }); }
+          });
           if (!postura && u.weapon?.id === "ferrao_borboleta") u.sfWpnCharges = Math.min(5, (u.sfWpnCharges || 0) + 1);
           msg = postura
-            ? `🦋✨🌿 ${u.name} usa Nigeki Kessatsu em POSTURA DE FERRÃO — ${r.dmg} de DANO VERDADEIRO de Vento${r.crit ? " (CRÍTICO!)" : ""}, ignora DEF e escudos!${wpnBonus ? ` +${Math.round(wpnBonus * 100)}% (${wpnCharges} Cargas)` : ""} [Ferrão da Morte] marcado por 3 turnos!`
-            : `🦋 ${u.name} usa Nigeki Kessatsu em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " (CRÍTICO!)" : ""}! [Ferrão da Morte] marcado por 3 turnos — follow-ups de aliados Eletro ativarão golpes de acompanhamento!`;
+            ? `🦋✨🌿 ${u.name} usa Nigeki Kessatsu em POSTURA DE FERRÃO${f.sfC6 ? " — TODOS os inimigos" : ""} — ${sfSkillTot} de DANO VERDADEIRO de Vento${sfSkillCrit ? " (CRÍTICO!)" : ""}, ignora DEF e escudos!${wpnBonus ? ` +${Math.round(wpnBonus * 100)}% (${wpnCharges} Cargas)` : ""} [Ferrão da Morte] marcado por 3 turnos!`
+            : `🦋 ${u.name} usa Nigeki Kessatsu em ${enemy.name} — ${sfSkillTot} de Dano de Vento${sfSkillCrit ? " (CRÍTICO!)" : ""}! [Ferrão da Morte] marcado por 3 turnos — follow-ups de aliados Eletro ativarão golpes de acompanhamento!`;
         }
         else if (u.id === "wonderofyou" && sk.wooSkill) {
             const sMul = u.tSkill * ampS;
@@ -6125,10 +6218,10 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           }
           else if (u.id === "yoruichi" && sk.yoruSkill && enemy) {
             u._yoruStance = 3; u._yoruMarkUid = enemy.uid; u._yoruRecordedDmg = 0;
-            u.buffs = u.buffs.filter(b => b.name !== "Condução Perfeita"); u.buffs.push({ stat: "dmgBonus", value: 0, turns: 3, name: "Condução Perfeita" }); // marcador visual (0 = não altera stats)
+            u.buffs = u.buffs.filter(b => b.name !== "Condução Perfeita"); u.buffs.push({ stat: "dmgBonus", value: 15, turns: 3, name: "Condução Perfeita" }); // corrige "buff de 0%": agora dá +15% de Dano Final de verdade enquanto a postura durar
             const spdBonus = Math.round(effStat(u, "spd") * 0.12);
             allies.forEach(a => { a.buffs = a.buffs.filter(b => b.name !== "Domínio Magnético"); a.buffs.push({ stat: "spd", value: spdBonus, pct: false, turns: 3, name: "Domínio Magnético" }); });
-            msg = `🌀 DOMÍNIO MAGNÉTICO! Yoruichi entra em Condução Perfeita por 3 turnos e marca ${enemy.name} como Ponto de Aterramento. Time inteiro ganha +${spdBonus} de VEL.`;
+            msg = `🌀 DOMÍNIO MAGNÉTICO! Yoruichi entra em Condução Perfeita por 3 turnos (+15% de Dano Final) e marca ${enemy.name} como Ponto de Aterramento. Time inteiro ganha +${spdBonus} de VEL.`;
           }
           else if (u.id === "shorekeeper" && sk.shkSkill) {
             const healTargets = allies.filter(a => a.alive);
@@ -6149,7 +6242,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
               // Superávit de Enteléquia (Rastro 2): excedente de cada aliado vira Escudo de Dados para o time todo
               // Só restaura se o aliado estiver com 900 ou menos de escudo; cap individual de 5000
               if (u.stFlags?.shkT2) {
-                const SHK_SHIELD_CAP = 14000;
+                const SHK_SHIELD_CAP = 22000;
                 healLog.forEach(({ a, done, amt }) => {
                   const over = amt - done;
                   if (over > 0 && (a.shield || 0) <= 3000) {
@@ -6376,15 +6469,20 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             const totalMul = (sk.ultMul || 350) * (u.tUlt || 1) * ampU * bankaiBuff * (1 + fmMarks * 0.15) * (postura ? 1.20 * (1 + wpnBonus) : 1);
             let origCR = null;
             if (f.sfBankai && enemy.hp / enemy.maxHp < 0.3) { origCR = u.base.critRate; u.base = { ...u.base, critRate: 200 }; }
-            const r = dealDamage(u, enemy, totalMul, fx, postura ? { breakW: 3, el: "Vento", pierceShield: true, defPen: f.sfC6 ? 40 : 100, enhanced: true } : { breakW: 3, el: "Vento" });
+            const sfUltTargets = (postura && f.sfC6) ? aliveEnemies(s) : [enemy];
+            let sfUltTot = 0, sfUltCrit = false, sfUltKilled = false;
+            sfUltTargets.forEach((e) => {
+              const r = dealDamage(u, e, totalMul, fx, postura ? { breakW: 3, el: "Vento", pierceShield: true, defPen: f.sfC6 ? 40 : 100, enhanced: true } : { breakW: 3, el: "Vento" });
+              sfUltTot += r.dmg; if (r.crit) sfUltCrit = true; if (!e.alive) sfUltKilled = true;
+            });
             if (origCR !== null) u.base.critRate = origCR;
             const zonaTurns = f.sfBankai ? 2 : 1;
             s.sfZona = { turns: zonaTurns };
             if (f.sfC4) s.heroes.filter(h => h.alive && !h.isSummon).forEach(h => h.buffs.push({ stat: "critRate", value: 10, pct: false, turns: zonaTurns + 1, name: "AuraCond" }));
-            if (!enemy.alive && f.sfC6) { u.energy = u.energyMax; u.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); }
+            if (sfUltKilled && f.sfC6) { u.energy = Math.min(u.energyMax, u.energy + Math.round(u.energyMax * 0.55)); u.buffs.push({ stat: "dmgBonus", value: 50, turns: 1, name: "ExecSuprema" }); } // corrige bug: energia ia pro máximo e ultava sem parar
             msg = postura
-              ? `💥🦋✨ JAKUHŌ RAIKŌBEN EM POSTURA DE FERRÃO! ${u.name} dispara o míssil em ${enemy.name} com DANO VERDADEIRO — ${r.dmg}${r.crit ? " CRÍTICO!" : ""}, ignora DEF e escudos!${wpnBonus ? ` +${Math.round(wpnBonus * 100)}% (${wpnCharges} Cargas)` : ""}${fmMarks ? ` (+${fmMarks * 15}% de marcas!)` : ""} Zona de Condução por ${zonaTurns} turno(s)!${f.sfC4 ? " +10% CRIT ao time!" : ""}`
-              : `💥🦋 JAKUHŌ RAIKŌBEN! ${u.name} dispara o míssil definitivo em ${enemy.name} — ${r.dmg} de Dano de Vento${r.crit ? " CRÍTICO!" : ""}!${fmMarks ? ` (+${fmMarks * 15}% de marcas!)` : ""} Zona de Condução por ${zonaTurns} turno(s)!${f.sfC4 ? " +10% CRIT ao time!" : ""}`;
+              ? `💥🦋✨ JAKUHŌ RAIKŌBEN EM POSTURA DE FERRÃO${f.sfC6 ? " — TODOS os inimigos" : ""}! ${u.name} dispara com DANO VERDADEIRO — ${sfUltTot}${sfUltCrit ? " CRÍTICO!" : ""}, ignora DEF e escudos!${wpnBonus ? ` +${Math.round(wpnBonus * 100)}% (${wpnCharges} Cargas)` : ""}${fmMarks ? ` (+${fmMarks * 15}% de marcas!)` : ""} Zona de Condução por ${zonaTurns} turno(s)!${f.sfC4 ? " +10% CRIT ao time!" : ""}`
+              : `💥🦋 JAKUHŌ RAIKŌBEN! ${u.name} dispara o míssil definitivo em ${enemy.name} — ${sfUltTot} de Dano de Vento${sfUltCrit ? " CRÍTICO!" : ""}!${fmMarks ? ` (+${fmMarks * 15}% de marcas!)` : ""} Zona de Condução por ${zonaTurns} turno(s)!${f.sfC4 ? " +10% CRIT ao time!" : ""}`;
           }
         } else if (u.id === "wonderofyou" && sk.wooUlt) {
             u.energy = enGain(5);
@@ -6423,6 +6521,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             msg = `⚡⚡ SHUNKO: RAIJIN! ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} em ${enemy.name}! O resto do time avança 25% na Ordem de Turnos!`;
             // Insere 2 Clones Residuais forçados — agora conta de verdade pro Colapso Elétrico (a cada 3 clones)
             for (let ci = 0; ci < 2 && enemy.alive; ci++) {
+              fx.push({ uid: u.uid, yoruCloneFlash: true, id: Math.random() });
               dealDamage(u, enemy, yMul * 0.5, fx, { el: "Eletro", isYoruClone: true, breakW: 1 });
               u._yoruClones = (u._yoruClones || 0) + 1;
               if (u._yoruClones % 3 === 0 && enemy._sibs) {
@@ -6433,16 +6532,16 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             }
           } else if (u.id === "shorekeeper" && sk.shkUlt) {
             const f = u.stFlags || {};
-            // Estágio 1: time inteiro ganha +15% CRIT e +30% CRIT DMG por 3 turnos (Rastro 3 + C3 amplificam o CRIT DMG)
+            // Estágio 1: time inteiro ganha +22% CRIT e +95% CRIT DMG por 3 turnos (Rastro 3 + C3 amplificam o CRIT DMG) — buffado de novo, e escala com o nível da Ultimate
             const t3Bonus = f.shkT3 ? Math.min(20, Math.max(0, Math.floor((u.maxHp - 4000) / 1000) * 2)) : 0;
-            const critDmgVal = Math.round((30 + t3Bonus) * ampU);
-            s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.buffs = h.buffs.filter(b => b.name !== "Estelarador"); h.buffs.push({ stat: "critRate", value: 15, turns: 3, name: "Estelarador" }, { stat: "critDmg", value: critDmgVal, turns: 3, name: "Estelarador" }); } });
+            const critDmgVal = Math.round((95 + t3Bonus) * ampU);
+            s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.buffs = h.buffs.filter(b => b.name !== "Estelarador"); h.buffs.push({ stat: "critRate", value: 22, turns: 3, name: "Estelarador" }, { stat: "critDmg", value: critDmgVal, turns: 3, name: "Estelarador" }); } });
             s._shkDomain = { turns: 3, stage: 1, spSpent: 0, ownerUid: u.uid };
             u._domainStage = 1; u._domainSpSpent = 0; u._domainTurns = 3;
             if (u.stFlags?.setCostaNegra6) { u._costaNegraTrack = 3; u._costaNegraOverheal = 0; }
             s.heroes.forEach(h => { if (h.alive && !h.isSummon) h._universalAdvActive = false; }); // reseta de uma ativação anterior
             if (u.weapon?.buff?.shkWeapon) { allies.filter(a => a.uid !== u.uid && a.alive).forEach(a => { a.energy = Math.min(a.energyMax, a.energy + 14); }); s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.buffs = h.buffs.filter(b => b.name !== "Sincronização de Rede"); h.buffs.push({ stat: "dmgBonus", value: 24, turns: 3, name: "Sincronização de Rede" }); } }); }
-            msg = `🌌✨ FIM DO LAMENTO! O Estelarador cobre o campo — Estágio 1: todo o time ganha +15% de Taxa de CRIT e +${critDmgVal}% de CRIT DMG por 3 turnos.${u.weapon?.buff?.shkWeapon ? " A arma sincroniza a equipe: +14 de Energia pros aliados e +24% de Dano Final enquanto o domínio durar." : ""}`;
+            msg = `🌌✨ FIM DO LAMENTO! O Estelarador cobre o campo — Estágio 1: todo o time ganha +22% de Taxa de CRIT e +${critDmgVal}% de CRIT DMG por 3 turnos.${u.weapon?.buff?.shkWeapon ? " A arma sincroniza a equipe: +14 de Energia pros aliados e +24% de Dano Final enquanto o domínio durar." : ""}`;
           } else if (u.id === "yanagi" && sk.yanaUlt) {
             const maxSparks = u.stFlags?.yanaS3 ? 8 : 5;
             const targets = aliveEnemies(s);
@@ -6540,6 +6639,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         } else if (u.id === "hitori" && sk.hitoriUlt) {
           u.energy = 0;
           msg = hitoriUltimate(s, u, fx);
+          if (u.weapon?.buff?.hitoriWeapon) { u._avMul = Math.min(u._avMul ?? 1, 0.5); msg += " 🥁 Batera: avanço de ação de 50%!"; } // arma: avanço de 50% pós-Supremo
         } else if (u.id === "lupa" && sk.lupaUlt) {
           u.energy = enGain(5);
           msg = lupaUltimate(s, u, fx, ampU);
@@ -6663,9 +6763,14 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       if (u.id === "miyabi" && (s.frostZone || 0) > 0) s.frostZone -= 1;
       if (u.id === "lupa" && (u._lupaOverclock || 0) > 0) { u._lupaOverclock -= 1; if (u._lupaOverclock <= 0) pushLog(s, `🔥 O Overclock de ${u.name} terminou.`); }
       if (u.id === "lupa" && (u._lupaSupernova || 0) > 0) u._lupaSupernova -= 1;
-      if (u.id === "soifon" && s.sfZona) { s.sfZona.turns -= 1; if (s.sfZona.turns <= 0) s.sfZona = null; }
+      if (u.id === "lupa" && (u._lupaLeapCd || 0) > 0) u._lupaLeapCd -= 1;
+      // Lupa C4 · Ressonância Térmica: aliados sob o Manto Flamejante regeneram 3 de energia no início do turno deles
+      if (u.energyMax && u.buffs.some((b) => b.name === "Manto Flamejante")) u.energy = Math.min(u.energyMax, u.energy + 3);
+      if (s.sfZona) { s.sfZona.turns -= 1; if (s.sfZona.turns <= 0) s.sfZona = null; } // corrige "ult infinita": antes só descontava no turno da própria Soi Fon
       s.sfFollowThisTurn = 0;
       checkSoiFonFollowup(s, u, s.fx);
+      // Batera do Kessoku Band: sempre que um aliado age, portadores da arma ganham +5 de energia (efeito da descrição, agora funcional)
+      s.heroes.filter((h) => h.alive && !h.isSummon && h.uid !== u.uid && h.weapon?.buff?.hitoriWeapon && h.energyMax).forEach((h) => { h.energy = Math.min(h.energyMax, h.energy + 5); });
       checkNamiFollowup(s, u, s.fx);
       // Yoruichi S3: reconhece Supremas ofensivas de outros aliados como Ataque Extra (gatilho próprio dela, não genérico)
       if (kind === "ult" && u.id !== "yoruichi") {
@@ -7617,12 +7722,14 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           const iu = state.heroes.find(h => h.uid === inspectUid) || state.enemies.find(e => e.uid === inspectUid);
           if (!iu) return null;
           const iel = ELEMENTS[iu.element] || { color: C.line };
-          const statRow = (lbl, v, base) => (
+          const statRow = (lbl, v, base, suffix = "") => {
+            const showDelta = base != null && isFinite(base) && isFinite(v) && Math.round(v) !== Math.round(base);
+            return (
             <div className="flex items-center justify-between" style={{ fontSize: 12, padding: "3px 0", borderBottom: `1px solid ${C.line}55` }}>
               <span style={{ color: C.mute }}>{lbl}</span>
-              <span style={{ fontWeight: 700 }}>{v}{base != null && Math.round(v) !== Math.round(base) ? <span style={{ color: v > base ? C.good : C.bad, fontSize: 10 }}> ({v > base ? "+" : ""}{Math.round(v - base)})</span> : null}</span>
+              <span style={{ fontWeight: 700 }}>{v}{suffix}{showDelta ? <span style={{ color: v > base ? C.good : C.bad, fontSize: 10 }}> ({v > base ? "+" : ""}{Math.round(v - base)}{suffix})</span> : null}</span>
             </div>
-          );
+          ); };
           const effLine = (b, isBuff) => (
             <div style={{ fontSize: 11, padding: "5px 8px", borderRadius: 8, background: isBuff ? "#0d2317" : "#2a0f18", border: `1px solid ${isBuff ? C.good : C.bad}44`, marginBottom: 4 }}>
               <div style={{ fontWeight: 700, color: isBuff ? C.good : "#FF8FA0" }}>{b.name || (isBuff ? "Buff" : "Debuff")}</div>
@@ -7649,8 +7756,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
                   {statRow("ATK", Math.round(effStat(iu, "atk")), iu.base?.atk)}
                   {statRow("DEF", Math.round(effStat(iu, "def")), iu.base?.def)}
                   {statRow("VEL", Math.round(effStat(iu, "spd")), iu.base?.spd)}
-                  {statRow("Taxa de CRIT", Math.round(effStat(iu, "critRate")) + "%", iu.base?.critRate)}
-                  {statRow("CRIT DMG", Math.round(effStat(iu, "critDmg")) + "%", iu.base?.critDmg)}
+                  {statRow("Taxa de CRIT", Math.round(effStat(iu, "critRate")), iu.base?.critRate, "%")}
+                  {statRow("CRIT DMG", Math.round(effStat(iu, "critDmg")), iu.base?.critDmg, "%")}
                   {iu.energyMax > 0 && statRow("⚡ Energia", `${Math.round(iu.energy)} / ${iu.energyMax}`)}
                 </div>
                 {(iu.buffs || []).length > 0 && <div style={{ marginBottom: 8 }}>
@@ -7725,12 +7832,12 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             <div style={{ ...ORB, fontWeight: 800, fontSize: 24, color: state.win ? C.good : C.bad, textShadow: `0 0 18px ${(state.win ? C.good : C.bad)}66` }}>{state.win ? "VITÓRIA" : "DERROTA"}</div>
             {(!state.win && context !== "abismo") ? (
               <div className="flex gap-2" style={{ justifyContent: "center", marginTop: 12 }}>
-                <Btn kind="primary" onClick={() => onRetry && onRetry()} style={{ padding: "10px 18px", fontWeight: 800 }}>🔁 Jogar Novamente</Btn>
+                <Btn kind="primary" onClick={() => onRetry && onRetry({ win: false, turns: state.heroTurns, heroesHp: state.heroes.filter(h => !h.isSummon).map(h => ({ id: h.id, hpPct: Math.max(0, h.hp / Math.max(1, h.maxHp)), alive: h.alive })) })} style={{ padding: "10px 18px", fontWeight: 800 }}>🔁 Jogar Novamente</Btn>
                 <Btn kind="soft" onClick={() => onEnd({ win: false, turns: state.heroTurns, heroesHp: state.heroes.filter(h => !h.isSummon).map(h => ({ id: h.id, hpPct: Math.max(0, h.hp / Math.max(1, h.maxHp)), alive: h.alive })) })} style={{ padding: "10px 18px" }}>↩ Voltar</Btn>
               </div>
             ) : state.win && ["farm", "tagdungeon", "coop", "relicfarm", "relicrotate"].includes(context) ? (
               <div className="flex gap-2" style={{ justifyContent: "center", marginTop: 12 }}>
-                <Btn kind="primary" onClick={() => onRetry && onRetry()} style={{ padding: "10px 18px", fontWeight: 800 }}>🔁 Farmar de novo</Btn>
+                <Btn kind="primary" onClick={() => onRetry && onRetry({ win: true, turns: state.heroTurns, heroesHp: state.heroes.filter(h => !h.isSummon).map(h => ({ id: h.id, hpPct: Math.max(0, h.hp / Math.max(1, h.maxHp)), alive: h.alive })) })} style={{ padding: "10px 18px", fontWeight: 800 }}>🔁 Farmar de novo</Btn>
                 <Btn kind="soft" onClick={() => onEnd({ win: true, turns: state.heroTurns, heroesHp: state.heroes.filter(h => !h.isSummon).map(h => ({ id: h.id, hpPct: Math.max(0, h.hp / Math.max(1, h.maxHp)), alive: h.alive })) })} style={{ padding: "10px 18px" }}>↩ Voltar</Btn>
               </div>
             ) : state.win && ["tower", "darktower"].includes(context) ? (
@@ -8006,12 +8113,18 @@ function SummonFx({ data }) {
   </div>;
 }
 function FX({ fx, uid }) {
-  const items = fx.filter((f) => f.uid === uid);
-  if (!items.length) return null;
+  const items = fx.filter((f) => f.uid === uid && !f.yoruCloneFlash);
+  const clones = fx.filter((f) => f.uid === uid && f.yoruCloneFlash);
   const colorOf = (f) => f.enhanced ? "#5CFF7A" : f.heal ? C.good : f.dot ? (DOT_INFO[f.dot]?.c || "#fff") : f.crit ? C.gold : (f.el && ELEMENTS[f.el]?.color) || "#ffd9d9";
-  return <div style={{ position: "absolute", top: -6, left: 0, right: 0, textAlign: "center", pointerEvents: "none", zIndex: 5 }}>
-    {items.map((f) => <div key={f.id} style={{ animation: "srFloat 1s ease-out forwards", fontWeight: 800, fontSize: f.enhanced ? 20 : f.crit ? 18 : f.dot ? 11 : 14, color: colorOf(f), textShadow: f.enhanced ? "0 0 10px #5CFF7Aaa, 0 1px 3px #000" : "0 1px 3px #000" }}>{f.dot ? "🔥" : f.enhanced ? "🌿" : ""}{f.txt}{f.crit ? "!" : ""}</div>)}
-  </div>;
+  return <>
+    {clones.length > 0 && <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 6 }}>
+      <div key={clones[clones.length - 1].id} style={{ animation: "srCloneFlash 0.7s ease-out forwards", fontSize: 22, filter: "drop-shadow(0 0 8px #B98BFFcc)" }}>🐈‍⬛👻</div>
+      <style>{`@keyframes srCloneFlash{0%{opacity:0;transform:scale(0.5)}20%{opacity:1;transform:scale(1.15)}70%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.85)}}`}</style>
+    </div>}
+    {items.length > 0 && <div style={{ position: "absolute", top: -6, left: 0, right: 0, textAlign: "center", pointerEvents: "none", zIndex: 5 }}>
+      {items.map((f) => <div key={f.id} style={{ animation: "srFloat 1s ease-out forwards", fontWeight: 800, fontSize: f.enhanced ? 20 : f.crit ? 18 : f.dot ? 11 : 14, color: colorOf(f), textShadow: f.enhanced ? "0 0 10px #5CFF7Aaa, 0 1px 3px #000" : "0 1px 3px #000" }}>{f.dot ? "🔥" : f.enhanced ? "🌿" : ""}{f.txt}{f.crit ? "!" : ""}</div>)}
+    </div>}
+  </>;
 }
 
 /* ==========================================================================
@@ -8071,7 +8184,7 @@ function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, setRelicMats, 
         flash(`Domínio limpo! +${drops.length} relíquias · +12 🔷 Matéria de Relíquia`, C.good);
       } else flash("O domínio resistiu…", C.bad);
     };
-    setBattle({ context: "coop", encounter: { level: 45, count: 3, boss: true }, ally, onResolve });
+    setBattle({ context: "coop", staminaCost: 40, encounter: { level: 45, count: 3, boss: true }, ally, onResolve });
   }
 
   return (
