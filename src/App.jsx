@@ -5385,12 +5385,21 @@ function balanceDamage(raw, attacker, opts) {
   let d = raw;
   // 1) Escala de investimento: cada cópia (eidolon) rende dano de verdade — E6 = +90%
   if (attacker && attacker.eidolon) d *= 1 + Math.min(6, attacker.eidolon) * 0.15;
-  // 2) Piso: golpes fracos sobem forte, então nenhum personagem fica preso em "20k"
-  if (d < DMG_LIFT) d = d * (1 + 1.8 * (1 - d / DMG_LIFT));
-  // 3) Compressão suave e tardia: preserva o ganho de build, só amacia o exagero
-  if (d > DMG_SOFT) d = DMG_SOFT * Math.pow(d / DMG_SOFT, 0.82);
-  // 4) Exceções: nukes de Suprema/E6 têm teto próprio mais alto
-  const cap = opts?.bigNuke ? DMG_HARD : DMG_HARD * 0.6;
+  // 2) Piso PROPORCIONAL AO PESO DO GOLPE. Antes, ataques multi-hit (8 armas, 5 cortes,
+  //    enxames de Ataque Extra) ganhavam o piso inteiro em CADA acerto e somavam milhões.
+  //    Agora o peso divide o piso: a soma de N golpes equivale a 1 golpe do mesmo tamanho.
+  const w = opts?.w != null ? opts.w : (opts?.isFollowup || opts?.isYoruClone || opts?.isAsCopy || opts?.isGilWeapon ? 0.16 : 1);
+  const lift = DMG_LIFT * w;
+  if (d < lift) d = d * (1 + 1.8 * (1 - d / lift));
+  // 3) Compressão também proporcional ao peso: um ataque de 8 acertos comprime 8× mais cedo,
+  //    senão cada acerto passava batido pelo limiar e a SOMA da ação estourava (ex: 3,9M).
+  const soft = DMG_SOFT * w;
+  // Multi-hit comprime mais forte: quanto menor o peso do acerto, mais agressiva a curva,
+  // pra que a SOMA da ação fique na mesma faixa de um golpe único equivalente.
+  const expo = 0.58 + 0.24 * w;
+  if (d > soft) d = soft * Math.pow(d / soft, expo);
+  // 4) Teto por acerto também escala com o peso; nukes de Suprema/E6 mantêm teto alto.
+  const cap = opts?.bigNuke ? DMG_HARD : DMG_HARD * 0.6 * w;
   return Math.max(1, Math.round(Math.min(cap, d)));
 }
 function dealDamage(attacker, defender, mult, fx, opts) {
@@ -6834,7 +6843,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           if (enemy) {
             if ((u._gilReinado || 0) > 0) { // Arsenal do Rei: 8 armas
               let tot = 0;
-              for (let i = 0; i < 8 && enemy.alive; i++) { const mul = i === 7 ? 280 : 65; const r = dealDamage(u, enemy, mul * (u.tBasic || 1) * ampB, fx, { el: "Unknown" }); tot += r.dmg; if (Math.random() < 0.35) gilExtraProc(u, s, fx); }
+              for (let i = 0; i < 8 && enemy.alive; i++) { const mul = i === 7 ? 280 : 65; const r = dealDamage(u, enemy, mul * (u.tBasic || 1) * ampB, fx, { el: "Unknown", w: 0.125 }); tot += r.dmg; if (Math.random() < 0.35) gilExtraProc(u, s, fx); }
               msg = `👑🗡️ ARSENAL DO REI — 8 armas nobres: ${tot} de Dano Unknown!`;
             } else {
               const r = dealDamage(u, enemy, (sk.basicMul || 120) * (u.tBasic || 1) * ampB, fx, { el: "Unknown" });
@@ -6850,7 +6859,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
           if ((u._asReino || 0) > 0 && enemy) {
             let tot = 0;
-            for (let ci = 0; ci < 5 && enemy.alive; ci++) { const mul = ci === 4 ? 220 : 70; const r = dealDamage(u, enemy, mul * (u.tBasic || 1) * ampB, fx, { el: "Chaos" }); tot += r.dmg; if (Math.random() < 0.5) u._asPhantom = (u._asPhantom || 0) + 1; }
+            for (let ci = 0; ci < 5 && enemy.alive; ci++) { const mul = ci === 4 ? 220 : 70; const r = dealDamage(u, enemy, mul * (u.tBasic || 1) * ampB, fx, { el: "Chaos", w: 0.2 }); tot += r.dmg; if (Math.random() < 0.5) u._asPhantom = (u._asPhantom || 0) + 1; }
             if (enemy.alive && enemy.hp / enemy.maxHp < 0.5) { const exec = Math.min(Math.round(enemy.maxHp * 0.12), enemy.boss ? 25000 : 999999); enemy.hp -= exec; if (enemy.hp <= 0) { enemy.hp = 0; enemy.alive = false; } fx.push({ uid: enemy.uid, txt: String(exec) + "!", crit: true, id: Math.random(), el: "Chaos" }); tot += exec; }
             msg = `⚔️👑 Espada da Coroa Negra — 5 cortes consecutivos: ${tot} de Dano Chaos! (Fantasmas: ${u._asPhantom || 0})`;
             while ((u._asPhantom || 0) >= 3) { u._asPhantom -= 3; const tgt = aliveEnemies(s)[0]; if (tgt) { dealDamage(u, tgt, 120 * (u.tBasic || 1), fx, { el: "Chaos", isFollowup: true, isAsCopy: true }); asMark(u, s); } msg += " ⚡ 3 Ruínas Fantasma consumidas → Ataque Extra!"; }
