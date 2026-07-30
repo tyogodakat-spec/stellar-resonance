@@ -20,6 +20,7 @@ const ELEMENTS = {
   Vento:   { color: "#74E8A6", glyph: "↟", soft: "#103325" },
   Virus:   { color: "#A6E22E", glyph: "☣", soft: "#26330f" },
   Eletro:  { color: "#B98BFF", glyph: "⚡", soft: "#241439" },
+  Fisico:  { color: "#D8D2C4", glyph: "⚔", soft: "#2e2a24" }, // Físico — perfura bem e aplica Sangramento na Quebra
   Unknown: { color: "#EAEAEA", glyph: "❓", soft: "#2a2a2a" }, // elemento exclusivo da Shorekeeper — fora do pool aleatório de fraqueza/resistência dos inimigos
 };
 const ELEMENT_NAMES = Object.keys(ELEMENTS).filter(e => e !== "Unknown");
@@ -96,7 +97,7 @@ const ROSTER = [
     skill: { basicMul: 120, gilBasic: true, skillMul: 0, gilSkill: true, ultMul: 980, gilUlt: true } }),
   // ---- Soi Fon (Limitada) ----
   mk({ id: "soifon", name: "Soi Fon", title: "Capitã da 2ª Divisão", element: "Vento", role: "dps", rarity: 5, avatar: "🦋", hp: 1040, atk: 790, def: 420, spd: 118, energy: 120, cr: 8, cd: 56, tags: ["Vento", "Follow-up", "Sub DPS", "Assassina"],
-    skill: { basicMul: 115, sfBasic: true, skillMul: 185, sfSkill: true, ultMul: 410, sfUlt: true } }),
+    skill: { basicMul: 190, sfBasic: true, skillMul: 340, sfSkill: true, ultMul: 880, sfUlt: true } }), // rebalanceada: estava muito abaixo da curva dos 5★
   // ---- Omegamon Zwart D (Limitado) ----
   mk({ id: "omegamon", name: "Omegamon Zwart D", title: "Digital Hazard · Defeat", element: "Virus", role: "shield", rarity: 5, avatar: "🛡️", hp: 1900, atk: 950, def: 740, spd: 99, energy: 130, cr: 10, cd: 58, er: 22, elemDmg: 0, tags: ["Vírus", "Guardião", "Tanque", "Corrosão"],
     skill: { basicMul: 100, omgBasic: true, skillMul: 120, omgSkill: true, ultMul: 150, omgUlt: true } }),
@@ -122,6 +123,28 @@ const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplica
 const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon", "lupa", "hitori", "altersaber", "gilgamesh"];     // limitados (pool 50/50): só via rate-up
 const FEATURED_LIMITEDS = ["gilgamesh", "altersaber", "lupa", "hitori"]; // banners ativos: Gilgamesh e Alter Saber (RELÂMPAGO: 3 HORAS!), Lupa e Hitori
 const BANNER_DURATIONS = { gilgamesh: 3 * 60 * 60 * 1000, altersaber: 3 * 60 * 60 * 1000, lupa: 5 * 24 * 60 * 60 * 1000, hitori: 5 * 24 * 60 * 60 * 1000 }; // Gilgamesh e Alter Saber: banners RELÂMPAGO de 3 HORAS · Lupa/Hitori: 5 dias
+// ══ Títulos de chat — desbloqueados ao levar um personagem ao E6 (todas as cópias) ══
+const E6_TITLES = {
+  lupa:        { t: "Predador de Fusão",       c: "#FF6A3D" },
+  hitori:      { t: "Estrela do Kessoku Band", c: "#FF8FB1" },
+  altersaber:  { t: "Rei do Fim das Eras",     c: "#B24BFF" },
+  gilgamesh:   { t: "Rei dos Heróis",          c: "#FFD249" },
+  miyabi:      { t: "Lâmina do Zero Absoluto", c: "#6FE3FF" },
+  soifon:      { t: "Ferrão da Morte",         c: "#7CFFB0" },
+  yoruichi:    { t: "Deusa do Relâmpago",      c: "#FFE066" },
+  shorekeeper: { t: "Guardiã da Costa",        c: "#9FE8FF" },
+  frieren:     { t: "Além do Fim da Jornada",  c: "#C9B6FF" },
+  agumon:      { t: "Coragem Termonuclear",    c: "#FF9E45" },
+  kaiba:       { t: "Mestre dos Dragões",      c: "#7FD4FF" },
+  omegamon:    { t: "Cavaleiro Real",          c: "#E8ECFF" },
+  ryoshu:      { t: "Lâmina Escarlate",        c: "#FF5E5E" },
+  athena:      { t: "Sabedoria do Olimpo",     c: "#FFD9A0" },
+  wonderofyou: { t: "Calamidade Inevitável",   c: "#FF7AC8" },
+  yanagi:      { t: "Anomalia Voltaica",       c: "#B98BFF" },
+};
+function earnedTitles(owned) {
+  return (owned || []).filter((o) => (o.eidolon || 0) >= 6 && E6_TITLES[o.id]).map((o) => ({ id: o.id, ...E6_TITLES[o.id] }));
+}
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
 const DEFAULT_FEATURED_CHAR = "lupa";
 // Banner Especial Limitado — pool de 5, dura 3 dias corridos pra TODO mundo (data fixa, não reseta por dispositivo)
@@ -247,7 +270,15 @@ const RELIC_SETS = {
 };
 const RELIC_SET_NAMES = Object.keys(RELIC_SETS);
 const ROTATING_FARM_SETS = RELIC_SET_NAMES.filter((s) => s !== "Protocolo Ômega"); // Ômega já tem domínio fixo (Rede Corrompida)
-function featuredFarmSet() { const wk = Math.floor(Date.now() / (7 * 24 * 3600 * 1000)); return ROTATING_FARM_SETS[wk % ROTATING_FARM_SETS.length]; }
+function featuredFarmSet() { return featuredFarmSets()[0]; }
+// Toda semana, 2 conjuntos entram em destaque com BUFF DE DROP. Todos os outros continuam farmáveis.
+function featuredFarmSets() {
+  const wk = Math.floor(Date.now() / (7 * 24 * 3600 * 1000));
+  const n = ROTATING_FARM_SETS.length;
+  return [ROTATING_FARM_SETS[(wk * 2) % n], ROTATING_FARM_SETS[(wk * 2 + 1) % n]];
+}
+function isFeaturedSet(s) { return featuredFarmSets().includes(s); }
+function weekResetMs() { const W = 7 * 24 * 3600 * 1000; return W - (Date.now() % W); }
 const RELIC_ITEM_ID = {
   "Tempestade Eletro": "item_relic_eletro",
   "Sopro Glacial":     "item_relic_glacial",
@@ -375,6 +406,118 @@ const EMPTY_RELICS = () => [null, null, null, null, null, null];
 function relicLabel(r) { if (!r) return ""; return r.main === "elemDmg" ? `Dano ${r.mainElement}` : statName(r.main); }
 function relicSuffix(key) { return isFlatKey(key) ? "" : "%"; }
 const relicMainText = (r) => `${relicLabel(r)} +${relicMainValue(r.main, r.level).toFixed(1)}${relicSuffix(r.main)}`;
+// Card de relíquia estilo HSR — stat principal em destaque, substats listados, selo de nota e nível
+function RelicCardHSR({ r, def, badge, onClick, compact }) {
+  const sd = RELIC_SETS[r.set] || { color: "#8a8f9c" };
+  const want = (CHAR_WANTED_OVERRIDE[def?.id] || ROLE_WANTED[def?.role] || ROLE_WANTED.dps);
+  const idealMain = def ? relicIsIdealMain(r, def) : false;
+  const lv = r.level || 0;
+  return (
+    <button onClick={onClick} className="text-left" style={{
+      position: "relative", width: "100%",
+      background: `linear-gradient(150deg, ${sd.color}1f, ${C.panel} 55%)`,
+      border: `1px solid ${badge ? C.gold : sd.color + "66"}`, borderRadius: 14, padding: 10,
+      boxShadow: badge ? `0 0 18px ${C.gold}44` : "0 4px 14px #00000040", overflow: "hidden",
+    }}>
+      <div style={{ position: "absolute", right: -12, top: -12, fontSize: 54, opacity: 0.10 }}>{RELIC_EMOJI[r.set] || "💎"}</div>
+      <div className="flex items-center justify-between" style={{ position: "relative" }}>
+        <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 0.6, color: sd.color, textTransform: "uppercase" }}>{RELIC_SLOTS[r.slot ?? 0]?.name}</span>
+        <span style={{ fontSize: 10, fontWeight: 900, color: lv >= 15 ? C.gold : C.mute, background: "#00000055", borderRadius: 5, padding: "1px 5px" }}>+{lv}</span>
+      </div>
+      <div style={{ position: "relative", marginTop: 6, lineHeight: 1.05 }}>
+        <div style={{ fontSize: 9, color: C.mute }}>{relicLabel(r)}</div>
+        <div style={{ ...ORB, fontSize: 20, fontWeight: 900, color: idealMain ? C.good : C.text }}>
+          +{relicMainValue(r.main, lv).toFixed(1)}{relicSuffix(r.main)}
+          {idealMain && <span style={{ fontSize: 10, fontWeight: 800, color: C.good }}> ✓</span>}
+        </div>
+      </div>
+      <div style={{ position: "relative", marginTop: 7, borderTop: `1px solid ${C.line}`, paddingTop: 6, display: "grid", gap: 2 }}>
+        {(r.subs || []).map((s, i) => { const ok = want.subs.includes(s.stat); return (
+          <div key={i} className="flex items-center justify-between" style={{ fontSize: 10, color: ok ? C.good : C.mute, fontWeight: ok ? 700 : 400 }}>
+            <span>{ok ? "◆ " : "◇ "}{relicSubLabel(s)}</span><span>+{s.value.toFixed(1)}</span>
+          </div>); })}
+      </div>
+      {!compact && <div style={{ position: "relative", marginTop: 6, fontSize: 9, color: sd.color, fontWeight: 700 }}>{r.set}</div>}
+      {badge && <div style={{ position: "absolute", top: 8, right: 8, fontSize: 9, fontWeight: 900, color: C.gold }}>{badge}</div>}
+    </button>
+  );
+}
+// Estado APRIMORADO estilo HSR: o botão muda de nome, ganha brilho pulsante e cor própria.
+// Retorna { i: índice da ação (0 básico, 1 perícia, 2 ult), name, color, tag } ou null.
+function enhancedState(h) {
+  if (!h) return null;
+  if (h.id === "lupa" && (h._lupaOverclock || 0) > 0) return { i: 0, name: "Julgamento Solar", color: "#FF6A00", tag: "OVERCLOCK" };
+  if (h.id === "soifon" && h.sfPostura) return { i: -1, name: null, color: "#7CFFB0", tag: "POSTURA DE FERRÃO" };
+  if (h.id === "altersaber" && (h._asReino || 0) > 0) return { i: 0, name: "Espada da Coroa Negra", color: "#B24BFF", tag: "REINO DA RUÍNA" };
+  if (h.id === "gilgamesh" && (h._gilReinado || 0) > 0) return { i: 0, name: "Arsenal do Rei", color: "#FFD249", tag: "REINADO DOURADO" };
+  if (h.id === "miyabi" && (h.posturePH || 0) >= (h.stFlags?.miC6 ? 4 : 3)) return { i: 0, name: h.stFlags?.miC6 ? "Corte do Fim dos Tempos" : "Postura Iaido", color: "#6FE3FF", tag: "IAIDO" };
+  if (h.id === "agumon" && (h.agModoX || 0) > 0) return { i: -1, name: null, color: "#FF9E45", tag: "MODO X" };
+  if (h.id === "hitori" && (h.buffs || []).some(b => b.name === "Kessoku Band")) return { i: -1, name: null, color: "#FF8FB1", tag: "KESSOKU" };
+  return null;
+}
+// Barra de Perfuração segmentada — igual ao HSR: cada segmento é uma unidade de Resistência
+function ToughnessBar({ cur, max, broken }) {
+  const segs = Math.max(1, Math.min(12, Math.round(max)));
+  const filled = Math.ceil((cur / Math.max(1, max)) * segs);
+  return <div className="flex items-center" style={{ gap: 2, width: "100%" }}>
+    {Array.from({ length: segs }).map((_, i) => (
+      <div key={i} style={{ flex: 1, height: 6, borderRadius: 2,
+        background: broken ? "#7CFFB033" : (i < filled ? "linear-gradient(180deg,#FFE9A8,#F2C245)" : "#2a2438"),
+        boxShadow: !broken && i < filled ? "0 0 5px #F2C24588" : "none",
+        border: broken ? "1px solid #7CFFB055" : "none", transition: "all .25s" }} />
+    ))}
+  </div>;
+}
+// Painel de detalhe da relíquia — abre ao segurar/clicar; mostra stats, efeitos do conjunto e permite Aprimorar
+function RelicDetailModal({ r, def, onClose, onUpgrade, onEquip, canUpgrade }) {
+  if (!r) return null;
+  const sd = RELIC_SETS[r.set] || { color: "#8a8f9c" };
+  const want = (CHAR_WANTED_OVERRIDE[def?.id] || ROLE_WANTED[def?.role] || ROLE_WANTED.dps);
+  const lv = r.level || 0;
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 90, background: "#000000d0", backdropFilter: "blur(7px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 380, background: `linear-gradient(180deg, ${sd.color}1c, ${C.panel} 40%, ${C.bg0})`,
+        border: `1px solid ${sd.color}66`, borderRadius: 20, padding: 16, boxShadow: `0 0 40px ${sd.color}44` }}>
+        {/* orbe do item, como no HSR */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>
+          <div style={{ width: 116, height: 116, borderRadius: 99, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 54,
+            background: `radial-gradient(circle at 50% 40%, ${sd.color}44, transparent 70%)`, border: `2px solid ${sd.color}`, boxShadow: `0 0 30px ${sd.color}77, inset 0 0 24px ${sd.color}33` }}>
+            {RELIC_EMOJI[r.set] || "💎"}
+          </div>
+        </div>
+        <div style={{ textAlign: "center", ...ORB, fontWeight: 800, fontSize: 15 }}>{r.set}</div>
+        <div className="flex items-center justify-center gap-2" style={{ fontSize: 11, color: C.mute, marginTop: 2 }}>
+          <span>{RELIC_SLOTS[r.slot ?? 0]?.name}</span>
+          <span style={{ color: lv >= 15 ? C.gold : sd.color, fontWeight: 900 }}>+{lv}</span>
+        </div>
+        {/* stat principal + substats */}
+        <div style={{ marginTop: 12, background: "#00000040", borderRadius: 12, padding: 10 }}>
+          <div className="flex items-center justify-between" style={{ paddingBottom: 6, borderBottom: `1px solid ${C.line}` }}>
+            <span style={{ fontWeight: 800, fontSize: 12, color: sd.color }}>◈ {relicLabel(r)}</span>
+            <b style={{ ...ORB, fontSize: 16, color: relicIsIdealMain(r, def) ? C.good : C.text }}>{relicMainValue(r.main, lv).toFixed(1)}{relicSuffix(r.main)}</b>
+          </div>
+          {(r.subs || []).map((s, i) => { const ok = want.subs.includes(s.stat); return (
+            <div key={i} className="flex items-center justify-between" style={{ fontSize: 12, padding: "5px 0", color: ok ? C.good : C.mute, fontWeight: ok ? 700 : 400 }}>
+              <span>{ok ? "◆" : "◇"} {relicSubLabel(s)}</span><span>+{s.value.toFixed(1)}</span>
+            </div>); })}
+        </div>
+        {/* efeitos do conjunto */}
+        <div style={{ marginTop: 12 }}>
+          <div style={{ fontWeight: 800, fontSize: 12, marginBottom: 4 }}>Efeito de Conjunto</div>
+          <div style={{ color: sd.color, fontSize: 12, fontWeight: 700 }}>{r.set}</div>
+          {sd.d2 && <div style={{ fontSize: 11, color: C.mute, marginTop: 4, lineHeight: 1.5 }}>⊘ <b>2 pç:</b> {sd.d2}</div>}
+          {sd.d4 && <div style={{ fontSize: 11, color: C.mute, marginTop: 3, lineHeight: 1.5 }}>⊘ <b>4 pç:</b> {sd.d4}</div>}
+        </div>
+        <div className="flex gap-2" style={{ marginTop: 14 }}>
+          {onEquip && <Btn kind="soft" style={{ flex: 1, padding: "10px 0" }} onClick={onEquip}>Equipar</Btn>}
+          {onUpgrade && lv < 15 && <Btn kind="primary" style={{ flex: 1, padding: "10px 0", fontWeight: 800 }} disabled={!canUpgrade} onClick={onUpgrade}>⬆ Aprimorar (+1)</Btn>}
+          {lv >= 15 && <Btn kind="soft" style={{ flex: 1, padding: "10px 0" }} disabled>Nível Máximo</Btn>}
+        </div>
+        <button onClick={onClose} style={{ width: "100%", marginTop: 8, fontSize: 12, color: C.mute }}>fechar</button>
+      </div>
+    </div>
+  );
+}
 const relicSetData = (name) => RELIC_SETS[name] || { color: "#8a8f9c" }; // acesso seguro (saves antigos com sets removidos)
 function isValidRelic(r) { return !!(r && typeof r === "object" && r.main && MAIN_RANGE[r.main] && RELIC_SETS[r.set] && Array.isArray(r.subs)); }
 function sanitizeRelicSlots(arr) { const out = (Array.isArray(arr) ? arr.slice(0, 6) : []).map((r) => (isValidRelic(r) ? r : null)); while (out.length < 6) out.push(null); return out; }
@@ -460,7 +603,7 @@ const CONS = {
     { name: "C3 · Ritmo da Nevasca", ...A_SKILL, flag: "miC3", desc: "Eleva o nível do Ataque Básico e da Habilidade. Sempre que Miyabi usar a Habilidade, seu ATK aumenta em +20% até o fim do combate (acumula até 3 vezes)." },
     { name: "C4 · Domínio do Zero Absoluto", flag: "miC4", desc: "Ao conjurar a Ultimate Inverno Eterno, o campo vira uma Zona de Geada por 2 turnos. Dentro desta zona, Miyabi fica permanentemente em Postura Iaido e seus Ataques Básicos não precisam acumular nem consumir PH para ativar o corte aprimorado de penetração de DEF." },
     { name: "C5 · Gélido Ancestral", ...A_ULT, desc: "Eleva em +50% o dano da Ultimate (nevasca total em área) e reforça os Nós de Atributo de gelo." },
-    { name: "C6 · Estilo Kamakura: Julgamento Final", flag: "miC6", desc: "O limite máximo de PH de Miyabi aumenta para 4. Ao atingir 4 PH, a Postura Iaido evolui para o Corte do Fim dos Tempos: o ataque passa a atingir TODOS os inimigos com 680% de ATK, ignora 50% da DEF e, se eliminar qualquer alvo, reseta instantaneamente a barra de ação de Miyabi para ela jogar de novo." },
+    { name: "C6 · Estilo Kamakura: Julgamento Final", flag: "miC6", desc: "O limite máximo de PH de Miyabi aumenta para 4. Ao atingir 4 PH, a Postura Iaido evolui para o Corte do Fim dos Tempos: o ataque passa a atingir TODOS os inimigos com 520% de ATK, ignora 50% da DEF e, se eliminar qualquer alvo, reseta instantaneamente a barra de ação de Miyabi para ela jogar de novo." },
   ],
   kaiba: [
     { name: "S1 · Mecânica de Cemitério e Reciclagem de Deck", flag: "kaibaS1", desc: "Sempre que um Monstro Invocado é destruído ou substituído, ele é enviado para o Cemitério (limite máximo de 3 monstros armazenados). Cada monstro presente no Cemitério concede a Kaiba um aumento permanente de +10% na Taxa de Regeneração de Energia e aumenta o Dano Crítico de todas as invocações ativas em 15%. Ao atingir o limite de 3 monstros no Cemitério, Kaiba consome todos os registros para reembaralhar instantaneamente as cartas de monstro de volta ao Deck Holográfico, gerando 1 Ponto de Habilidade e forçando a próxima Perícia a puxar obrigatoriamente uma carta de categoria Magia ou Armadilha." },
@@ -1132,8 +1275,34 @@ async function loadAccounts() {
 async function saveAccounts(a) { try { await SS.set(ACCOUNTS_KEY, JSON.stringify(a)); } catch {} cloudSet("meta", "accounts", { list: a }); }
 
 /* ---------- TORRE ---------- */
-const TOWER_FLOORS = 200;
+const TOWER_FLOORS = 450; // +250 andares novos (201–450): Ascensão Estelar
 const TOWER_BOSSES = {
+  // ══ ASCENSÃO ESTELAR — 250 andares novos (201–450), 25 chefes com mecânicas exclusivas ══
+  210: { name: "Vharok, o Devorador de Égides", title: "Glutão de Barreiras", element: "Chaos", bossKind: "devorador", res: ["Chaos"], weak: ["Holy"] },
+  220: { name: "Espelho de Nyx", title: "Reflexo do Abismo", element: "Unknown", bossKind: "espelho", res: ["Unknown"], weak: ["Eletro"] },
+  230: { name: "Kronarch", title: "Senhor da Ampulheta", element: "Holy", bossKind: "temporal", res: ["Holy"], weak: ["Chaos"] },
+  240: { name: "Mãe-Praga Ysshara", title: "Colmeia Putrefata", element: "Virus", bossKind: "praga", res: ["Virus"], weak: ["Fogo"] },
+  250: { name: "O Juiz Escarlate", title: "Tribunal do Sangue", element: "Fogo", bossKind: "juiz", res: ["Fogo"], weak: ["Glacial"] },
+  260: { name: "Nihil, o Apagador", title: "Vazio Consciente", element: "Unknown", bossKind: "vazio", res: ["Unknown"], weak: ["Holy"] },
+  270: { name: "Colosso de Gaia", title: "Muralha Viva", element: "Vento", bossKind: "colosso", res: ["Vento", "Glacial"], weak: ["Eletro"] },
+  280: { name: "Fênix de Cinzas Eternas", title: "A Que Nunca Morre", element: "Fogo", bossKind: "fenix", res: ["Fogo"], weak: ["Glacial"] },
+  290: { name: "Tirano Ozzmar", title: "Devorador de Eras", element: "Chaos", bossKind: "tirano", res: ["Chaos"], weak: ["Vento"] },
+  300: { name: "Leviatã Abissal", title: "Coração do Mar Morto", element: "Glacial", bossKind: "leviata", res: ["Glacial"], weak: ["Eletro"] },
+  310: { name: "Sombra do Primeiro Rei", title: "Eco do Trono", element: "Unknown", bossKind: "devorador", res: ["Unknown"], weak: ["Fogo"] },
+  320: { name: "Arauto Cristalino", title: "Prisma Infinito", element: "Glacial", bossKind: "espelho", res: ["Glacial"], weak: ["Fogo"] },
+  330: { name: "Cronos Despedaçado", title: "Fim de Todos os Relógios", element: "Holy", bossKind: "temporal", res: ["Holy", "Glacial"], weak: ["Chaos"] },
+  340: { name: "Verme do Mundo", title: "Túnel Sem Fundo", element: "Virus", bossKind: "praga", res: ["Virus", "Vento"], weak: ["Holy"] },
+  350: { name: "Inquisidor Absoluto", title: "Sentença Final", element: "Fogo", bossKind: "juiz", res: ["Fogo", "Chaos"], weak: ["Glacial"] },
+  360: { name: "O Silêncio", title: "Onde Nada Existe", element: "Unknown", bossKind: "vazio", res: ["Unknown", "Holy"], weak: ["Virus"] },
+  370: { name: "Titã de Obsidiana", title: "Peso do Mundo", element: "Vento", bossKind: "colosso", res: ["Vento", "Chaos"], weak: ["Eletro"] },
+  380: { name: "Serafim Renascido", title: "Chama Que Retorna", element: "Holy", bossKind: "fenix", res: ["Holy"], weak: ["Virus"] },
+  390: { name: "Imperador Sem Nome", title: "Coroa de Ossos", element: "Chaos", bossKind: "tirano", res: ["Chaos", "Unknown"], weak: ["Fogo"] },
+  400: { name: "Kraken das Marés Negras", title: "Abraço Afogado", element: "Glacial", bossKind: "leviata", res: ["Glacial", "Vento"], weak: ["Eletro"] },
+  410: { name: "Devorador de Estrelas", title: "Fome Cósmica", element: "Chaos", bossKind: "devorador", res: ["Chaos", "Virus"], weak: ["Holy"] },
+  420: { name: "Guardião do Paradoxo", title: "Loop Infinito", element: "Holy", bossKind: "temporal", res: ["Holy", "Unknown"], weak: ["Chaos"] },
+  430: { name: "Rainha da Podridão", title: "Trono de Miasma", element: "Virus", bossKind: "praga", res: ["Virus", "Chaos"], weak: ["Fogo"] },
+  440: { name: "Anjo do Juízo", title: "Balança Quebrada", element: "Fogo", bossKind: "juiz", res: ["Fogo", "Holy"], weak: ["Glacial"] },
+  450: { name: "ÔMEGA ABSOLUTO", title: "O Fim da Ascensão", element: "Unknown", bossKind: "tirano", res: ["Unknown", "Chaos", "Holy"], weak: ["Eletro", "Fogo"] },
   50: { name: "Sōsuke Aizen", title: "Shinigami Traidor", element: "Holy", bossKind: "aizen", bossImgId: "boss_tower_50", res: ["Glacial"], weak: ["Fogo", "Virus"] },
   60: { name: "Ryōmen Sukuna", title: "Rei das Maldições", element: "Chaos", bossKind: "sukuna", bossImgId: "boss_tower_60", res: ["Chaos"], weak: ["Holy"] },
   70: { name: "Seto Kaiba · Modo Deus", title: "Portador de Obelisco", element: "Eletro", bossKind: "godkaiba", bossImgId: "boss_tower_70", res: ["Eletro"], weak: ["Fogo", "Virus"] },
@@ -1154,14 +1323,17 @@ const TOWER_BOSSES = {
 // Nota: a fraqueza [Unknown] do GDD original foi mapeada para Eletro (não existe elemento "Unknown" neste jogo).
 // Floors 90–200 somam exatamente 21.000💎 (90:3000 + 91-199 não-boss:100 + bosses 100-190:500 + 200:3100)
 function rewardFor(f) {
-  if (f <= 60) return 300;
-  if (f <= 69) return 500;
-  if (f <= 79) return 1500;
-  if (f <= 89) return 2000;
-  if (f === 90) return 3000;
-  if (f === 200) return 3100;
-  if (f % 10 === 0) return 500;
-  return 100;
+  // Rebalanceado: gemas eram fáceis demais nos andares baixos. Agora a recompensa cresce
+  // de verdade só quando o andar exige build, e os andares novos (200+) valem bem mais.
+  if (f > 200) return 900 + Math.floor((f - 200) / 10) * 120; // andares novos: 900 → ~3.900
+  if (f <= 60) return 90;
+  if (f <= 69) return 180;
+  if (f <= 79) return 400;
+  if (f <= 89) return 650;
+  if (f === 90) return 1200;
+  if (f === 200) return 2200;
+  if (f % 10 === 0) return 160;
+  return 35;
 }
 // ══════════ TORRE SOMBRIA (Dark Tower) — 10 níveis, só chefes, HP altíssimo, ignoram escudo ══════════
 // ══════════ CARTAS DO KAIBA (Puxada do Destino / Mão Virtual) ══════════
@@ -1243,6 +1415,258 @@ const FARM_STAGES = [
   { id: "facil",   name: "Fácil · Clareira dos Ecos",    level: 20, count: 3, cost: 30, exp: 18,  desc: "Nv 1-20 — introdução. Drop leve de Lágrimas de XP." },
   { id: "medio",   name: "Médio · Ruínas Cintilantes",   level: 50, count: 3, cost: 45, exp: 42,  boss: true, desc: "Nv 20-50 — drop equilibrado (melhor custo/benefício)." },
   { id: "dificil", name: "Difícil · Abismo Estelar",     level: 80, count: 3, cost: 60, exp: 72,  boss: true, desc: "Nv 60-80 — para times fortes. Drop máximo de Lágrimas de XP." },
+  // ══ ABISSO PROFUNDO — 250 níveis novos, HP muito maior e mecânicas rotativas ══
+  { name: "Umbra do Fim · N41", element: "Chaos", bossKind: "devorador", hpMul: 50, dot: "burn", reward: 2200 },
+  { name: "Eco do Fim · N42", element: "Unknown", bossKind: "espelho", hpMul: 52, dot: null, reward: 2224 },
+  { name: "Fantasma do Fim · N43", element: "Holy", bossKind: "temporal", hpMul: 55, dot: "poison", reward: 2248 },
+  { name: "Ruína do Fim · N44", element: "Virus", bossKind: "praga", hpMul: 57, dot: null, reward: 2272 },
+  { name: "Abismo do Fim · N45", element: "Fogo", bossKind: "juiz", hpMul: 60, dot: "burn", reward: 2296 },
+  { name: "Vazio do Fim · N46", element: "Glacial", bossKind: "vazio", hpMul: 63, dot: null, reward: 2320 },
+  { name: "Presságio do Fim · N47", element: "Vento", bossKind: "colosso", hpMul: 65, dot: "poison", reward: 2344 },
+  { name: "Carrasco do Fim · N48", element: "Eletro", bossKind: "fenix", hpMul: 68, dot: null, reward: 2368 },
+  { name: "Herege do Fim · N49", element: "Chaos", bossKind: "tirano", hpMul: 70, dot: "burn", reward: 2392 },
+  { name: "Miasma do Fim · N50", element: "Unknown", bossKind: "leviata", hpMul: 73, dot: null, reward: 2416 },
+  { name: "Espectro do Fim · N51", element: "Holy", bossKind: "guardian", hpMul: 76, dot: "poison", reward: 2440 },
+  { name: "Nêmesis do Fim · N52", element: "Virus", bossKind: "aizen", hpMul: 78, dot: null, reward: 2464 },
+  { name: "Umbra Sem Nome · N53", element: "Fogo", bossKind: "sukuna", hpMul: 81, dot: "burn", reward: 2488 },
+  { name: "Eco Sem Nome · N54", element: "Glacial", bossKind: "godkaiba", hpMul: 83, dot: null, reward: 2512 },
+  { name: "Fantasma Sem Nome · N55", element: "Vento", bossKind: "devorador", hpMul: 86, dot: "poison", reward: 2536 },
+  { name: "Ruína Sem Nome · N56", element: "Eletro", bossKind: "espelho", hpMul: 89, dot: null, reward: 2560 },
+  { name: "Abismo Sem Nome · N57", element: "Chaos", bossKind: "temporal", hpMul: 91, dot: "burn", reward: 2584 },
+  { name: "Vazio Sem Nome · N58", element: "Unknown", bossKind: "praga", hpMul: 94, dot: null, reward: 2608 },
+  { name: "Presságio Sem Nome · N59", element: "Holy", bossKind: "juiz", hpMul: 96, dot: "poison", reward: 2632 },
+  { name: "Carrasco Sem Nome · N60", element: "Virus", bossKind: "vazio", hpMul: 99, dot: null, reward: 2656 },
+  { name: "Herege Sem Nome · N61", element: "Fogo", bossKind: "colosso", hpMul: 102, dot: "burn", reward: 2680 },
+  { name: "Miasma Sem Nome · N62", element: "Glacial", bossKind: "fenix", hpMul: 104, dot: null, reward: 2704 },
+  { name: "Espectro Sem Nome · N63", element: "Vento", bossKind: "tirano", hpMul: 107, dot: "poison", reward: 2728 },
+  { name: "Nêmesis Sem Nome · N64", element: "Eletro", bossKind: "leviata", hpMul: 109, dot: null, reward: 2752 },
+  { name: "Umbra da Noite Eterna · N65", element: "Chaos", bossKind: "guardian", hpMul: 112, dot: "burn", reward: 2776 },
+  { name: "Eco da Noite Eterna · N66", element: "Unknown", bossKind: "aizen", hpMul: 115, dot: null, reward: 2800 },
+  { name: "Fantasma da Noite Eterna · N67", element: "Holy", bossKind: "sukuna", hpMul: 117, dot: "poison", reward: 2824 },
+  { name: "Ruína da Noite Eterna · N68", element: "Virus", bossKind: "godkaiba", hpMul: 120, dot: null, reward: 2848 },
+  { name: "Abismo da Noite Eterna · N69", element: "Fogo", bossKind: "devorador", hpMul: 122, dot: "burn", reward: 2872 },
+  { name: "Vazio da Noite Eterna · N70", element: "Glacial", bossKind: "espelho", hpMul: 125, dot: null, reward: 2896 },
+  { name: "Presságio da Noite Eterna · N71", element: "Vento", bossKind: "temporal", hpMul: 128, dot: "poison", reward: 2920 },
+  { name: "Carrasco da Noite Eterna · N72", element: "Eletro", bossKind: "praga", hpMul: 130, dot: null, reward: 2944 },
+  { name: "Herege da Noite Eterna · N73", element: "Chaos", bossKind: "juiz", hpMul: 133, dot: "burn", reward: 2968 },
+  { name: "Miasma da Noite Eterna · N74", element: "Unknown", bossKind: "vazio", hpMul: 135, dot: null, reward: 2992 },
+  { name: "Espectro da Noite Eterna · N75", element: "Holy", bossKind: "colosso", hpMul: 138, dot: "poison", reward: 3016 },
+  { name: "Nêmesis da Noite Eterna · N76", element: "Virus", bossKind: "fenix", hpMul: 141, dot: null, reward: 3040 },
+  { name: "Umbra do Trono Caído · N77", element: "Fogo", bossKind: "tirano", hpMul: 143, dot: "burn", reward: 3064 },
+  { name: "Eco do Trono Caído · N78", element: "Glacial", bossKind: "leviata", hpMul: 146, dot: null, reward: 3088 },
+  { name: "Fantasma do Trono Caído · N79", element: "Vento", bossKind: "guardian", hpMul: 148, dot: "poison", reward: 3112 },
+  { name: "Ruína do Trono Caído · N80", element: "Eletro", bossKind: "aizen", hpMul: 151, dot: null, reward: 3136 },
+  { name: "Abismo do Trono Caído · N81", element: "Chaos", bossKind: "sukuna", hpMul: 154, dot: "burn", reward: 3160 },
+  { name: "Vazio do Trono Caído · N82", element: "Unknown", bossKind: "godkaiba", hpMul: 156, dot: null, reward: 3184 },
+  { name: "Presságio do Trono Caído · N83", element: "Holy", bossKind: "devorador", hpMul: 159, dot: "poison", reward: 3208 },
+  { name: "Carrasco do Trono Caído · N84", element: "Virus", bossKind: "espelho", hpMul: 161, dot: null, reward: 3232 },
+  { name: "Herege do Trono Caído · N85", element: "Fogo", bossKind: "temporal", hpMul: 164, dot: "burn", reward: 3256 },
+  { name: "Miasma do Trono Caído · N86", element: "Glacial", bossKind: "praga", hpMul: 167, dot: null, reward: 3280 },
+  { name: "Espectro do Trono Caído · N87", element: "Vento", bossKind: "juiz", hpMul: 169, dot: "poison", reward: 3304 },
+  { name: "Nêmesis do Trono Caído · N88", element: "Eletro", bossKind: "vazio", hpMul: 172, dot: null, reward: 3328 },
+  { name: "Umbra das Profundezas · N89", element: "Chaos", bossKind: "colosso", hpMul: 174, dot: "burn", reward: 3352 },
+  { name: "Eco das Profundezas · N90", element: "Unknown", bossKind: "fenix", hpMul: 177, dot: null, reward: 3376 },
+  { name: "Fantasma das Profundezas · N91", element: "Holy", bossKind: "tirano", hpMul: 180, dot: "poison", reward: 3400 },
+  { name: "Ruína das Profundezas · N92", element: "Virus", bossKind: "leviata", hpMul: 182, dot: null, reward: 3424 },
+  { name: "Abismo das Profundezas · N93", element: "Fogo", bossKind: "guardian", hpMul: 185, dot: "burn", reward: 3448 },
+  { name: "Vazio das Profundezas · N94", element: "Glacial", bossKind: "aizen", hpMul: 187, dot: null, reward: 3472 },
+  { name: "Presságio das Profundezas · N95", element: "Vento", bossKind: "sukuna", hpMul: 190, dot: "poison", reward: 3496 },
+  { name: "Carrasco das Profundezas · N96", element: "Eletro", bossKind: "godkaiba", hpMul: 193, dot: null, reward: 3520 },
+  { name: "Herege das Profundezas · N97", element: "Chaos", bossKind: "devorador", hpMul: 195, dot: "burn", reward: 3544 },
+  { name: "Miasma das Profundezas · N98", element: "Unknown", bossKind: "espelho", hpMul: 198, dot: null, reward: 3568 },
+  { name: "Espectro das Profundezas · N99", element: "Holy", bossKind: "temporal", hpMul: 200, dot: "poison", reward: 3592 },
+  { name: "Nêmesis das Profundezas · N100", element: "Virus", bossKind: "praga", hpMul: 203, dot: null, reward: 3616 },
+  { name: "Umbra do Colapso · N101", element: "Fogo", bossKind: "juiz", hpMul: 206, dot: "burn", reward: 3640 },
+  { name: "Eco do Colapso · N102", element: "Glacial", bossKind: "vazio", hpMul: 208, dot: null, reward: 3664 },
+  { name: "Fantasma do Colapso · N103", element: "Vento", bossKind: "colosso", hpMul: 211, dot: "poison", reward: 3688 },
+  { name: "Ruína do Colapso · N104", element: "Eletro", bossKind: "fenix", hpMul: 213, dot: null, reward: 3712 },
+  { name: "Abismo do Colapso · N105", element: "Chaos", bossKind: "tirano", hpMul: 216, dot: "burn", reward: 3736 },
+  { name: "Vazio do Colapso · N106", element: "Unknown", bossKind: "leviata", hpMul: 219, dot: null, reward: 3760 },
+  { name: "Presságio do Colapso · N107", element: "Holy", bossKind: "guardian", hpMul: 221, dot: "poison", reward: 3784 },
+  { name: "Carrasco do Colapso · N108", element: "Virus", bossKind: "aizen", hpMul: 224, dot: null, reward: 3808 },
+  { name: "Herege do Colapso · N109", element: "Fogo", bossKind: "sukuna", hpMul: 226, dot: "burn", reward: 3832 },
+  { name: "Miasma do Colapso · N110", element: "Glacial", bossKind: "godkaiba", hpMul: 229, dot: null, reward: 3856 },
+  { name: "Espectro do Colapso · N111", element: "Vento", bossKind: "devorador", hpMul: 232, dot: "poison", reward: 3880 },
+  { name: "Nêmesis do Colapso · N112", element: "Eletro", bossKind: "espelho", hpMul: 234, dot: null, reward: 3904 },
+  { name: "Umbra da Última Era · N113", element: "Chaos", bossKind: "temporal", hpMul: 237, dot: "burn", reward: 3928 },
+  { name: "Eco da Última Era · N114", element: "Unknown", bossKind: "praga", hpMul: 239, dot: null, reward: 3952 },
+  { name: "Fantasma da Última Era · N115", element: "Holy", bossKind: "juiz", hpMul: 242, dot: "poison", reward: 3976 },
+  { name: "Ruína da Última Era · N116", element: "Virus", bossKind: "vazio", hpMul: 245, dot: null, reward: 4000 },
+  { name: "Abismo da Última Era · N117", element: "Fogo", bossKind: "colosso", hpMul: 247, dot: "burn", reward: 4024 },
+  { name: "Vazio da Última Era · N118", element: "Glacial", bossKind: "fenix", hpMul: 250, dot: null, reward: 4048 },
+  { name: "Presságio da Última Era · N119", element: "Vento", bossKind: "tirano", hpMul: 252, dot: "poison", reward: 4072 },
+  { name: "Carrasco da Última Era · N120", element: "Eletro", bossKind: "leviata", hpMul: 255, dot: null, reward: 4096 },
+  { name: "Herege da Última Era · N121", element: "Chaos", bossKind: "guardian", hpMul: 258, dot: "burn", reward: 4120 },
+  { name: "Miasma da Última Era · N122", element: "Unknown", bossKind: "aizen", hpMul: 260, dot: null, reward: 4144 },
+  { name: "Espectro da Última Era · N123", element: "Holy", bossKind: "sukuna", hpMul: 263, dot: "poison", reward: 4168 },
+  { name: "Nêmesis da Última Era · N124", element: "Virus", bossKind: "godkaiba", hpMul: 265, dot: null, reward: 4192 },
+  { name: "Umbra do Silêncio · N125", element: "Fogo", bossKind: "devorador", hpMul: 268, dot: "burn", reward: 4216 },
+  { name: "Eco do Silêncio · N126", element: "Glacial", bossKind: "espelho", hpMul: 271, dot: null, reward: 4240 },
+  { name: "Fantasma do Silêncio · N127", element: "Vento", bossKind: "temporal", hpMul: 273, dot: "poison", reward: 4264 },
+  { name: "Ruína do Silêncio · N128", element: "Eletro", bossKind: "praga", hpMul: 276, dot: null, reward: 4288 },
+  { name: "Abismo do Silêncio · N129", element: "Chaos", bossKind: "juiz", hpMul: 278, dot: "burn", reward: 4312 },
+  { name: "Vazio do Silêncio · N130", element: "Unknown", bossKind: "vazio", hpMul: 281, dot: null, reward: 4336 },
+  { name: "Presságio do Silêncio · N131", element: "Holy", bossKind: "colosso", hpMul: 284, dot: "poison", reward: 4360 },
+  { name: "Carrasco do Silêncio · N132", element: "Virus", bossKind: "fenix", hpMul: 286, dot: null, reward: 4384 },
+  { name: "Herege do Silêncio · N133", element: "Fogo", bossKind: "tirano", hpMul: 289, dot: "burn", reward: 4408 },
+  { name: "Miasma do Silêncio · N134", element: "Glacial", bossKind: "leviata", hpMul: 291, dot: null, reward: 4432 },
+  { name: "Espectro do Silêncio · N135", element: "Vento", bossKind: "guardian", hpMul: 294, dot: "poison", reward: 4456 },
+  { name: "Nêmesis do Silêncio · N136", element: "Eletro", bossKind: "aizen", hpMul: 297, dot: null, reward: 4480 },
+  { name: "Umbra do Fim · N137", element: "Chaos", bossKind: "sukuna", hpMul: 299, dot: "burn", reward: 4504 },
+  { name: "Eco do Fim · N138", element: "Unknown", bossKind: "godkaiba", hpMul: 302, dot: null, reward: 4528 },
+  { name: "Fantasma do Fim · N139", element: "Holy", bossKind: "devorador", hpMul: 304, dot: "poison", reward: 4552 },
+  { name: "Ruína do Fim · N140", element: "Virus", bossKind: "espelho", hpMul: 307, dot: null, reward: 4576 },
+  { name: "Abismo do Fim · N141", element: "Fogo", bossKind: "temporal", hpMul: 310, dot: "burn", reward: 4600 },
+  { name: "Vazio do Fim · N142", element: "Glacial", bossKind: "praga", hpMul: 312, dot: null, reward: 4624 },
+  { name: "Presságio do Fim · N143", element: "Vento", bossKind: "juiz", hpMul: 315, dot: "poison", reward: 4648 },
+  { name: "Carrasco do Fim · N144", element: "Eletro", bossKind: "vazio", hpMul: 317, dot: null, reward: 4672 },
+  { name: "Herege do Fim · N145", element: "Chaos", bossKind: "colosso", hpMul: 320, dot: "burn", reward: 4696 },
+  { name: "Miasma do Fim · N146", element: "Unknown", bossKind: "fenix", hpMul: 323, dot: null, reward: 4720 },
+  { name: "Espectro do Fim · N147", element: "Holy", bossKind: "tirano", hpMul: 325, dot: "poison", reward: 4744 },
+  { name: "Nêmesis do Fim · N148", element: "Virus", bossKind: "leviata", hpMul: 328, dot: null, reward: 4768 },
+  { name: "Umbra Sem Nome · N149", element: "Fogo", bossKind: "guardian", hpMul: 330, dot: "burn", reward: 4792 },
+  { name: "Eco Sem Nome · N150", element: "Glacial", bossKind: "aizen", hpMul: 333, dot: null, reward: 4816 },
+  { name: "Fantasma Sem Nome · N151", element: "Vento", bossKind: "sukuna", hpMul: 336, dot: "poison", reward: 4840 },
+  { name: "Ruína Sem Nome · N152", element: "Eletro", bossKind: "godkaiba", hpMul: 338, dot: null, reward: 4864 },
+  { name: "Abismo Sem Nome · N153", element: "Chaos", bossKind: "devorador", hpMul: 341, dot: "burn", reward: 4888 },
+  { name: "Vazio Sem Nome · N154", element: "Unknown", bossKind: "espelho", hpMul: 343, dot: null, reward: 4912 },
+  { name: "Presságio Sem Nome · N155", element: "Holy", bossKind: "temporal", hpMul: 346, dot: "poison", reward: 4936 },
+  { name: "Carrasco Sem Nome · N156", element: "Virus", bossKind: "praga", hpMul: 349, dot: null, reward: 4960 },
+  { name: "Herege Sem Nome · N157", element: "Fogo", bossKind: "juiz", hpMul: 351, dot: "burn", reward: 4984 },
+  { name: "Miasma Sem Nome · N158", element: "Glacial", bossKind: "vazio", hpMul: 354, dot: null, reward: 5008 },
+  { name: "Espectro Sem Nome · N159", element: "Vento", bossKind: "colosso", hpMul: 356, dot: "poison", reward: 5032 },
+  { name: "Nêmesis Sem Nome · N160", element: "Eletro", bossKind: "fenix", hpMul: 359, dot: null, reward: 5056 },
+  { name: "Umbra da Noite Eterna · N161", element: "Chaos", bossKind: "tirano", hpMul: 362, dot: "burn", reward: 5080 },
+  { name: "Eco da Noite Eterna · N162", element: "Unknown", bossKind: "leviata", hpMul: 364, dot: null, reward: 5104 },
+  { name: "Fantasma da Noite Eterna · N163", element: "Holy", bossKind: "guardian", hpMul: 367, dot: "poison", reward: 5128 },
+  { name: "Ruína da Noite Eterna · N164", element: "Virus", bossKind: "aizen", hpMul: 369, dot: null, reward: 5152 },
+  { name: "Abismo da Noite Eterna · N165", element: "Fogo", bossKind: "sukuna", hpMul: 372, dot: "burn", reward: 5176 },
+  { name: "Vazio da Noite Eterna · N166", element: "Glacial", bossKind: "godkaiba", hpMul: 375, dot: null, reward: 5200 },
+  { name: "Presságio da Noite Eterna · N167", element: "Vento", bossKind: "devorador", hpMul: 377, dot: "poison", reward: 5224 },
+  { name: "Carrasco da Noite Eterna · N168", element: "Eletro", bossKind: "espelho", hpMul: 380, dot: null, reward: 5248 },
+  { name: "Herege da Noite Eterna · N169", element: "Chaos", bossKind: "temporal", hpMul: 382, dot: "burn", reward: 5272 },
+  { name: "Miasma da Noite Eterna · N170", element: "Unknown", bossKind: "praga", hpMul: 385, dot: null, reward: 5296 },
+  { name: "Espectro da Noite Eterna · N171", element: "Holy", bossKind: "juiz", hpMul: 388, dot: "poison", reward: 5320 },
+  { name: "Nêmesis da Noite Eterna · N172", element: "Virus", bossKind: "vazio", hpMul: 390, dot: null, reward: 5344 },
+  { name: "Umbra do Trono Caído · N173", element: "Fogo", bossKind: "colosso", hpMul: 393, dot: "burn", reward: 5368 },
+  { name: "Eco do Trono Caído · N174", element: "Glacial", bossKind: "fenix", hpMul: 395, dot: null, reward: 5392 },
+  { name: "Fantasma do Trono Caído · N175", element: "Vento", bossKind: "tirano", hpMul: 398, dot: "poison", reward: 5416 },
+  { name: "Ruína do Trono Caído · N176", element: "Eletro", bossKind: "leviata", hpMul: 401, dot: null, reward: 5440 },
+  { name: "Abismo do Trono Caído · N177", element: "Chaos", bossKind: "guardian", hpMul: 403, dot: "burn", reward: 5464 },
+  { name: "Vazio do Trono Caído · N178", element: "Unknown", bossKind: "aizen", hpMul: 406, dot: null, reward: 5488 },
+  { name: "Presságio do Trono Caído · N179", element: "Holy", bossKind: "sukuna", hpMul: 408, dot: "poison", reward: 5512 },
+  { name: "Carrasco do Trono Caído · N180", element: "Virus", bossKind: "godkaiba", hpMul: 411, dot: null, reward: 5536 },
+  { name: "Herege do Trono Caído · N181", element: "Fogo", bossKind: "devorador", hpMul: 414, dot: "burn", reward: 5560 },
+  { name: "Miasma do Trono Caído · N182", element: "Glacial", bossKind: "espelho", hpMul: 416, dot: null, reward: 5584 },
+  { name: "Espectro do Trono Caído · N183", element: "Vento", bossKind: "temporal", hpMul: 419, dot: "poison", reward: 5608 },
+  { name: "Nêmesis do Trono Caído · N184", element: "Eletro", bossKind: "praga", hpMul: 421, dot: null, reward: 5632 },
+  { name: "Umbra das Profundezas · N185", element: "Chaos", bossKind: "juiz", hpMul: 424, dot: "burn", reward: 5656 },
+  { name: "Eco das Profundezas · N186", element: "Unknown", bossKind: "vazio", hpMul: 427, dot: null, reward: 5680 },
+  { name: "Fantasma das Profundezas · N187", element: "Holy", bossKind: "colosso", hpMul: 429, dot: "poison", reward: 5704 },
+  { name: "Ruína das Profundezas · N188", element: "Virus", bossKind: "fenix", hpMul: 432, dot: null, reward: 5728 },
+  { name: "Abismo das Profundezas · N189", element: "Fogo", bossKind: "tirano", hpMul: 434, dot: "burn", reward: 5752 },
+  { name: "Vazio das Profundezas · N190", element: "Glacial", bossKind: "leviata", hpMul: 437, dot: null, reward: 5776 },
+  { name: "Presságio das Profundezas · N191", element: "Vento", bossKind: "guardian", hpMul: 440, dot: "poison", reward: 5800 },
+  { name: "Carrasco das Profundezas · N192", element: "Eletro", bossKind: "aizen", hpMul: 442, dot: null, reward: 5824 },
+  { name: "Herege das Profundezas · N193", element: "Chaos", bossKind: "sukuna", hpMul: 445, dot: "burn", reward: 5848 },
+  { name: "Miasma das Profundezas · N194", element: "Unknown", bossKind: "godkaiba", hpMul: 447, dot: null, reward: 5872 },
+  { name: "Espectro das Profundezas · N195", element: "Holy", bossKind: "devorador", hpMul: 450, dot: "poison", reward: 5896 },
+  { name: "Nêmesis das Profundezas · N196", element: "Virus", bossKind: "espelho", hpMul: 453, dot: null, reward: 5920 },
+  { name: "Umbra do Colapso · N197", element: "Fogo", bossKind: "temporal", hpMul: 455, dot: "burn", reward: 5944 },
+  { name: "Eco do Colapso · N198", element: "Glacial", bossKind: "praga", hpMul: 458, dot: null, reward: 5968 },
+  { name: "Fantasma do Colapso · N199", element: "Vento", bossKind: "juiz", hpMul: 460, dot: "poison", reward: 5992 },
+  { name: "Ruína do Colapso · N200", element: "Eletro", bossKind: "vazio", hpMul: 463, dot: null, reward: 6016 },
+  { name: "Abismo do Colapso · N201", element: "Chaos", bossKind: "colosso", hpMul: 466, dot: "burn", reward: 6040 },
+  { name: "Vazio do Colapso · N202", element: "Unknown", bossKind: "fenix", hpMul: 468, dot: null, reward: 6064 },
+  { name: "Presságio do Colapso · N203", element: "Holy", bossKind: "tirano", hpMul: 471, dot: "poison", reward: 6088 },
+  { name: "Carrasco do Colapso · N204", element: "Virus", bossKind: "leviata", hpMul: 473, dot: null, reward: 6112 },
+  { name: "Herege do Colapso · N205", element: "Fogo", bossKind: "guardian", hpMul: 476, dot: "burn", reward: 6136 },
+  { name: "Miasma do Colapso · N206", element: "Glacial", bossKind: "aizen", hpMul: 479, dot: null, reward: 6160 },
+  { name: "Espectro do Colapso · N207", element: "Vento", bossKind: "sukuna", hpMul: 481, dot: "poison", reward: 6184 },
+  { name: "Nêmesis do Colapso · N208", element: "Eletro", bossKind: "godkaiba", hpMul: 484, dot: null, reward: 6208 },
+  { name: "Umbra da Última Era · N209", element: "Chaos", bossKind: "devorador", hpMul: 486, dot: "burn", reward: 6232 },
+  { name: "Eco da Última Era · N210", element: "Unknown", bossKind: "espelho", hpMul: 489, dot: null, reward: 6256 },
+  { name: "Fantasma da Última Era · N211", element: "Holy", bossKind: "temporal", hpMul: 492, dot: "poison", reward: 6280 },
+  { name: "Ruína da Última Era · N212", element: "Virus", bossKind: "praga", hpMul: 494, dot: null, reward: 6304 },
+  { name: "Abismo da Última Era · N213", element: "Fogo", bossKind: "juiz", hpMul: 497, dot: "burn", reward: 6328 },
+  { name: "Vazio da Última Era · N214", element: "Glacial", bossKind: "vazio", hpMul: 499, dot: null, reward: 6352 },
+  { name: "Presságio da Última Era · N215", element: "Vento", bossKind: "colosso", hpMul: 502, dot: "poison", reward: 6376 },
+  { name: "Carrasco da Última Era · N216", element: "Eletro", bossKind: "fenix", hpMul: 505, dot: null, reward: 6400 },
+  { name: "Herege da Última Era · N217", element: "Chaos", bossKind: "tirano", hpMul: 507, dot: "burn", reward: 6424 },
+  { name: "Miasma da Última Era · N218", element: "Unknown", bossKind: "leviata", hpMul: 510, dot: null, reward: 6448 },
+  { name: "Espectro da Última Era · N219", element: "Holy", bossKind: "guardian", hpMul: 512, dot: "poison", reward: 6472 },
+  { name: "Nêmesis da Última Era · N220", element: "Virus", bossKind: "aizen", hpMul: 515, dot: null, reward: 6496 },
+  { name: "Umbra do Silêncio · N221", element: "Fogo", bossKind: "sukuna", hpMul: 518, dot: "burn", reward: 6520 },
+  { name: "Eco do Silêncio · N222", element: "Glacial", bossKind: "godkaiba", hpMul: 520, dot: null, reward: 6544 },
+  { name: "Fantasma do Silêncio · N223", element: "Vento", bossKind: "devorador", hpMul: 523, dot: "poison", reward: 6568 },
+  { name: "Ruína do Silêncio · N224", element: "Eletro", bossKind: "espelho", hpMul: 525, dot: null, reward: 6592 },
+  { name: "Abismo do Silêncio · N225", element: "Chaos", bossKind: "temporal", hpMul: 528, dot: "burn", reward: 6616 },
+  { name: "Vazio do Silêncio · N226", element: "Unknown", bossKind: "praga", hpMul: 531, dot: null, reward: 6640 },
+  { name: "Presságio do Silêncio · N227", element: "Holy", bossKind: "juiz", hpMul: 533, dot: "poison", reward: 6664 },
+  { name: "Carrasco do Silêncio · N228", element: "Virus", bossKind: "vazio", hpMul: 536, dot: null, reward: 6688 },
+  { name: "Herege do Silêncio · N229", element: "Fogo", bossKind: "colosso", hpMul: 538, dot: "burn", reward: 6712 },
+  { name: "Miasma do Silêncio · N230", element: "Glacial", bossKind: "fenix", hpMul: 541, dot: null, reward: 6736 },
+  { name: "Espectro do Silêncio · N231", element: "Vento", bossKind: "tirano", hpMul: 544, dot: "poison", reward: 6760 },
+  { name: "Nêmesis do Silêncio · N232", element: "Eletro", bossKind: "leviata", hpMul: 546, dot: null, reward: 6784 },
+  { name: "Umbra do Fim · N233", element: "Chaos", bossKind: "guardian", hpMul: 549, dot: "burn", reward: 6808 },
+  { name: "Eco do Fim · N234", element: "Unknown", bossKind: "aizen", hpMul: 551, dot: null, reward: 6832 },
+  { name: "Fantasma do Fim · N235", element: "Holy", bossKind: "sukuna", hpMul: 554, dot: "poison", reward: 6856 },
+  { name: "Ruína do Fim · N236", element: "Virus", bossKind: "godkaiba", hpMul: 557, dot: null, reward: 6880 },
+  { name: "Abismo do Fim · N237", element: "Fogo", bossKind: "devorador", hpMul: 559, dot: "burn", reward: 6904 },
+  { name: "Vazio do Fim · N238", element: "Glacial", bossKind: "espelho", hpMul: 562, dot: null, reward: 6928 },
+  { name: "Presságio do Fim · N239", element: "Vento", bossKind: "temporal", hpMul: 564, dot: "poison", reward: 6952 },
+  { name: "Carrasco do Fim · N240", element: "Eletro", bossKind: "praga", hpMul: 567, dot: null, reward: 6976 },
+  { name: "Herege do Fim · N241", element: "Chaos", bossKind: "juiz", hpMul: 570, dot: "burn", reward: 7000 },
+  { name: "Miasma do Fim · N242", element: "Unknown", bossKind: "vazio", hpMul: 572, dot: null, reward: 7024 },
+  { name: "Espectro do Fim · N243", element: "Holy", bossKind: "colosso", hpMul: 575, dot: "poison", reward: 7048 },
+  { name: "Nêmesis do Fim · N244", element: "Virus", bossKind: "fenix", hpMul: 577, dot: null, reward: 7072 },
+  { name: "Umbra Sem Nome · N245", element: "Fogo", bossKind: "tirano", hpMul: 580, dot: "burn", reward: 7096 },
+  { name: "Eco Sem Nome · N246", element: "Glacial", bossKind: "leviata", hpMul: 583, dot: null, reward: 7120 },
+  { name: "Fantasma Sem Nome · N247", element: "Vento", bossKind: "guardian", hpMul: 585, dot: "poison", reward: 7144 },
+  { name: "Ruína Sem Nome · N248", element: "Eletro", bossKind: "aizen", hpMul: 588, dot: null, reward: 7168 },
+  { name: "Abismo Sem Nome · N249", element: "Chaos", bossKind: "sukuna", hpMul: 590, dot: "burn", reward: 7192 },
+  { name: "Vazio Sem Nome · N250", element: "Unknown", bossKind: "godkaiba", hpMul: 593, dot: null, reward: 7216 },
+  { name: "Presságio Sem Nome · N251", element: "Holy", bossKind: "devorador", hpMul: 596, dot: "poison", reward: 7240 },
+  { name: "Carrasco Sem Nome · N252", element: "Virus", bossKind: "espelho", hpMul: 598, dot: null, reward: 7264 },
+  { name: "Herege Sem Nome · N253", element: "Fogo", bossKind: "temporal", hpMul: 601, dot: "burn", reward: 7288 },
+  { name: "Miasma Sem Nome · N254", element: "Glacial", bossKind: "praga", hpMul: 603, dot: null, reward: 7312 },
+  { name: "Espectro Sem Nome · N255", element: "Vento", bossKind: "juiz", hpMul: 606, dot: "poison", reward: 7336 },
+  { name: "Nêmesis Sem Nome · N256", element: "Eletro", bossKind: "vazio", hpMul: 609, dot: null, reward: 7360 },
+  { name: "Umbra da Noite Eterna · N257", element: "Chaos", bossKind: "colosso", hpMul: 611, dot: "burn", reward: 7384 },
+  { name: "Eco da Noite Eterna · N258", element: "Unknown", bossKind: "fenix", hpMul: 614, dot: null, reward: 7408 },
+  { name: "Fantasma da Noite Eterna · N259", element: "Holy", bossKind: "tirano", hpMul: 616, dot: "poison", reward: 7432 },
+  { name: "Ruína da Noite Eterna · N260", element: "Virus", bossKind: "leviata", hpMul: 619, dot: null, reward: 7456 },
+  { name: "Abismo da Noite Eterna · N261", element: "Fogo", bossKind: "guardian", hpMul: 622, dot: "burn", reward: 7480 },
+  { name: "Vazio da Noite Eterna · N262", element: "Glacial", bossKind: "aizen", hpMul: 624, dot: null, reward: 7504 },
+  { name: "Presságio da Noite Eterna · N263", element: "Vento", bossKind: "sukuna", hpMul: 627, dot: "poison", reward: 7528 },
+  { name: "Carrasco da Noite Eterna · N264", element: "Eletro", bossKind: "godkaiba", hpMul: 629, dot: null, reward: 7552 },
+  { name: "Herege da Noite Eterna · N265", element: "Chaos", bossKind: "devorador", hpMul: 632, dot: "burn", reward: 7576 },
+  { name: "Miasma da Noite Eterna · N266", element: "Unknown", bossKind: "espelho", hpMul: 635, dot: null, reward: 7600 },
+  { name: "Espectro da Noite Eterna · N267", element: "Holy", bossKind: "temporal", hpMul: 637, dot: "poison", reward: 7624 },
+  { name: "Nêmesis da Noite Eterna · N268", element: "Virus", bossKind: "praga", hpMul: 640, dot: null, reward: 7648 },
+  { name: "Umbra do Trono Caído · N269", element: "Fogo", bossKind: "juiz", hpMul: 642, dot: "burn", reward: 7672 },
+  { name: "Eco do Trono Caído · N270", element: "Glacial", bossKind: "vazio", hpMul: 645, dot: null, reward: 7696 },
+  { name: "Fantasma do Trono Caído · N271", element: "Vento", bossKind: "colosso", hpMul: 648, dot: "poison", reward: 7720 },
+  { name: "Ruína do Trono Caído · N272", element: "Eletro", bossKind: "fenix", hpMul: 650, dot: null, reward: 7744 },
+  { name: "Abismo do Trono Caído · N273", element: "Chaos", bossKind: "tirano", hpMul: 653, dot: "burn", reward: 7768 },
+  { name: "Vazio do Trono Caído · N274", element: "Unknown", bossKind: "leviata", hpMul: 655, dot: null, reward: 7792 },
+  { name: "Presságio do Trono Caído · N275", element: "Holy", bossKind: "guardian", hpMul: 658, dot: "poison", reward: 7816 },
+  { name: "Carrasco do Trono Caído · N276", element: "Virus", bossKind: "aizen", hpMul: 661, dot: null, reward: 7840 },
+  { name: "Herege do Trono Caído · N277", element: "Fogo", bossKind: "sukuna", hpMul: 663, dot: "burn", reward: 7864 },
+  { name: "Miasma do Trono Caído · N278", element: "Glacial", bossKind: "godkaiba", hpMul: 666, dot: null, reward: 7888 },
+  { name: "Espectro do Trono Caído · N279", element: "Vento", bossKind: "devorador", hpMul: 668, dot: "poison", reward: 7912 },
+  { name: "Nêmesis do Trono Caído · N280", element: "Eletro", bossKind: "espelho", hpMul: 671, dot: null, reward: 7936 },
+  { name: "Umbra das Profundezas · N281", element: "Chaos", bossKind: "temporal", hpMul: 674, dot: "burn", reward: 7960 },
+  { name: "Eco das Profundezas · N282", element: "Unknown", bossKind: "praga", hpMul: 676, dot: null, reward: 7984 },
+  { name: "Fantasma das Profundezas · N283", element: "Holy", bossKind: "juiz", hpMul: 679, dot: "poison", reward: 8008 },
+  { name: "Ruína das Profundezas · N284", element: "Virus", bossKind: "vazio", hpMul: 681, dot: null, reward: 8032 },
+  { name: "Abismo das Profundezas · N285", element: "Fogo", bossKind: "colosso", hpMul: 684, dot: "burn", reward: 8056 },
+  { name: "Vazio das Profundezas · N286", element: "Glacial", bossKind: "fenix", hpMul: 687, dot: null, reward: 8080 },
+  { name: "Presságio das Profundezas · N287", element: "Vento", bossKind: "tirano", hpMul: 689, dot: "poison", reward: 8104 },
+  { name: "Carrasco das Profundezas · N288", element: "Eletro", bossKind: "leviata", hpMul: 692, dot: null, reward: 8128 },
+  { name: "Herege das Profundezas · N289", element: "Chaos", bossKind: "guardian", hpMul: 694, dot: "burn", reward: 8152 },
+  { name: "Miasma das Profundezas · N290", element: "Unknown", bossKind: "aizen", hpMul: 697, dot: null, reward: 8176 },
+
 ];
 function expToLevel(level) { return 2 + Math.floor(level / 10); } // Lácrimas de XP por nível (curva suave)
 const ASC_GATES = [20, 40, 60, 80];      // níveis em que é preciso ascender (derrotar o Guardião da Ascensão)
@@ -1260,13 +1684,19 @@ const useImg = () => useContext(ImgCtx);
    UI BÁSICOS
    ========================================================================== */
 function Glow({ color, children, style }) { return <span style={{ color, textShadow: `0 0 14px ${color}55`, ...style }}>{children}</span>; }
-function Bar({ value, max, color, bg = "#0b0920", h = 8, glow }) {
+function Bar({ value, max, color, bg = "#0b0920", h = 8, glow, ticks }) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
-  return <div style={{ background: bg, borderRadius: 99, height: h, overflow: "hidden", width: "100%" }}>
-    <div style={{ width: pct + "%", height: "100%", background: color, transition: "width .35s ease", borderRadius: 99, boxShadow: glow ? `0 0 8px ${color}` : "none" }} />
+  if (ticks) return <div style={{ position: "relative", background: bg, borderRadius: 99, height: h + 2, overflow: "hidden", width: "100%", boxShadow: "inset 0 1px 3px #00000080", border: "1px solid #ffffff12" }}>
+    <div style={{ width: pct + "%", height: "100%", borderRadius: 99, transition: "width .4s cubic-bezier(.4,0,.2,1)", background: `linear-gradient(90deg, ${color}aa, ${color})`, boxShadow: `0 0 12px ${color}99, inset 0 1px 0 #ffffff55` }} />
+    {[25, 50, 75].map((t) => <span key={t} style={{ position: "absolute", left: t + "%", top: 0, bottom: 0, width: 1, background: "#00000088" }} />)}
+  </div>;
+  return <div style={{ background: bg, borderRadius: 99, height: h, overflow: "hidden", width: "100%", boxShadow: "inset 0 1px 3px #00000070" }}>
+    <div style={{ width: pct + "%", height: "100%", borderRadius: 99, transition: "width .4s cubic-bezier(.4,0,.2,1)",
+      background: `linear-gradient(90deg, ${color}bb, ${color})`,
+      boxShadow: glow ? `0 0 10px ${color}, inset 0 1px 0 #ffffff55` : "inset 0 1px 0 #ffffff40" }} />
   </div>;
 }
-function Rarity({ n }) { return <span style={{ color: n === 5 ? C.gold : n === 4 ? "#B98BFF" : "#6d8fb8", letterSpacing: 1, fontSize: 12 }}>{"★".repeat(n)}</span>; }
+function Rarity({ n }) { const col = n === 5 ? C.gold : n === 4 ? "#B98BFF" : "#6d8fb8"; return <span style={{ color: col, letterSpacing: 1, fontSize: 12, textShadow: n >= 4 ? `0 0 8px ${col}88` : "none" }}>{"★".repeat(n)}</span>; }
 function ImgFill({ url, fallback, size }) {
   const [err, setErr] = useState(false);
   useEffect(() => { setErr(false); }, [url]);
@@ -1302,11 +1732,83 @@ function Btn({ children, onClick, kind = "primary", disabled, style, ...rest }) 
     style={{ opacity: disabled ? 0.4 : 1, cursor: disabled ? "not-allowed" : "pointer", letterSpacing: 0.3, ...k, ...style }} {...rest}>{children}</button>;
 }
 function Panel({ children, style, glow, onClick, ...rest }) {
-  return <div onClick={onClick} style={{ background: `linear-gradient(180deg, ${C.panel}, ${C.bg1})`, border: `1px solid ${C.line}`, borderRadius: 18, padding: 16, boxShadow: glow ? `0 0 34px ${glow}26` : "0 10px 28px #00000045", ...style }} {...rest}>{children}</div>;
+  return <div onClick={onClick} style={{
+    background: glow ? `linear-gradient(158deg, ${glow}14, ${C.panel} 42%, ${C.bg1})` : `linear-gradient(168deg, ${C.panel}, ${C.bg1})`,
+    border: `1px solid ${glow ? glow + "3a" : C.line}`, borderRadius: 18, padding: 16,
+    boxShadow: glow ? `0 0 34px ${glow}26, inset 0 1px 0 ${glow}22` : "0 10px 28px #00000045, inset 0 1px 0 #ffffff0a",
+    ...style }} {...rest}>{children}</div>;
+}
+// ══ Menu central de modos — abas por categoria, sem precisar arrastar a barra ══
+function NavMenu({ screen, setScreen, onClose, draftActive, isAdmin }) {
+  const CATS = [
+    { id: "batalha", name: "Batalha", icon: "⚔️", items: [["tower", "Torre Estelar", "🗼"], ["darktower", "Torre Sombria", "🌑"], ["weekly", "Chefe Semanal", "👹"], ["abismo", "Abismo", "🕳️"], ["espiral", "Espiral", "🌀"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : [])] },
+    { id: "farm", name: "Progressão", icon: "🌱", items: [["farm", "Farm", "🌱"], ["relics", "Relíquias", "💠"], ["roster", "Elenco", "👥"], ["gacha", "Invocar", "🎴"]] },
+    { id: "social", name: "Social", icon: "🤝", items: [["social", "Social", "🤝"], ["correio", "Correio", "📬"], ["loja", "Loja", "🛒"], ["roleta", "Pacto", "🎰"]] },
+    { id: "info", name: "Informação", icon: "📚", items: [["wiki", "Wiki", "📚"], ["tierlist", "Tier List", "📊"], ["roteiro", "Roteiro", "📖"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])] },
+  ];
+  const [cat, setCat] = useState(0);
+  const active = CATS[cat];
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 80, background: "#000000cc", backdropFilter: "blur(6px)", display: "flex", alignItems: "flex-end" }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 620, margin: "0 auto",
+        background: `linear-gradient(180deg, ${C.panel}, ${C.bg0})`, borderTop: `1px solid ${C.gold}55`,
+        borderRadius: "22px 22px 0 0", padding: "14px 14px 26px", boxShadow: `0 -10px 40px #000000aa` }}>
+        <div style={{ width: 44, height: 4, borderRadius: 9, background: C.line, margin: "0 auto 12px" }} />
+        <div className="flex gap-1" style={{ justifyContent: "center", marginBottom: 12, flexWrap: "wrap" }}>
+          {CATS.map((ct, i) => (
+            <button key={ct.id} onClick={() => setCat(i)} style={{ position: "relative", padding: "8px 14px 10px", borderRadius: 12, fontWeight: 800, fontSize: 12,
+              color: i === cat ? C.gold : C.mute, background: i === cat ? `linear-gradient(180deg, ${C.gold}22, transparent)` : "transparent" }}>
+              {ct.icon} {ct.name}
+              <span style={{ position: "absolute", left: "20%", right: "20%", bottom: 2, height: 2, borderRadius: 2, background: i === cat ? C.gold : "transparent", boxShadow: i === cat ? `0 0 8px ${C.gold}` : "none" }} />
+            </button>
+          ))}
+        </div>
+        <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(92px,1fr))" }}>
+          {active.items.map(([k, label, ic]) => (
+            <button key={k} onClick={() => setScreen(k)} className="flex flex-col items-center" style={{
+              padding: "14px 6px", borderRadius: 16, gap: 6,
+              background: screen === k ? `linear-gradient(160deg, ${C.gold}26, ${C.panelHi})` : C.panelHi,
+              border: `1px solid ${screen === k ? C.gold : C.line}`,
+              boxShadow: screen === k ? `0 0 16px ${C.gold}44` : "none" }}>
+              <span style={{ fontSize: 24 }}>{ic}</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: screen === k ? C.gold : C.text }}>{label}</span>
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center justify-center gap-1" style={{ marginTop: 14 }}>
+          {CATS.map((_, i) => <span key={i} onClick={() => setCat(i)} style={{ width: i === cat ? 18 : 7, height: 7, borderRadius: 9, background: i === cat ? C.gold : C.line, transition: "all .25s", cursor: "pointer" }} />)}
+        </div>
+      </div>
+    </div>
+  );
+}
+// Tela padrão para modos fechados temporariamente
+function ReworkScreen({ icon, name, desc, goto, setScreen }) {
+  return (
+    <Panel glow="#FF8A5C">
+      <div style={{ textAlign: "center", padding: "26px 10px" }}>
+        <div style={{ fontSize: 48 }}>{icon || "🚧"}</div>
+        <div style={{ ...ORB, fontWeight: 800, fontSize: 19, marginTop: 10 }}>{name} em Rework</div>
+        <p style={{ fontSize: 13, color: C.mute, marginTop: 8, lineHeight: 1.65, maxWidth: 420, margin: "8px auto 0" }}>
+          {desc || "Este modo está fechado para uma reformulação completa. Volta em breve, bem melhor."}
+        </p>
+        {goto && setScreen && <Btn kind="primary" style={{ marginTop: 16, padding: "10px 22px" }} onClick={() => setScreen(goto[0])}>{goto[1]}</Btn>}
+      </div>
+    </Panel>
+  );
 }
 function TabBtn({ active, onClick, children }) {
-  return <button onClick={onClick} className="px-4 py-2 rounded-xl text-sm font-bold transition"
-    style={{ background: active ? C.gold : C.panelHi, color: active ? "#1a1200" : C.mute, border: `1px solid ${active ? C.gold : C.line}` }}>{children}</button>;
+  return <button onClick={onClick} className="text-sm font-bold transition" style={{
+    position: "relative", padding: "9px 16px 11px", borderRadius: 12,
+    background: active ? `linear-gradient(180deg, ${C.gold}2e, transparent)` : "transparent",
+    color: active ? C.gold : C.mute, border: "none", letterSpacing: 0.3,
+    textShadow: active ? `0 0 12px ${C.gold}66` : "none",
+  }}>
+    {children}
+    <span style={{ position: "absolute", left: "18%", right: "18%", bottom: 2, height: 2, borderRadius: 2,
+      background: active ? `linear-gradient(90deg, transparent, ${C.gold}, transparent)` : "transparent",
+      boxShadow: active ? `0 0 10px ${C.gold}` : "none", transition: "all .25s" }} />
+  </button>;
 }
 function Chip({ active, color, onClick, children }) {
   return <button onClick={onClick} className="px-3 py-1 rounded-lg text-sm font-bold transition active:scale-95"
@@ -1358,6 +1860,14 @@ function Game({ email, isAdmin, onLogout }) {
     // "calamidade"/"tecelao_tempo" ao abrir o app, sobrescrevendo os banners atuais. Agora os destaques vêm de
     // FEATURED_LIMITEDS / WEAPON_5_IDS e da escolha salva do jogador.
     useEffect(() => {
+      // Reset de temporada: zera Torre e Torre Sombria uma única vez por temporada
+      try {
+        if (localStorage.getItem("sr_tower_season") !== TOWER_SEASON) {
+          localStorage.setItem("sr_tower_season", TOWER_SEASON);
+          setTowerCleared(0); setTowerClaimed([]); setDarkTowerCleared(0); setDarkTowerClaimed([]);
+          setTimeout(() => flash("🗼 Nova temporada! Torre e Torre Sombria foram reiniciadas — 250 andares novos liberados.", C.gold), 800);
+        }
+      } catch {}
       setFeaturedChar((cur) => (FEATURED_LIMITEDS.includes(cur) ? cur : DEFAULT_FEATURED_CHAR));
       setFeaturedWeapon((cur) => (WEAPON_5_IDS.includes(cur) ? cur : DEFAULT_FEATURED_WEAPON));
     }, []);
@@ -1377,6 +1887,9 @@ function Game({ email, isAdmin, onLogout }) {
   const [playerName, setPlayerName] = useState("Pioneiro");
   const [images, setImages] = useState({});
   const [tierList, setTierList] = useState(TIER_LIST_DEFAULT);
+  const TOWER_SEASON = "s2_ascensao_estelar"; // troque esta chave pra resetar a Torre pra todo mundo de novo
+  const [navOpen, setNavOpen] = useState(false); // menu central de modos
+  const [activeTitle, setActiveTitle] = useState(null); // título de chat exibido pros amigos
   const [towerCleared, setTowerCleared] = useState(0);
   const [darkTowerCleared, setDarkTowerCleared] = useState(0);
   const [darkTowerClaimed, setDarkTowerClaimed] = useState([]);
@@ -1436,6 +1949,7 @@ function Game({ email, isAdmin, onLogout }) {
       setFeaturedChar(FEATURED_LIMITEDS.includes(s.featuredChar) ? s.featuredChar : DEFAULT_FEATURED_CHAR);
       setFeaturedSpecial(SPECIAL_BANNER_CHARS.includes(s.featuredSpecial) ? s.featuredSpecial : SPECIAL_BANNER_CHARS[0]);
       setFeaturedStandard(STANDARD_5.includes(s.featuredStandard) ? s.featuredStandard : STANDARD_5[0]);
+      setActiveTitle(s.activeTitle || null);
       setFeaturedWeapon(WEAPON_5_IDS.includes(s.featuredWeapon) ? s.featuredWeapon : DEFAULT_FEATURED_WEAPON);
       setPity({ char: 0, weapon: 0, standard: 0, special: 0, guaranteeChar: false, ...(s.pity || {}) });
       setPullHistory(s.pullHistory ?? []);
@@ -1508,8 +2022,8 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredSpecial, featuredStandard, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed, mail8Claimed });
-  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredSpecial, featuredStandard, featuredWeapon, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed, mail8Claimed]);
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredSpecial, featuredStandard, featuredWeapon, activeTitle, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed, mail8Claimed });
+  }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredSpecial, featuredStandard, featuredWeapon, activeTitle, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed, mail8Claimed]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
   const pay = (cost) => { if (isAdmin) return true; if (jade < cost) { flash("Jade insuficiente", C.bad); return false; } setJade((j) => j - cost); return true; };
@@ -1958,15 +2472,16 @@ function Game({ email, isAdmin, onLogout }) {
     const cost = tier === 2 ? 60 : tier === 1 ? 45 : 30;
     if (stamina < cost) { flash("Stamina insuficiente (precisa " + cost + ")", C.bad); return; }
     setStamina(function(v){ return v - cost; });
-    const level = tier === 2 ? 85 : tier === 1 ? 65 : 45;
-    const bossNames = ["Núcleo Corrompido", "Servidor Infectado", "Matriz Fantasma"];
+    const level = tier === 2 ? 95 : tier === 1 ? 65 : 40; // Difícil bem mais forte
+    const bossNames = ["Núcleo Corrompido", "Servidor Infectado", "Matriz Fantasma · DIFÍCIL"];
     setBattle({ context: "relicfarm", tier, staminaCost: cost, encounter: { level, count: 2, boss: true, bossName: bossNames[tier] || bossNames[1], bossKind: "guardian", teamPower: teamPower(), relicFarm: true }, ally: null });
   }
-  function startRotatingRelicDungeon() {
-    const cost = 35;
+  function startRotatingRelicDungeon(setName, tier) {
+    const t = tier || 0;
+    const cost = t === 2 ? 60 : t === 1 ? 45 : 30;
     if (stamina < cost) { flash("Stamina insuficiente (precisa " + cost + ")", C.bad); return; }
     setStamina(function(v){ return v - cost; });
-    setBattle({ context: "relicrotate", staminaCost: cost, encounter: { level: 60, count: 2, boss: true, bossName: "Guardião do Domínio Rotativo · " + featuredFarmSet(), bossKind: "guardian", teamPower: teamPower() }, ally: null });
+    setBattle({ context: "relicrotate", relicSet: setName || featuredFarmSet(), tier: t, staminaCost: cost, encounter: { level: t === 2 ? 95 : t === 1 ? 65 : 40, count: 2, boss: true, bossName: "Guardião · " + (setName || featuredFarmSet()), bossKind: "guardian", teamPower: teamPower() }, ally: null });
   }
     function onBattleEnd(result) {
     const b = battle; setBattle(null);
@@ -2009,7 +2524,8 @@ function Game({ email, isAdmin, onLogout }) {
     } else if (b.context === "relicfarm") {
       if (result.win) {
         const tier = b.tier || 1;
-        const count = tier === 2 ? 2 : 1;
+        // Fácil: 1 · Médio: 2 · Difícil: 3 a 5 relíquias
+        const count = tier === 2 ? (3 + Math.floor(Math.random() * 3)) : tier === 1 ? 2 : 1;
         const newRelics = Array.from({ length: count }, function() {
           const slot = Math.floor(Math.random() * 6);
           return makeRelic(slot, "Protocolo Ômega");
@@ -2020,8 +2536,10 @@ function Game({ email, isAdmin, onLogout }) {
       } else { flash("A Rede Corrompida resistiu…", C.bad); }
     } else if (b.context === "relicrotate") {
       if (result.win) {
-        const setN = featuredFarmSet();
-        const count = 2 + Math.floor(Math.random() * 2); // "buff de drop": 2-3 relíquias garantidas
+        const setN = b.relicSet || featuredFarmSet();
+        const t = b.tier || 0;
+        let count = t === 2 ? (3 + Math.floor(Math.random() * 3)) : t === 1 ? 2 : 1; // Fácil 1 · Médio 2 · Difícil 3-5
+        if (isFeaturedSet(setN)) count += 1; // ⭐ destaque da semana: +1 relíquia
         const newRelics = Array.from({ length: count }, function() { return makeRelic(Math.floor(Math.random() * 6), setN); });
         setRelicInv(function(inv){ return [...inv, ...newRelics]; });
         setRelicMats(function(v){ return v + 15; });
@@ -2171,26 +2689,38 @@ function Game({ email, isAdmin, onLogout }) {
                 : null}
               flash={flash} />
           ) : pendingBoss ? (
-            <BossRushTeamSelect boss={BOSS_RUSH_BOSSES.find(function(b){return b.id===pendingBoss;})} owned={owned} defaultTeam={team} images={images} onCancel={function(){setPendingBoss(null);}} onConfirm={function(t){launchBossRush(pendingBoss,t);}} flash={flash} />
+            <ReworkScreen icon="👑" name="Boss Rush" desc="O Boss Rush está fechado para rework — novos chefes, fases e recompensas a caminho." goto={["tower", "Ir para a Torre 🗼"]} setScreen={(k) => { setPendingBoss(null); setScreen(k); }} />
           ) : (
             <>
               {screen === "home" && <Home email={email} isAdmin={isAdmin} playerName={playerName} setPlayerName={setPlayerName} owned={owned} setScreen={setScreen} setJade={setJade} setCharTickets={setCharTickets} setStandardTickets={setStandardTickets} setWeaponTickets={setWeaponTickets} flash={flash} towerCleared={towerCleared} bossRushCleared={bossRushCleared} startBossRush={startBossRush} images={images} setImages={setImages} />}
-              {screen === "social" && <Social email={email} flash={flash} />}
+              {screen === "social" && <Social email={email} flash={flash} owned={owned} activeTitle={activeTitle} setActiveTitle={setActiveTitle} playerName={playerName} />}
               {screen === "gacha" && <Gacha doPull={doPull} pity={pity} jade={jade} chronicles={chronicles} charTickets={charTickets} weaponTickets={weaponTickets} standardTickets={standardTickets} featuredChar={featuredChar} setFeaturedChar={setFeaturedChar} featuredSpecial={featuredSpecial} setFeaturedSpecial={setFeaturedSpecial} featuredStandard={featuredStandard} setFeaturedStandard={setFeaturedStandard} featuredWeapon={featuredWeapon} setFeaturedWeapon={setFeaturedWeapon} pullHistory={pullHistory} owned={owned} ownedWeapons={ownedWeapons} />}
               {screen === "roster" && <Roster owned={owned} ownedWeapons={ownedWeapons} relicInv={relicInv} setOwnedField={setOwnedField} levelUp={levelUp} ascendChar={ascendChar} ascMats={ascMats} jade={jade} isAdmin={isAdmin} expItems={expItems} bossMats={bossMats} traceLevelUp={traceLevelUp} unlockTraceNode={unlockTraceNode} unlockSpecialTrace={unlockSpecialTrace} publish={async (o) => { await publishChar(playerName, o); flash("Publicado no Co-op global", C.good); }} onUpgradeRelic={onUpgradeRelic} weaponLevelUp={weaponLevelUp} weaponMats={weaponMats} skillMats={skillMats} tagMats={tagMats} team={team} setTeam={setTeam} teamPresets={teamPresets} setTeamPresets={setTeamPresets} startTest={startTest} flash={flash} />}
               {screen === "farm" && <Farm stamina={stamina} start={startFarm} expItems={expItems} startTagDungeon={startTagDungeon} tagMats={tagMats} weaponMats={weaponMats} skillMats={skillMats} startRelicDungeon={startRelicDungeon} startRotatingRelicDungeon={startRotatingRelicDungeon} dailyClaimedAt={dailyClaimedAt} weeklyClaimedAt={weeklyClaimedAt} claimDaily={claimDaily} claimWeekly={claimWeekly} />}
               {screen === "tower" && <Tower towerCleared={towerCleared} towerClaimed={towerClaimed} start={startTower} team={team} flash={flash} />}
               {screen === "darktower" && <DarkTowerScreen darkTowerCleared={darkTowerCleared} darkTowerClaimed={darkTowerClaimed} start={startDarkTower} team={team} flash={flash} />}
               {screen === "weekly" && <WeeklyBoss start={startWeekly} stamina={stamina} bossMats={bossMats} lastWeeklyBoss={lastWeeklyBoss} startAscension={startAscension} ascMats={ascMats} />}
-              {screen === "coop" && <Coop team={team} ownedMap={ownedMap} stamina={stamina} setStamina={setStamina} setRelicInv={setRelicInv} setRelicMats={setRelicMats} flash={flash} setBattle={setBattle} />}
-              {screen === "relics" && <RelicsScreen relicInv={relicInv} setRelicInv={setRelicInv} owned={owned} setRelicMats={setRelicMats} flash={flash} />}
-              {screen === "loja" && <Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} />}
+              {screen === "coop" && (
+                <Panel glow="#FF8A5C">
+                  <div style={{ textAlign: "center", padding: "24px 8px" }}>
+                    <div style={{ fontSize: 46 }}>🚧</div>
+                    <div style={{ ...ORB, fontWeight: 800, fontSize: 18, marginTop: 8 }}>Co-op em Rework</div>
+                    <p style={{ fontSize: 13, color: C.mute, marginTop: 8, lineHeight: 1.6 }}>
+                      O Domínio Cooperativo está fechado para uma reformulação completa.<br />
+                      As <b style={{ color: "#00E5CC" }}>Dungeons de Relíquia</b> foram movidas para a aba <b>💠 Relíquias</b>, agora organizadas por Temporada.
+                    </p>
+                    <Btn kind="primary" style={{ marginTop: 14, padding: "10px 22px" }} onClick={() => setScreen("relics")}>Ir para Relíquias 💠</Btn>
+                  </div>
+                </Panel>
+              )}
+              {screen === "relics" && <RelicsScreen relicInv={relicInv} setRelicInv={setRelicInv} owned={owned} setRelicMats={setRelicMats} relicMats={relicMats} onUpgradeRelic={onUpgradeRelic} startRelicDungeon={startRelicDungeon} startRotatingRelicDungeon={startRotatingRelicDungeon} stamina={stamina} flash={flash} />}
+              {screen === "loja" && <><SynthesisBench res={{ expItems, setExpItems, chronicles, setChronicles, ascMats, setAscMats, bossMats, setBossMats, relicMats, setRelicMats, weaponMats, setWeaponMats, skillMats, setSkillMats, stamina, setStamina, jade, setJade }} flash={flash} /><div style={{ height: 14 }} /><Loja chronicles={chronicles} setChronicles={setChronicles} expItems={expItems} setExpItems={setExpItems} weaponMats={weaponMats} setWeaponMats={setWeaponMats} skillMats={skillMats} setSkillMats={setSkillMats} ascMats={ascMats} setAscMats={setAscMats} bossMats={bossMats} setBossMats={setBossMats} relicMats={relicMats} setRelicMats={setRelicMats} stamina={stamina} setStamina={setStamina} shopPurchases={shopPurchases} setShopPurchases={setShopPurchases} shopResetAt={shopResetAt} setShopResetAt={setShopResetAt} owned={owned} setOwned={setOwned} tagMats={tagMats} setTagMats={setTagMats} flash={flash} isAdmin={isAdmin} /></>}
               {screen === "correio" && <Correio mailClaimed={mailClaimed} setMailClaimed={setMailClaimed} mailIniciante={mailIniciante} setMailIniciante={setMailIniciante} mail2Claimed={mail2Claimed} claimMail2Reward={claimMail2Reward} mail3Claimed={mail3Claimed} mail3CharPicked={mail3CharPicked} claimMail3Reward={claimMail3Reward} mail4Claimed={mail4Claimed} claimMail4Reward={claimMail4Reward} mail5Claimed={mail5Claimed} claimMail5Reward={claimMail5Reward} mail6Claimed={mail6Claimed} claimMail6Reward={claimMail6Reward} mail7Claimed={mail7Claimed} claimMail7Reward={claimMail7Reward} mail8Claimed={mail8Claimed} claimMail8Reward={claimMail8Reward} setJade={setJade} setExpItems={setExpItems} setWeaponMats={setWeaponMats} setRelicMats={setRelicMats} setAscMats={setAscMats} playerName={playerName} towerTop1Claimed={towerTop1Claimed} claimTop1Reward={claimTop1Reward} flash={flash} owned={owned} />}
-              {screen === "draft" && (draftActive ? <DraftDungeon draftRoomCleared={draftRoomCleared} draftClaimedGems={draftClaimedGems} draftBoons={draftBoons} setDraftBoons={setDraftBoons} startRoom={startDraftRoom} flash={flash} team={team} ownedMap={ownedMap} owned={owned} /> : <Empty msg="A Catacumba do Rascunho não está ativa no momento." />)}
+              {screen === "draft" && <ReworkScreen icon="🎲" name="Catacumba" desc="O modo Catacumba (draft) está em reformulação completa." goto={["tower", "Ir para a Torre 🗼"]} setScreen={setScreen} />}
               {screen === "novidades" && <UpdateLog setScreen={setScreen} draftActive={draftActive} />}
-              {screen === "roleta" && <RouletteEvent jade={jade} setJade={setJade} rouletteCleared={rouletteCleared} setRouletteCleared={setRouletteCleared} nextRouletteClaimAt={nextRouletteClaimAt} setNextRouletteClaimAt={setNextRouletteClaimAt} />}
-              {screen === "abismo" && <AbismoDados run={abismoRun} setRun={setAbismoRun} frags={abismoFrags} setFrags={setAbismoFrags} meta={abismoMeta} setMeta={setAbismoMeta} firstClears={abismoFirstClears} weekly={abismoWeekly} owned={owned} ownedMap={ownedMap} images={images} startAbismo={startAbismo} abismoBattle={abismoBattle} abismoCashout={abismoCashout} flash={flash} />}
-              {screen === "espiral" && <Espiral owned={owned} team={team} ownedMap={ownedMap} espiralClearedAt={espiralClearedAt} espiralWeekSeed={espiralWeekSeed} espiralWeaknesses={espiralWeaknesses} startEspiral={startEspiral} images={images} flash={flash} />}
+              {screen === "roleta" && <ReworkScreen icon="🎰" name="Pacto" desc="O sistema de Pacto vai voltar reformulado, com recompensas melhores e regras mais claras." goto={["tower", "Ir para a Torre 🗼"]} setScreen={setScreen} />}
+              {screen === "abismo" && <ReworkScreen icon="🕳️" name="Abismo" desc="O Abismo está sendo redesenhado — novas camadas, mutadores e recompensas escaláveis." goto={["tower", "Ir para a Torre 🗼"]} setScreen={setScreen} />}
+              {screen === "espiral" && <ReworkScreen icon="🌀" name="Espiral" desc="A Espiral vai retornar com andares próprios e um sistema de pontuação novo." goto={["tower", "Ir para a Torre 🗼"]} setScreen={setScreen} />}
                 {screen === "roteiro" && <Roteiro />}
                 {screen === "wiki" && <WikiScreen />}
                 {screen === "tierlist" && <TierListScreen tierList={tierList} />}
@@ -2201,7 +2731,27 @@ function Game({ email, isAdmin, onLogout }) {
 
         {!battle && (
           <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: `${C.bg0}f5`, borderTop: `1px solid ${C.line}`, backdropFilter: "blur(10px)" }}>
-            <div className="flex items-center px-2 py-2" style={{ maxWidth: 1000, margin: "0 auto", overflowX: "auto", gap: 2 }}>
+            <div className="flex items-center justify-around px-2 py-2" style={{ maxWidth: 620, margin: "0 auto", gap: 2 }}>
+              {[["home", "Portal", "✦"], ["roster", "Elenco", "👥"]].map(([k, label, ic]) => (
+                <button key={k} onClick={() => setScreen(k)} className="flex flex-col items-center px-3 py-1 rounded-xl transition" style={{ minWidth: 62, position: "relative", color: screen === k ? C.gold : C.mute }}>
+                  {screen === k && <span style={{ position: "absolute", top: -8, width: 26, height: 3, borderRadius: 9, background: C.gold, boxShadow: `0 0 10px ${C.gold}` }} />}
+                  <span style={{ fontSize: 18 }}>{ic}</span><span style={{ fontSize: 11, fontWeight: 700 }}>{label}</span>
+                </button>
+              ))}
+              {/* Botão central — abre o menu de modos por categoria */}
+              <button onClick={() => setNavOpen(true)} style={{ position: "relative", width: 60, height: 60, marginTop: -22, borderRadius: 99,
+                background: `radial-gradient(circle at 50% 35%, ${C.gold}, #8a6a10)`, border: `2px solid ${C.gold}`,
+                boxShadow: `0 0 22px ${C.gold}88, inset 0 2px 6px #ffffff55`, color: "#1a1200", fontSize: 24, fontWeight: 900 }}>
+                ✦<span style={{ position: "absolute", bottom: -16, left: 0, right: 0, fontSize: 9, fontWeight: 800, color: C.gold }}>MODOS</span>
+              </button>
+              {[["gacha", "Invocar", "🎴"], ["relics", "Relíquias", "💠"]].map(([k, label, ic]) => (
+                <button key={k} onClick={() => setScreen(k)} className="flex flex-col items-center px-3 py-1 rounded-xl transition" style={{ minWidth: 62, position: "relative", color: screen === k ? C.gold : C.mute }}>
+                  {screen === k && <span style={{ position: "absolute", top: -8, width: 26, height: 3, borderRadius: 9, background: C.gold, boxShadow: `0 0 10px ${C.gold}` }} />}
+                  <span style={{ fontSize: 18 }}>{ic}</span><span style={{ fontSize: 11, fontWeight: 700 }}>{label}</span>
+                </button>
+              ))}
+            </div>
+            <div style={{ display: "none" }}>
               {nav.map(([k, label, ic]) => (
                 <button key={k} onClick={() => setScreen(k)} className="flex flex-col items-center px-3 py-1 rounded-xl transition" style={{ minWidth: 62, color: screen === k ? C.gold : C.mute, position: "relative" }}>
                   {screen === k && <span style={{ position: "absolute", top: -8, width: 26, height: 3, borderRadius: 9, background: C.gold, boxShadow: `0 0 10px ${C.gold}` }} />}
@@ -2212,6 +2762,7 @@ function Game({ email, isAdmin, onLogout }) {
           </div>
         )}
 
+        {navOpen && <NavMenu screen={screen} setScreen={(k) => { setScreen(k); setNavOpen(false); }} onClose={() => setNavOpen(false)} draftActive={draftActive} isAdmin={isAdmin} />}
         {toast && <div style={{ position: "fixed", top: 76, left: "50%", transform: "translateX(-50%)", zIndex: 70, background: C.panelHi, border: `1px solid ${toast.color}`, color: toast.color, padding: "10px 18px", borderRadius: 99, fontWeight: 700, boxShadow: `0 0 26px ${toast.color}45` }}>{toast.msg}</div>}
         {pullResults && <PullModal data={pullResults} onClose={() => setPullResults(null)} />}
       </div>
@@ -2587,7 +3138,7 @@ function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, 
           </div>
         </div>
         <div style={{ display:"flex",flexDirection:"column",gap:8 }}>
-          {[{tier:0,cost:30,name:"Rede α — Iniciante",desc:"Servidores básicos. Ideal para iniciar.",badge:"NORMAL",badgeC:"#7CFFB0",drop:"1 relíquia"},{tier:1,cost:45,name:"Rede β — Avançada",desc:"Núcleos corrompidos de alta tensão.",badge:"DIFÍCIL",badgeC:"#FF8C44",drop:"1 relíquia"},{tier:2,cost:60,name:"Rede Ω — Suprema",desc:"Matriz Fantasma. Drop duplo garantido!",badge:"EXTREMO",badgeC:"#FF4444",drop:"2 relíquias"}].map(function(rt){
+          {[{tier:0,cost:30,name:"Rede α — FÁCIL",desc:"Servidores básicos. Ideal para iniciar.",badge:"FÁCIL",badgeC:"#7CFFB0",drop:"1 relíquia"},{tier:1,cost:45,name:"Rede β — Avançada",desc:"Núcleos corrompidos de alta tensão.",badge:"DIFÍCIL",badgeC:"#FF8C44",drop:"1 relíquia"},{tier:2,cost:60,name:"Rede Ω — Suprema",desc:"Matriz Fantasma. Drop duplo garantido!",badge:"EXTREMO",badgeC:"#FF4444",drop:"2 relíquias"}].map(function(rt){
             const ok = stamina >= rt.cost;
             return (
               <div key={rt.tier} style={{ display:"flex",alignItems:"center",gap:10,background:"#00E5CC08",border:"1px solid #00E5CC22",borderRadius:10,padding:"10px 14px" }}>
@@ -3065,8 +3616,8 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
       </div>
       {tab === "status" && <Panel>
         <div className="grid grid-cols-2 gap-2" style={{ fontSize: 14 }}>
-          <St k="HP" v={Math.round(stats.hp)} /><St k="ATK" v={Math.round(stats.atk)} /><St k="DEF" v={Math.round(stats.def)} /><St k="VEL" v={Math.round(stats.spd)} />
-          <St k="CRIT" v={stats.critRate.toFixed(1) + "%"} /><St k="CRIT DMG" v={stats.critDmg.toFixed(1) + "%"} /><St k="Bônus Elemental" v={(stats.elemBonus||0).toFixed(1) + "%"} /><St k="Bônus de Dano" v={stats.dmgBonus.toFixed(1) + "%"} /><St k="Cura/Escudo" v={stats.healBonus.toFixed(1) + "%"} />
+          <St k="HP" v={Math.round(stats.hp)} pct={stats.hp / 60} color="#7CFFB0" /><St k="ATK" v={Math.round(stats.atk)} pct={stats.atk / 20} color="#FF8A5C" /><St k="DEF" v={Math.round(stats.def)} pct={stats.def / 12} color="#7FD4FF" /><St k="VEL" v={Math.round(stats.spd)} pct={stats.spd / 2} color="#FFD249" />
+          <St k="CRIT" v={stats.critRate.toFixed(1) + "%"} pct={stats.critRate} color="#FF5E9E" /><St k="CRIT DMG" v={stats.critDmg.toFixed(1) + "%"} pct={stats.critDmg / 3} color="#FF5E9E" /><St k="Bônus Elemental" v={(stats.elemBonus||0).toFixed(1) + "%"} /><St k="Bônus de Dano" v={stats.dmgBonus.toFixed(1) + "%"} /><St k="Cura/Escudo" v={stats.healBonus.toFixed(1) + "%"} />
           <St k="Regen de Energia" v={(stats.energyRegen || 0).toFixed(1) + "%"} /><St k="Penetração de DEF" v={(stats.defPen || 0).toFixed(1) + "%"} /><St k="Dano de DoT" v={(stats.dotDmg || 0).toFixed(1) + "%"} /><St k="Efeito de Perfuração" v={(stats.breakEffect || 0).toFixed(1) + "%"} /><St k="Eficiência de Perfuração" v={(stats.breakEff || 0).toFixed(1) + "%"} /><St k="Energia Máx" v={stats.energyMax} />
         </div>
         {Object.entries(stats.elem || {}).some(([, v]) => v > 0) && <div style={{ fontSize: 11, color: C.mute, marginTop: 8 }}>Dano elemental: {Object.entries(stats.elem).filter(([, v]) => v > 0).map(([k, v]) => `${k} +${v.toFixed(1)}%`).join(" · ")}</div>}
@@ -3135,7 +3686,10 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
         <p style={{ fontSize: 13, color: C.mute, marginBottom: 12 }}>Corrente de Ressonância — desbloqueia com duplicatas. Cada nó muda o kit de forma única e tem efeito real em combate.</p>
         <div className="flex flex-col gap-2">
           {nodes.map((n, i) => { const u = i < (o.eidolon || 0); return (
-            <div key={i} className="flex items-center gap-3" style={{ opacity: u ? 1 : 0.45 }}>
+            <div key={i} className="flex items-center gap-3" style={{ opacity: u ? 1 : 0.5, position: "relative",
+              background: u ? `linear-gradient(100deg, ${el.color}18, transparent 60%)` : "transparent",
+              border: `1px solid ${u ? el.color + "44" : C.line}`, borderRadius: 14, padding: 10,
+              boxShadow: u ? `0 0 16px ${el.color}22` : "none" }}>
               <div style={{ width: 36, height: 36, borderRadius: 99, border: `2px solid ${u ? el.color : C.line}`, background: u ? `${el.color}22` : "transparent", display: "flex", alignItems: "center", justifyContent: "center", color: u ? el.color : C.mute, fontWeight: 800, flexShrink: 0 }}>{i + 1}</div>
               <div><div style={{ fontWeight: 700, fontSize: 14 }}>{n.name} {u && <Glow color={C.good}>✓</Glow>}</div><div style={{ fontSize: 12, color: C.mute }}>{n.desc}</div></div>
             </div>); })}
@@ -3191,7 +3745,16 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
     </div>
   );
 }
-function St({ k, v }) { return <div className="flex justify-between" style={{ background: C.panelHi, padding: "8px 10px", borderRadius: 10 }}><span style={{ color: C.mute }}>{k}</span><b>{v}</b></div>; }
+function St({ k, v, pct, color }) {
+  const col = color || C.gold;
+  return <div style={{ position: "relative", background: `linear-gradient(120deg, ${col}12, ${C.panelHi})`, padding: "9px 11px", borderRadius: 12, overflow: "hidden", border: `1px solid ${C.line}` }}>
+    <div className="flex justify-between items-center" style={{ position: "relative" }}>
+      <span style={{ color: C.mute, fontSize: 11, letterSpacing: 0.4, textTransform: "uppercase", fontWeight: 700 }}>{k}</span>
+      <b style={{ ...ORB, fontSize: 15, color: C.text }}>{v}</b>
+    </div>
+    <div style={{ position: "absolute", left: 0, bottom: 0, height: 2, width: (pct != null ? Math.max(4, Math.min(100, pct)) : 100) + "%", background: `linear-gradient(90deg, ${col}, transparent)` }} />
+  </div>;
+}
 function buffText(b) { const p = []; for (const k of ["atk", "def", "spd", "critRate", "critDmg", "dmgBonus"]) if (b[k]) p.push(`+${b[k]}${k === "spd" ? " VEL" : "% " + (STAT_LABEL[k] || k)}`); return `${p.join(", ")}${b.all ? " (time)" : ""} por ${b.turns}t`; }
 const SKILL_DESC = {
   gilgamesh: {
@@ -3293,7 +3856,7 @@ const SKILL_DESC = {
       "<b>[Vestígio: Detonação]</b> Ao atacar alvos com DoTs ou DEF reduzida, consome os efeitos para detonar <b>150% de Dano Glacial em área</b> + Congelamento por 1 turno.",
       "<b>[C1]</b> Começa com 3 PH e Postura Iaido ativa. Primeiro Corte +50% de dano.",
       "<b>[C4]</b> Zona de Geada por 2 turnos após a Ultimate — Miyabi mantém Postura Iaido sem gastar PH dentro da zona.",
-      "<b>[C6]</b> Limite de PH sobe para 4. Com 4 PH: Corte do Fim dos Tempos — <b>450% em TODOS os inimigos</b>, ignora 50% DEF. Matar qualquer alvo reseta a ação de Miyabi.",
+      "<b>[C6]</b> Limite de PH sobe para 4. Com 4 PH: Corte do Fim dos Tempos — <b>520% em TODOS os inimigos</b>, ignora 50% DEF. Matar qualquer alvo reseta a ação de Miyabi.",
     ],
     skill: [
       "Custo: <b>1 Ponto de Habilidade</b>.",
@@ -3950,9 +4513,23 @@ function RelicEquip({ o, setOwnedField, relicInv, onUpgradeRelic }) {
     <p style={{ fontSize: 11, color: C.mute, marginTop: 2 }}>Corpo aceita DANO/CRIT como principal. Esfera aceita Dano Elemental (de qualquer elemento) ou Regen de Energia. Corda aceita Regen de Energia ou Perfuração.</p>
     <div className="grid grid-cols-2 gap-2 mt-2">
       {RELIC_SLOTS.map((sl) => { const r = oc.relics[sl.i]; const active = pickSlot === sl.i; return (
-        <button key={sl.i} onClick={() => { setPickSlot(active ? null : sl.i); setSetFilter(null); setMainFilter(null); }} className="text-left" style={{ background: active ? C.panel : C.panelHi, border: `1px solid ${active ? C.gold : r ? relicSetData(r.set).color : C.line}`, borderRadius: 12, padding: 10, minHeight: 70 }}>
-          <div style={{ fontSize: 11, color: C.mute }}>{sl.i + 1}. {sl.name}</div>
-          {r ? <><div style={{ fontSize: 12, fontWeight: 700, color: relicSetData(r.set).color, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.set} <span style={{ color: C.mute, fontWeight: 600 }}>+{r.level || 0}</span></div><div style={{ fontSize: 12 }}>{relicMainText(r)}</div><div style={{ fontSize: 10, color: C.mute, lineHeight: 1.35 }}>{(r.subs || []).map((s) => `${relicSubLabel(s)} +${s.value.toFixed(1)}`).join(" · ")}</div></> : <div style={{ color: C.mute, fontSize: 12 }}>vazio · toque p/ equipar</div>}
+        <button key={sl.i} onClick={() => { setPickSlot(active ? null : sl.i); setSetFilter(null); setMainFilter(null); }} className="text-left" style={{
+          position: "relative", minHeight: 96, borderRadius: 14, padding: 10, overflow: "hidden",
+          background: r ? `linear-gradient(150deg, ${relicSetData(r.set).color}22, ${C.panel} 60%)` : `repeating-linear-gradient(135deg, ${C.panelHi}, ${C.panelHi} 6px, ${C.panel} 6px, ${C.panel} 12px)`,
+          border: `1px solid ${active ? C.gold : r ? relicSetData(r.set).color + "77" : C.line}`,
+          boxShadow: active ? `0 0 18px ${C.gold}55` : r ? `0 4px 12px #00000050` : "none" }}>
+          {r && <div style={{ position: "absolute", right: -10, top: -10, fontSize: 46, opacity: 0.1 }}>{RELIC_EMOJI[r.set] || "💎"}</div>}
+          <div className="flex items-center justify-between" style={{ position: "relative" }}>
+            <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 0.5, color: r ? relicSetData(r.set).color : C.mute, textTransform: "uppercase" }}>{sl.i + 1} · {sl.name}</span>
+            {r && <span style={{ fontSize: 9, fontWeight: 900, color: (r.level || 0) >= 15 ? C.gold : C.mute, background: "#00000055", borderRadius: 4, padding: "0 4px" }}>+{r.level || 0}</span>}
+          </div>
+          {r ? <>
+            <div style={{ ...ORB, fontSize: 17, fontWeight: 900, marginTop: 5, position: "relative", color: relicIsIdealMain(r, def) ? C.good : C.text }}>
+              +{relicMainValue(r.main, r.level || 0).toFixed(1)}{relicSuffix(r.main)}
+            </div>
+            <div style={{ fontSize: 9, color: C.mute, position: "relative" }}>{relicLabel(r)}</div>
+            <div style={{ fontSize: 9, color: C.mute, lineHeight: 1.4, marginTop: 4, position: "relative" }}>{(r.subs || []).map((s) => `${relicSubLabel(s)} +${s.value.toFixed(1)}`).join(" · ")}</div>
+          </> : <div style={{ color: C.mute, fontSize: 11, marginTop: 18, textAlign: "center" }}>＋ vazio<br /><span style={{ fontSize: 9 }}>toque p/ equipar</span></div>}
         </button>); })}
     </div>
     {pickSlot != null && (() => {
@@ -3980,16 +4557,12 @@ function RelicEquip({ o, setOwnedField, relicInv, onUpgradeRelic }) {
         </div>}
         {opts.length === 0 ? <div style={{ color: C.mute, fontSize: 12, marginTop: 8 }}>{allOpts.length ? "Nenhuma relíquia passa nesses filtros — limpa um filtro aí." : "Nenhuma relíquia deste slot. Farme no Co-op ou no Farm."}</div> :
           <div className="grid grid-cols-2 gap-2 mt-2" style={{ maxHeight: 260, overflowY: "auto" }}>
-            {opts.map((r) => { const [g, gc] = grade(r); return (<button key={r.id} onClick={() => { setR(pickSlot, r); setPickSlot(null); }} className="text-left" style={{ background: C.panel, border: `1px solid ${r.id === bestId ? C.gold : gc + "66"}`, borderRadius: 10, padding: 8, position: "relative" }}>
-              <div style={{ position: "absolute", top: 6, right: 6, display: "flex", gap: 4, alignItems: "center" }}>
-                {r.id === bestId && <span style={{ fontSize: 9, fontWeight: 800, color: C.gold }}>★ IDEAL</span>}
-                <span style={{ fontSize: 10, fontWeight: 900, color: gc, border: `1px solid ${gc}`, borderRadius: 5, padding: "0 4px" }}>{g}</span>
-              </div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: relicSetData(r.set).color }}>{r.set} <span style={{ color: C.mute }}>+{r.level || 0}</span></div>
-              <div style={{ fontSize: 12 }}>{relicMainText(r)}{relicIsIdealMain(r, def) && <span style={{ color: C.good, fontSize: 10, fontWeight: 800 }}> ✓ stat certo</span>}</div>
-              <div style={{ fontSize: 10, color: C.mute, lineHeight: 1.35 }}>{(r.subs || []).map((s, si) => { const want = (CHAR_WANTED_OVERRIDE[def?.id] || ROLE_WANTED[def?.role] || ROLE_WANTED.dps).subs.includes(s.stat); return <span key={si} style={want ? { color: C.good, fontWeight: 700 } : undefined}>{si > 0 ? " · " : ""}{relicSubLabel(s)} +{s.value.toFixed(1)}</span>; })}</div>
-              {onUpgradeRelic && r.level < 15 && <div onClick={(e) => { e.stopPropagation(); onUpgradeRelic(r.id); }} className="flex items-center gap-1" style={{ marginTop: 4, fontSize: 11, color: C.gold, fontWeight: 700 }}>⬆ Subir (<ItemIcon id="item_relic_mat" emoji="🔷" size={11} /> Matéria)</div>}
-            </button>); })}
+            {opts.map((r) => { const [g, gc] = grade(r); return (
+              <div key={r.id} style={{ position: "relative" }}>
+                <RelicCardHSR r={r} def={def} badge={r.id === bestId ? "★ IDEAL" : null} onClick={() => { setR(pickSlot, r); setPickSlot(null); }} />
+                <span style={{ position: "absolute", bottom: 8, right: 8, fontSize: 10, fontWeight: 900, color: gc, border: `1px solid ${gc}`, borderRadius: 5, padding: "0 4px", background: "#00000066" }}>{g}</span>
+                {onUpgradeRelic && r.level < 15 && <button onClick={(e) => { e.stopPropagation(); onUpgradeRelic(r.id); }} style={{ position: "absolute", bottom: 6, left: 10, fontSize: 10, color: C.gold, fontWeight: 800 }}>⬆ Subir</button>}
+              </div>); })}
           </div>}
       </div>); })()}
   </Panel>;
@@ -4401,18 +4974,20 @@ function makeEnemy(idx, enc) {
     if (boss) baseHp *= 4.0; // Guardião da Tag (rebalance: -27%)
   } else {
     // HP atrelado ao PODER da equipe (invariante de escala) — mantém a luta justa mesmo após o rebalanceamento HSR
-    baseHp = power * 1.8 + lvl * 40 + idx * 120;
+    baseHp = power * 0.55 + lvl * 260 + idx * 120; // HSR: HP guiado pelo nível do inimigo
     if (enc.relicFarm) baseHp *= 0.20; // Dungeon de relíquias: bem mais rápida
     if (enc.ascend) baseHp *= 0.35; // Dungeon de ascensão: mais acessível
     // Torre: NPCs do andar 90+ têm HP escalado (1× no 90 → 5× no 200)
     if (enc.isTower && !boss) {
       const f = enc.floor || enc.level;
-      if (f >= 90) baseHp *= 1 + (f - 90) / 110 * 4;
+      if (f >= 90) baseHp *= 1 + (f - 90) / 360 * 11; // escala até o andar 450
     }
     // Torre: HP dos chefes escala exponencialmente — andar 200 = exatamente 5.000.000 HP
     if (enc.isTower && boss) {
       const f = enc.floor || enc.level;
-      baseHp = f === 200 ? 5000000 : Math.round(118000 * Math.pow(10, (f - 50) / 105));
+      // Recalibrado para a curva de dano nova (250k build média · 1.5M build boa · 2-3M E6 perfeito):
+      // andar 50 ≈ 250k · 100 ≈ 1.3M · 200 ≈ 7M · 300 ≈ 19M · 450 ≈ 52M (≈25 golpes de 2M)
+      baseHp = Math.round(250000 * Math.pow(Math.max(1, f) / 50, 2.4));
     } else if (boss) {
       baseHp *= enc.darkTower ? (enc.darkTowerHpMul || 6) : (finalBoss ? 7.0 : weekly ? 7.0 : ascend ? 2.4 : enc.relicFarm ? 0.85 : 4.0);
     }
@@ -4422,8 +4997,10 @@ function makeEnemy(idx, enc) {
   const atkReduce = enc.relicFarm ? 0.70 : enc.ascend ? 0.45 : enc.isTower ? (towerFloorForAtk >= 100 ? (boss ? 0.95 : 0.72) : 0.60) : 1.0;
   // Dungeons e Torre escalam o ATK para garantir dano de 500–4.000 por hit nos heróis
   const dungeonAtkMult = enc.tagDungeon ? 1.38 : enc.isTower ? Math.min(1.55, 0.9 + Math.max(0, (enc.floor || enc.level || 50) - 50) / 130) : enc.espiral ? 1.3 : enc.abismo ? 1.25 : 1.5;
-  const atk = Math.round((power * 0.052 + lvl * 3.5 + 70) * (boss ? 1.3 : 1) * atkReduce * dungeonAtkMult);
-  const def = Math.round(power * 0.035 + lvl * 3 + (boss ? power * 0.03 : 0));
+  // HSR-style: ATK vem do nível do inimigo (não do poder do time), então investir em build
+  // realmente te protege. Só um resíduo pequeno acompanha o time pra não ficar trivial.
+  const atk = Math.round((lvl * 8.5 + power * 0.012 + 120) * (boss ? 1.45 : 1) * atkReduce * dungeonAtkMult);
+  const def = Math.round(lvl * 6 + power * 0.012 + (boss ? lvl * 4 : 0)); // DEF também por nível (HSR)
   const spd = 102 + idx * 3 + (boss ? 14 : 4);
   if (enc.bossRush && idx === 0) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===enc.bossId;}); if (bd) { const atkBr = Math.round(3300 + (enc.level||90) * 11); const defBr = Math.round(2450 + (enc.level||90) * 8); return { uid: "E0", side: "enemy", name: bd.name, bossTitle: bd.lore, bossImgId: bd.imgKey, avatar: bd.avatar, element: bd.element, level: bd.level, roleKey: "dps", bossKind: bd.kind, boss: true, finalBoss: false, weekly: false, ascend: false, elite: false, res: bd.res || [], weak: bd.weak || [], base: { atk: atkBr, def: defBr, spd: 112, critRate: 15, critDmg: 60, dmgBonus: 0 }, hp: bd.hp, maxHp: bd.hp, shield: 0, av: 10000 / 112, buffs: [], debuffs: [], dots: [], alive: true, actCount: 0, _hasToughness: (bd.weak || []).length > 0, toughness: 150, maxToughness: 150 }; } }
   const bossEl = enc.bossElement || pick(ELEMENT_NAMES);
@@ -4550,6 +5127,11 @@ function applyBreakEffect(attacker, defender, el, fx) {
   const isControl = el === "Holy" || el === "Chaos" || el === "Glacial";
   const delayMul = isControl ? Math.min(3.5, 1.25 * (1 + Math.min(2, be / 100))) : 1.25;
   defender.av = (defender.av || 1) * delayMul;
+  // HSR: alvo Quebrado fica VULNERÁVEL (+20% de dano recebido) e com a DEF reduzida até a barra voltar
+  defender.debuffs = (defender.debuffs || []).filter((d) => d.name !== "Quebrado");
+  defender.debuffs.push({ stat: "vuln", value: 20, turns: 2, name: "Quebrado" }, { stat: "defDown", value: 15, turns: 2, name: "Quebrado" });
+  // Físico: a Quebra aplica Sangramento pesado (igual ao HSR)
+  if (el === "Fisico") applyDot([defender], { type: "bleed", mul: 120, turns: 2 }, attacker, fx);
   // Efeito elemental específico
   if (el === "Fogo") {
     const m = Math.max(1, Math.round(effStat(attacker, "atk") * 0.35 * (1 + be / 100)));
@@ -4592,12 +5174,37 @@ function applyBreakEffect(attacker, defender, el, fx) {
 // ── CAP GLOBAL DE ESCUDO (jogador): 4.000 por personagem. Ao atingir o teto, não é possível
 // adicionar mais escudo até ele zerar por completo (evita empilhamento infinito de escudo).
 const SHIELD_CAP = 7000;
-function capShieldAdd(u, amt, customCap) {
+// Escudo estilo HSR: valor derivado dos stats de quem conjura, uma instância por FONTE
+// (reaplicar a mesma fonte substitui em vez de somar — nada de escudo infinito), teto por % do HP do alvo.
+function shieldCapOf(u) { return Math.round((u.maxHp || 1000) * 1.10); } // teto: 110% do HP Máximo do alvo
+function applyShieldSrc(u, amt, source, turns, caster) {
   if (!u || amt <= 0) return 0;
-  const cap = customCap || SHIELD_CAP;
-  const cur = u.shield || 0;
-  if (cur >= cap) return 0;
-  return Math.max(0, Math.min(amt, cap - cur));
+  // escala com build/cópias de quem conjura — build boa protege mais
+  if (caster) amt = Math.round(amt * (1 + Math.min(6, caster.eidolon || 0) * 0.08));
+  u._shields = (u._shields || []).filter((sh) => sh.src !== source && sh.turns > 0);
+  const cap = shieldCapOf(u);
+  const others = u._shields.reduce((a, sh) => a + sh.val, 0);
+  const room = Math.max(0, cap - others);
+  const val = Math.min(Math.round(amt), room);
+  if (val > 0) u._shields.push({ src: source || "generico", val, turns: turns || 3 });
+  u.shield = u._shields.reduce((a, sh) => a + sh.val, 0);
+  return val;
+}
+function tickShields(u) {
+  if (!u._shields || !u._shields.length) return;
+  u._shields.forEach((sh) => (sh.turns -= 1));
+  u._shields = u._shields.filter((sh) => sh.turns > 0 && sh.val > 0);
+  u.shield = u._shields.reduce((a, sh) => a + sh.val, 0);
+}
+function drainShield(u, dmg) { // consome os escudos mais antigos primeiro
+  let rest = dmg;
+  (u._shields || []).forEach((sh) => { if (rest <= 0) return; const used = Math.min(sh.val, rest); sh.val -= used; rest -= used; });
+  u._shields = (u._shields || []).filter((sh) => sh.val > 0);
+  u.shield = u._shields.reduce((a, sh) => a + sh.val, 0);
+  return rest;
+}
+function capShieldAdd(u, amt, customCap) { // compatibilidade com os kits antigos
+  return applyShieldSrc(u, amt, customCap ? "custom" : "generico", 3, null);
 }
 // Yoruichi — Frequência Shunpo: reage a Ataques Extras de qualquer aliado (contra-ataques da equipe)
 function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx, allowSelf) {
@@ -4611,7 +5218,7 @@ function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx, allowSelf) {
   if (yoru.stFlags?.yoruT1 && (yoru._yoruT1Uses || 0) < 3) { yoru._yoruT1Uses = (yoru._yoruT1Uses || 0) + 1; yoru.av = Math.max(0.01, (yoru.av || 1) * 0.94); }
   // Rastro Especial 3 · Relâmpago Causal: se a VEL dela for maior que a do alvo, ignora 18% de DEF
   const t3DefPen = (yoru.stFlags?.yoruT3 && ySpd > effStat(enemyTarget, "spd")) ? 18 : 0;
-  const cloneMul = (ySpd * 100.0 / yAtk) * 100; // Clone Residual: 100× a VEL total (mega buff: alvo 100k-450k com boa build)
+  const cloneMul = (ySpd * 30.0 / yAtk) * 100; // Clone Residual: 3000% da VEL — a conversão VEL→ATK divide por ATK, então precisa ser alto pra competir
   const cr = dealDamage(yoru, enemyTarget, cloneMul, fx, { el: "Eletro", isYoruClone: true, breakW: 1, defPen: t3DefPen });
   fx.push({ uid: enemyTarget.uid, txt: "CLONE RESIDUAL!", crit: false, id: Math.random(), el: "Eletro" }); // rótulo visível do golpe do clone na área de dano
   yoru._yoruClones = (yoru._yoruClones || 0) + 1;
@@ -4694,7 +5301,8 @@ function triggerDesordem(yanagi, target, fx, opts) {
   if (opts?.forceCrit) { finalRaw *= 2.5; crit = true; } // S5: CRIT fixo 100%/150% na Desordem Absoluta
   else if (Math.random() * 100 < effStat(yanagi, "critRate")) { finalRaw *= (1 + effStat(yanagi, "critDmg") / 100); crit = true; }
   const mit = defMult(yanagi, effStat(target, "def") * (1 - pen / 100));
-  const dmg = Math.max(1, Math.round(finalRaw * mit));
+  // Corrigido: a Desordem ficava FORA da curva de dano do jogo (batia ~3.8k contra 50k+ dos outros).
+  const dmg = balanceDamage(finalRaw * mit, yanagi, { bigNuke: !!opts?.absoluteMul });
   target.hp -= dmg; if (target.hp <= 0) { target.hp = 0; target.alive = false; }
   if (S6 && target.alive && target.hp / target.maxHp < 0.10) { target.hp = 0; target.alive = false; fx.push({ uid: target.uid, txt: "EXECUTADO!", crit: true, id: Math.random(), el: "Chaos" }); }
   fx.push({ uid: target.uid, txt: String(dmg), crit, id: Math.random(), el: "Eletro" });
@@ -4753,6 +5361,38 @@ function sinfoniaProc(u, allies, fx) {
 // Corrige crash "aliveEnemies is not defined": essa função só existia dentro do redutor de batalha (escopo local),
 // então qualquer função de kit definida fora dele (Lupa, Hitori, etc.) quebrava ao chamá-la. Agora é global.
 function aliveEnemies(s) { return s.enemies.filter((e) => e.alive); }
+// ══════════════════════════════════════════════════════════════════════════
+// REWORK DO CÁLCULO DE DANO — Curva de Normalização
+// Problema antigo: kits com muitos multiplicadores em cadeia (1.6 × 1.4 × 1.35 …) explodiam
+// para milhões, enquanto kits simples ficavam presos em ~20k. A escala era exponencial.
+// Solução: uma curva única aplicada no dano final de TODOS os personagens —
+//   • Piso dinâmico: golpes fracos são elevados (nada mais fica irrelevante).
+//   • Compressão progressiva: acima do limiar, cada multiplicador extra rende cada vez menos.
+//   • Teto absoluto: nada passa do teto, matando o "dano de milhões".
+// Resultado: todo mundo joga na mesma faixa, e a build/investimento volta a decidir.
+// ══════════════════════════════════════════════════════════════════════════
+// Faixas-alvo do motor:
+//   sem investimento .......  40k – 150k
+//   build decente ..........  200k – 600k
+//   build boa + eidolons ...  700k – 1.5M
+//   TODAS as cópias (E6) + build perfeita ..... 2M+
+//   exceções (nukes de E6, Genesis Reversa, Cataclismo) ..... podem passar de 3M
+const DMG_LIFT = 140000;   // abaixo disso o golpe é elevado (ninguém fica irrelevante)
+const DMG_SOFT = 700000;   // compressão só começa bem alto, pra investimento render de verdade
+const DMG_HARD = 9000000;  // teto de segurança (só trava runaway real)
+function balanceDamage(raw, attacker, opts) {
+  if (!isFinite(raw) || raw <= 0) return 1;
+  let d = raw;
+  // 1) Escala de investimento: cada cópia (eidolon) rende dano de verdade — E6 = +90%
+  if (attacker && attacker.eidolon) d *= 1 + Math.min(6, attacker.eidolon) * 0.15;
+  // 2) Piso: golpes fracos sobem forte, então nenhum personagem fica preso em "20k"
+  if (d < DMG_LIFT) d = d * (1 + 1.8 * (1 - d / DMG_LIFT));
+  // 3) Compressão suave e tardia: preserva o ganho de build, só amacia o exagero
+  if (d > DMG_SOFT) d = DMG_SOFT * Math.pow(d / DMG_SOFT, 0.82);
+  // 4) Exceções: nukes de Suprema/E6 têm teto próprio mais alto
+  const cap = opts?.bigNuke ? DMG_HARD : DMG_HARD * 0.6;
+  return Math.max(1, Math.round(Math.min(cap, d)));
+}
 function dealDamage(attacker, defender, mult, fx, opts) {
   // Lancer Esquiva Absoluta: bloqueia o próximo ataque
   if (defender.id === "lancer" && (defender.lancerDodges || 0) > 0 && attacker.side !== "H" && !opts?.pierceShield) {
@@ -4805,6 +5445,23 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     fx.push({ uid: defender.uid, txt: "ERROU!", crit: false, id: Math.random(), el: attacker.element || "Holy" });
     return { dmg: 0, crit: false };
   }
+  // ══ Chefes da Ascensão Estelar ══
+  if (defender.bossKind === "devorador" && defender.alive) { // Vharok: devora escudos e se cura com eles
+    const st = (attacker._shields || []).reduce((a, sh) => a + sh.val, 0);
+    if (st > 0) { attacker._shields = []; attacker.shield = 0; defender.hp = Math.min(defender.maxHp, defender.hp + Math.round(st * 0.5)); fx.push({ uid: defender.uid, txt: "🍽️ ESCUDO DEVORADO!", crit: true, id: Math.random(), el: "Chaos" }); }
+  }
+  if (defender.bossKind === "espelho" && dmg > 0 && attacker.side === "H" && !opts?.isDot) { // Espelho de Nyx: reflete 22%
+    const rf = Math.round(dmg * 0.22); attacker.hp -= rf; if (attacker.hp <= 0) { attacker.hp = 0; attacker.alive = false; }
+    fx.push({ uid: attacker.uid, txt: "🪞 " + rf, crit: false, id: Math.random(), el: "Unknown" });
+  }
+  if (defender.bossKind === "juiz" && crit) { // Juiz Escarlate: cada CRIT o fortalece
+    defender.buffs.push({ stat: "def", value: Math.round(defender.base.def * 0.08), turns: 9999, name: "Sentença" });
+  }
+  if (defender.bossKind === "colosso" && !opts?.aoe) dmg = Math.round(dmg * 0.55); // Colosso: resiste a alvo único, fraco a área
+  if (defender.bossKind === "fenix" && dmg > 0 && defender.hp - dmg <= 0 && !defender._fenixUsed) { // Fênix: renasce 1x
+    defender._fenixUsed = true; dmg = 0; defender.hp = Math.round(defender.maxHp * 0.5); defender.alive = true;
+    fx.push({ uid: defender.uid, txt: "🔥 RENASCE!", crit: true, id: Math.random(), el: "Fogo" });
+  }
   if (defender.bossKind === "aizen") defender._aizenMissStreak = 0; // acertou — zera a sequência de erros (pity: nunca erra 2x seguidas)
   const f = attacker.stFlags || {};
   // Corrente Trovão-Relâmpago (4pç): pré-computa acúmulos de Condutividade para uso no dano e na DEF
@@ -4832,7 +5489,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     }
   }
   dmg *= 1 + effStat(attacker, "dmgBonus") / 100;
-  if (attacker.id === "lupa" && f.lupaC5) dmg *= 1.40; // C5 · Garra de Almas: +75% de Dano de Fogo incondicional
+  if (attacker.id === "lupa" && f.lupaC5) dmg *= 1.55; // C5 · Garra de Almas // C5 · Garra de Almas: +75% de Dano de Fogo incondicional
   // ── Gilgamesh — Tesouros / Reinado / Trono / Jardim / Ea / Rei Absoluto ──
   if (attacker.id === "gilgamesh" && !opts?.isDot) {
     const gf = attacker.stFlags || {};
@@ -4857,10 +5514,12 @@ function dealDamage(attacker, defender, mult, fx, opts) {
       if ((attacker._gilRFim || 0) > 0) fu += 0.60;
       dmg = Math.round(dmg * fu);
     }
-    if ((attacker._gilJardim || 0) > 0) dmg = Math.round(dmg * 1.30);
-    if ((attacker._gilEa || 0) > 0) dmg = Math.round(dmg * 1.40);
-    if ((attacker._gilAbs || 0) > 0) dmg = Math.round(dmg * 1.60);
-    if ((attacker._gilOrigem || 0) > 0) dmg = Math.round(dmg * 1.40);
+    { let gb = 0; // estados somam em vez de multiplicar (evita explosão exponencial)
+      if ((attacker._gilJardim || 0) > 0) gb += 30;
+      if ((attacker._gilEa || 0) > 0) gb += 40;
+      if ((attacker._gilAbs || 0) > 0) gb += 60;
+      if ((attacker._gilOrigem || 0) > 0) gb += 40;
+      if (gb) dmg = Math.round(dmg * (1 + gb / 100)); }
     if (gf.gilA6 && (attacker._gilTrono || 0) > 0 && aliveEnemies({ enemies: defender._sibs || [defender] }).length === 1) dmg = Math.round(dmg * 1.35); // A6: alvo único
     if (crit || opts?.isFollowup) attacker._gilAuthPend = (attacker._gilAuthPend || 0) + 1;
   }
@@ -4869,9 +5528,11 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   if (attacker.id === "altersaber" && !opts?.isDot) {
     attacker._ignoresShield = (attacker._asAbs || 0) > 0; // Reino Absoluto: ataques ignoram Escudos
     if ((attacker._asReino || 0) > 0) { dmg = Math.round(dmg * 1.20); if (attacker.stFlags?.asA2) dmg = Math.round(dmg * (1 + Math.min(0.5, (attacker._asPhantom || 0) * 0.025))); } // Reino: ignora 25% DEF (aprox.) + A2
-    if ((attacker._asTrono || 0) > 0) dmg = Math.round(dmg * 1.35);
-    if ((attacker._asRFim || 0) > 0) { dmg = Math.round(dmg * 1.25); if (opts?.isFollowup || opts?.isAsCopy) { dmg = Math.round(dmg * 1.60); attacker.energy = Math.min(attacker.energyMax, attacker.energy + 3); } }
-    if ((attacker._asTronoW || 0) > 0) dmg = Math.round(dmg * 1.40); // Trono do Rei Caído: +35% Dano Final
+    { let ab = 0; // estados somam em vez de multiplicar
+      if ((attacker._asTrono || 0) > 0) ab += 35;
+      if ((attacker._asRFim || 0) > 0) { ab += 25; if (opts?.isFollowup || opts?.isAsCopy) { ab += 60; attacker.energy = Math.min(attacker.energyMax, attacker.energy + 3); } }
+      if ((attacker._asTronoW || 0) > 0) ab += 40;
+      if (ab) dmg = Math.round(dmg * (1 + ab / 100)); } // Trono do Rei Caído: +35% Dano Final
     if (crit && (attacker._asReino || 0) > 0) attacker._asPhantom = (attacker._asPhantom || 0) + 1; // CRIT no Reino gera Ruína Fantasma
     if (crit || opts?.isFollowup) attacker._asMarksPend = (attacker._asMarksPend || 0) + 1; // Marca do Rei: CRIT / Ataque Extra
     if ((attacker._asAbs || 0) > 0 && !opts?.isAsCopy && dmg > 0) { // Cópia Espectral: repete o golpe
@@ -4897,7 +5558,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   }
   if (!defender.alive && attacker.id === "altersaber") { attacker._asMarksPend = (attacker._asMarksPend || 0) + 1; if ((attacker._asAbs || 0) > 0 && attacker.stFlags?.asA6 && (attacker._asA6Ext || 0) < 2) { attacker._asA6Ext = (attacker._asA6Ext || 0) + 1; attacker._asAbs += 1; } } // abate: marca + A6 prolonga Absoluto
   // ── Hitori Gotoh — Ressonância de Palco: enquanto viva no time, TODO Ataque Extra (follow-up) causa +250% de dano ──
-  if (opts?.isFollowup) { const hitoriBuff = (attacker._sibs || []).find((h) => h.id === "hitori" && h.alive); if (hitoriBuff) dmg *= 3.5; }
+  if (opts?.isFollowup) { const hitoriBuff = (attacker._sibs || []).find((h) => h.id === "hitori" && h.alive); if (hitoriBuff) dmg *= 1.9; } // rebalanceado: +90% (era +250%)
   // Hitori Gotoh: aura pros 2 primeiros slots — +30% Dano Holy/Chaos (60% com C5), +30% em qualquer elemento também com C5
   { const hitoriAura = (attacker._sibs || []).find((h) => h.id === "hitori" && h.alive);
     if (hitoriAura && attacker.side === "H" && !attacker.isSummon && ["H0", "H1"].includes(attacker.uid)) {
@@ -4966,13 +5627,16 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   // C6 · Soberana da Costa Negra (Zero Absoluto): time inteiro ignora 25% de DEF durante o Estágio 2/3 do Estelarador
   if (attacker.side === "H") { const shkC6 = (attacker._sibs || []).find(h => h.id === "shorekeeper" && h.alive && h.stFlags?.shkC6 && (h._domainStage || 0) >= 2); if (shkC6) pen = Math.min(100, pen + 25); }
   dmg *= defMult(attacker, effStat(defender, "def") * (1 - pen / 100));
-  dmg = isFinite(dmg) ? Math.max(1, Math.round(dmg)) : 1; // robustez: nunca NaN/Infinity
+  dmg = balanceDamage(dmg, attacker, opts); // ← curva única de normalização (todos passam por aqui)
   if (defender.side === "H" && attacker.side !== "H") {
+    // HSR-style: um único golpe nunca tira mais de 55% do HP Máximo (75% se for chefe).
+    const oneShotCap = Math.round(defender.maxHp * (attacker.boss ? 0.75 : 0.55));
+    if (dmg > oneShotCap) dmg = oneShotCap;
     const red = (defender.buffs || []).filter((b) => b.stat === "dmgReduce").reduce((a, b) => a + (b.value || 0), 0);
     if (red) dmg = Math.max(1, Math.round(dmg * Math.max(0.1, 1 - red / 100))); // Protocolo de Infecção
     if (defender.id === "omegamon" || (defender.buffs || []).some((b) => b.name === "Protocolo")) defender._omgHit = (defender._omgHit || 0) + 1;
   }
-  if (defender.shield > 0 && !opts?.pierceShield && !attacker._ignoresShield) { const shBefore = defender.shield; const a = Math.min(defender.shield, dmg); defender.shield -= a; dmg -= a; if (shBefore > 0 && defender.shield === 0 && defender.id === "omegamon" && defender.stFlags && defender.stFlags.omgContagio && attacker.side !== "H") { attacker.dots = attacker.dots || []; if (!attacker.dots.some(function(d){return d.type==="corrosao";})) attacker.dots.push({ type: "corrosao", dmg: Math.max(1, Math.round(defender.base.atk * 0.35)), turns: 2 }); fx.push({ uid: attacker.uid, txt: "CORROSAO", dot: "corrosao", id: Math.random() }); } }
+  if (defender.shield > 0 && !opts?.pierceShield && !attacker._ignoresShield) { const shBefore = defender.shield; const a = Math.min(defender.shield, dmg); dmg = drainShield(defender, dmg); if (shBefore > 0 && defender.shield === 0 && defender.id === "omegamon" && defender.stFlags && defender.stFlags.omgContagio && attacker.side !== "H") { attacker.dots = attacker.dots || []; if (!attacker.dots.some(function(d){return d.type==="corrosao";})) attacker.dots.push({ type: "corrosao", dmg: Math.max(1, Math.round(defender.base.atk * 0.35)), turns: 2 }); fx.push({ uid: attacker.uid, txt: "CORROSAO", dot: "corrosao", id: Math.random() }); } }
   else if (defender.shield > 0 && attacker._ignoresShield && !opts?.pierceShield) { fx.push({ uid: defender.uid, txt: "ESCUDO IGNORADO!", crit: true, id: Math.random(), el: "Chaos" }); }
   defender.hp -= dmg;
   if (defender._dummy) { defender.hp = defender.maxHp; defender.alive = true; } // Boneco de Treino: HP infinito, só serve pra medir dano
@@ -5113,11 +5777,12 @@ function dealDamage(attacker, defender, mult, fx, opts) {
 }
 // Sistema de dano de DoT: aleatório, com piso mínimo que escala com o quanto o personagem está investido (ATK efetivo)
 function dotDamageRoll(source, m) {
+  // Rework: o piso fixo de 50k fazia DoT ignorar completamente a build. Agora escala com o
+  // investimento real (ATK) e passa pela mesma curva de normalização dos ataques diretos.
   const atk = effStat(source, "atk");
-  const scale = Math.max(0.6, Math.min(2.2, atk / 700)); // 700 = ATK de referência; escala travada pra não estourar o teto
-  const variance = 0.85 + Math.random() * 0.30; // variação aleatória de ±15%
-  const scaled = Math.round(atk * (m / 100) * variance * scale);
-  return Math.max(50000, Math.min(280000, scaled)); // faixa pedida: 50k a 280k de dano de DoT
+  const variance = 0.9 + Math.random() * 0.2; // variação de ±10%
+  const raw = atk * (m / 100) * 13.5 * variance; // buffado: DoT precisa competir com golpe direto mesmo em 5 acúmulos
+  return balanceDamage(raw);
 }
 function applyDot(targets, spec, source, fx) {
   const f = source.stFlags || {};
@@ -5134,8 +5799,16 @@ function applyDot(targets, spec, source, fx) {
     if (!t.alive) return;
     if (t.bossKind === "maximillion" && t._illusionActive && source && source.side === "H" && !source.isSummon) return; // imune a DoTs de personagens principais
     if ((t._dotCd?.[spec.type] || 0) > 0) { fx.push({ uid: t.uid, txt: "EM RECARGA", crit: false, id: Math.random() }); return; } // cooldown de reaplicação (2 turnos após o fim)
-    if (spec.type === "aero" && t.dots.filter(d => d.type === "aero").length >= 5) return; // Aero: máx 5 acúmulos
-    if (spec.type === "poison" && t.dots.filter(d => d.type === "poison").length >= 5) return; // Veneno: máx 5 camadas (estilo HSR)
+    // Teto global de 5 acúmulos por TIPO (estilo HSR). Sem isso, dezenas de stacks disparavam
+    // todos no mesmo turno e o DoT virava um nuke instantâneo em vez de dano ao longo do tempo.
+    const sameType = t.dots.filter(d => d.type === spec.type);
+    if (sameType.length >= 5) { // no teto: renova a duração do mais fraco em vez de empilhar
+      const weakest = sameType.reduce((a, d) => (d.dmg < a.dmg ? d : a), sameType[0]);
+      weakest.turns = Math.max(weakest.turns, spec.turns);
+      if (dmg > weakest.dmg) weakest.dmg = dmg;
+      fx.push({ uid: t.uid, txt: "DoT MÁX (5)", crit: false, id: Math.random() });
+      return;
+    }
     if (spec.type === "sinking") { const ex = t.dots.find(d => d.type === "sinking"); if (ex) { ex.dmg = Math.min(9999, ex.dmg + dmg); ex.turns = Math.min(9, ex.turns + spec.turns); return; } } // Afundamento: Potência acumula, Count soma
     t.dots.push({ type: spec.type, dmg, turns: spec.turns });
     if (f.setGlacial4 && glacial) { const cur = t.debuffs.find((d) => d.name === "GlacialSet"); if (cur) cur.value = Math.min(15, cur.value + 3); else t.debuffs.push({ stat: "vuln", value: 3, turns: 3, name: "GlacialSet" }); } // Sopro Glacial 4pç (buffado)
@@ -5208,7 +5881,7 @@ function checkSoiFonFollowup(s, actor, fx) {
   const fuMsgs = [];
   for (const tgt of markedEnemies) {
     if (fuDone >= maxFU) break; fuDone++;
-    let fuMul = 120 * (sf.tSkill || 1);
+    let fuMul = 260 * (sf.tSkill || 1); // Ataque Extra do Ferrão rebalanceado
     if (f2.sfPrecisao) fuMul *= 1.25;
     if (f2.sfC5) fuMul *= 1.15;
     if (sf.weapon?.id === "ferrao_borboleta") { const wc = sf.sfWpnCharges || 0; if (wc > 0) { fuMul *= (1 + wc * 0.10); sf.sfWpnCharges = Math.min(5, wc + 1); } }
@@ -5464,7 +6137,7 @@ function lupaBasicAttack(s, u, enemy, fx, ampB) {
   const cap = lupaVorCap(u);
   const predAbs = (u._lupaVor || 0) >= cap;
   const defPen = predAbs ? (f.lupaC2 ? 40 : 20) : 0;
-  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.10; // nerf: 10% por carga
+  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.15; // Voracidade: +15% por carga
   const overclock = (u._lupaOverclock || 0) > 0;
   let msg = "";
   if (overclock) {
@@ -5499,7 +6172,7 @@ function lupaSkillAttack(s, u, enemy, fx, ampS) {
   if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
   if (!enemy) return `${u.name} não encontra alvo.`;
   const cap = lupaVorCap(u);
-  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.10; // nerf: 10% por carga
+  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.15; // Voracidade: +15% por carga
   const r = dealDamage(u, enemy, (sk.skillMul || 300) * (u.tSkill || 1) * ampS * vorMul, fx, { el: "Fogo", breakW: 2 });
   let msg = `🌋 Salto do Abismo em ${enemy.name} — ${r.dmg} de Dano de Fogo${r.crit ? " (CRÍTICO!)" : ""}.`;
   if ((u._lupaSupernova || 0) > 0 && enemy.alive) { applyDot([enemy], { type: "burn", mul: 120, turns: 3 }, u, fx); msg += " ☄️ Supernova: aplica Ignição em dobro."; }
@@ -5571,9 +6244,9 @@ function lupaUltimate(s, u, fx, ampU) {
     if (_hadBurns && !_infernoUltFired && u.stFlags?.setInferno6) { infernoExplosao(u, enemies, fx); _infernoUltFired = true; }
   });
   if (f.setMatilha4 && totalRounds > 0) { const cur = u.buffs.filter((b) => b.name === "Matilha Voraz").length; for (let mi = cur; mi < Math.min(3, cur + totalRounds); mi++) u.buffs.push({ stat: "dmgBonus", value: 12, turns: 3, name: "Matilha Voraz" }); } // Matilha Voraz 4pç: o Consumo Absoluto da Ultimate também gera acúmulos
-  const perRound = f.lupaC6 ? 1.8 : 1.0; // nerf: +100%/rodada (C6: +180%)
+  const perRound = f.lupaC6 ? 2.2 : 1.4; // +140% por rodada de DoT (C6: +220%)
   const scaleMul = 1 + totalRounds * perRound;
-  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.10; // nerf: 10% por carga
+  const vorMul = 1 + Math.min(cap, u._lupaVor || 0) * 0.15; // Voracidade: +15% por carga
   const forceCrit = !!u._lupaGuaranteedCritUlt; u._lupaGuaranteedCritUlt = false;
   const incStacks = u.buffs.filter((b) => b.name === "Incinerador").length;
   const matilhaStacks = u.buffs.filter((b) => b.name === "Matilha Voraz").length;
@@ -5591,7 +6264,7 @@ function lupaUltimate(s, u, fx, ampU) {
   // C6 · Cataclismo Secundário: 6+ rodadas consumidas de uma vez dispara um segundo impacto de 1000% ATK, ignora 100% DEF / 50% RES
   if (f.lupaC6 && totalRounds >= 6) {
     let tot2 = 0;
-    enemies.forEach((e) => { if (e.alive) { const r2 = dealDamage(u, e, 700 * (u.tUlt || 1) * ampU, fx, { el: "Fogo", breakW: 2, defPen: 100, resPen: 50, forceCrit: true, noLupaProc: true }); tot2 += r2.dmg; } });
+    enemies.forEach((e) => { if (e.alive) { const r2 = dealDamage(u, e, 700 * (u.tUlt || 1) * ampU, fx, { el: "Fogo", breakW: 2, defPen: 100, resPen: 50, forceCrit: true, noLupaProc: true, bigNuke: true }); tot2 += r2.dmg; } });
     msg += ` ☄️ CATACLISMO SECUNDÁRIO! +${tot2} de Dano de Fogo Puro, ignorando 100% DEF e 50% RES!`;
   }
   // Estado Overclock: 2 turnos (4 com C6)
@@ -5609,7 +6282,7 @@ function miyabiBasicAttack(s, u, enemy, fx, ampB) {
   let msg = "";
   if (inPostura && f.miC6 && u.posturePH >= 4) {
     const fb = (f.miC1 && !u._firstCut) ? 1.5 : 1; let killed = false, tot = 0;
-    aliveEnemies(s).forEach((e) => { const r = dealDamage(u, e, 680 * 1.20 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 50, enhanced: true }); tot += r.dmg; if (!e.alive) killed = true; if (e.alive) applyDot([e], { type: "freeze", mul: 260, turns: 3 }, u, fx); });
+    aliveEnemies(s).forEach((e) => { const r = dealDamage(u, e, 520 * 1.20 * (u.tBasic || 1) * ampB * fb, fx, { breakW: 1, el: "Glacial", defPen: 50, enhanced: true }); tot += r.dmg; if (!e.alive) killed = true; if (e.alive) applyDot([e], { type: "freeze", mul: 260, turns: 3 }, u, fx); });
     msg = `❄️ MIYABI DESFERE O CORTE DO FIM DOS TEMPOS! ${tot} de Dano Glacial em TODOS, ignorando 50% da DEF, e aplica Congelamento.`;
     if (killed) { u._avMul = 0; msg += " Um alvo foi eliminado — Miyabi joga novamente!"; }
     u._firstCut = true; if (!frostZone) u.posturePH = 0;
@@ -5705,6 +6378,13 @@ function tickDots(u, fx, allies) {
   u.dots = u.dots.filter((d) => d.turns > 0);
   if (u.hp <= 0) { u.hp = 0; u.alive = false; }
   return total;
+}
+// Cura também valoriza build: escala com as cópias de quem cura e varia levemente (nada é fixo)
+function balanceHeal(raw, caster) {
+  let h = raw;
+  if (caster) h *= 1 + Math.min(6, caster.eidolon || 0) * 0.10;
+  h *= 0.95 + Math.random() * 0.10; // variação de ±5%
+  return Math.max(1, Math.round(h));
 }
 function healUnit(u, amount, fx) {
   let amt = amount; if (u._mut === "ventos") amt = Math.round(amt * 2); if (u._glitchHealHalf) amt = Math.round(amt * 0.5);
@@ -6200,7 +6880,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         }
         if (!miyDone && u.id === "yoruichi" && enemy) {
           const ySpd = effStat(u, "spd"), yAtk = Math.max(1, effStat(u, "atk"));
-          const yMul = (ySpd * 25.0 / yAtk) * 100; // 300% da VEL (convertido pra fórmula de %ATK do motor)
+          const yMul = (ySpd * 42.0 / yAtk) * 100; // Básico: 4200% da VEL
           const r = dealDamage(u, enemy, yMul, fx, { el: "Eletro" });
           msg = `⚡ Golpe Relâmpago em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}.`;
           yoruFollowupProc(u, enemy, r.dmg, fx, true); // o próprio Básico dela agora conjura um Clone Residual (funciona em qualquer time)
@@ -6841,7 +7521,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           } else if (u.id === "yoruichi" && sk.yoruUlt && enemy) {
             u.energy = enGain(5); // corrige bug: faltava consumir a energia — ela ultava toda hora sem parar
             const ySpd = effStat(u, "spd"), yAtk = Math.max(1, effStat(u, "atk"));
-            const yMul = (ySpd * 45.0 / yAtk) * 100; // 2200% da VEL
+            const yMul = (ySpd * 110.0 / yAtk) * 100; // Ultimate: 11000% da VEL
             const r = dealDamage(u, enemy, yMul, fx, { el: "Eletro", breakW: 3 });
             allies.filter(a => a.uid !== u.uid && a.alive).forEach(a => { a.av = (a.av || 1) * 0.75; });
             msg = `⚡⚡ SHUNKO: RAIJIN! ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} em ${enemy.name}! O resto do time avança 25% na Ordem de Turnos!`;
@@ -6970,7 +7650,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           if (u.stFlags?.gilE1) { mulBonus += (u._gilReg || 0) * 0.05; u._gilReg = 0; }
           if (u.stFlags?.setBabilonia4) { mulBonus += (u._gilBab || 0) * 0.05; u._gilBab = 0; u._gilArsenal = 2; u.buffs.push({ stat: "atk", value: Math.round(u.base.atk * 0.30), turns: 2, name: "Arsenal Dourado" }, { stat: "dmgBonus", value: 30, turns: 2, name: "Arsenal Dourado" }); }
           if (u.weapon?.buff?.gilWeapon && (u._gilOrigem || 0) > 0) { mulBonus += 0.50; u.energy = Math.min(u.energyMax, u.energy + 30); }
-          const r = dealDamage(u, enemy, (sk.ultMul || 980) * (u.tUlt || 1) * ampU * mulBonus, fx, { el: "Unknown", breakW: 3, defPen: 30 });
+          const r = dealDamage(u, enemy, (sk.ultMul || 980) * (u.tUlt || 1) * ampU * mulBonus, fx, { el: "Unknown", breakW: 3, defPen: 30, bigNuke: true });
           let tot = r.dmg;
           aliveEnemies(s).filter((e) => e.uid !== enemy.uid).forEach((e) => { const r2 = dealDamage(u, e, 580 * (u.tUlt || 1) * ampU * mulBonus, fx, { el: "Unknown", breakW: 2, defPen: 30 }); tot += r2.dmg; });
           u._gilJardim = 2; gilGainTesouro(u, 8, s); gilAuth(u, s);
@@ -6986,7 +7666,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             u._gilAbs = 3; u.buffs.push({ stat: "critDmg", value: 150, turns: 3, name: "Rei Absoluto" });
             msg += " 👑✨ E6: REI ABSOLUTO por 3 turnos!";
             if (freeE6) { u._gilE6Used = true; let g2 = 0;
-              aliveEnemies(s).forEach((e) => { const rg = dealDamage(u, e, (e.uid === enemy.uid ? 700 : 450) * (u.tUlt || 1) * ampU, fx, { el: "Unknown", defPen: 60, resPen: 60 }); g2 += rg.dmg; });
+              aliveEnemies(s).forEach((e) => { const rg = dealDamage(u, e, (e.uid === enemy.uid ? 700 : 450) * (u.tUlt || 1) * ampU, fx, { el: "Unknown", defPen: 60, resPen: 60, bigNuke: true }); g2 += rg.dmg; });
               msg += ` 💫 ENUMA ELISH: GENESIS REVERSA — ${g2} de dano adicional!`; }
           }
         } else if (u.id === "altersaber" && sk.asUlt && enemy) {
@@ -7004,7 +7684,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           msg = `⚔️👑 EXCALIBUR MORGAN — O FIM DO TRONO! ${tot} de Dano Chaos (${ru} Ruínas consumidas)! Domínio Trono do Rei Caído por 2 turnos: +35% Dano Final, ignora 40% DEF!${!enemy.alive ? " Alvo eliminado — TURNO EXTRA!" : ""}`;
           if (u.stFlags?.asE6) {
             let st6 = 0; aliveEnemies(s).forEach((e) => { const rs = dealDamage(u, e, (e.uid === enemy.uid ? 760 : 430) * 0.85 * (u.tUlt || 1) * ampU, fx, { el: "Chaos", isAsCopy: true }); st6 += rs.dmg; });
-            let rt6 = 0; aliveEnemies(s).forEach((e) => { const rr = dealDamage(u, e, (e.uid === enemy.uid ? 900 : 500) * (u.tUlt || 1) * ampU, fx, { el: "Chaos", defPen: 50, resPen: 40, isAsCopy: true }); rt6 += rr.dmg; });
+            let rt6 = 0; aliveEnemies(s).forEach((e) => { const rr = dealDamage(u, e, (e.uid === enemy.uid ? 900 : 500) * (u.tUlt || 1) * ampU, fx, { el: "Chaos", defPen: 50, resPen: 40, isAsCopy: true, bigNuke: true }); rt6 += rr.dmg; });
             u._asAlter = 3; u._asReino = 3; u._asMarks = 10; asMark(u, s);
             msg += ` 👑💀 E6: a Sombra do Rei repete a Suprema (${st6}) e libera EXCALIBUR MORGAN · RUPTURA DO MUNDO (${rt6})! Modo Alter e Reino da Ruína redefinidos ao máximo — o ciclo recomeça!`;
           }
@@ -7130,7 +7810,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         if (u.weapon?.ultEnergy) allies.forEach((a) => { if (a.energyMax) a.energy = Math.min(a.energyMax, a.energy + u.weapon.ultEnergy); });
         } // end soifon ult else
       }
-      tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       if (u._avMul != null) { u.av = Math.max(0.01, u.av * u._avMul); u._avMul = null; }
       if (u.id === "miyabi" && (s.frostZone || 0) > 0) s.frostZone -= 1;
       if (u.id === "lupa" && (u._lupaOverclock || 0) > 0) { u._lupaOverclock -= 1; if (u._lupaOverclock <= 0) pushLog(s, `🔥 O Overclock de ${u.name} terminou.`); }
@@ -7181,7 +7861,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         const t3 = yoru3 && targetEnemy(s);
         if (yoru3 && t3 && t3.alive) {
           const ySpd = effStat(yoru3, "spd"), yAtk = Math.max(1, effStat(yoru3, "atk"));
-          const cloneMul = (ySpd * 100.0 / yAtk) * 100; // 100× a VEL
+          const cloneMul = (ySpd * 30.0 / yAtk) * 100; // 3000% da VEL
           const cr3 = dealDamage(yoru3, t3, cloneMul, s.fx, { el: "Eletro", isYoruClone: true, breakW: 1 });
           yoru3._yoruClones = (yoru3._yoruClones || 0) + 1;
           if (yoru3._yoruClones % 3 === 0 && t3._sibs) {
@@ -7380,7 +8060,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       }
       if (ff.kS4) { applyBuff(allies, { critDmg: 35, all: true, turns: 3 }, u.name, fx, u); msg += " Decreto Soberano: +35% Dano CRÍTICO para o time por 3 turnos!"; }
       refreshKaibaBuffs(s);
-      tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
   }
@@ -7425,7 +8105,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         allies.forEach(a => { a.buffs.push({ stat: "dmgBonus", value: 15 + extraBonus, turns: 2, name: "HorizonteUlt" }); a.buffs.push({ stat: "critDmg", value: 12, turns: 2, name: "HorizonteCrit" }); });
         msg += (extraBonus > 0 ? " [Além do Horizonte] +15%+" + extraBonus + "% Dano Bônus e +12% CRIT DMG ao time!" : " [Além do Horizonte] +15% Dano Bônus e +12% CRIT DMG ao time!");
       }
-      tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
   }
@@ -7513,7 +8193,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         ? ` ${houseTarget.name} é o(a) GUARDIÃO(Ã) e recebe tudo em DOBRO: +60% VEL, +60% DEF, +40% CRIT, +40% Dano, +50% CRIT DMG!`
         : ` ${houseTarget.name} é o(a) Guardião(ã) das Sete Casas!`;
       let msg = `🕊️✨ JULGAMENTO DO OLIMPO! ${u.name} invoca as Sete Casas — todo o time recebe +30% VEL, +30% DEF, +20% CRIT, +20% Dano e +25% CRIT DMG${f.athC6 ? " PERMANENTES (C6!)" : ` por ${houseTurns} turnos`}! ${u.name} entra no Modo Aprimorado por ${u._athEnhancedTurns} turnos.${_guardianLine}`;
-      tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
   }
@@ -7534,7 +8214,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       let msg = `🎈 ${u.name} usa Zero Gravity em ${buffTarget.name} — +${atkPct}% ATK e +10 VEL por 2 turnos!`;
       if (f.uraC6 && buffTarget.energyMax) { buffTarget.energy = Math.min(buffTarget.energyMax, buffTarget.energy + 10); msg += ` [C6] +10 de Energia para ${buffTarget.name}!`; }
       if (f.uraC2) { const _uraSh = capShieldAdd(u, Math.round(u.maxHp * 0.10)); u.shield = (u.shield || 0) + _uraSh; msg += ` Escudo Orbital: +${_uraSh} de escudo.`; }
-      tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
   }
@@ -7633,7 +8313,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         else if (role === "debuffer" && sk.skillDebuff && enemies[0]) { applyDebuff([enemies[0]], sk.skillDebuff, 0, u); if (sk.skillDot) applyDot([enemies[0]], sk.skillDot, u, fx); if (sk.skillMul) dealDamage(u, enemies[0], sk.skillMul, fx); msg = `${u.name} enfraquece o inimigo`; }
         else { const tgt = enemies.slice().sort((a, b) => b.hp - a.hp)[0]; if (tgt) { const full = u.energyMax && u.energy >= u.energyMax; if (full && sk.ultMul) { u.energy = 0; if (sk.ultAoe) enemies.forEach((e) => dealDamage(u, e, sk.ultMul, fx)); else dealDamage(u, tgt, sk.ultMul, fx); msg = `💥 ${u.name} usa Ultimate!`; } else { const m = sk.skillMul || sk.basicMul || 100; if (sk.aoe && sk.skillMul) enemies.forEach((e) => dealDamage(u, e, m, fx)); else dealDamage(u, tgt, m, fx); if (sk.skillDot) applyDot(sk.aoe ? enemies : [tgt], sk.skillDot, u, fx); u.energy = Math.min(u.energyMax, u.energy + 22); msg = `${u.name} ataca ${tgt.name}`; } } }
       }
-      tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       s.hitFx = { el: u.element, big: !!(u.elements && u.elements.length > 1), support: !fx.some((x) => !x.heal && !x.dot), id: Math.random() };
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
@@ -7648,6 +8328,32 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       const u = findUnit(s, current.uid); if (!u || !u.alive) { s.turn = null; return s; }
       tickDots(u, s.fx, s.heroes.filter((h) => h.alive));
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
+      // ══ Mecânicas exclusivas dos chefes da Ascensão Estelar (andares 201–450) ══
+      switch (u.bossKind) {
+        case "temporal": { // Kronarch: acelera a cada turno e rouba a ação de quem for mais lento
+          u._tmp = (u._tmp || 0) + 1; u.buffs.push({ stat: "spd", value: 12, turns: 9999, name: "Aceleração Temporal" });
+          if (u._tmp % 3 === 0) { s.heroes.filter(h => h.alive).forEach(h => { h.av = (h.av || 1) * 1.35; }); s.fx.push({ uid: u.uid, txt: "⏳ TEMPO ROUBADO!", crit: true, id: Math.random(), el: "Holy" }); }
+          break; }
+        case "praga": { // Mãe-Praga: veneno que cresce a cada aplicação
+          u._prg = Math.min(10, (u._prg || 0) + 1);
+          s.heroes.filter(h => h.alive).forEach(h => applyDot([h], { type: "poison", mul: 40 + u._prg * 12, turns: 3 }, u, s.fx));
+          pushLog(s, `🧬 ${u.name} libera esporos — Praga nível ${u._prg}!`);
+          break; }
+        case "tirano": { // Tirano: fica mais forte a cada turno, sem teto
+          u._tir = (u._tir || 0) + 1; u.buffs.push({ stat: "dmgBonus", value: 15, turns: 9999, name: "Tirania" });
+          s.fx.push({ uid: u.uid, txt: `👑 TIRANIA ${u._tir}`, crit: true, id: Math.random(), el: "Chaos" });
+          break; }
+        case "leviata": { // Leviatã: regenera HP todo turno, a menos que esteja com a barra quebrada
+          if (!u._broken) { const hl = Math.round(u.maxHp * 0.06); u.hp = Math.min(u.maxHp, u.hp + hl); s.fx.push({ uid: u.uid, txt: "🌊 +" + hl, heal: true, id: Math.random() }); }
+          break; }
+        case "vazio": { // Nihil: apaga os buffs do time periodicamente
+          u._vz = (u._vz || 0) + 1;
+          if (u._vz % 2 === 0) { s.heroes.filter(h => h.alive).forEach(h => { h.buffs = h.buffs.filter(b => b.turns > 900); }); pushLog(s, `🕳️ ${u.name} apaga os aprimoramentos da equipe!`); }
+          break; }
+        case "fenix": { // Fênix: renasce uma vez
+          break; }
+        default: break;
+      }
       // Perfuração: se a barra foi quebrada, ela se regenera no início do próprio turno natural do inimigo
       if (u._broken && u._hasToughness) { u.toughness = u.maxToughness; u._broken = false; s.fx.push({ uid: u.uid, txt: "🛡️ Resistência restaurada", heal: true, id: Math.random() }); }
       // Colapso Entrópico (Perfuração Chaos): a marca explode no início do turno do inimigo, escalando com hits sofridos
@@ -7992,7 +8698,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             pushLog(s, `☢️ [Vírus Defeat] x${omg.omgCharges} — +${15 * omg.omgCharges}% CRIT DMG em ${omg.name}; DEF do atacante reduzida.`);
           }
         } }
-      tickBuffs(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       // ═══ Agumon: termodinâmica no fim do turno dele ═══
       if (u.id === "agumon" && u.alive) {
         // Reforço defensivo: garante que os buffs da forma atual nunca sumam por engano
@@ -8076,16 +8782,21 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
               </div>
               <EnemyAvatar e={e} size={e.boss ? 48 : 36} />
               <div style={{ fontSize: 10, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.name}</div>
-              <Bar value={e.hp} max={e.maxHp} color={C.bad} />
+              <Bar value={e.hp} max={e.maxHp} color={e.boss ? "#FF4D6D" : C.bad} h={e.boss ? 10 : 8} ticks={!!e.boss} glow={!!e.boss} />
               <div style={{ fontSize: 9, color: C.mute }}>{context === "test" ? "∞ (manequim de teste)" : `${Math.round(e.hp)} / ${e.maxHp}`}</div>
               {e._hasToughness && <>
-                <Bar value={e.toughness} max={e.maxToughness} color={e.toughness > 0 ? "#F2C245" : "#555"} />
+                <ToughnessBar cur={e.toughness} max={e.maxToughness} broken={e.toughness <= 0} />
                 <div style={{ fontSize: 8, color: e.toughness > 0 ? "#F2C245" : "#7CFFB0" }}>{e.toughness > 0 ? `🛡 Resistência ${Math.round(e.toughness)}/${e.maxToughness}` : "💢 PERFURADO!"}</div>
               </>}
               <DotPips unit={e} />
               {(e.res?.length > 0 || e.weak?.length > 0) && <div style={{ fontSize: 8, lineHeight: 1.3, marginTop: 1 }}>
                 {e.res?.length > 0 && <div style={{ color: "#9aa0b5" }}>RES: {e.res.map((el) => ELEMENTS[el]?.glyph || el).join("")}</div>}
-                {e.weak?.length > 0 && <div style={{ color: "#7CFFB0" }}>FRACO: {e.weak.map((el) => ELEMENTS[el]?.glyph || el).join("")}</div>}
+                {e.weak?.length > 0 && <div className="flex items-center gap-1" style={{ flexWrap: "wrap", marginTop: 2 }}>
+                  <span style={{ color: "#7CFFB0", fontWeight: 800, fontSize: 8 }}>FRAQUEZA</span>
+                  {e.weak.map((el) => { const E = ELEMENTS[el] || {}; return (
+                    <span key={el} title={el} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 15, height: 15, borderRadius: 5, fontSize: 9, fontWeight: 900,
+                      color: E.color, background: (E.soft || "#222"), border: `1px solid ${E.color}99`, boxShadow: `0 0 6px ${E.color}55` }}>{E.glyph || el[0]}</span>); })}
+                </div>}
               </div>}
               {e.debuffs.length > 0 && <div style={{ fontSize: 9, color: "#FF8FA0", marginTop: 1 }}>{[...new Set(e.debuffs.map((d) => d.name))].join(" ")}</div>}
             </button>); })}
@@ -8343,7 +9054,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             )}
           </div>
         ) : isHeroTurn ? (() => { let nm = skillNamesOf(activeHero.id); if (activeHero.id === "agumon") { const _F = AGU_FORMS[activeHero.agForm || "agumon"]; if (_F) nm = _F.skills.map(x => x[0]); }
-          if (activeHero.id === "lupa" && (activeHero._lupaOverclock || 0) > 0) nm = [nm[0] + " → Julgamento Solar ☀️🔥", nm[1], nm[2]]; // Overclock: Básico vira Julgamento Solar
+          const _enh = enhancedState(activeHero); // ← sistema geral de ataque aprimorado (HSR)
+          if (_enh && _enh.i >= 0 && _enh.name) nm = nm.map((x, i) => i === _enh.i ? _enh.name : x);
           if (activeHero.id === "soifon" && activeHero.sfPostura) nm = [nm[0] + " 🦋 DANO VERDADEIRO", nm[1] + " 🦋 DANO VERDADEIRO", nm[2] + " 🦋 DANO VERDADEIRO"]; // Postura de Ferrão: qualquer ação consome e vira Dano Verdadeiro
           const _kindLabel = { basic: "Ataque Básico", skill: "Perícia · 1 PH", ult: "Ultimate" };
           const _kindName  = { basic: nm[0], skill: nm[1], ult: nm[2] };
@@ -8404,9 +9116,16 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             <div className="flex gap-2" style={{ flexWrap: "wrap", justifyContent: "center" }}>
               {activeHero.id === "agumon" && (activeHero.agForm || "agumon") !== "wargreymon" &&
                 <Btn kind="soft" style={{ borderColor: "#FF9E45", color: "#FFB74D" }} onClick={() => setState(s0 => ({ ...s0, choice: { uid: activeHero.uid, kind: "agumon_evo" } }))}>🧬 Digievoluir</Btn>}
-              {_holdBtn("basic", { kind: "soft" }, <>⚔️ {nm[0]}</>)}
-              {(() => { const sfGlow = activeHero.id === "soifon" && activeHero.sfPostura; return _holdBtn("skill", { disabled: state.sp <= 0, style: sfGlow ? { borderColor: "#7CFFB0", boxShadow: "0 0 14px #7CFFB088", color: "#7CFFB0", animation: "srSfPostura 1s ease-in-out infinite" } : {} }, <>✦ {nm[1]} <span style={{ fontSize: 10, opacity: 0.8 }}>(1 PH)</span>{sfGlow && <style>{`@keyframes srSfPostura{0%,100%{opacity:.75}50%{opacity:1}}`}</style>}</>); })()}
-              {_holdBtn("ult", { kind: canUlt ? "primary" : "soft", disabled: !canUlt }, <>{canUlt ? "💥 " : "⏳ "}{nm[2]}</>)}
+              {(() => { const g = _enh && (_enh.i === 0 || _enh.i === -1) ? _enh.color : null;
+                return _holdBtn("basic", { kind: "soft", style: g ? { borderColor: g, color: g, boxShadow: `0 0 16px ${g}77`, animation: "srEnh 1.1s ease-in-out infinite" } : {} },
+                  <>{g ? "✦ " : "⚔️ "}{nm[0]}{g && <span style={{ fontSize: 9, fontWeight: 900, marginLeft: 4, opacity: .9 }}>{_enh.tag}</span>}</>); })()}
+              {(() => { const g = _enh && (_enh.i === 1 || _enh.i === -1) ? _enh.color : null;
+                return _holdBtn("skill", { disabled: state.sp <= 0, style: g ? { borderColor: g, color: g, boxShadow: `0 0 16px ${g}77`, animation: "srEnh 1.1s ease-in-out infinite" } : {} },
+                  <>✦ {nm[1]} <span style={{ fontSize: 10, opacity: 0.8 }}>(1 PH)</span>{g && <span style={{ fontSize: 9, fontWeight: 900, marginLeft: 4 }}>{_enh.tag}</span>}</>); })()}
+              {(() => { const g = _enh && (_enh.i === 2 || _enh.i === -1) && canUlt ? _enh.color : null;
+                return _holdBtn("ult", { kind: canUlt ? "primary" : "soft", disabled: !canUlt, style: g ? { borderColor: g, boxShadow: `0 0 18px ${g}88`, animation: "srEnh 1.1s ease-in-out infinite" } : {} },
+                  <>{canUlt ? "💥 " : "⏳ "}{nm[2]}{g && <span style={{ fontSize: 9, fontWeight: 900, marginLeft: 4 }}>{_enh.tag}</span>}</>); })()}
+              <style>{`@keyframes srEnh{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}`}</style>
             </div>
             <div style={{ textAlign: "center", fontSize: 11, color: C.mute, marginTop: 6 }}>{abilityHint(activeHero)}</div>
           </div>); })() : <div style={{ textAlign: "center", color: C.mute, fontSize: 13 }}>{current && (current.side === "enemy") ? "⚔️ Turno do inimigo…" : "🤝 Aliado agindo…"}</div>}
@@ -8638,12 +9357,15 @@ function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, setRelicMats, 
 /* ==========================================================================
    RELÍQUIAS
    ========================================================================== */
-function RelicsScreen({ relicInv, setRelicInv, owned, setRelicMats, flash }) {
+function RelicsScreen({ relicInv, setRelicInv, owned, setRelicMats, relicMats, onUpgradeRelic, startRelicDungeon, startRotatingRelicDungeon, stamina, flash }) {
+  const [detail, setDetail] = useState(null);   // relíquia aberta no painel de detalhe
+  const [seasonTab, setSeasonTab] = useState("atual");
+  const [dunOpen, setDunOpen] = useState(false); // seletor de dungeon recolhido por padrão (menos poluição)
   const [group, setGroup] = useState("set"); // "set" | "slot"
   const [confirmSell, setConfirmSell] = useState(null); // relic id pending sell confirmation
   const [onlyFree, setOnlyFree] = useState(false); // só não-equipadas
   const [confirmBulk, setConfirmBulk] = useState(false);
-  if (!relicInv.length) return <Empty msg="Sem relíquias. Vá ao Farm → Rede Corrompida ☢️ para farmar o set Protocolo Ômega, ou ao Co-op para outros sets." />;
+  const semRelics = !relicInv.length; // não retorna cedo: os Domínios precisam aparecer mesmo sem relíquias
 
   // Mapa de relíquias equipadas: relicId -> [{charName, avatar}]
   const equippedBy = {};
@@ -8674,7 +9396,59 @@ function RelicsScreen({ relicInv, setRelicInv, owned, setRelicMats, flash }) {
     : RELIC_SLOTS.map((sl) => [sl.name, filtered.filter((r) => (r.slot ?? 0) === sl.i)]).filter(([, list]) => list.length)
   ).map(([label, list]) => [label, list.slice().sort((a, b) => (b.level || 0) - (a.level || 0))]);
 
+  const feats = featuredFarmSets();
+  const hrs = Math.floor(weekResetMs() / 3600000);
+  const allSets = ["Protocolo Ômega", ...ROTATING_FARM_SETS];
+  const [pickSet, setPickSet] = useState(feats[0]);
+  const DIFFS = [
+    { t: 0, n: "FÁCIL",   d: "1 relíquia",       cost: 30, c: "#7CFFB0" },
+    { t: 1, n: "MÉDIO",   d: "2 relíquias",      cost: 45, c: "#F2C245" },
+    { t: 2, n: "DIFÍCIL", d: "3 a 5 relíquias",  cost: 60, c: "#FF5E5E" },
+  ];
+  function runDungeon(tier) {
+    if (pickSet === "Protocolo Ômega") { startRelicDungeon && startRelicDungeon(tier); return; }
+    startRotatingRelicDungeon && startRotatingRelicDungeon(pickSet, tier);
+  }
+
   return <div className="flex flex-col gap-4">
+    {detail && <RelicDetailModal r={detail} def={null} canUpgrade={(relicMats || 0) > 0}
+      onClose={() => setDetail(null)}
+      onUpgrade={() => { onUpgradeRelic && onUpgradeRelic(detail.id); setDetail(null); }} />}
+
+    <Panel glow="#00E5CC">
+      <button onClick={() => setDunOpen((v) => !v)} className="flex items-center justify-between" style={{ width: "100%" }}>
+        <div style={{ textAlign: "left" }}>
+          <div style={{ ...ORB, fontWeight: 800, fontSize: 16 }}>🗺️ Domínios de Relíquia</div>
+          <div style={{ fontSize: 11, color: C.mute, marginTop: 2 }}>{dunOpen ? "Escolha a temporada e a dificuldade" : "Toque para escolher onde farmar"}</div>
+        </div>
+        <span style={{ fontSize: 18, color: C.mute, transform: dunOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>⌄</span>
+      </button>
+      {dunOpen && <>
+        <div style={{ marginTop: 10, background: "#00000035", borderRadius: 12, padding: 10 }}>
+          <div className="flex items-center justify-between" style={{ marginBottom: 6 }}>
+            <span style={{ fontSize: 11, fontWeight: 800, color: C.gold }}>⭐ DESTAQUES DA SEMANA · +DROP</span>
+            <span style={{ fontSize: 10, color: C.mute }}>troca em {hrs}h</span>
+          </div>
+          <div className="flex gap-1 flex-wrap">
+            {feats.map((s) => <Chip key={s} active={pickSet === s} color={RELIC_SETS[s]?.color} onClick={() => setPickSet(s)}>{RELIC_EMOJI[s] || "💎"} {s} ⭐</Chip>)}
+          </div>
+        </div>
+        <div style={{ fontSize: 11, color: C.mute, margin: "10px 0 5px" }}>Todos os conjuntos são farmáveis — os 2 em destaque dropam mais.</div>
+        <div className="flex gap-1 flex-wrap">
+          {allSets.map((s) => <Chip key={s} active={pickSet === s} color={RELIC_SETS[s]?.color} onClick={() => setPickSet(s)}>{RELIC_EMOJI[s] || "💎"} {s}{isFeaturedSet(s) ? " ⭐" : ""}</Chip>)}
+        </div>
+        <div className="flex flex-col gap-2" style={{ marginTop: 10 }}>
+          {DIFFS.map((df) => { const ok = (stamina || 0) >= df.cost; const boost = isFeaturedSet(pickSet); return (
+            <div key={df.t} className="flex items-center justify-between" style={{ gap: 10, background: `linear-gradient(110deg, ${df.c}18, ${C.panelHi})`, border: `1px solid ${df.c}44`, borderRadius: 12, padding: "10px 12px" }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: 800, fontSize: 13, color: df.c }}>{df.n} · {pickSet}</div>
+                <div style={{ fontSize: 11, color: C.mute }}>{df.d}{boost ? <b style={{ color: C.gold }}> · +1 extra (destaque ⭐)</b> : ""}</div>
+              </div>
+              <Btn kind={ok ? "primary" : "soft"} disabled={!ok} style={{ padding: "7px 14px", fontSize: 12, whiteSpace: "nowrap" }} onClick={() => runDungeon(df.t)}>{df.cost}⚡</Btn>
+            </div>); })}
+        </div></>}
+    </Panel>
+
     <Panel>
       <div className="flex items-center justify-between flex-wrap gap-2">
         <b>💠 Relíquias ({relicInv.length})</b>
@@ -8696,6 +9470,7 @@ function RelicsScreen({ relicInv, setRelicInv, owned, setRelicMats, flash }) {
         </div>
       )}
     </Panel>
+    {semRelics && <Panel><div style={{ textAlign: "center", color: C.mute, fontSize: 13, padding: "10px 0" }}>Sem relíquias ainda — escolha um domínio acima e comece a farmar 💠</div></Panel>}
     {groups.map(([label, list]) => {
       const setData = group === "set" ? RELIC_SETS[label] : null;
       return (
@@ -8716,12 +9491,9 @@ function RelicsScreen({ relicInv, setRelicInv, owned, setRelicMats, flash }) {
             {list.map((r) => {
               const equipped = equippedBy[r.id];
               return (
-                <div key={r.id} style={{ background: equipped ? "#1d2f22" : C.panelHi, border: `1px solid ${equipped ? C.good : C.line}`, borderRadius: 10, padding: 8, position: "relative" }}>
-                  {equipped && <div style={{ position: "absolute", top: 6, right: 6, fontSize: 9, fontWeight: 800, color: C.good, background: "#0d1f13", border: `1px solid ${C.good}`, borderRadius: 6, padding: "1px 5px" }}>✓ EQUIPADA</div>}
-                  <div style={{ fontSize: 10, color: C.mute }}>{RELIC_SLOTS[r.slot ?? 0]?.name}{group === "slot" && r.set ? ` · ${r.set}` : ""}</div>
-                  <div style={{ fontSize: 12 }}>{relicMainText(r)} <span style={{ color: C.mute }}>+{r.level || 0}</span></div>
-                  <div style={{ fontSize: 10, color: C.mute, lineHeight: 1.35, marginTop: 2 }}>{(r.subs || []).map((s) => `${relicSubLabel(s)} +${s.value.toFixed(1)}`).join(" · ")}</div>
-                  {equipped && <div style={{ fontSize: 10, color: C.good, marginTop: 4 }}>em {equipped.join(", ")}</div>}
+                <div key={r.id} style={{ position: "relative" }}>
+                  <RelicCardHSR r={r} def={null} badge={equipped ? "✓ EQUIPADA" : null} onClick={() => setDetail(r)} />
+                  {equipped && <div style={{ fontSize: 10, color: C.good, marginTop: 4, fontWeight: 700 }}>em {equipped.join(", ")}</div>}
                   {!equipped && (confirmSell === r.id ? (
                     <div className="flex gap-1 mt-2">
                       <button onClick={() => sellRelic(r.id)} style={{ flex: 1, fontSize: 11, fontWeight: 700, color: "#fff", background: C.bad, borderRadius: 6, padding: "3px 0" }}>Confirmar</button>
@@ -9377,6 +10149,64 @@ const SHOP_ITEMS = [
   { id: "charCopy", label: "🎭 Cópia de Personagem",   desc: "Eleva +1 Eidolão num personagem (máx E6)", cost: 600, limit: 2, qty: 1,  cat: "special" },
 ];
 
+// ══ Bancada de Síntese: converte recursos que sobram em recursos que faltam ══
+function SynthesisBench({ res, flash }) {
+  const { expItems, setExpItems, chronicles, setChronicles, ascMats, setAscMats, bossMats, setBossMats,
+          relicMats, setRelicMats, weaponMats, setWeaponMats, skillMats, setSkillMats, stamina, setStamina, jade, setJade } = res;
+  const RECIPES = [
+    { id: "exp2relic", from: "📘 Lácrimas de XP", to: "🔷 Matéria de Relíquia", cost: 120, gain: 10, c: "#9be7a0",
+      have: expItems, pay: () => setExpItems(v => v - 120), give: () => setRelicMats(v => v + 10),
+      why: "Lácrimas sobram quando o elenco está no nível máximo — vire matéria pra subir relíquias." },
+    { id: "exp2wpn", from: "📘 Lácrimas de XP", to: "⚙️ Material de Arma", cost: 100, gain: 12, c: "#9be7a0",
+      have: expItems, pay: () => setExpItems(v => v - 100), give: () => setWeaponMats(v => v + 12),
+      why: "Converte excesso de XP em material de arma." },
+    { id: "chron2jade", from: "📜 Crônicas", to: "💎 Gemas", cost: 40, gain: 800, c: "#e8c97a",
+      have: chronicles, pay: () => setChronicles(v => v - 40), give: () => setJade(v => v + 800),
+      why: "Crônicas acumuladas viram gemas para invocar." },
+    { id: "chron2stam", from: "📜 Crônicas", to: "⚡ Stamina", cost: 25, gain: 60, c: "#e8c97a",
+      have: chronicles, pay: () => setChronicles(v => v - 25), give: () => setStamina(v => v + 60),
+      why: "Troca direta por energia de farm." },
+    { id: "asc2boss", from: "🔶 Material de Ascensão", to: "🔮 Material de Chefe", cost: 8, gain: 3, c: "#ffb86b",
+      have: ascMats, pay: () => setAscMats(v => v - 8), give: () => setBossMats(v => v + 3),
+      why: "Ascensão sobra mais que material de chefe — converta." },
+    { id: "boss2asc", from: "🔮 Material de Chefe", to: "🔶 Material de Ascensão", cost: 4, gain: 9, c: C.gold,
+      have: bossMats, pay: () => setBossMats(v => v - 4), give: () => setAscMats(v => v + 9),
+      why: "Caminho inverso, se o que falta for ascensão." },
+    { id: "wpn2skill", from: "⚙️ Material de Arma", to: "💠 Material de Habilidade", cost: 60, gain: 45, c: "#B98BFF",
+      have: weaponMats, pay: () => setWeaponMats(v => v - 60), give: () => setSkillMats(v => v + 45),
+      why: "Rebalanceia entre arma e rastros." },
+    { id: "skill2wpn", from: "💠 Material de Habilidade", to: "⚙️ Material de Arma", cost: 60, gain: 45, c: "#60c8ff",
+      have: skillMats, pay: () => setSkillMats(v => v - 60), give: () => setWeaponMats(v => v + 45),
+      why: "Caminho inverso." },
+  ];
+  function craft(r) {
+    if ((r.have || 0) < r.cost) { flash(`Faltam recursos — precisa de ${r.cost} de ${r.from}`, C.bad); return; }
+    r.pay(); r.give(); flash(`✅ ${r.cost} ${r.from} → ${r.gain} ${r.to}`, C.good);
+  }
+  return (
+    <Panel glow="#7CFFB0">
+      <div style={{ ...ORB, fontWeight: 800, fontSize: 16 }}>⚗️ Bancada de Síntese</div>
+      <div style={{ fontSize: 12, color: C.mute, marginTop: 2 }}>Converte o que sobra no que falta. Ideal pra Lácrimas de XP e Crônicas paradas.</div>
+      <div className="flex flex-col gap-2" style={{ marginTop: 10 }}>
+        {RECIPES.map((r) => { const ok = (r.have || 0) >= r.cost; return (
+          <div key={r.id} style={{ background: `linear-gradient(110deg, ${r.c}16, ${C.panelHi})`, border: `1px solid ${r.c}44`, borderRadius: 12, padding: "10px 12px" }}>
+            <div className="flex items-center justify-between" style={{ gap: 10 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 12, fontWeight: 800 }}>
+                  <span style={{ color: r.c }}>{r.cost} {r.from}</span>
+                  <span style={{ color: C.mute }}> → </span>
+                  <span style={{ color: C.good }}>{r.gain} {r.to}</span>
+                </div>
+                <div style={{ fontSize: 10, color: C.mute, marginTop: 2 }}>{r.why}</div>
+                <div style={{ fontSize: 10, color: ok ? C.mute : C.bad, marginTop: 2 }}>Você tem: <b>{r.have || 0}</b></div>
+              </div>
+              <Btn kind={ok ? "primary" : "soft"} disabled={!ok} style={{ padding: "7px 14px", fontSize: 12, whiteSpace: "nowrap" }} onClick={() => craft(r)}>Sintetizar</Btn>
+            </div>
+          </div>); })}
+      </div>
+    </Panel>
+  );
+}
 function Loja({ chronicles, setChronicles, expItems, setExpItems, weaponMats, setWeaponMats, skillMats, setSkillMats, ascMats, setAscMats, bossMats, setBossMats, relicMats, setRelicMats, stamina, setStamina, shopPurchases, setShopPurchases, shopResetAt, setShopResetAt, owned, setOwned, tagMats, setTagMats, flash, isAdmin }) {
   const [charPick, setCharPick] = React.useState(null);
 
@@ -11116,7 +11946,9 @@ function AdminRoteiro() {
   );
 }
 
-function Social({ email, flash }) {
+function Social({ email, flash, owned, activeTitle, setActiveTitle, playerName }) {
+  const titles = earnedTitles(owned);
+  const cur = titles.find((t) => t.id === activeTitle);
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -11145,6 +11977,17 @@ function Social({ email, flash }) {
   const isOnline = (ts) => ts && Date.now() - ts < 10 * 60 * 1000;
   return (
     <div className="flex flex-col gap-4">
+      <Panel glow={cur?.c || C.gold}>
+        <div style={{ ...ORB, fontWeight: 800, fontSize: 15 }}>🏅 Títulos de Chat</div>
+        <div style={{ fontSize: 12, color: C.mute, marginTop: 4 }}>Leve um personagem ao <b>E6</b> (todas as cópias) pra desbloquear o título dele. O título ativo aparece ao lado do seu nome pros amigos.</div>
+        <div style={{ marginTop: 10, fontSize: 13 }}>Aparecendo como: <b>{playerName || "Pioneiro"}</b>{cur && <span style={{ color: cur.c, fontWeight: 800 }}> · «{cur.t}»</span>}</div>
+        {titles.length === 0
+          ? <div style={{ fontSize: 12, color: C.mute, marginTop: 10 }}>Nenhum título ainda — nenhum personagem seu chegou ao E6.</div>
+          : <div className="flex gap-1 flex-wrap" style={{ marginTop: 10 }}>
+              <Chip active={!activeTitle} onClick={() => setActiveTitle(null)}>Sem título</Chip>
+              {titles.map((t) => <Chip key={t.id} active={activeTitle === t.id} color={t.c} onClick={() => setActiveTitle(t.id)}>«{t.t}»</Chip>)}
+            </div>}
+      </Panel>
       <Panel glow="#007aff">
         <div style={{ ...ORB, fontWeight: 800, fontSize: 18 }}>🤝 Social</div>
         <div style={{ color: C.mute, fontSize: 13, marginTop: 4 }}>Jogadores registrados. Online = ativo nos últimos 10 min.</div>
