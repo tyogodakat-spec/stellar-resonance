@@ -5146,6 +5146,7 @@ const ARCHETYPES = {
   dot:        { name: "Dano Contínuo", icon: "☠️", desc: "Acumula DoT e detona ao longo dos turnos." },
   summon:     { name: "Invocação", icon: "⟡", desc: "Luta com unidades invocadas em campo." },
   mono:       { name: "Mono-Elemento", icon: "🌈", desc: "Equipe inteira do mesmo elemento." },
+  followup:   { name: "Ataque Extra", icon: "🌀", desc: "Cadeias de Ataques Extras que se retroalimentam." },
   bruto:      { name: "Força Bruta", icon: "⚔️", desc: "Vários DPS sem sinergia dedicada." },
 };
 // Pares com sinergia real (kits que se completam) e pares que se atrapalham.
@@ -5186,13 +5187,19 @@ function teamArchetype(heroes) {
   const els = [...new Set(live.map((h) => h.element))];
   const breakers = live.filter((h) => (effStat(h, "breakEffect") || 0) >= 40).length;
   const dotters = live.filter((h) => ["yanagi", "lupa", "miyabi", "nanami", "ace"].includes(h.id)).length;
+  const dotSpec = live.some((h) => h.id === "yanagi"); // especialista de verdade em DoT
+  const fu = live.filter((h) => ["yoruichi", "soifon", "gilgamesh", "nami"].includes(h.id)).length;
 
   if (els.length === 1 && live.length >= 3) return { id: "mono", el: els[0],
     mods: { dmg: 22, res: 15, energy: 10 } }; // Mono: +22% dano, +15% resistência, +10% regen
   if (breakers >= 3) return { id: "perfuracao",
     mods: { breakEff: 40, breakDmg: 35, vsWeak: 25 } }; // Perfuração: quebra muito mais rápido
-  if (dotters >= 2) return { id: "dot",
-    mods: { dotDmg: 45, dotStacks: 2 } }; // DoT: +45% dano contínuo e +2 acúmulos de teto
+  // DoT exige um especialista (Yanagi) OU 2+ aplicadores com apoio — 4 DPS que por acaso
+  // aplicam DoT NÃO conta como time de DoT.
+  if ((dotSpec && dotters >= 2) || (dotters >= 2 && sup >= 1)) return { id: "dot",
+    mods: { dotDmg: 45, dotStacks: 2 } };
+  // Times de Ataque Extra: cadeia de follow-ups (Yoruichi, Soi Fon, Gilgamesh, Nami)
+  if (fu >= 2) return { id: "followup", mods: { fuDmg: 40, energy: 10 } };
   if (summ >= 2) return { id: "summon",
     mods: { summonDmg: 40, summonLife: 1 } };
   if (dps === 1 && sup >= 2) return { id: "hypercarry",
@@ -5242,7 +5249,7 @@ function effStat(u, key) {
   if (key === "spd" && u && u.weapon?.buff?.yoruWeapon) { const raw = base + flat + pct; flat += raw * 0.12; }
   // Hitori Gotoh: a cada 2-3% de Dano Crítico, +1 de VEL (Ansiedade Amplificada)
   if (key === "spd" && u && u.id === "hitori") flat += hitoriSpdBonus(u);
-  const v = PCT[key] ? base * (1 + pct / 100) + flat : base + flat + pct;
+  let v = PCT[key] ? base * (1 + pct / 100) + flat : base + flat + pct; // let: v é ajustado abaixo por critSoften
   if (!isFinite(v)) return base;
   // Teto estilo HSR: conversões em cascata (ex.: Hitori transformando CRIT DMG em VEL e vice-versa)
   // não podem mais estourar a escala — antes chegava a 1000% de CRIT DMG e 700 de VEL.
@@ -5780,6 +5787,9 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     }
   }
   if (!defender.alive && attacker.id === "altersaber") { attacker._asMarksPend = (attacker._asMarksPend || 0) + 1; if ((attacker._asAbs || 0) > 0 && attacker.stFlags?.asA6 && (attacker._asA6Ext || 0) < 2) { attacker._asA6Ext = (attacker._asA6Ext || 0) + 1; attacker._asAbs += 1; } } // abate: marca + A6 prolonga Absoluto
+  // Stat "followupDmg": bônus de Ataque Extra vindo de sinergia de time / Ressonância de Palco.
+  // (Antes o buff era aplicado mas nunca lido no cálculo — não fazia nada.)
+  if (opts?.isFollowup) { const fud = effStat(attacker, "followupDmg") || 0; if (fud) dmg *= 1 + fud / 100; }
   // ── Hitori Gotoh — Ressonância de Palco: enquanto viva no time, TODO Ataque Extra (follow-up) causa +250% de dano ──
   if (opts?.isFollowup) { const hitoriBuff = (attacker._sibs || []).find((h) => h.id === "hitori" && h.alive); if (hitoriBuff) dmg *= 1.9; } // rebalanceado: +90% (era +250%)
   // Hitori Gotoh: aura pros 2 primeiros slots — +30% Dano Holy/Chaos (60% com C5), +30% em qualquer elemento também com C5
@@ -6759,6 +6769,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         if (m.energy) h.buffs.push({ stat: "energyRegen", value: m.energy, turns: 9999, name: "Sinergia" });
         if (m.breakEff) h.buffs.push({ stat: "breakEffect", value: m.breakEff, turns: 9999, name: "Sinergia: Perfuração" });
         if (m.dotDmg) h.buffs.push({ stat: "dotDmg", value: m.dotDmg, turns: 9999, name: "Sinergia: DoT" });
+        if (m.fuDmg) h.buffs.push({ stat: "followupDmg", value: m.fuDmg, turns: 9999, name: "Sinergia: Ataque Extra" });
         if (m.carryDmg && mainDps && h.uid === mainDps.uid) {
           h.buffs.push({ stat: "dmgBonus", value: m.carryDmg, turns: 9999, name: "Sinergia: Hypercarry" });
           h.buffs.push({ stat: "critRate", value: m.carryCrit, turns: 9999, name: "Sinergia: Hypercarry" });
