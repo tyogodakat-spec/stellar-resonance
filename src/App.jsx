@@ -121,8 +121,8 @@ const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
 const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon", "lupa", "hitori", "altersaber", "gilgamesh"];     // limitados (pool 50/50): só via rate-up
-const FEATURED_LIMITEDS = ["gilgamesh", "altersaber", "lupa", "hitori"]; // banners ativos: Gilgamesh e Alter Saber (RELÂMPAGO: 3 HORAS!), Lupa e Hitori
-const BANNER_DURATIONS = { gilgamesh: 3 * 60 * 60 * 1000, altersaber: 3 * 60 * 60 * 1000, lupa: 5 * 24 * 60 * 60 * 1000, hitori: 5 * 24 * 60 * 60 * 1000 }; // Gilgamesh e Alter Saber: banners RELÂMPAGO de 3 HORAS · Lupa/Hitori: 5 dias
+const FEATURED_LIMITEDS = ["gilgamesh", "altersaber"]; // banners ativos: Gilgamesh e Alter Saber (Lupa e Hitori encerrados) // banners ativos: Gilgamesh e Alter Saber (RELÂMPAGO: 3 HORAS!), Lupa e Hitori
+const BANNER_DURATIONS = { gilgamesh: 3 * 60 * 60 * 1000, altersaber: 3 * 60 * 60 * 1000 }; // Gilgamesh e Alter Saber: banners RELÂMPAGO de 3 HORAS · Lupa/Hitori: 5 dias
 // ══ Títulos de chat — desbloqueados ao levar um personagem ao E6 (todas as cópias) ══
 const E6_TITLES = {
   lupa:        { t: "Predador de Fusão",       c: "#FF6A3D" },
@@ -146,7 +146,7 @@ function earnedTitles(owned) {
   return (owned || []).filter((o) => (o.eidolon || 0) >= 6 && E6_TITLES[o.id]).map((o) => ({ id: o.id, ...E6_TITLES[o.id] }));
 }
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
-const DEFAULT_FEATURED_CHAR = "lupa";
+const DEFAULT_FEATURED_CHAR = "gilgamesh";
 // Banner Especial Limitado — pool de 5, dura 3 dias corridos pra TODO mundo (data fixa, não reseta por dispositivo)
 const SPECIAL_BANNER_CHARS = ["soifon", "omegamon", "ryoshu", "wonderofyou", "frieren"];
 const SPECIAL_BANNER_START = new Date("2026-07-20T18:00:00Z").getTime();
@@ -3677,7 +3677,9 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
         <b style={{ fontSize: 13 }}>Níveis de Habilidade</b>
         <div className="flex flex-col gap-2 mt-2">
           {[["basic", "Ataque Básico", skillNamesOf(def.id)[0], "⚔️"], ["skill", "Habilidade", skillNamesOf(def.id)[1], "✦"], ["ult", "Ultimate", skillNamesOf(def.id)[2], "💥"]].map(([key, lbl, nm, ic]) => { const lvl = oc.traces[key] || 1; const max = lvl >= TRACE_MAX;
-            const cur = Math.round((traceMul(lvl) - 1) * 100), nxt = Math.round((traceMul(lvl + 1) - 1) * 100);
+            const isSup = ["healer", "shield", "buffer", "debuffer"].includes(def.role) && key !== "basic";
+            const pctAt = (L) => isSup ? Math.round(7 * (Math.min(TRACE_MAX, L) - 1) / Math.max(1, TRACE_MAX - 1)) : Math.round((traceMul(L) - 1) * 100);
+            const cur = pctAt(lvl), nxt = pctAt(lvl + 1);
             const col = key === "ult" ? C.gold : key === "skill" ? "#B98BFF" : "#7FD4FF";
             return (
             <div key={key} style={{ background: `linear-gradient(110deg, ${col}14, ${C.panelHi})`, border: `1px solid ${col}44`, borderRadius: 14, padding: "10px 12px" }}>
@@ -5197,12 +5199,23 @@ function teamArchetype(heroes) {
     mods: { carryDmg: 35, carryCrit: 12 } }; // Hypercarry: o DPS único fica muito mais forte
   return { id: "bruto", mods: { dmg: -12 } }; // 4 DPS sem sinergia: penalidade
 }
-const STAT_CAPS = { critRate: 88, critDmg: 900, spd: 250, dmgBonus: 300, defPen: 80, elemDmg: 200, energyRegen: 200, breakEffect: 400 };
+const STAT_CAPS = { critRate: 999, critDmg: 9999, spd: 250, dmgBonus: 300, defPen: 80, elemDmg: 200, energyRegen: 200, breakEffect: 400 };
 // Retornos decrescentes em CRIT: o teto subiu (900% de CRIT DMG), mas chegar perto dele ficou
 // difícil de verdade. Acima do limiar "confortável", cada ponto rende bem menos.
 function critSoften(key, v) {
-  if (key === "critRate") { const K = 50; return v <= K ? v : K + (v - K) * 0.22; }   // 50% flui; depois fica bem pesado (teto real: 88%)
-  if (key === "critDmg")  { const K = 180; return v <= K ? v : K + (v - K) * 0.45; }  // 180% flui; depois pesa
+  // Sem teto rígido — mas a escalada fica progressivamente mais cara.
+  // CRIT Rate: flui até 65% · ~110% é difícil · passar de 130% é muito difícil.
+  // CRIT DMG:  flui até 220% · ~400% é difícil · passar de 400% é muito difícil.
+  if (key === "critRate") {
+    const K = 65; if (v <= K) return v;
+    const s = K + (v - K) * 0.30;                    // trecho difícil
+    return s <= 130 ? s : 130 + (s - 130) * 0.35;    // acima de 130 fica muito pesado
+  }
+  if (key === "critDmg") {
+    const K = 220; if (v <= K) return v;
+    const s = K + (v - K) * 0.45;                    // trecho difícil
+    return s <= 400 ? s : 400 + (s - 400) * 0.35;    // acima de 400 fica muito pesado
+  }
   return v;
 }
 function effStat(u, key) {
@@ -6135,9 +6148,9 @@ function hitoriBasicAttack(s, u, enemy, fx, ampB) {
 function hitoriSkillAttack(s, u, fx) {
   const f = u.stFlags || {};
   const allies = s.heroes.filter((h) => h.alive && !h.isSummon);
-  const tl = u.tSkill || 1; // nível da Perícia escala o efeito de suporte (estilo HSR)
-  const atkBonus = Math.round((f.hitoriC3 ? 1500 : 1000) * tl);
-  const spdBonus = Math.round(12 * tl);
+  const tl = u.tSkill || 1; // nível melhora o efeito de forma modesta (estilo HSR)
+  const atkBonus = Math.round(supScale(f.hitoriC3 ? 1500 : 1000, tl));
+  const spdBonus = Math.round(supScale(12, tl));
   const targets = f.hitoriC3 ? allies : allies.filter((h) => h.uid !== u.uid).slice(0, 1).concat(allies.filter((h) => h.uid !== u.uid).length ? [] : [u]);
   targets.forEach((h) => {
     h.buffs = h.buffs.filter((b) => b.name !== "Entoar da Solidão");
@@ -6155,8 +6168,8 @@ function hitoriUltimate(s, u, fx) {
   const overclock = !!f.hitoriC6;
   const cd = effStat(u, "critDmg");
   const ul = u.tUlt || 1; // nível da Ultimate amplia as conversões do Kessoku Band
-  const crGain = Math.round(cd * (overclock ? 0.16 : 0.08) * ul);
-  const cdGain = Math.round(cd * (overclock ? 0.60 : 0.30) * ul);
+  const crGain = Math.round(supScale(cd * (overclock ? 0.16 : 0.08), ul));
+  const cdGain = Math.round(supScale(cd * (overclock ? 0.60 : 0.30), ul));
   const spd = effStat(u, "spd");
   const elemGain = Math.round(spd * (overclock ? 0.30 : 0.15));
   const allies = s.heroes.filter((h) => h.alive && !h.isSummon);
@@ -6637,10 +6650,19 @@ function tickBuffs(u) {
 function cloneU(u) { return { ...u, buffs: u.buffs.map((b) => ({ ...b })), debuffs: u.debuffs.map((b) => ({ ...b })), dots: (u.dots || []).map((d) => ({ ...d })), base: { ...u.base }, stFlags: { ...(u.stFlags || {}) } }; }
 function findUnit(s, uid) { return [...s.heroes, ...s.enemies].find((u) => u.uid === uid); }
 // Suportes: buffs/debuffs escalam com o nível da habilidade + amps de constelação, com teto de +12%
+// Escala de nível para EFEITOS (buff/cura/escudo/debuff), no molde do HSR:
+// o valor sobe de forma modesta — cerca de +7% do nível 1 ao máximo — em vez de multiplicar.
+// (Dano continua usando traceMul, que escala bem mais forte.)
+function supScale(base, t) {
+  const lvl = Math.max(1, Math.round(((t || 1) - 1) / 0.08) + 1); // reconverte o multiplicador em nível
+  const gain = (Math.min(TRACE_MAX, lvl) - 1) / Math.max(1, TRACE_MAX - 1); // 0 → 1
+  return base * (1 + 0.07 * gain); // +7% no nível máximo
+}
 function supAmp(spec, t, amp) {
-  // Corrigido: antes o ganho de buff era travado em +12%, tornando quase inútil subir o nível de habilidade
-  // dos SUPORTES. Agora escala igual ao dano — +8% por nível — para que upar suporte melhore o suporte.
-  const m = Math.max(1, (t || 1) * (amp || 1));
+  // Efeitos de suporte usam a escala suave do HSR (+7% no nível máximo), não a escala de dano.
+  const lvl = Math.max(1, Math.round((((t || 1) * (amp || 1)) - 1) / 0.08) + 1);
+  const gain = (Math.min(TRACE_MAX, lvl) - 1) / Math.max(1, TRACE_MAX - 1);
+  const m = 1 + 0.07 * gain;
   const out = { ...spec };
   ["atk", "def", "spd", "critRate", "critDmg", "value", "defDown", "vuln", "dmgBonus"].forEach(k => { if (typeof out[k] === "number" && out[k] > 0) out[k] = Math.round(out[k] * m * 10) / 10; });
   return out;
@@ -7265,9 +7287,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           if (s.sp >= 1) s.sp -= 1; // custa 2 PH no total (1 já foi debitado pelo dispatcher)
           u._gilPortao = 3; u._gilE2Turn = 0;
           u.buffs = u.buffs.filter((b) => b.name !== "Portão da Babilônia");
-          { const gl = u.tSkill || 1; // nível da Perícia amplia o Portão
-            u.buffs.push({ stat: "dmgBonus", value: Math.round(80 * gl), turns: 3, name: "Portão da Babilônia" }, { stat: "critRate", value: Math.round(40 * gl), turns: 3, name: "Portão da Babilônia" }, { stat: "critDmg", value: Math.round(90 * gl), turns: 3, name: "Portão da Babilônia" }, { stat: "spd", value: Math.round(40 * gl), turns: 3, name: "Portão da Babilônia" });
-            allies.filter((a) => a.alive).forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Autoridade do Rei"); a.buffs.push({ stat: "dmgBonus", value: Math.round(15 * gl), turns: 3, name: "Autoridade do Rei" }); }); }
+          { const gl = u.tSkill || 1; // nível melhora o Portão de forma modesta (estilo HSR)
+            u.buffs.push({ stat: "dmgBonus", value: Math.round(supScale(80, gl)), turns: 3, name: "Portão da Babilônia" }, { stat: "critRate", value: Math.round(supScale(40, gl)), turns: 3, name: "Portão da Babilônia" }, { stat: "critDmg", value: Math.round(supScale(90, gl)), turns: 3, name: "Portão da Babilônia" }, { stat: "spd", value: Math.round(supScale(40, gl)), turns: 3, name: "Portão da Babilônia" });
+            allies.filter((a) => a.alive).forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Autoridade do Rei"); a.buffs.push({ stat: "dmgBonus", value: Math.round(supScale(15, gl)), turns: 3, name: "Autoridade do Rei" }); }); }
           gilGainTesouro(u, 4, s); gilAuth(u, s);
           if (u.weapon?.buff?.gilWeapon && (u._gilOrigem || 0) > 0) gilGainTesouro(u, 1, s); // Cone: PH consumido → +1 Tesouro
           gilAfterAttack(u, s, fx);
@@ -7277,7 +7299,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           if ((u._asReino || 0) > 0) s.sp = Math.min(spCapOf(s), s.sp + 1); // Reino da Ruína: não consome Pontos de Perícia
           u._asAlter = 3; u._asAlterRuinas = 0;
           u.buffs = u.buffs.filter((b) => b.name !== "Modo Alter");
-          { const al = u.tSkill || 1; u.buffs.push({ stat: "spd", value: Math.round(60 * al), turns: 3, name: "Modo Alter" }, { stat: "dmgBonus", value: Math.round(70 * al), turns: 3, name: "Modo Alter" }, { stat: "critRate", value: Math.round(35 * al), turns: 3, name: "Modo Alter" }, { stat: "critDmg", value: Math.round(90 * al), turns: 3, name: "Modo Alter" }); }
+          { const al = u.tSkill || 1; u.buffs.push({ stat: "spd", value: Math.round(supScale(60, al)), turns: 3, name: "Modo Alter" }, { stat: "dmgBonus", value: Math.round(supScale(70, al)), turns: 3, name: "Modo Alter" }, { stat: "critRate", value: Math.round(supScale(35, al)), turns: 3, name: "Modo Alter" }, { stat: "critDmg", value: Math.round(supScale(90, al)), turns: 3, name: "Modo Alter" }); }
           if (u.weapon?.buff?.asWeapon) { const st = u.buffs.filter((b) => b.name === "Reino Eterno").length / 2; if (st < 3) u.buffs.push({ stat: "atk", value: Math.round(u.base.atk * 0.12), turns: 9999, name: "Reino Eterno" }, { stat: "spd", value: 8, turns: 9999, name: "Reino Eterno" }); }
           if (u.stFlags?.asE1) { u._asE1Field = 3; }
           msg = `👑 Coroa do Rei Profanado — MODO ALTER por 3 turnos: +60 VEL, +70% Dano Chaos, +35% CRIT, +90% CRIT DMG, cortes dimensionais em cada ataque!${u.stFlags?.asE1 ? " E1: Trono do Rei Esquecido — limite de Ruínas sobe pra 18!" : ""}`;
@@ -7781,8 +7803,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             const f = u.stFlags || {};
             // Estágio 1: time inteiro ganha +22% CRIT e +95% CRIT DMG por 3 turnos (Rastro 3 + C3 amplificam o CRIT DMG) — buffado de novo, e escala com o nível da Ultimate
             const t3Bonus = f.shkT3 ? Math.min(20, Math.max(0, Math.floor((u.maxHp - 4000) / 1000) * 2)) : 0;
-            const critDmgVal = Math.round((95 + t3Bonus) * ampU);
-            s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.buffs = h.buffs.filter(b => b.name !== "Estelarador"); h.buffs.push({ stat: "critRate", value: 22, turns: 3, name: "Estelarador" }, { stat: "critDmg", value: critDmgVal, turns: 3, name: "Estelarador" }); } });
+            const critDmgVal = Math.round(supScale(95 + t3Bonus, u.tUlt));
+            s.heroes.forEach(h => { if (h.alive && !h.isSummon) { h.buffs = h.buffs.filter(b => b.name !== "Estelarador"); h.buffs.push({ stat: "critRate", value: Math.round(supScale(22, u.tUlt)), turns: 3, name: "Estelarador" }, { stat: "critDmg", value: critDmgVal, turns: 3, name: "Estelarador" }); } });
             s._shkDomain = { turns: 3, stage: 1, spSpent: 0, ownerUid: u.uid };
             u._domainStage = 1; u._domainSpSpent = 0; u._domainTurns = 3;
             if (u.stFlags?.setCostaNegra6) { u._costaNegraTrack = 3; u._costaNegraOverheal = 0; }
