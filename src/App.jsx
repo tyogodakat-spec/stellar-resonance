@@ -919,6 +919,27 @@ const TRACE_NODE_SETS = {
 const traceNodesOf = (def) => (def && TRACE_NODE_SETS[def.id]) || TRACE_NODES;
 const TRACE_MAX = 10;
 const traceMul = (level) => 1 + (Math.max(1, level || 1) - 1) * 0.08; // +8% por nível
+// No HSR, subir nível melhora O QUE A HABILIDADE FAZ — não só dano. Aqui o rótulo e o efeito
+// seguem a função real da habilidade do personagem.
+function traceEffectLabel(def, key) {
+  const sk = def.skill || {};
+  if (key === "basic") return sk.basicMul ? "Dano do Ataque Básico" : "Efeito do Ataque Básico";
+  if (key === "skill") {
+    if (def.id === "hitori") return "ATQ concedido e Velocidade";
+    if (def.id === "gilgamesh") return "Bônus do Portão da Babilônia";
+    if (def.id === "altersaber") return "Bônus do Modo Alter";
+    if (def.role === "healer") return "Cura da Perícia";
+    if (def.role === "shield") return "Escudo da Perícia";
+    if (def.role === "buffer" || def.role === "debuffer") return "Potência do efeito de suporte";
+    return sk.skillMul ? "Dano da Perícia" : "Efeito da Perícia";
+  }
+  if (def.id === "hitori") return "CRIT/CRIT DMG do Kessoku Band";
+  if (def.id === "shorekeeper") return "Cura e CRIT DMG do time";
+  if (def.role === "healer") return "Cura da Ultimate";
+  if (def.role === "shield") return "Escudo da Ultimate";
+  if (def.role === "buffer" || def.role === "debuffer") return "Potência da Ultimate";
+  return "Dano da Ultimate";
+}
 const traceCost = (level) => 600 + (level - 1) * 450; // jade p/ subir do nível atual
 function specialTraces(def) {
     if (def.id === "gilgamesh") return [
@@ -1278,31 +1299,31 @@ async function saveAccounts(a) { try { await SS.set(ACCOUNTS_KEY, JSON.stringify
 const TOWER_FLOORS = 450; // +250 andares novos (201–450): Ascensão Estelar
 const TOWER_BOSSES = {
   // ══ ASCENSÃO ESTELAR — 250 andares novos (201–450), 25 chefes com mecânicas exclusivas ══
-  210: { name: "Vharok, o Devorador de Égides", title: "Glutão de Barreiras", element: "Chaos", bossKind: "devorador", res: ["Chaos"], weak: ["Holy"] },
-  220: { name: "Espelho de Nyx", title: "Reflexo do Abismo", element: "Unknown", bossKind: "espelho", res: ["Unknown"], weak: ["Eletro"] },
-  230: { name: "Kronarch", title: "Senhor da Ampulheta", element: "Holy", bossKind: "temporal", res: ["Holy"], weak: ["Chaos"] },
-  240: { name: "Mãe-Praga Ysshara", title: "Colmeia Putrefata", element: "Virus", bossKind: "praga", res: ["Virus"], weak: ["Fogo"] },
-  250: { name: "O Juiz Escarlate", title: "Tribunal do Sangue", element: "Fogo", bossKind: "juiz", res: ["Fogo"], weak: ["Glacial"] },
-  260: { name: "Nihil, o Apagador", title: "Vazio Consciente", element: "Unknown", bossKind: "vazio", res: ["Unknown"], weak: ["Holy"] },
-  270: { name: "Colosso de Gaia", title: "Muralha Viva", element: "Vento", bossKind: "colosso", res: ["Vento", "Glacial"], weak: ["Eletro"] },
-  280: { name: "Fênix de Cinzas Eternas", title: "A Que Nunca Morre", element: "Fogo", bossKind: "fenix", res: ["Fogo"], weak: ["Glacial"] },
-  290: { name: "Tirano Ozzmar", title: "Devorador de Eras", element: "Chaos", bossKind: "tirano", res: ["Chaos"], weak: ["Vento"] },
-  300: { name: "Leviatã Abissal", title: "Coração do Mar Morto", element: "Glacial", bossKind: "leviata", res: ["Glacial"], weak: ["Eletro"] },
-  310: { name: "Sombra do Primeiro Rei", title: "Eco do Trono", element: "Unknown", bossKind: "devorador", res: ["Unknown"], weak: ["Fogo"] },
-  320: { name: "Arauto Cristalino", title: "Prisma Infinito", element: "Glacial", bossKind: "espelho", res: ["Glacial"], weak: ["Fogo"] },
-  330: { name: "Cronos Despedaçado", title: "Fim de Todos os Relógios", element: "Holy", bossKind: "temporal", res: ["Holy", "Glacial"], weak: ["Chaos"] },
-  340: { name: "Verme do Mundo", title: "Túnel Sem Fundo", element: "Virus", bossKind: "praga", res: ["Virus", "Vento"], weak: ["Holy"] },
-  350: { name: "Inquisidor Absoluto", title: "Sentença Final", element: "Fogo", bossKind: "juiz", res: ["Fogo", "Chaos"], weak: ["Glacial"] },
-  360: { name: "O Silêncio", title: "Onde Nada Existe", element: "Unknown", bossKind: "vazio", res: ["Unknown", "Holy"], weak: ["Virus"] },
-  370: { name: "Titã de Obsidiana", title: "Peso do Mundo", element: "Vento", bossKind: "colosso", res: ["Vento", "Chaos"], weak: ["Eletro"] },
-  380: { name: "Serafim Renascido", title: "Chama Que Retorna", element: "Holy", bossKind: "fenix", res: ["Holy"], weak: ["Virus"] },
-  390: { name: "Imperador Sem Nome", title: "Coroa de Ossos", element: "Chaos", bossKind: "tirano", res: ["Chaos", "Unknown"], weak: ["Fogo"] },
-  400: { name: "Kraken das Marés Negras", title: "Abraço Afogado", element: "Glacial", bossKind: "leviata", res: ["Glacial", "Vento"], weak: ["Eletro"] },
-  410: { name: "Devorador de Estrelas", title: "Fome Cósmica", element: "Chaos", bossKind: "devorador", res: ["Chaos", "Virus"], weak: ["Holy"] },
-  420: { name: "Guardião do Paradoxo", title: "Loop Infinito", element: "Holy", bossKind: "temporal", res: ["Holy", "Unknown"], weak: ["Chaos"] },
-  430: { name: "Rainha da Podridão", title: "Trono de Miasma", element: "Virus", bossKind: "praga", res: ["Virus", "Chaos"], weak: ["Fogo"] },
-  440: { name: "Anjo do Juízo", title: "Balança Quebrada", element: "Fogo", bossKind: "juiz", res: ["Fogo", "Holy"], weak: ["Glacial"] },
-  450: { name: "ÔMEGA ABSOLUTO", title: "O Fim da Ascensão", element: "Unknown", bossKind: "tirano", res: ["Unknown", "Chaos", "Holy"], weak: ["Eletro", "Fogo"] },
+  210: { name: "Vharok, o Devorador de Égides", title: "Glutão de Barreiras", element: "Chaos", bossKind: "devorador", res: ["Chaos"], weak: ["Holy"], archWeak: "perfuracao", archResist: "hypercarry", gateMinions: true },
+  220: { name: "Espelho de Nyx", title: "Reflexo do Abismo", element: "Unknown", bossKind: "espelho", res: ["Unknown"], weak: ["Eletro"], archWeak: "hypercarry", archResist: "mono" },
+  230: { name: "Kronarch", title: "Senhor da Ampulheta", element: "Holy", bossKind: "temporal", res: ["Holy"], weak: ["Chaos"], archWeak: "perfuracao", archResist: "dot", gateMinions: true },
+  240: { name: "Mãe-Praga Ysshara", title: "Colmeia Putrefata", element: "Virus", bossKind: "praga", res: ["Virus"], weak: ["Fogo"], archWeak: "dot", archResist: "summon" },
+  250: { name: "O Juiz Escarlate", title: "Tribunal do Sangue", element: "Fogo", bossKind: "juiz", res: ["Fogo"], weak: ["Glacial"], archWeak: "mono", archResist: "bruto", gateMinions: true },
+  260: { name: "Nihil, o Apagador", title: "Vazio Consciente", element: "Unknown", bossKind: "vazio", res: ["Unknown"], weak: ["Holy"], archWeak: "summon", archResist: "hypercarry" },
+  270: { name: "Colosso de Gaia", title: "Muralha Viva", element: "Vento", bossKind: "colosso", res: ["Vento", "Glacial"], weak: ["Eletro"], archWeak: "perfuracao", archResist: "bruto", gateMinions: true },
+  280: { name: "Fênix de Cinzas Eternas", title: "A Que Nunca Morre", element: "Fogo", bossKind: "fenix", res: ["Fogo"], weak: ["Glacial"], archWeak: "dot", archResist: "mono" },
+  290: { name: "Tirano Ozzmar", title: "Devorador de Eras", element: "Chaos", bossKind: "tirano", res: ["Chaos"], weak: ["Vento"], archWeak: "hypercarry", archResist: "perfuracao", gateMinions: true },
+  300: { name: "Leviatã Abissal", title: "Coração do Mar Morto", element: "Glacial", bossKind: "leviata", res: ["Glacial"], weak: ["Eletro"], archWeak: "mono", archResist: "dot", gateMinions: true },
+  310: { name: "Sombra do Primeiro Rei", title: "Eco do Trono", element: "Unknown", bossKind: "devorador", res: ["Unknown"], weak: ["Fogo"], archWeak: "summon", archResist: "bruto" },
+  320: { name: "Arauto Cristalino", title: "Prisma Infinito", element: "Glacial", bossKind: "espelho", res: ["Glacial"], weak: ["Fogo"], archWeak: "perfuracao", archResist: "summon", gateMinions: true },
+  330: { name: "Cronos Despedaçado", title: "Fim de Todos os Relógios", element: "Holy", bossKind: "temporal", res: ["Holy", "Glacial"], weak: ["Chaos"], archWeak: "dot", archResist: "hypercarry" },
+  340: { name: "Verme do Mundo", title: "Túnel Sem Fundo", element: "Virus", bossKind: "praga", res: ["Virus", "Vento"], weak: ["Holy"], archWeak: "mono", archResist: "perfuracao", gateMinions: true },
+  350: { name: "Inquisidor Absoluto", title: "Sentença Final", element: "Fogo", bossKind: "juiz", res: ["Fogo", "Chaos"], weak: ["Glacial"], archWeak: "hypercarry", archResist: "dot" },
+  360: { name: "O Silêncio", title: "Onde Nada Existe", element: "Unknown", bossKind: "vazio", res: ["Unknown", "Holy"], weak: ["Virus"], archWeak: "perfuracao", archResist: "mono", gateMinions: true },
+  370: { name: "Titã de Obsidiana", title: "Peso do Mundo", element: "Vento", bossKind: "colosso", res: ["Vento", "Chaos"], weak: ["Eletro"], archWeak: "summon", archResist: "dot" },
+  380: { name: "Serafim Renascido", title: "Chama Que Retorna", element: "Holy", bossKind: "fenix", res: ["Holy"], weak: ["Virus"], archWeak: "dot", archResist: "bruto", gateMinions: true },
+  390: { name: "Imperador Sem Nome", title: "Coroa de Ossos", element: "Chaos", bossKind: "tirano", res: ["Chaos", "Unknown"], weak: ["Fogo"], archWeak: "mono", archResist: "summon" },
+  400: { name: "Kraken das Marés Negras", title: "Abraço Afogado", element: "Glacial", bossKind: "leviata", res: ["Glacial", "Vento"], weak: ["Eletro"], archWeak: "perfuracao", archResist: "hypercarry", gateMinions: true },
+  410: { name: "Devorador de Estrelas", title: "Fome Cósmica", element: "Chaos", bossKind: "devorador", res: ["Chaos", "Virus"], weak: ["Holy"], archWeak: "hypercarry", archResist: "mono" },
+  420: { name: "Guardião do Paradoxo", title: "Loop Infinito", element: "Holy", bossKind: "temporal", res: ["Holy", "Unknown"], weak: ["Chaos"], archWeak: "dot", archResist: "perfuracao", gateMinions: true },
+  430: { name: "Rainha da Podridão", title: "Trono de Miasma", element: "Virus", bossKind: "praga", res: ["Virus", "Chaos"], weak: ["Fogo"], archWeak: "summon", archResist: "hypercarry" },
+  440: { name: "Anjo do Juízo", title: "Balança Quebrada", element: "Fogo", bossKind: "juiz", res: ["Fogo", "Holy"], weak: ["Glacial"], archWeak: "mono", archResist: "bruto", gateMinions: true },
+  450: { name: "ÔMEGA ABSOLUTO", title: "O Fim da Ascensão", element: "Unknown", bossKind: "tirano", res: ["Unknown", "Chaos", "Holy"], weak: ["Eletro", "Fogo"], archWeak: "perfuracao", archResist: "bruto", gateMinions: true },
   50: { name: "Sōsuke Aizen", title: "Shinigami Traidor", element: "Holy", bossKind: "aizen", bossImgId: "boss_tower_50", res: ["Glacial"], weak: ["Fogo", "Virus"] },
   60: { name: "Ryōmen Sukuna", title: "Rei das Maldições", element: "Chaos", bossKind: "sukuna", bossImgId: "boss_tower_60", res: ["Chaos"], weak: ["Holy"] },
   70: { name: "Seto Kaiba · Modo Deus", title: "Portador de Obelisco", element: "Eletro", bossKind: "godkaiba", bossImgId: "boss_tower_70", res: ["Eletro"], weak: ["Fogo", "Virus"] },
@@ -1323,17 +1344,16 @@ const TOWER_BOSSES = {
 // Nota: a fraqueza [Unknown] do GDD original foi mapeada para Eletro (não existe elemento "Unknown" neste jogo).
 // Floors 90–200 somam exatamente 21.000💎 (90:3000 + 91-199 não-boss:100 + bosses 100-190:500 + 200:3100)
 function rewardFor(f) {
-  // Rebalanceado: gemas eram fáceis demais nos andares baixos. Agora a recompensa cresce
-  // de verdade só quando o andar exige build, e os andares novos (200+) valem bem mais.
-  if (f > 200) return 900 + Math.floor((f - 200) / 10) * 120; // andares novos: 900 → ~3.900
-  if (f <= 60) return 90;
-  if (f <= 69) return 180;
-  if (f <= 79) return 400;
-  if (f <= 89) return 650;
-  if (f === 90) return 1200;
-  if (f === 200) return 2200;
-  if (f % 10 === 0) return 160;
-  return 35;
+  // Calibrado para somar ~80.000 gemas ao concluir os 450 andares.
+  if (f === 450) return 6000;
+  if (f === 400) return 4000;
+  if (f === 300) return 3000;
+  if (f === 200) return 2500;
+  if (f === 100) return 2000;
+  if (f === 50) return 1500;
+  if (f % 50 === 0) return 1000;
+  if (f % 10 === 0) return 320;
+  return f > 200 ? 130 : 95;
 }
 // ══════════ TORRE SOMBRIA (Dark Tower) — 10 níveis, só chefes, HP altíssimo, ignoram escudo ══════════
 // ══════════ CARTAS DO KAIBA (Puxada do Destino / Mão Virtual) ══════════
@@ -1397,17 +1417,26 @@ const DARK_TOWER_BOSSES = [
 ].map((b, i) => { const w = DARK_TOWER_WEAKNESS[i]; return { ...b, weak: [w], res: ELEMENT_NAMES.filter(e => e !== w) }; });
 function darkTowerEncounter(level, power) {
   const bd = DARK_TOWER_BOSSES[level - 1]; if (!bd) return null;
+  // Afinidades rotativas por nível: cada chefe é fraco a um arquétipo e resistente a outro,
+  // e a cada 3 níveis vem SELADO (só toma dano de verdade depois que os Minions caem).
+  const ARCH = ["perfuracao", "hypercarry", "dot", "summon", "mono"];
+  const aw = ARCH[level % ARCH.length], ar = ARCH[(level + 2) % ARCH.length];
+  const gated = level % 3 === 0;
+  const MONO_EL = ["Chaos", "Unknown", "Holy", "Virus", "Fogo", "Glacial", "Vento", "Eletro"];
+  const monoEl = level % 4 === 0 ? MONO_EL[level % MONO_EL.length] : null; // fraco a mono daquele elemento
   return {
-    level: 70 + level * 6, boss: true, count: 1, floor: level, isTower: true, darkTower: true,
+    level: 70 + level * 6, boss: true, count: gated ? 3 : 1, floor: level, isTower: true, darkTower: true,
     teamPower: power || 2500, bossName: bd.name, bossElement: bd.element, bossKind: bd.bossKind, bossImgId: null,
     bossRes: bd.res, bossWeak: bd.weak, darkTowerHpMul: bd.hpMul, darkTowerDot: bd.dot, espiralLordHpMul: bd.espiralLordHpMul,
+    archWeak: aw, archResist: ar, gateMinions: gated, monoWeakEl: monoEl,
   };
 }
 function towerEncounter(f, power) {
   const boss = f % 10 === 0, finalBoss = f === TOWER_FLOORS;
   const bd = TOWER_BOSSES[f];
   return {
-    level: f, boss, finalBoss, count: boss ? (f >= 40 ? 2 : 1) : (f <= 4 ? 2 : 3), floor: f, isTower: true, teamPower: power || 2500,
+    level: f, boss, finalBoss, count: boss ? (bd && bd.gateMinions ? 3 : (f >= 40 ? 2 : 1)) : (f <= 4 ? 2 : 3), floor: f, isTower: true, teamPower: power || 2500,
+    ...(bd ? { archWeak: bd.archWeak || null, archResist: bd.archResist || null, gateMinions: !!bd.gateMinions } : {}),
     ...(bd ? { bossName: bd.name, bossTitle: bd.title, bossElement: bd.element, bossKind: bd.bossKind, bossImgId: bd.bossImgId, bossRes: bd.res, bossWeak: bd.weak } : {}),
   };
 }
@@ -1887,9 +1916,11 @@ function Game({ email, isAdmin, onLogout }) {
   const [playerName, setPlayerName] = useState("Pioneiro");
   const [images, setImages] = useState({});
   const [tierList, setTierList] = useState(TIER_LIST_DEFAULT);
-  const TOWER_SEASON = "s2_ascensao_estelar"; // troque esta chave pra resetar a Torre pra todo mundo de novo
+  const TOWER_SEASON = "s3_arquetipos"; // reset geral: Torre e Torre Sombria voltam ao zero // troque esta chave pra resetar a Torre pra todo mundo de novo
   const [navOpen, setNavOpen] = useState(false); // menu central de modos
   const [activeTitle, setActiveTitle] = useState(null); // título de chat exibido pros amigos
+  // Sanitiza a Stamina: qualquer NaN/undefined vindo de save antigo ou custo inválido volta a ser número
+  useEffect(() => { setStamina((v) => (Number.isFinite(v) ? v : 320)); }, []);
   const [towerCleared, setTowerCleared] = useState(0);
   const [darkTowerCleared, setDarkTowerCleared] = useState(0);
   const [darkTowerClaimed, setDarkTowerClaimed] = useState([]);
@@ -3645,10 +3676,35 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
         <p style={{ fontSize: 13, color: C.mute, marginBottom: 10 }}>Rastros: subir Básico/Habilidade/Ultimate gasta 💠 Cristais de Habilidade (Dungeons de Tag). Os Nós de Atributo gastam 1 🔮 Núcleo + o material da Dungeon da tag do personagem. Os 3 Rastros Especiais usam 🔮 Núcleos de Vestígio (Boss Semanal).</p>
         <b style={{ fontSize: 13 }}>Níveis de Habilidade</b>
         <div className="flex flex-col gap-2 mt-2">
-          {[["basic", "Ataque Básico", skillNamesOf(def.id)[0]], ["skill", "Habilidade", skillNamesOf(def.id)[1]], ["ult", "Ultimate", skillNamesOf(def.id)[2]]].map(([key, lbl, nm]) => { const lvl = oc.traces[key] || 1; const max = lvl >= TRACE_MAX; return (
-            <div key={key} className="flex items-center justify-between" style={{ background: C.panelHi, borderRadius: 10, padding: "8px 10px" }}>
-              <div><div style={{ fontWeight: 700, fontSize: 13 }}>{lbl} <span style={{ color: C.mute, fontWeight: 400 }}>· {nm}</span></div><div style={{ fontSize: 11, color: C.mute }}>Nv {lvl}/{TRACE_MAX} · {key === "basic" ? "dano" : (key === "ult" && (def.id === "sakura" || def.id === "usopp")) ? "dano/cura" : (key === "ult" && def.id === "shorekeeper") ? "cura/CRIT DMG dado ao time" : def.id === "omegamon" ? "dano/escudo" : def.role === "healer" ? "cura" : def.role === "shield" ? "escudo" : (def.role === "buffer" || def.role === "debuffer") ? "efeito de suporte" : "dano"} +{Math.round((traceMul(lvl) - 1) * 100)}%</div></div>
+          {[["basic", "Ataque Básico", skillNamesOf(def.id)[0], "⚔️"], ["skill", "Habilidade", skillNamesOf(def.id)[1], "✦"], ["ult", "Ultimate", skillNamesOf(def.id)[2], "💥"]].map(([key, lbl, nm, ic]) => { const lvl = oc.traces[key] || 1; const max = lvl >= TRACE_MAX;
+            const cur = Math.round((traceMul(lvl) - 1) * 100), nxt = Math.round((traceMul(lvl + 1) - 1) * 100);
+            const col = key === "ult" ? C.gold : key === "skill" ? "#B98BFF" : "#7FD4FF";
+            return (
+            <div key={key} style={{ background: `linear-gradient(110deg, ${col}14, ${C.panelHi})`, border: `1px solid ${col}44`, borderRadius: 14, padding: "10px 12px" }}>
+              <div className="flex items-center justify-between" style={{ marginBottom: 6 }}>
+                <div className="flex items-center gap-2">
+                  <span style={{ width: 30, height: 30, borderRadius: 99, display: "flex", alignItems: "center", justifyContent: "center", background: `radial-gradient(circle, ${col}44, transparent 70%)`, border: `1px solid ${col}`, fontSize: 15 }}>{ic}</span>
+                  <div>
+                    <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 0.5, color: col, textTransform: "uppercase" }}>{lbl}</div>
+                    <div style={{ fontWeight: 700, fontSize: 13 }}>{nm}</div>
+                  </div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ ...ORB, fontSize: 17, fontWeight: 900, color: max ? C.gold : C.text }}>Nv {lvl}</div>
+                  <div style={{ fontSize: 9, color: C.mute }}>de {TRACE_MAX}</div>
+                </div>
+              </div>
+              <div style={{ fontSize: 11, color: C.mute, marginBottom: 4 }}>{traceEffectLabel(def, key)}</div>
+              <div className="flex items-center gap-2" style={{ marginBottom: 8, fontSize: 12 }}>
+                <b style={{ color: C.text }}>+{cur}%</b>
+                {!max && <><span style={{ color: C.mute }}>→</span><b style={{ color: C.good }}>+{nxt}%</b></>}
+              </div>
+              <div style={{ display: "flex", gap: 2, marginBottom: 8 }}>
+                {Array.from({ length: TRACE_MAX }).map((_, i) => <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i < lvl ? col : "#2a2438", boxShadow: i < lvl ? `0 0 5px ${col}88` : "none" }} />)}
+              </div>
+            <div className="flex items-center justify-end">
               <Btn kind={max ? "ghost" : "soft"} disabled={max} style={{ padding: "5px 10px" }} onClick={() => traceLevelUp(o.id, key)}>{max ? "MÁX" : isAdmin ? "Subir" : (<span className="flex items-center gap-1 flex-wrap" style={{ justifyContent: "center" }}><span className="flex items-center gap-1"><ItemIcon id="item_skill_mat" emoji="💠" size={13} />{1 + Math.floor(lvl / 3)}</span>{lvl >= 5 && <span className="flex items-center gap-1">+<ItemIcon id="item_boss_mat" emoji="🔮" size={13} />1</span>}</span>)}</Btn>
+            </div>
             </div>); })}
         </div>
         <b style={{ fontSize: 13, display: "block", marginTop: 12 }}>Nós de Atributo</b>
@@ -4362,13 +4418,38 @@ const SKILL_DESC = {
   },
 };
 
+// Gera um RESUMO curto (1-2 linhas) a partir do kit — serve pra qualquer personagem
+function skillSummary(def, kind) {
+  const s = def.skill || {}, r = def.role;
+  const el = def.element;
+  if (kind === "basic") {
+    const m = s.basicMul || 100;
+    return [`Ataque de alvo único: <b>${m}% de ATK</b> em Dano ${el}. Gera <b>+1 Ponto de Habilidade</b>.`];
+  }
+  if (kind === "skill") {
+    if (r === "healer") return [`Cura um aliado e concede efeitos de suporte. Custa <b>1 Ponto de Habilidade</b>.`];
+    if (r === "shield") return [`Concede <b>escudo</b> ao time e reduz o dano recebido. Custa <b>1 Ponto de Habilidade</b>.`];
+    if (r === "buffer") return [`Aprimora os atributos dos aliados por alguns turnos. Custa <b>1 Ponto de Habilidade</b>.`];
+    if (r === "debuffer") return [`Aplica penalidades no inimigo (DEF, RES ou vulnerabilidade). Custa <b>1 Ponto de Habilidade</b>.`];
+    if (r === "summoner") return [`Invoca uma unidade aliada que age sozinha. Custa <b>1 Ponto de Habilidade</b>.`];
+    const m = s.skillMul || 0;
+    return [`${s.aoe ? "Dano em área" : "Dano de alvo único"}${m ? `: <b>${m}% de ATK</b>` : ""} em Dano ${el}${s.skillDot ? ", aplicando <b>dano contínuo</b>" : ""}. Custa <b>1 Ponto de Habilidade</b>.`];
+  }
+  if (r === "healer") return [`Cura todo o time e concede regeneração. Consome a barra de Energia cheia.`];
+  if (r === "shield") return [`Escuda todo o time por vários turnos. Consome a barra de Energia cheia.`];
+  if (r === "buffer" || r === "debuffer") return [`Efeito de campo poderoso para toda a equipe. Consome a barra de Energia cheia.`];
+  const mu = s.ultMul || 0;
+  return [`${s.ultAoe ? "Dano em área" : "Golpe massivo de alvo único"}${mu ? `: <b>${mu}% de ATK</b>` : ""} em Dano ${el}. Consome a barra de Energia cheia.`];
+}
 function SkillList({ def, stats }) {
   const s = def.skill || {}, nm = skillNamesOf(def.id);
+  const [mode, setMode] = useState("resumo"); // "resumo" | "completa"
   const atk = stats ? Math.round(stats.atk) : null;
   const gold = C.gold;
   function hl(html) { return html.replace(/<b>(.*?)<\/b>/g, `<b style="color:${gold};font-weight:600">$1</b>`); }
   function buildLines(kind) {
     const L = [];
+    if (mode === "resumo") return skillSummary(def, kind);
     const charDesc = SKILL_DESC[def.id];
     if (charDesc && charDesc[kind]) return charDesc[kind];
     if (kind === "basic") {
@@ -4407,6 +4488,17 @@ function SkillList({ def, stats }) {
   ];
   return (
     <div className="flex flex-col gap-2 mt-2">
+      <div className="flex gap-1" style={{ justifyContent: "center", marginBottom: 2 }}>
+        {[["resumo", "📄 Resumo"], ["completa", "📚 Completa"]].map(([k, lb]) => (
+          <button key={k} onClick={() => setMode(k)} style={{ position: "relative", padding: "7px 16px 9px", borderRadius: 11, fontSize: 12, fontWeight: 800,
+            color: mode === k ? C.gold : C.mute, background: mode === k ? `linear-gradient(180deg, ${C.gold}22, transparent)` : "transparent" }}>
+            {lb}
+            <span style={{ position: "absolute", left: "20%", right: "20%", bottom: 2, height: 2, borderRadius: 2, background: mode === k ? C.gold : "transparent", boxShadow: mode === k ? `0 0 8px ${C.gold}` : "none" }} />
+          </button>))}
+      </div>
+      <div style={{ fontSize: 10, color: C.mute, textAlign: "center", marginBottom: 4 }}>
+        {mode === "resumo" ? "Visão rápida do que a habilidade faz." : "Descrição completa: multiplicadores, condições, estados e interações."}
+      </div>
       {kindMeta.map(({ kind, badge, name }) => {
         const lines = buildLines(kind);
         return (
@@ -4963,7 +5055,12 @@ function refreshKaibaBuffs(s) {
   }
 }
 function makeEnemy(idx, enc) {
-  const _dummy = !!enc.dummy; // Boneco de Treino: HP infinito (modo de teste)
+  const _dummy = !!enc.dummy;
+  const _isBoss0 = enc.boss && idx === 0;
+  const _archWeak = _isBoss0 ? (enc.archWeak || null) : null;
+  const _archResist = _isBoss0 ? (enc.archResist || null) : null;
+  const _gateMinions = _isBoss0 ? !!enc.gateMinions : false;
+  const _monoWeakEl = _isBoss0 ? (enc.monoWeakEl || null) : null; // Boneco de Treino: HP infinito (modo de teste)
   const lvl = enc.level, boss = enc.boss && idx === 0, finalBoss = enc.finalBoss && idx === 0, weekly = enc.weekly && idx === 0, ascend = enc.ascend && idx === 0;
   const power = enc.teamPower || 2500;
   let baseHp;
@@ -5023,7 +5120,7 @@ function makeEnemy(idx, enc) {
   const _espLordMul = (enc.bossKind === "espiral_lord" && (boss || finalBoss) && idx === 0) ? (enc.espiralLordHpMul || 2.2) : 1;
   const _finalHp = Math.round(hp * _espLordMul);
   return {
-    uid: "E" + idx, side: "enemy", _dummy, name: _dummy ? "Boneco de Treino ∞" : (enc.bossName && (boss || finalBoss) && idx === 0 ? enc.bossName : name), bossTitle: enc.bossTitle || null, bossImgId: enc.bossImgId || null, avatar: ascend ? "🗿" : weekly ? "🦂" : finalBoss ? "🕳️" : boss ? "👑" : ["👾", "👹", "🐲"][idx % 3],
+uid: "E" + idx, side: "enemy", _dummy, archWeak: _archWeak, archResist: _archResist, gateMinions: _gateMinions, monoWeakEl: _monoWeakEl, name: _dummy ? "Boneco de Treino ∞" : (enc.bossName && (boss || finalBoss) && idx === 0 ? enc.bossName : name), bossTitle: enc.bossTitle || null, bossImgId: enc.bossImgId || null, avatar: ascend ? "🗿" : weekly ? "🦂" : finalBoss ? "🕳️" : boss ? "👑" : ["👾", "👹", "🐲"][idx % 3],
     element: (enc.bossElement && (boss || finalBoss) && idx === 0) ? enc.bossElement : (boss ? bossEl : pick(ELEMENT_NAMES)), level: lvl, roleKey: "dps", bossKind: (idx === 0 ? enc.bossKind : null) || (finalBoss ? "void" : weekly ? "venom" : ascend ? "stone" : "guardian"),
     boss: boss || weekly || ascend, finalBoss, weekly, ascend, elite: !boss && lvl >= 18 && idx === 0, res, weak,
     base: { atk, def, spd, critRate: boss ? 12 : 6, critDmg: 55, dmgBonus: 0 },
@@ -5034,6 +5131,79 @@ function makeEnemy(idx, enc) {
     toughness: (boss || (!boss && lvl >= 18 && idx === 0)) ? Math.round(80 + (finalBoss ? 100 : weekly ? 70 : ascend ? 20 : boss ? 40 : 0)) : 0,
     maxToughness: (boss || (!boss && lvl >= 18 && idx === 0)) ? Math.round(80 + (finalBoss ? 100 : weekly ? 70 : ascend ? 20 : boss ? 40 : 0)) : 0,
   };
+}
+// Tetos de atributo estilo HSR — impedem conversões em cascata de estourar a escala do jogo.
+// ══════════════════════════════════════════════════════════════════════════
+// ARQUÉTIPOS DE TIME — composição passa a importar de verdade.
+// Antes: 4 DPS era sempre a melhor escolha. Agora cada arquétipo tem bônus próprio,
+// e os chefes têm afinidades/resistências contra eles.
+// ══════════════════════════════════════════════════════════════════════════
+const ARCHETYPES = {
+  perfuracao: { name: "Perfuração", icon: "💢", desc: "Foco em quebrar a Resistência dos inimigos." },
+  hypercarry: { name: "Hypercarry", icon: "👑", desc: "Um DPS principal amparado por suportes." },
+  dot:        { name: "Dano Contínuo", icon: "☠️", desc: "Acumula DoT e detona ao longo dos turnos." },
+  summon:     { name: "Invocação", icon: "⟡", desc: "Luta com unidades invocadas em campo." },
+  mono:       { name: "Mono-Elemento", icon: "🌈", desc: "Equipe inteira do mesmo elemento." },
+  bruto:      { name: "Força Bruta", icon: "⚔️", desc: "Vários DPS sem sinergia dedicada." },
+};
+// Pares com sinergia real (kits que se completam) e pares que se atrapalham.
+const SYNERGY_PAIRS = [
+  { a: "yoruichi", b: "soifon",     v: 25, why: "Ataques Extras da Soi Fon disparam os Clones da Yoruichi" },
+  { a: "yoruichi", b: "gilgamesh",  v: 22, why: "Enxame de Ataques Extras alimenta os Clones Residuais" },
+  { a: "soifon",   b: "gilgamesh",  v: 20, why: "Dois geradores de Ataque Extra se retroalimentam" },
+  { a: "hitori",   b: "yoruichi",   v: 22, why: "Ressonância de Palco amplifica todo Ataque Extra" },
+  { a: "hitori",   b: "soifon",     v: 20, why: "Ressonância de Palco amplifica o Ferrão" },
+  { a: "yanagi",   b: "lupa",       v: 28, why: "Lupa detona os DoTs que a Yanagi acumula" },
+  { a: "yanagi",   b: "miyabi",     v: 24, why: "Geada da Miyabi vira combustível pra Desordem" },
+  { a: "lupa",     b: "miyabi",     v: 20, why: "Dois aplicadores de DoT saturam o alvo" },
+  { a: "shorekeeper", b: "altersaber", v: 22, why: "Escudo e CRIT DMG sustentam o Reino Absoluto" },
+  { a: "shorekeeper", b: "gilgamesh",  v: 20, why: "Cura constante mantém o Portão aberto" },
+  { a: "athena",   b: "altersaber", v: 18, why: "Proteção do Olimpo cobre a agressividade do Rei" },
+];
+const ANTI_SYNERGY = [
+  { a: "altersaber", b: "gilgamesh", v: -18, why: "Dois hypercarries disputam Pontos de Perícia e Energia" },
+  { a: "lupa",       b: "altersaber", v: -15, why: "Ambos exigem a ação inteira do time pra si" },
+  { a: "miyabi",     b: "gilgamesh",  v: -12, why: "Competem pelos mesmos turnos sem se apoiar" },
+];
+function teamSynergy(heroes) {
+  const ids = (heroes || []).filter(h => h && !h.isSummon).map(h => h.id);
+  const found = [];
+  let total = 0;
+  for (const p of SYNERGY_PAIRS) if (ids.includes(p.a) && ids.includes(p.b)) { total += p.v; found.push({ ...p, good: true }); }
+  for (const p of ANTI_SYNERGY) if (ids.includes(p.a) && ids.includes(p.b)) { total += p.v; found.push({ ...p, good: false }); }
+  return { total: Math.max(-30, Math.min(60, total)), pairs: found };
+}
+// Detecta o arquétipo do time e devolve os modificadores
+function teamArchetype(heroes) {
+  const live = (heroes || []).filter((h) => h && !h.isSummon);
+  if (!live.length) return { id: "bruto", mods: {} };
+  const roles = live.map((h) => h.roleKey || h.role);
+  const dps = roles.filter((r) => r === "dps" || r === "aoe").length;
+  const sup = roles.filter((r) => r === "buffer" || r === "healer" || r === "shield" || r === "debuffer").length;
+  const summ = roles.filter((r) => r === "summoner").length;
+  const els = [...new Set(live.map((h) => h.element))];
+  const breakers = live.filter((h) => (effStat(h, "breakEffect") || 0) >= 40).length;
+  const dotters = live.filter((h) => ["yanagi", "lupa", "miyabi", "nanami", "ace"].includes(h.id)).length;
+
+  if (els.length === 1 && live.length >= 3) return { id: "mono", el: els[0],
+    mods: { dmg: 22, res: 15, energy: 10 } }; // Mono: +22% dano, +15% resistência, +10% regen
+  if (breakers >= 3) return { id: "perfuracao",
+    mods: { breakEff: 40, breakDmg: 35, vsWeak: 25 } }; // Perfuração: quebra muito mais rápido
+  if (dotters >= 2) return { id: "dot",
+    mods: { dotDmg: 45, dotStacks: 2 } }; // DoT: +45% dano contínuo e +2 acúmulos de teto
+  if (summ >= 2) return { id: "summon",
+    mods: { summonDmg: 40, summonLife: 1 } };
+  if (dps === 1 && sup >= 2) return { id: "hypercarry",
+    mods: { carryDmg: 35, carryCrit: 12 } }; // Hypercarry: o DPS único fica muito mais forte
+  return { id: "bruto", mods: { dmg: -12 } }; // 4 DPS sem sinergia: penalidade
+}
+const STAT_CAPS = { critRate: 88, critDmg: 900, spd: 250, dmgBonus: 300, defPen: 80, elemDmg: 200, energyRegen: 200, breakEffect: 400 };
+// Retornos decrescentes em CRIT: o teto subiu (900% de CRIT DMG), mas chegar perto dele ficou
+// difícil de verdade. Acima do limiar "confortável", cada ponto rende bem menos.
+function critSoften(key, v) {
+  if (key === "critRate") { const K = 50; return v <= K ? v : K + (v - K) * 0.22; }   // 50% flui; depois fica bem pesado (teto real: 88%)
+  if (key === "critDmg")  { const K = 180; return v <= K ? v : K + (v - K) * 0.45; }  // 180% flui; depois pesa
+  return v;
 }
 function effStat(u, key) {
   const b0 = (u && u.base) || {};
@@ -5060,7 +5230,12 @@ function effStat(u, key) {
   // Hitori Gotoh: a cada 2-3% de Dano Crítico, +1 de VEL (Ansiedade Amplificada)
   if (key === "spd" && u && u.id === "hitori") flat += hitoriSpdBonus(u);
   const v = PCT[key] ? base * (1 + pct / 100) + flat : base + flat + pct;
-  return isFinite(v) ? v : base;
+  if (!isFinite(v)) return base;
+  // Teto estilo HSR: conversões em cascata (ex.: Hitori transformando CRIT DMG em VEL e vice-versa)
+  // não podem mais estourar a escala — antes chegava a 1000% de CRIT DMG e 700 de VEL.
+  v = critSoften(key, v); // CRIT com retorno decrescente (difícil escalar muito alto)
+  const capV = STAT_CAPS[key];
+  return capV != null ? Math.min(v, capV) : v;
 }
 function vulnOf(u) { let v = 0; for (const b of u.debuffs) if (b.stat === "vuln") v += b.value; return v; }
 function defMult(attacker, defenderDef) { const lvl = (attacker && attacker.level) || 50; const d = Math.max(0, defenderDef || 0); return 1 - d / (d + 200 + 10 * lvl); }
@@ -5400,7 +5575,15 @@ function balanceDamage(raw, attacker, opts) {
   if (d > soft) d = soft * Math.pow(d / soft, expo);
   // 4) Teto por acerto também escala com o peso; nukes de Suprema/E6 mantêm teto alto.
   const cap = opts?.bigNuke ? DMG_HARD : DMG_HARD * 0.6 * w;
-  return Math.max(1, Math.round(Math.min(cap, d)));
+  d = Math.min(cap, d);
+  // 5) Orçamento da AÇÃO: acertos em cascata sofrem retorno decrescente conforme a ação acumula.
+  if (attacker && !opts?.isDotTick) {
+    const acc = attacker._actDmg || 0;
+    const BUDGET = opts?.bigNuke ? 2640000 : 1200000; // dano "confortável" de uma ação inteira
+    if (acc > 0) d *= 1 / (1 + Math.pow(acc / BUDGET, 2.6)); // retorno decrescente forte após o orçamento
+    attacker._actDmg = acc + d;
+  }
+  return Math.max(1, Math.round(d));
 }
 function dealDamage(attacker, defender, mult, fx, opts) {
   // Lancer Esquiva Absoluta: bloqueia o próximo ataque
@@ -5454,6 +5637,24 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     fx.push({ uid: defender.uid, txt: "ERROU!", crit: false, id: Math.random(), el: attacker.element || "Holy" });
     return { dmg: 0, crit: false };
   }
+  // ══ Chefe Protegido: só toma dano de verdade depois que os Minions morrerem ══
+  if (defender._gated && defender.boss) {
+    const minionsVivos = (defender._sibs || []).filter((e) => e.alive && !e.boss).length;
+    if (minionsVivos > 0) {
+      dmg = Math.max(1, Math.round(dmg * 0.05)); // 95% reduzido — a fraqueza está selada
+      defender.toughness = defender.maxToughness; // não dá pra quebrar enquanto protegido
+      fx.push({ uid: defender.uid, txt: "🛡️ SELADO", crit: false, id: Math.random() });
+    } else if (!defender._gateOpen) {
+      defender._gateOpen = true;
+      defender.debuffs.push({ stat: "vuln", value: 30, turns: 9999, name: "Selo Rompido" });
+      fx.push({ uid: defender.uid, txt: "💥 SELO ROMPIDO!", crit: true, id: Math.random() });
+    }
+  }
+  // ══ Afinidade de arquétipo: o chefe é fraco/resistente contra certas composições ══
+  if (attacker.side === "H" && defender.archWeak && attacker._arch === defender.archWeak) dmg = Math.round(dmg * 1.35);
+  if (attacker.side === "H" && defender.archResist && attacker._arch === defender.archResist) dmg = Math.round(dmg * 0.70);
+  // Chefe vulnerável a um MONO específico (ex.: só cai rápido contra time inteiro de Chaos)
+  if (attacker.side === "H" && defender.monoWeakEl && attacker._arch === "mono" && attacker._archEl === defender.monoWeakEl) dmg = Math.round(dmg * 1.60);
   // ══ Chefes da Ascensão Estelar ══
   if (defender.bossKind === "devorador" && defender.alive) { // Vharok: devora escudos e se cura com eles
     const st = (attacker._shields || []).reduce((a, sh) => a + sh.val, 0);
@@ -5790,8 +5991,9 @@ function dotDamageRoll(source, m) {
   // investimento real (ATK) e passa pela mesma curva de normalização dos ataques diretos.
   const atk = effStat(source, "atk");
   const variance = 0.9 + Math.random() * 0.2; // variação de ±10%
-  const raw = atk * (m / 100) * 13.5 * variance; // buffado: DoT precisa competir com golpe direto mesmo em 5 acúmulos
-  return balanceDamage(raw);
+  const raw = atk * (m / 100) * 45 * variance; // calibrado: 1 tique ≈ 15-20% de um golpe forte
+  // isDotTick: fora do orçamento de ação (DoT já é diluído em vários turnos, não é cascata)
+  return balanceDamage(raw, source, { isDotTick: true });
 }
 function applyDot(targets, spec, source, fx) {
   const f = source.stFlags || {};
@@ -5802,6 +6004,7 @@ function applyDot(targets, spec, source, fx) {
   if (f.setInferno2 && spec.type === "burn") m *= 1.10; // Inferno Devorador de Almas 2pç: DoT de Fogo +10%
   if (f.setInferno4 && spec.type === "burn") m *= 1.30; // Inferno Devorador de Almas 4pç: DoT de Fogo +30% adicional
   m *= 1 + (source.base.dotDmg || 0) / 100; // substatus "Dano de DoT"
+  if (source.id === "yanagi") m *= 1.55; // Teorema da Desordem: ela é a especialista em DoT do jogo
   const dmg = dotDamageRoll(source, m); // novo sistema: aleatório, piso de 80k escalando com o personagem
   const glacial = spec.type === "freeze" || spec.type === "geada";
   targets.forEach((t) => {
@@ -5932,8 +6135,9 @@ function hitoriBasicAttack(s, u, enemy, fx, ampB) {
 function hitoriSkillAttack(s, u, fx) {
   const f = u.stFlags || {};
   const allies = s.heroes.filter((h) => h.alive && !h.isSummon);
-  const atkBonus = f.hitoriC3 ? 1500 : 1000;
-  const spdBonus = 12;
+  const tl = u.tSkill || 1; // nível da Perícia escala o efeito de suporte (estilo HSR)
+  const atkBonus = Math.round((f.hitoriC3 ? 1500 : 1000) * tl);
+  const spdBonus = Math.round(12 * tl);
   const targets = f.hitoriC3 ? allies : allies.filter((h) => h.uid !== u.uid).slice(0, 1).concat(allies.filter((h) => h.uid !== u.uid).length ? [] : [u]);
   targets.forEach((h) => {
     h.buffs = h.buffs.filter((b) => b.name !== "Entoar da Solidão");
@@ -5950,8 +6154,9 @@ function hitoriUltimate(s, u, fx) {
   const f = u.stFlags || {};
   const overclock = !!f.hitoriC6;
   const cd = effStat(u, "critDmg");
-  const crGain = Math.round(cd * (overclock ? 0.16 : 0.08));
-  const cdGain = Math.round(cd * (overclock ? 0.60 : 0.30));
+  const ul = u.tUlt || 1; // nível da Ultimate amplia as conversões do Kessoku Band
+  const crGain = Math.round(cd * (overclock ? 0.16 : 0.08) * ul);
+  const cdGain = Math.round(cd * (overclock ? 0.60 : 0.30) * ul);
   const spd = effStat(u, "spd");
   const elemGain = Math.round(spd * (overclock ? 0.30 : 0.15));
   const allies = s.heroes.filter((h) => h.alive && !h.isSummon);
@@ -6336,11 +6541,11 @@ function tickDots(u, fx, allies) {
   if ((u._aeroCd || 0) > 0) u._aeroCd -= 1;
   // Glacier: na 3ª camada, QUEBRA DE GELEIRA — consome tudo e detona (trava anti-HK: máx 25% do HP atual)
   { const gl = u.dots.filter(d => d.type === "freeze" || d.type === "geada");
-    if (gl.length >= 3) {
-      const nuke = Math.min(Math.round(u.hp * 0.25), Math.round(gl.reduce((a, d) => a + d.dmg, 0) * 2));
+    if (gl.length >= 5) { // só no teto de acúmulos: vira recompensa, não interrupção constante
+      const nuke = Math.min(Math.round(u.hp * 0.35), Math.round(gl.reduce((a, d) => a + d.dmg, 0) * 2.5));
       u.hp -= nuke; total += nuke;
       u.dots = u.dots.filter(d => d.type !== "freeze" && d.type !== "geada");
-      u._dotCd = u._dotCd || {}; u._dotCd.freeze = 2; u._dotCd.geada = 2;
+      u._dotCd = u._dotCd || {}; u._dotCd.freeze = 1; u._dotCd.geada = 1; // recarga curta só após a detonação
       fx.push({ uid: u.uid, txt: "🧊 QUEBRA DE GELEIRA! " + nuke, crit: true, id: Math.random(), el: "Glacial" });
     } }
   u.dots.forEach((d) => {
@@ -6377,7 +6582,9 @@ function tickDots(u, fx, allies) {
   u._lupaResidualHits = 0; // Lupa C3: reseta o limite de 1 reação de Chama Residual por rodada do alvo
   // Cooldown de reaplicação: todo tipo de DoT que encerra agora entra em recarga de 2 turnos antes de poder ser reaplicado
   { const expiring = u.dots.filter(d => d.turns <= 0);
-    if (expiring.length) { u._dotCd = u._dotCd || {}; expiring.forEach(d => { u._dotCd[d.type] = 2; }); }
+    // (recarga removida) — antes cada DoT que expirava travava o próprio tipo por 2 turnos,
+    // impedindo a manutenção e deixando os kits de DoT sem uptime.
+    if (expiring.length) { u._dotCd = u._dotCd || {}; }
     // Inferno Devorador de Almas (6pç): Explosão Térmica quando DoT de Fogo expira naturalmente num inimigo
     if (allies && expiring.some(d => d.type === "burn")) {
       const infH = allies.find(h => h.stFlags?.setInferno6 && !h.isSummon);
@@ -6515,7 +6722,31 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
     // _sibs: referências dos aliados de cada lado (Fulgur Resonance precisa achar o de menor HP)
     heroes.forEach(h => { h._sibs = heroes; });
+    // ══ Arquétipo do time: define bônus/penalidades da composição ══
+    let s0Arch = null;
+    { const arch = teamArchetype(heroes); s0Arch = arch;
+      const m = arch.mods || {};
+      const mainDps = heroes.filter(h => !h.isSummon && ["dps","aoe"].includes(h.roleKey || h.role))[0];
+      const syn = teamSynergy(heroes);
+      heroes.forEach((h) => {
+        if (h.isSummon) return;
+        h._arch = arch.id; h._archEl = arch.el || null;
+        if (syn.total) h.buffs.push({ stat: "dmgBonus", value: syn.total, turns: 9999, name: syn.total > 0 ? "Sinergia de Elenco" : "Falta de Sinergia" });
+        if (m.dmg) h.buffs.push({ stat: "dmgBonus", value: m.dmg, turns: 9999, name: "Sinergia: " + ARCHETYPES[arch.id].name });
+        if (m.res) h.buffs.push({ stat: "elemRes", value: m.res, turns: 9999, name: "Sinergia" });
+        if (m.energy) h.buffs.push({ stat: "energyRegen", value: m.energy, turns: 9999, name: "Sinergia" });
+        if (m.breakEff) h.buffs.push({ stat: "breakEffect", value: m.breakEff, turns: 9999, name: "Sinergia: Perfuração" });
+        if (m.dotDmg) h.buffs.push({ stat: "dotDmg", value: m.dotDmg, turns: 9999, name: "Sinergia: DoT" });
+        if (m.carryDmg && mainDps && h.uid === mainDps.uid) {
+          h.buffs.push({ stat: "dmgBonus", value: m.carryDmg, turns: 9999, name: "Sinergia: Hypercarry" });
+          h.buffs.push({ stat: "critRate", value: m.carryCrit, turns: 9999, name: "Sinergia: Hypercarry" });
+        }
+      });
+    }
     enemies.forEach(e => { e._sibs = enemies; });
+    // ══ Chefes protegidos por Minions: fraqueza só libera ao derrotar os lacaios ══
+    { const bossG = enemies.find(e => e.boss && e.gateMinions);
+      if (bossG) { bossG._gated = true; bossG._gateCount = enemies.filter(e => !e.boss).length; } }
     { const lp1 = heroes.find(h => h.id === "lupa" && h.stFlags?.lupaC1); if (lp1) { enemies.forEach(e => applyDot([e], { type: "burn", mul: 60, turns: 3 }, lp1, [])); lp1.buffs.push({ stat: "energyRegen", value: 15, turns: 9999, name: "Rastreadora de Cinzas" }); } } // C1 · Rastreadora de Cinzas: 1 Ignição em todos ao entrar em combate + Regen Energia +15% permanente
     { const yn0 = heroes.find(h => h.id === "yanagi"); if (yn0 && yn0.stFlags?.yanaT1) { enemies.forEach(e => { e.debuffs.push({ stat: "mark", value: 0, turns: 3, name: "Fagulha de Anomalia" }); }); } }
     // ══ ABISMO DE DADOS: HP persistente (permadeath), mutador do andar e glitches da run ══
@@ -7034,8 +7265,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           if (s.sp >= 1) s.sp -= 1; // custa 2 PH no total (1 já foi debitado pelo dispatcher)
           u._gilPortao = 3; u._gilE2Turn = 0;
           u.buffs = u.buffs.filter((b) => b.name !== "Portão da Babilônia");
-          u.buffs.push({ stat: "dmgBonus", value: 80, turns: 3, name: "Portão da Babilônia" }, { stat: "critRate", value: 40, turns: 3, name: "Portão da Babilônia" }, { stat: "critDmg", value: 90, turns: 3, name: "Portão da Babilônia" }, { stat: "spd", value: 40, turns: 3, name: "Portão da Babilônia" });
-          allies.filter((a) => a.alive).forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Autoridade do Rei"); a.buffs.push({ stat: "dmgBonus", value: 15, turns: 3, name: "Autoridade do Rei" }); });
+          { const gl = u.tSkill || 1; // nível da Perícia amplia o Portão
+            u.buffs.push({ stat: "dmgBonus", value: Math.round(80 * gl), turns: 3, name: "Portão da Babilônia" }, { stat: "critRate", value: Math.round(40 * gl), turns: 3, name: "Portão da Babilônia" }, { stat: "critDmg", value: Math.round(90 * gl), turns: 3, name: "Portão da Babilônia" }, { stat: "spd", value: Math.round(40 * gl), turns: 3, name: "Portão da Babilônia" });
+            allies.filter((a) => a.alive).forEach((a) => { a.buffs = a.buffs.filter((b) => b.name !== "Autoridade do Rei"); a.buffs.push({ stat: "dmgBonus", value: Math.round(15 * gl), turns: 3, name: "Autoridade do Rei" }); }); }
           gilGainTesouro(u, 4, s); gilAuth(u, s);
           if (u.weapon?.buff?.gilWeapon && (u._gilOrigem || 0) > 0) gilGainTesouro(u, 1, s); // Cone: PH consumido → +1 Tesouro
           gilAfterAttack(u, s, fx);
@@ -7045,7 +7277,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           if ((u._asReino || 0) > 0) s.sp = Math.min(spCapOf(s), s.sp + 1); // Reino da Ruína: não consome Pontos de Perícia
           u._asAlter = 3; u._asAlterRuinas = 0;
           u.buffs = u.buffs.filter((b) => b.name !== "Modo Alter");
-          u.buffs.push({ stat: "spd", value: 60, turns: 3, name: "Modo Alter" }, { stat: "dmgBonus", value: 70, turns: 3, name: "Modo Alter" }, { stat: "critRate", value: 35, turns: 3, name: "Modo Alter" }, { stat: "critDmg", value: 90, turns: 3, name: "Modo Alter" });
+          { const al = u.tSkill || 1; u.buffs.push({ stat: "spd", value: Math.round(60 * al), turns: 3, name: "Modo Alter" }, { stat: "dmgBonus", value: Math.round(70 * al), turns: 3, name: "Modo Alter" }, { stat: "critRate", value: Math.round(35 * al), turns: 3, name: "Modo Alter" }, { stat: "critDmg", value: Math.round(90 * al), turns: 3, name: "Modo Alter" }); }
           if (u.weapon?.buff?.asWeapon) { const st = u.buffs.filter((b) => b.name === "Reino Eterno").length / 2; if (st < 3) u.buffs.push({ stat: "atk", value: Math.round(u.base.atk * 0.12), turns: 9999, name: "Reino Eterno" }, { stat: "spd", value: 8, turns: 9999, name: "Reino Eterno" }); }
           if (u.stFlags?.asE1) { u._asE1Field = 3; }
           msg = `👑 Coroa do Rei Profanado — MODO ALTER por 3 turnos: +60 VEL, +70% Dano Chaos, +35% CRIT, +90% CRIT DMG, cortes dimensionais em cada ataque!${u.stFlags?.asE1 ? " E1: Trono do Rei Esquecido — limite de Ruínas sobe pra 18!" : ""}`;
@@ -7819,7 +8051,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         if (u.weapon?.ultEnergy) allies.forEach((a) => { if (a.energyMax) a.energy = Math.min(a.energyMax, a.energy + u.weapon.ultEnergy); });
         } // end soifon ult else
       }
-      tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      u._actDmg = 0; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       if (u._avMul != null) { u.av = Math.max(0.01, u.av * u._avMul); u._avMul = null; }
       if (u.id === "miyabi" && (s.frostZone || 0) > 0) s.frostZone -= 1;
       if (u.id === "lupa" && (u._lupaOverclock || 0) > 0) { u._lupaOverclock -= 1; if (u._lupaOverclock <= 0) pushLog(s, `🔥 O Overclock de ${u.name} terminou.`); }
@@ -8069,7 +8301,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       }
       if (ff.kS4) { applyBuff(allies, { critDmg: 35, all: true, turns: 3 }, u.name, fx, u); msg += " Decreto Soberano: +35% Dano CRÍTICO para o time por 3 turnos!"; }
       refreshKaibaBuffs(s);
-      tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      u._actDmg = 0; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
   }
@@ -8114,7 +8346,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         allies.forEach(a => { a.buffs.push({ stat: "dmgBonus", value: 15 + extraBonus, turns: 2, name: "HorizonteUlt" }); a.buffs.push({ stat: "critDmg", value: 12, turns: 2, name: "HorizonteCrit" }); });
         msg += (extraBonus > 0 ? " [Além do Horizonte] +15%+" + extraBonus + "% Dano Bônus e +12% CRIT DMG ao time!" : " [Além do Horizonte] +15% Dano Bônus e +12% CRIT DMG ao time!");
       }
-      tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      u._actDmg = 0; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
   }
@@ -8202,7 +8434,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         ? ` ${houseTarget.name} é o(a) GUARDIÃO(Ã) e recebe tudo em DOBRO: +60% VEL, +60% DEF, +40% CRIT, +40% Dano, +50% CRIT DMG!`
         : ` ${houseTarget.name} é o(a) Guardião(ã) das Sete Casas!`;
       let msg = `🕊️✨ JULGAMENTO DO OLIMPO! ${u.name} invoca as Sete Casas — todo o time recebe +30% VEL, +30% DEF, +20% CRIT, +20% Dano e +25% CRIT DMG${f.athC6 ? " PERMANENTES (C6!)" : ` por ${houseTurns} turnos`}! ${u.name} entra no Modo Aprimorado por ${u._athEnhancedTurns} turnos.${_guardianLine}`;
-      tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      u._actDmg = 0; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
   }
@@ -8223,7 +8455,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       let msg = `🎈 ${u.name} usa Zero Gravity em ${buffTarget.name} — +${atkPct}% ATK e +10 VEL por 2 turnos!`;
       if (f.uraC6 && buffTarget.energyMax) { buffTarget.energy = Math.min(buffTarget.energyMax, buffTarget.energy + 10); msg += ` [C6] +10 de Energia para ${buffTarget.name}!`; }
       if (f.uraC2) { const _uraSh = capShieldAdd(u, Math.round(u.maxHp * 0.10)); u.shield = (u.shield || 0) + _uraSh; msg += ` Escudo Orbital: +${_uraSh} de escudo.`; }
-      tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      u._actDmg = 0; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
   }
@@ -8322,7 +8554,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         else if (role === "debuffer" && sk.skillDebuff && enemies[0]) { applyDebuff([enemies[0]], sk.skillDebuff, 0, u); if (sk.skillDot) applyDot([enemies[0]], sk.skillDot, u, fx); if (sk.skillMul) dealDamage(u, enemies[0], sk.skillMul, fx); msg = `${u.name} enfraquece o inimigo`; }
         else { const tgt = enemies.slice().sort((a, b) => b.hp - a.hp)[0]; if (tgt) { const full = u.energyMax && u.energy >= u.energyMax; if (full && sk.ultMul) { u.energy = 0; if (sk.ultAoe) enemies.forEach((e) => dealDamage(u, e, sk.ultMul, fx)); else dealDamage(u, tgt, sk.ultMul, fx); msg = `💥 ${u.name} usa Ultimate!`; } else { const m = sk.skillMul || sk.basicMul || 100; if (sk.aoe && sk.skillMul) enemies.forEach((e) => dealDamage(u, e, m, fx)); else dealDamage(u, tgt, m, fx); if (sk.skillDot) applyDot(sk.aoe ? enemies : [tgt], sk.skillDot, u, fx); u.energy = Math.min(u.energyMax, u.energy + 22); msg = `${u.name} ataca ${tgt.name}`; } } }
       }
-      tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      u._actDmg = 0; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       s.hitFx = { el: u.element, big: !!(u.elements && u.elements.length > 1), support: !fx.some((x) => !x.heal && !x.dot), id: Math.random() };
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
@@ -8707,7 +8939,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             pushLog(s, `☢️ [Vírus Defeat] x${omg.omgCharges} — +${15 * omg.omgCharges}% CRIT DMG em ${omg.name}; DEF do atacante reduzida.`);
           }
         } }
-      tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      u._actDmg = 0; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       // ═══ Agumon: termodinâmica no fim do turno dele ═══
       if (u.id === "agumon" && u.alive) {
         // Reforço defensivo: garante que os buffs da forma atual nunca sumam por engano
@@ -8777,6 +9009,29 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             <div style={{ ...ORB, fontSize: 34, fontWeight: 900, color: "#8AA0FF", textShadow: "0 0 26px #8AA0FFaa", animation: "cycleFlash 1.6s ease both" }}>🔄 CICLO {state.cycleFlash.n}</div>
           </div>
         )}
+        {!state.over && (() => { const a = teamArchetype(state.heroes); const A = ARCHETYPES[a.id]; const bw = state.enemies.find(e => e.archWeak || e.archResist);
+          const good = bw && bw.archWeak === a.id, bad = bw && bw.archResist === a.id;
+          const syn = teamSynergy(state.heroes);
+          const gated = state.enemies.find(e => e.gateMinions && e.alive);
+          const minionsLeft = gated ? state.enemies.filter(e => e.alive && !e.boss).length : 0;
+          const monoB = state.enemies.find(e => e.monoWeakEl);
+          return <div className="flex flex-col items-center" style={{ marginBottom: 6, gap: 4 }}>
+            <div className="flex items-center justify-center gap-1" style={{ flexWrap: "wrap", fontSize: 11 }}>
+              <span style={{ fontWeight: 800, color: good ? C.good : bad ? C.bad : C.mute, background: C.panelHi, border: `1px solid ${good ? C.good : bad ? C.bad : C.line}`, borderRadius: 99, padding: "3px 10px" }}>
+                {A.icon} {A.name}{good ? " · VANTAGEM ✓" : bad ? " · DESVANTAGEM ✕" : ""}
+              </span>
+              {syn.total !== 0 && <span style={{ fontWeight: 800, fontSize: 10, color: syn.total > 0 ? C.good : C.bad, background: C.panelHi, border: `1px solid ${syn.total > 0 ? C.good : C.bad}`, borderRadius: 99, padding: "3px 9px" }}>
+                {syn.total > 0 ? "🔗 +" : "⚠️ "}{syn.total}% sinergia
+              </span>}
+              {monoB && <span style={{ fontWeight: 800, fontSize: 10, color: (a.id === "mono" && a.el === monoB.monoWeakEl) ? C.good : C.mute, background: C.panelHi, border: `1px solid ${(a.id === "mono" && a.el === monoB.monoWeakEl) ? C.good : C.line}`, borderRadius: 99, padding: "3px 9px" }}>
+                🌈 Fraco a MONO {monoB.monoWeakEl}
+              </span>}
+            </div>
+            {gated && minionsLeft > 0 && <div style={{ fontSize: 10, color: "#FF8A5C", fontWeight: 800 }}>🛡️ CHEFE SELADO — derrote {minionsLeft} lacaio(s) para romper o selo</div>}
+            {syn.pairs.length > 0 && <div style={{ fontSize: 9, color: C.mute, textAlign: "center", maxWidth: 460 }}>
+              {syn.pairs.slice(0, 2).map((p, i) => <span key={i} style={{ color: p.good ? C.good : C.bad }}>{i > 0 ? " · " : ""}{p.good ? "✓" : "✕"} {p.why}</span>)}
+            </div>}
+          </div>; })()}
         {!state.over && <TurnOrderBar units={[...state.heroes, ...state.enemies]} />}
 
         {/* inimigos */}
