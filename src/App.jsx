@@ -1315,6 +1315,7 @@ async function loadAccounts() {
 async function saveAccounts(a) { try { await SS.set(ACCOUNTS_KEY, JSON.stringify(a)); } catch {} cloudSet("meta", "accounts", { list: a }); }
 
 /* ---------- TORRE ---------- */
+const TOWER_SEASON = "s5_reset_total"; // troque para forçar um novo reset global da Torre/Torre Sombria
 const TOWER_FLOORS = 450; // +250 andares novos (201–450): Ascensão Estelar
 const TOWER_BOSSES = {
   // ══ ASCENSÃO ESTELAR — 250 andares novos (201–450), 25 chefes com mecânicas exclusivas ══
@@ -1908,14 +1909,6 @@ function Game({ email, isAdmin, onLogout }) {
     // "calamidade"/"tecelao_tempo" ao abrir o app, sobrescrevendo os banners atuais. Agora os destaques vêm de
     // FEATURED_LIMITEDS / WEAPON_5_IDS e da escolha salva do jogador.
     useEffect(() => {
-      // Reset de temporada: zera Torre e Torre Sombria uma única vez por temporada
-      try {
-        if (localStorage.getItem("sr_tower_season") !== TOWER_SEASON) {
-          localStorage.setItem("sr_tower_season", TOWER_SEASON);
-          setTowerCleared(0); setTowerClaimed([]); setDarkTowerCleared(0); setDarkTowerClaimed([]);
-          setTimeout(() => flash("🗼 Nova temporada! Torre e Torre Sombria foram reiniciadas — 250 andares novos liberados.", C.gold), 800);
-        }
-      } catch {}
       setFeaturedChar((cur) => (FEATURED_LIMITEDS.includes(cur) ? cur : DEFAULT_FEATURED_CHAR));
       setFeaturedWeapon((cur) => (WEAPON_5_IDS.includes(cur) ? cur : DEFAULT_FEATURED_WEAPON));
     }, []);
@@ -1935,7 +1928,6 @@ function Game({ email, isAdmin, onLogout }) {
   const [playerName, setPlayerName] = useState("Pioneiro");
   const [images, setImages] = useState({});
   const [tierList, setTierList] = useState(TIER_LIST_DEFAULT);
-  const TOWER_SEASON = "s4_reset_total"; // reset geral: Torre e Torre Sombria voltam ao zero // reset geral: Torre e Torre Sombria voltam ao zero // troque esta chave pra resetar a Torre pra todo mundo de novo
   const [navOpen, setNavOpen] = useState(false); // menu central de modos
   const [activeTitle, setActiveTitle] = useState(null); // título de chat exibido pros amigos
   // Sanitiza a Stamina: qualquer NaN/undefined vindo de save antigo ou custo inválido volta a ser número
@@ -2056,6 +2048,18 @@ function Game({ email, isAdmin, onLogout }) {
       }
     }).catch(() => {});
   })(); }, [SAVE_KEY]);
+
+  // ══ RESET DE TEMPORADA — roda só depois que o save termina de carregar ══
+  // (Antes rodava antes do load: os zeros eram sobrescritos pelos dados salvos e a Torre nunca resetava.)
+  useEffect(() => {
+    if (!loaded) return;
+    let já = null;
+    try { já = localStorage.getItem("sr_tower_season"); } catch {}
+    if (já === TOWER_SEASON) return;
+    setTowerCleared(0); setTowerClaimed([]); setDarkTowerCleared(0); setDarkTowerClaimed([]);
+    try { localStorage.setItem("sr_tower_season", TOWER_SEASON); } catch {}
+    setTimeout(() => flash("🗼 Nova temporada! Torre e Torre Sombria foram reiniciadas do zero.", C.gold), 900);
+  }, [loaded]);
 
   const lastStaminaRef = useRef(lastStamina);
   useEffect(() => { lastStaminaRef.current = lastStamina; }, [lastStamina]);
@@ -5488,6 +5492,30 @@ function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx, allowSelf) {
   }
 }
 function spCapOf(s) { const shk = s.heroes && s.heroes.find(h => h.id === "shorekeeper" && h.alive && h.stFlags?.shkC2); return shk ? 7 : 5; }
+// Detecta o elemento citado na linha do log e devolve a cor dele
+function logElementOf(txt) {
+  if (typeof txt !== "string") return null;
+  for (const el of Object.keys(ELEMENTS)) {
+    if (new RegExp("Dano (?:de )?" + el + "\\b", "i").test(txt) || new RegExp("\\b" + el + "\\b").test(txt)) return el;
+  }
+  return null;
+}
+// Realça números de dano e o nome do elemento na linha do log
+function LogLine({ txt }) {
+  if (typeof txt !== "string") return <div style={{ marginBottom: 2 }}>{txt}</div>;
+  const el = logElementOf(txt);
+  const col = el && ELEMENTS[el] ? ELEMENTS[el].color : null;
+  // quebra em pedaços: números grandes viram destaque na cor do elemento
+  const parts = txt.split(/(\d{3,}(?:[.,]\d+)?)/g);
+  return (
+    <div style={{ marginBottom: 3, borderLeft: col ? `2px solid ${col}` : "2px solid transparent", paddingLeft: 6, lineHeight: 1.45 }}>
+      {el && ELEMENTS[el] && <span style={{ color: col, fontWeight: 800, marginRight: 4 }}>{ELEMENTS[el].glyph}</span>}
+      {parts.map((p, i) => /^\d{3,}/.test(p)
+        ? <b key={i} style={{ color: col || C.gold, fontWeight: 900, textShadow: col ? `0 0 8px ${col}66` : "none" }}>{Number(p.replace(",", ".")).toLocaleString("pt-BR")}</b>
+        : <span key={i}>{p}</span>)}
+    </div>
+  );
+}
 function pushLog(s, m) { if (!s || !m) return; if (!Array.isArray(s.log)) s.log = []; s.log = [...s.log.slice(-40), m]; } // robusto: nunca quebra com estado parcial
 function pushLogGlobalFx(fx, uid, txt) { fx.push({ uid, txt, crit: true, id: Math.random(), el: "Eletro" }); }
 // Yanagi — Teorema da Desordem: gatilho reativo sempre que ela causa dano a um alvo com DoT ativo
@@ -9423,7 +9451,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
 
         {/* log */}
         <div ref={logRef} style={{ background: `${C.bg1}cc`, border: `1px solid ${C.line}`, borderRadius: 12, padding: 10, height: 96, overflowY: "auto", fontSize: 12, color: C.mute }}>
-          {state.log.map((l, i) => <div key={i} style={{ marginBottom: 2 }}>{l}</div>)}
+          {state.log.map((l, i) => <LogLine key={i} txt={l} />)}
         </div>
 
         {/* heróis */}
@@ -9761,14 +9789,14 @@ function SummonFx({ data }) {
 function FX({ fx, uid }) {
   const items = fx.filter((f) => f.uid === uid && !f.yoruCloneFlash);
   const clones = fx.filter((f) => f.uid === uid && f.yoruCloneFlash);
-  const colorOf = (f) => f.enhanced ? "#5CFF7A" : f.heal ? C.good : f.dot ? (DOT_INFO[f.dot]?.c || "#fff") : f.crit ? C.gold : (f.el && ELEMENTS[f.el]?.color) || "#ffd9d9";
+  const colorOf = (f) => f.heal ? C.good : f.dot ? (DOT_INFO[f.dot]?.c || "#fff") : (f.el && ELEMENTS[f.el] ? ELEMENTS[f.el].color : (f.crit ? C.gold : "#fff")); // elemento manda na cor (estilo HSR); CRIT vira brilho/tamanho
   return <>
     {clones.length > 0 && <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 6 }}>
       <div key={clones[clones.length - 1].id} style={{ animation: "srCloneFlash 0.7s ease-out forwards", fontSize: 22, filter: "drop-shadow(0 0 8px #B98BFFcc)" }}>🐈‍⬛👻</div>
       <style>{`@keyframes srCloneFlash{0%{opacity:0;transform:scale(0.5)}20%{opacity:1;transform:scale(1.15)}70%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.85)}}`}</style>
     </div>}
     {items.length > 0 && <div style={{ position: "absolute", top: -6, left: 0, right: 0, textAlign: "center", pointerEvents: "none", zIndex: 5 }}>
-      {items.map((f) => <div key={f.id} style={{ animation: "srFloat 1s ease-out forwards", fontWeight: 800, fontSize: f.enhanced ? 20 : f.crit ? 18 : f.dot ? 11 : 14, color: colorOf(f), textShadow: f.enhanced ? "0 0 10px #5CFF7Aaa, 0 1px 3px #000" : "0 1px 3px #000" }}>{f.dot ? "🔥" : f.enhanced ? "🌿" : ""}{f.txt}{f.crit ? "!" : ""}</div>)}
+      {items.map((f) => <div key={f.id} style={{ animation: "srFloat 1s ease-out forwards", fontWeight: 800, fontSize: f.enhanced ? 20 : f.crit ? 18 : f.dot ? 11 : 14, color: colorOf(f), textShadow: f.crit && f.el && ELEMENTS[f.el] ? `0 0 12px ${ELEMENTS[f.el].color}, 0 1px 3px #000` : f.enhanced ? "0 0 10px #5CFF7Aaa, 0 1px 3px #000" : "0 1px 3px #000" }}>{f.el && ELEMENTS[f.el] && !f.heal && !f.dot ? <span style={{ marginRight: 3, opacity: .85 }}>{ELEMENTS[f.el].glyph}</span> : null}{f.dot ? "🔥" : f.enhanced ? "🌿" : ""}{f.txt}{f.crit ? "!" : ""}</div>)}
     </div>}
   </>;
 }
