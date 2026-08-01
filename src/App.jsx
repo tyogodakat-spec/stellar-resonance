@@ -92,6 +92,9 @@ const ROSTER = [
   // ---- Alter Saber · Hypercarry Chaos Sem Caminho (Limitada) ----
   mk({ id: "altersaber", name: "Alter Saber", title: "O Rei do Fim de Todas as Eras", element: "Chaos", role: "dps", rarity: 5, avatar: "⚔️", hp: 1180, atk: 980, def: 470, spd: 110, energy: 160, cr: 20, cd: 92, elemDmg: 22.4, tags: ["Chaos", "DPS", "Hypercarry", "Sem Caminho", "Ruína"],
     skill: { basicMul: 100, asBasic: true, skillMul: 0, asSkill: true, ultMul: 760, asUlt: true } }),
+  // ---- Aizen Sōsuke · Limitado · Sem Caminho ----
+  mk({ id: "aizensosuke", name: "Aizen Sōsuke", title: "A Existência Que Superou o Céu", element: "Chaos", role: "debuffer", rarity: 5, avatar: "🌙", hp: 1180, atk: 880, def: 520, spd: 104, energy: 180, cr: 10, cd: 60, elemDmg: 14.4, energyRegen: 10, tags: ["Chaos", "Sub-DPS", "Amplificador", "Sem Caminho", "Hipnose"],
+    skill: { basicMul: 110, azBasic: true, skillMul: 240, azSkill: true, ultMul: 450, ultAoe: true, azUlt: true } }),
   // ---- Gilgamesh (Caster) · Limitado · Sem Caminho ----
   mk({ id: "gilgamesh", name: "Gilgamesh", title: "Rei dos Heróis", element: "Unknown", role: "dps", rarity: 5, avatar: "👑", hp: 1150, atk: 1000, def: 450, spd: 109, energy: 240, cr: 12, cd: 74, elemDmg: 22.4, energyRegen: 10, tags: ["Unknown", "DPS", "Sub-DPS", "Sem Caminho", "Ataque Extra"],
     skill: { basicMul: 120, gilBasic: true, skillMul: 0, gilSkill: true, ultMul: 980, gilUlt: true } }),
@@ -120,9 +123,9 @@ const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 // Tag primária de um personagem (usada como requisito de nó) e todas as tags únicas do elenco
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
-const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon", "lupa", "hitori", "altersaber", "gilgamesh"];     // limitados (pool 50/50): só via rate-up
-const FEATURED_LIMITEDS = ["gilgamesh", "altersaber"]; // banners ativos: Gilgamesh e Alter Saber (Lupa e Hitori encerrados) // banners ativos: Gilgamesh e Alter Saber (RELÂMPAGO: 3 HORAS!), Lupa e Hitori
-const BANNER_DURATIONS = { gilgamesh: 3 * 60 * 60 * 1000, altersaber: 3 * 60 * 60 * 1000 }; // Gilgamesh e Alter Saber: banners RELÂMPAGO de 3 HORAS · Lupa/Hitori: 5 dias
+const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon", "lupa", "hitori", "altersaber", "gilgamesh", "aizensosuke"];     // limitados (pool 50/50): só via rate-up
+const FEATURED_LIMITEDS = ["aizensosuke", "altersaber", "gilgamesh"]; // 3 banners ativos // único banner ativo: Aizen Sōsuke (5 dias) // banners ativos: Gilgamesh e Alter Saber (Lupa e Hitori encerrados) // banners ativos: Gilgamesh e Alter Saber (RELÂMPAGO: 3 HORAS!), Lupa e Hitori
+const BANNER_DURATIONS = { aizensosuke: 5 * 24 * 60 * 60 * 1000, altersaber: 5 * 24 * 60 * 60 * 1000, gilgamesh: 5 * 24 * 60 * 60 * 1000 }; // 5 dias cada // Aizen: 5 dias // Gilgamesh e Alter Saber: banners RELÂMPAGO de 3 HORAS · Lupa/Hitori: 5 dias
 // ══ Títulos de chat — desbloqueados ao levar um personagem ao E6 (todas as cópias) ══
 const E6_TITLES = {
   lupa:        { t: "Predador de Fusão",       c: "#FF6A3D" },
@@ -146,7 +149,7 @@ function earnedTitles(owned) {
   return (owned || []).filter((o) => (o.eidolon || 0) >= 6 && E6_TITLES[o.id]).map((o) => ({ id: o.id, ...E6_TITLES[o.id] }));
 }
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
-const DEFAULT_FEATURED_CHAR = "gilgamesh";
+const DEFAULT_FEATURED_CHAR = "aizensosuke";
 // Banner Especial Limitado — pool de 5, dura 3 dias corridos pra TODO mundo (data fixa, não reseta por dispositivo)
 const SPECIAL_BANNER_CHARS = ["soifon", "omegamon", "ryoshu", "wonderofyou", "frieren"];
 const SPECIAL_BANNER_START = new Date("2026-07-20T18:00:00Z").getTime();
@@ -157,6 +160,7 @@ const SPECIAL_BANNER_END = SPECIAL_BANNER_START + SPECIAL_BANNER_DURATION_MS;
 // Valores de atk e stats secundários = nível MÁXIMO (80). Escalam via weaponLevelMul().
 const WEAPONS = [
   // ── ★★★★★ 5-estrelas ────────────────────────────────────────────────────────
+  { id: "kyoka_suigetsu", name: "Kyōka Suigetsu — A Verdade Além da Ilusão", rarity: 5, role: "debuffer", atk: 635, hpFlat: 952, defFlat: 529, atkPct: 20.0, elemDmg: 24.0, energyRegen: 15.0, passive: "Desde Quando Você Acreditou Que Estava Vendo a Realidade? — Aumenta o ATQ do usuário em 20%, o Dano Chaos em 24% e a Regeneração de Energia em 15%. Sempre que o usuário aplicar um debuff em um inimigo, recebe 1 acúmulo de Hipnose (máx 6): cada acúmulo concede +3% de Perfuração e +3% de Penetração de Resistência Chaos. Ao atingir 6 acúmulos, todos são consumidos para ativar Domínio da Ilusão por 2 turnos: todos os inimigos recebem 20% de Vulnerabilidade; personagens Chaos recebem +20% Dano Chaos, +15% Dano CRÍTICO e +15% Perfuração; sempre que um aliado Chaos atacar um inimigo com um debuff aplicado pelo usuário, recupera 4 de Energia (máx 4 por turno). O usuário causa 30% mais dano contra inimigos com Marca da Hipnose ou Ilusão Absoluta. Ao usar a Suprema durante o Domínio da Ilusão: prolonga a duração em 1 turno, recupera 20 de Energia e aplica 1 Camada de Colapso Mental adicional em todos os inimigos atingidos.", buff: { azWeapon: true } },
   { id: "portao_ea", name: "Portão da Criação — Ea", rarity: 5, role: "dps", atk: 714, hpFlat: 1058, defFlat: 397, atkPct: 30.0, elemDmg: 24.0, passive: "O Primeiro Rei Jamais Conheceu a Derrota — Aumenta o ATQ do usuário em 30% e o Dano Unknown em 24%. Sempre que o usuário realizar um Ataque Extra, recebe 1 acúmulo de Tesouro Verdadeiro (máx 12): cada acúmulo concede +4% de Dano de Ataques Extras e +2% de Dano CRÍTICO. Ao atingir 12 acúmulos, todos são consumidos para entrar em Portão da Origem por 2 turnos: ignora 20% da DEF, +40% de Dano Unknown, +50% de dano da Suprema, +70% de dano dos Ataques Extras, recupera 8 de Energia a cada Ataque Extra (máx 6 por turno) e, sempre que consumir Pontos de Perícia, recupera 1 Tesouro Real. Ao usar a Suprema em Portão da Origem: recupera 30 de Energia e o primeiro Ataque Extra seguinte causa +120% de dano, ignorando 30% da Resistência a Unknown. Cone exclusivo Sem Caminho — sem Superposição.", buff: { gilWeapon: true } },
   { id: "excalibur_morgan", name: "Excalibur Morgan — A Coroa do Crepúsculo", rarity: 5, role: "dps", atk: 687, hpFlat: 952, defFlat: 463, elemDmg: 30.0, passive: "O Rei Além do Destino — Aumenta o Dano Chaos do usuário em 30%. Após entrar em Modo Alter, recebe 1 acúmulo de Reino Eterno (máx 3): cada acúmulo dá +12% ATQ, +10% DEF e +8% Velocidade. Sempre que consumir Ruínas, recebe 1 acúmulo de Fim Inevitável (máx 10): cada acúmulo dá +4% de Dano CRÍTICO e +2% de Penetração de Resistência Chaos. Com 10 acúmulos, todos são consumidos para entrar em Trono Absoluto por 2 turnos: +40% de Dano Chaos, ignora 20% da DEF, Ataques Extras e Cópias Espectrais causam +35% de dano, e após a Suprema recupera 25 Energia e recebe 4 Ruínas. Cone exclusivo Sem Caminho — sem sistema de Superposição.", buff: { asWeapon: true } },
   { id: "batera_kessoku", name: "Batera do Kessoku Band", rarity: 5, role: "buffer", atk: 650, critDmg: 64.0, passive: "Sempre que um aliado ataca, o usuário ganha 5 de energia. O usuário concede um avanço de ação de 50% após o uso do supremo. Se o usuário for Hitori Gotoh, a mesma poderá conceder 12% de perfuração quando usar sua perícia para o aliado do primeiro slot.", buff: { hitoriWeapon: true } },
@@ -187,8 +191,8 @@ const WEAPONS = [
   { id: "aegis",       name: "Egide Brilhante",     rarity: 4, role: "shield",   atk: 396, def: 396, shieldBonus: 38,    passive: "Muralha Brilhante: +38% no valor dos Escudos gerados pelo portador." },
 ];
 const WEAPON_MAP = Object.fromEntries(WEAPONS.map((w) => [w.id, w]));
-const WEAPON_5_IDS = ["portao_ea", "excalibur_morgan", "presa_calamidade", "batera_kessoku"]; // banner de armas: cones de Gilgamesh, Alter Saber, Lupa e Hitori
-const DEFAULT_FEATURED_WEAPON = "portao_ea";
+const WEAPON_5_IDS = ["kyoka_suigetsu", "excalibur_morgan", "portao_ea"]; // cones de Aizen, Alter Saber e Gilgamesh // único banner de arma ativo: cone do Aizen // banner de armas: cones de Gilgamesh, Alter Saber, Lupa e Hitori
+const DEFAULT_FEATURED_WEAPON = "kyoka_suigetsu";
 
 /* ---------- MOCHILEIRO (seletor de personagem inicial) ---------- */
 const BEGINNER_PICK_CHARS = [
@@ -534,6 +538,7 @@ const weaponTotalCostToMax = (fromLv) => { let tot = 0; for (let lv = fromLv; lv
 
 // Passiva de personagem (sempre ativa) — identidade única do kit, descrita em detalhe
 const PASSIVE = {
+  aizensosuke: { name: "Kyōka Suigetsu: Hipnose Perfeita", desc: "Aizen utiliza um recurso exclusivo chamado Domínio Hipnótico (máximo: 6 Selos de Ilusão). Obtém Selos ao usar Ataque Básico (+1), Perícia (+2), Suprema (+3) e sempre que um aliado Chaos causar dano (+1, máximo de 2 por turno). Ao atingir 6 Selos, eles são consumidos automaticamente para ativar Hipnose Perfeita por 2 turnos. Enquanto estiver ativa: todos os inimigos recebem Ilusão Absoluta; o dano recebido de personagens Chaos aumenta em 30%; a Perfuração de todos os personagens Chaos aumenta em 25%; a Penetração de Resistência Chaos aumenta em 20%; e a DEF dos inimigos é reduzida em 18%, mas apenas contra ataques do elemento Chaos. Além disso, toda vez que um personagem Chaos causar dano durante Hipnose Perfeita, Aizen registra 1 Camada de Colapso Mental no alvo (máximo de 10). Quando Hipnose Perfeita termina, todas as camadas explodem, causando 40% do ATQ de Aizen por camada como Dano Chaos — esse dano é considerado dano adicional, não Ataque Extra.", flag: "azHipnose" },
   gilgamesh: { name: "Rei dos Heróis", desc: "Sempre que Gilgamesh causar dano, executar Ataque Extra, derrotar um inimigo ou consumir Tesouros, recebe Autoridade Real (máximo: 12). Ao atingir o máximo, entra automaticamente em Trono do Rei por 2 turnos. Enquanto ativo: todos os ataques sempre causam CRÍTICO, +140% Dano CRÍTICO, +50 Velocidade, ataques ignoram Escudos, e Ataques Extras ignoram 40% DEF. Além disso, cada Ataque Extra executa imediatamente Tesouro Celestial: dispara 6 armas, cada uma causando 90% do ATQ, e cada arma possui um efeito aleatório — causar dano adicional, gerar Tesouro, recuperar 3 Energia, reduzir DEF do alvo em 10% por 2 turnos, ou reduzir Resistência Unknown em 10% por 2 turnos. Quando Tesouro Celestial for executado três vezes, Gilgamesh dispara automaticamente Ea Fragmentada: um corte dimensional causando 450% do ATQ em todos os inimigos. — Mecânica Exclusiva · Portão da Babilônia: recurso exclusivo chamado Tesouros Reais (máximo inicial: 16). Obtém Tesouros ao usar Ataque Básico (+1), Perícia (+4), Ataque Extra (+1), derrotar um inimigo (+2) e Suprema (+8). Ao atingir 16 Tesouros, entra automaticamente em Reinado Dourado por 3 turnos: todos os ataques se tornam Dano Unknown, Ataques Extras ignoram 30% DEF, todo Ataque Extra gera outro disparo do Portão (máximo de 3 cadeias), o limite passa para 30 Tesouros e cada Tesouro acima de 16 aumenta o dano em 4%. — Técnica · A Chave do Rei: antes da batalha, obtém 10 Tesouros, recupera 70 de Energia e ativa imediatamente o Portão da Babilônia. Nos dois primeiros turnos, todos os Ataques Extras disparam o dobro de armas.", flag: "gilTalent" },
   altersaber: { name: "O Rei Nunca Cai", desc: "Talento: sempre que Alter Saber acertar um CRÍTICO, executar um Ataque Extra, derrotar um inimigo ou usar a Suprema, recebe uma Marca do Rei (máx 10). Ao atingir 10 marcas, todas são consumidas e ela entra automaticamente em Reino Absoluto por 2 turnos: todos os ataques SEMPRE causam CRIT, +140% de Dano CRÍTICO, +40% de Penetração de Resistência, +50 de Velocidade, ataques ignoram Escudos, e cada golpe cria uma Cópia Espectral (55% do dano do ataque original; a cada 3ª cópia, dispara Excalibur Negra: 300% do ATQ em Dano Chaos em todos os inimigos). Mecânica exclusiva — Reino da Ruína: acumule 12 Ruínas (ataques, contra-ataques, Suprema, abates e Ataques Extras) para entrar em Reino da Ruína, um estado que não pode ser dissipado: não consome Pontos de Perícia, todos os ataques viram Dano Chaos e ignoram 25% DEF, todo CRIT gera uma Ruína Fantasma (sem limite normal), e a cada 3 Ruínas Fantasma consumidas realiza imediatamente um Ataque Extra. Ao terminar o estado, todas as Ruínas Fantasma explodem causando dano proporcional ao acumulado.", flag: "asTalent" },
   hitori: { name: "Ansiedade Amplificada", desc: "5 Estrelas - Suporte | Chaos. Ataques básicos não farão nada além de dar uma pequena quantidade de dano de Chaos. Passivas: A cada 3% de dano crítico, Hitori recebe 1 ponto de velocidade. Concede 30 de energia para todos os aliados após ativar seu supremo. Concede 30% de bônus de dano de Holy e Chaos para os aliados nos dois primeiros slots.", flag: "hitoriPassive" },
@@ -565,6 +570,14 @@ const PASSIVE = {
 // Corrente de Ressonância / Eidolons — 6 nós ÚNICOS por personagem (estilo HSR/WuWa)
 const A_SKILL = { amp: "skill", ampV: 25 }, A_ULT = { amp: "ult", ampV: 50 };
 const CONS = {
+  aizensosuke: [
+    { name: "E1 · A Primeira Hipnose Nunca Foi Quebrada", flag: "azE1", desc: "\"A batalha terminou no instante em que você olhou para minha espada.\" Ao aplicar Marca da Hipnose pela primeira vez em um inimigo, ela evolui para Hipnose Completa. Enquanto um inimigo estiver sob Hipnose Completa: a Vulnerabilidade a Chaos aumenta em 18% adicionais; a Perfuração concedida aos aliados Chaos aumenta em 10%; sempre que esse inimigo perder 25% da Vida Máxima (não importa a fonte do dano), Aizen aplica automaticamente 2 Camadas de Colapso Mental. Quando Colapso Mental explodir, o alvo recebe \"Fratura Espiritual\" por 2 turnos, reduzindo sua RES Chaos em 15% e impedindo que esse efeito seja removido antes do fim da duração." },
+    { name: "E2 · A Verdade Nunca Esteve Diante dos Seus Olhos", flag: "azE2", desc: "\"Tudo o que você acredita ter visto... foi exatamente o que eu permiti.\" A mecânica de Colapso Mental é aprimorada. Cada Camada agora concede ao alvo +3% de Dano recebido de Chaos (máximo de 30%) e -2% de DEF (máximo de 20%). Quando um alvo atingir o máximo de Camadas, em vez de apenas explodirem, as Camadas entram em Colapso Total: a explosão ignora 25% da DEF; o dano é considerado Dano Verdadeiro Chaos, não sendo reduzido por efeitos de mitigação comuns; todos os aliados Chaos recuperam 8 Energia; e Aizen recebe imediatamente 50% do medidor necessário para ativar Hipnose Perfeita." },
+    { name: "E3 · O Céu Nunca Esteve Acima de Mim", flag: "azE3", desc: "\"Entre o céu e a terra... apenas eu permaneço no topo.\" A Suprema recebe melhorias exclusivas. Após utilizar Mundo da Hipnose: o domínio dura +1 turno; todos os efeitos positivos concedidos pelo domínio aumentam em 25%; sempre que um aliado Chaos utilizar sua Suprema durante o domínio, aplica imediatamente o máximo de Camadas de Colapso Mental permitido pela Perícia ao alvo principal. Além disso, durante Mundo da Hipnose, Aizen recebe 30% de Regeneração de Energia." },
+    { name: "E4 · A Evolução Transcende Toda Razão", flag: "azE4", desc: "\"Vocês chamam isso de evolução. Para mim... é apenas o estado natural.\" Sempre que Hipnose Perfeita for ativada, todos os inimigos entram em Desorientação Absoluta. Enquanto esse estado existir: toda Perfuração dos aliados Chaos aumenta em 25% adicionais; a Penetração de Resistência Chaos aumenta em 20%; o dano causado pelos Colapsos Mentais aumenta em 120%; e quando um inimigo entrar em Quebra de Fraqueza, recebe imediatamente o número máximo de Camadas de Colapso Mental." },
+    { name: "E5 · O Hōgyoku Escolheu Seu Verdadeiro Mestre", flag: "azE5", desc: "\"Nem mesmo os desejos podem mais limitar minha existência.\" Sempre que um inimigo sofrer uma explosão de Colapso Mental, ele entra em Colapso Espiritual Permanente por 3 turnos. Enquanto estiver nesse estado: recebe 35% mais Dano Chaos; tem sua DEF reduzida em 25%; tem sua RES Chaos reduzida em 20%; e toda vez que for atingido por um personagem Chaos, o dano adicional causado pelos efeitos de Aizen aumenta em 8%, acumulando até 5 vezes. Além disso, sempre que um inimigo entrar em Colapso Espiritual Permanente, Aizen recupera 30 Energia." },
+    { name: "E6 · Sōsuke Aizen, A Existência Que Superou o Céu", flag: "azE6", desc: "\"Não existem deuses. Não existem reis. Existe apenas aquele que permanecerá acima de todos.\" A mecânica de Hipnose Perfeita é completamente transformada. Ao ativá-la, ela evolui para Domínio da Realidade Absoluta por 3 turnos. Enquanto esse domínio estiver ativo: a Vulnerabilidade a Chaos aumenta em 50%; a Perfuração de todos os aliados Chaos aumenta em 40%; a Penetração de Resistência Chaos aumenta em 35%; o Dano CRÍTICO de personagens Chaos aumenta em 45%; a Eficiência de Quebra aumenta em 40%. Além disso, Colapso Mental deixa de possuir limite máximo de camadas; cada nova camada aumenta o dano da explosão em 12% de forma cumulativa; as explosões passam a ignorar 50% da DEF e 30% da Resistência Chaos; e quando um inimigo for derrotado durante o domínio, todas as suas Camadas de Colapso Mental são transferidas para o inimigo com mais Vida restante, preservando 100% do dano acumulado." },
+  ],
   gilgamesh: [
     { name: "E1 · A Biblioteca do Rei dos Heróis", flag: "gilE1", desc: "\"Todas as armas, feitiços e mistérios da humanidade pertencem ao primeiro rei. O mundo apenas acreditou tê-los criado.\" Sempre que um Ataque Extra for realizado por Gilgamesh, ele registra 1 Registro Real (máximo de 20). Ao utilizar Enuma Elish, todos os Registros são consumidos: cada Registro aumenta o dano da Suprema em 5%. Além disso, após a Suprema ser utilizada, o Portão da Babilônia dispara automaticamente 6 Armas Nobres, cada uma causando 140% do ATQ como Dano Unknown — esses disparos contam como Ataques Extras e podem gerar Tesouros. Como efeito secundário, todos os aliados recebem 12% de Dano Final durante 2 turnos." },
     { name: "E2 · A Verdadeira Chave do Tesouro", flag: "gilE2", desc: "\"Quem ousa tocar nos tesouros do rei sem sua permissão conhecerá apenas o desespero.\" Enquanto o Portão da Babilônia estiver ativo, sempre que Gilgamesh realizar um Ataque Extra existe 50% de chance de disparar uma Arma Nobre Suprema, causando 260% do ATQ como Dano Unknown. Caso seja disparada: recupera 1 Ponto de Perícia, recupera 10 de Energia e gera 2 Tesouros. Esse efeito pode ocorrer até 3 vezes por turno. Além disso, sempre que um aliado utilizar sua Suprema, Gilgamesh dispara imediatamente uma Arma Nobre Suprema adicional." },
@@ -818,6 +831,7 @@ const SKILL_NAMES = {
     shorekeeper: ["Origem da Ciência", "Teoria do Caos", "Fim do Lamento"],
     yanagi: ["Corte Voltaico", "Ciclo de Anomalia", "Eclipse Voltaico"],
   lupa: ["Presa Incandescente", "Salto do Abismo", "Eclipse de Fogo — Cataclismo Apocalíptico"],
+  aizensosuke: ["Kyōka Suigetsu — Corte Silencioso", "Kyōka Suigetsu — O Mundo Sob Meus Olhos", "Kyōka Suigetsu: Shatter of Perfect Hypnosis"],
   gilgamesh: ["Espada do Primeiro Rei", "Portão da Babilônia", "Enuma Elish — A Ruptura da Criação"],
   altersaber: ["Espada do Rei Caído", "Coroa do Rei Profanado", "Excalibur Morgan — O Fim do Trono"],
   hitori: ["Dedilhado Ansioso", "Entoar da Solidão", "Kessoku Band"],
@@ -942,6 +956,11 @@ function traceEffectLabel(def, key) {
 }
 const traceCost = (level) => 600 + (level - 1) * 450; // jade p/ subir do nível atual
 function specialTraces(def) {
+    if (def.id === "aizensosuke") return [
+      { name: "A2 — Tudo Faz Parte do Meu Plano", desc: "Sempre que um inimigo possuir Marca da Hipnose, personagens Chaos recebem +15% de Regeneração de Energia e +10% de Perfuração. Se Hipnose Perfeita estiver ativa, os bônus acima aumentam em 50% e, além disso, personagens Chaos recebem +10% de Dano Chaos.", combat: "azA2", cost: 2 },
+      { name: "A4 — Além da Compreensão", desc: "Sempre que um personagem Chaos causar dano em um inimigo com Marca da Hipnose, reduz a RES Chaos desse inimigo em 2%, acumulando até 5 vezes. Ao atingir o máximo de acúmulos, o alvo entra em Colapso Espiritual por 2 turnos: recebe 20% de Dano Final adicional de personagens Chaos e a explosão de Colapso Mental contra esse alvo causa 30% mais dano.", combat: "azA4", cost: 2 },
+      { name: "A6 — Aquele Que Está Acima dos Céus", desc: "No início da batalha, este efeito é ativado conforme a quantidade de personagens Chaos na equipe (incluindo Aizen). 1 Chaos: toda a equipe recebe +3% Taxa CRÍTICA e +3% Dano CRÍTICO. 2 Chaos: mantém os efeitos anteriores e adiciona +18% Dano Chaos. 3 ou mais Chaos: substitui os níveis anteriores e concede +6% Taxa CRÍTICA, +6% Dano CRÍTICO, +20% ATQ, +25% Dano Chaos, +15% Perfuração e +10% Penetração de Resistência Chaos. Esses efeitos permanecem ativos enquanto Aizen estiver em campo.", combat: "azA6", cost: 3 },
+    ];
     if (def.id === "gilgamesh") return [
       { name: "A2 — O Primeiro Rei", desc: "Cada Tesouro aumenta permanentemente o dano dos Ataques Extras em 2%. Máximo: 60%.", combat: "gilA2", cost: 2 },
       { name: "A4 — Dono da Humanidade", desc: "Sempre que Gilgamesh realizar 15 Ataques Extras durante uma batalha, recupera 60 de Energia. Esse efeito pode ocorrer até 2 vezes por batalha.", combat: "gilA4", cost: 2 },
@@ -1374,46 +1393,46 @@ const DARK_TOWER_WEAKNESS = ["Holy", "Fogo", "Vento", "Virus", "Glacial", "Chaos
   "Eletro", "Holy", "Fogo", "Vento", "Virus", "Glacial", "Chaos", "Eletro", "Holy", "Fogo",
   "Vento", "Virus", "Glacial", "Chaos", "Eletro", "Holy", "Fogo", "Vento", "Virus", "Glacial"];
 const DARK_TOWER_BOSSES = [
-  { name: "Sentinela Sombria",        element: "Chaos",  bossKind: "guardian",       hpMul: 33,  dot: null,     reward: 1600 },
-  { name: "Aizen · Eco Sombrio",      element: "Holy",   bossKind: "aizen",          hpMul: 36,  dot: null,     reward: 1600 },
-  { name: "Sukuna · Fome Eterna",     element: "Chaos",  bossKind: "sukuna",         hpMul: 38,  dot: "burn",   reward: 1600 },
-  { name: "Kaiba · Obelisco Negro",   element: "Eletro", bossKind: "godkaiba",       hpMul: 41,  dot: null,     reward: 1600 },
-  { name: "Ryoshu · Teia Sombria",    element: "Virus",  bossKind: "ryoshu_boss",    hpMul: 44,  dot: "poison", reward: 1600 },
-  { name: "Frieren · Memória Rota",   element: "Holy",   bossKind: "frieren_boss",   hpMul: 47,  dot: "freeze", reward: 1600 },
-  { name: "Omegamon · Núcleo Corrompido", element: "Virus", bossKind: "omegamon_boss", hpMul: 50, dot: "poison", reward: 1600 },
-  { name: "Soberano do Vazio · Sombra", element: "Chaos", bossKind: "void_sovereign", hpMul: 52,  dot: "burn",   reward: 1600 },
-  { name: "Soberano da Espiral Negra", element: "Chaos", bossKind: "espiral_lord",   hpMul: 56,  dot: "freeze", reward: 1600, espiralLordHpMul: 1 },
-  { name: "Maximillion · Máscara Final", element: "Chaos", bossKind: "maximillion",  hpMul: 62,  dot: "poison", reward: 1600 },
-  { name: "Sentinela Sombria · Renascida II", element: "Chaos", bossKind: "guardian", hpMul: 66, dot: "burn", reward: 1600 },
-  { name: "Aizen · Ilusão Absoluta II", element: "Chaos", bossKind: "aizen", hpMul: 70, dot: "poison", reward: 1600 },
-  { name: "Sukuna · Devorador de Eras II", element: "Chaos", bossKind: "sukuna", hpMul: 75, dot: "freeze", reward: 1600 },
-  { name: "Kaiba · Singularidade Negra II", element: "Chaos", bossKind: "godkaiba", hpMul: 80, dot: null, reward: 1600 },
-  { name: "Ryoshu · Rainha Aracnídea II", element: "Chaos", bossKind: "ryoshu_boss", hpMul: 86, dot: "burn", reward: 1600 },
-  { name: "Frieren · Herança dos Mil Anos II", element: "Chaos", bossKind: "frieren_boss", hpMul: 92, dot: "poison", reward: 1600 },
-  { name: "Omegamon · Protocolo Definitivo II", element: "Chaos", bossKind: "omegamon_boss", hpMul: 99, dot: "freeze", reward: 1600 },
-  { name: "Soberano do Vazio · Colapso Final II", element: "Chaos", bossKind: "void_sovereign", hpMul: 106, dot: null, reward: 1600 },
-  { name: "Soberano da Espiral · Além do Caos II", element: "Chaos", bossKind: "espiral_lord", hpMul: 114, dot: "burn", reward: 1600, espiralLordHpMul: 1 },
-  { name: "Maximillion · O Ilusionista Eterno II", element: "Chaos", bossKind: "maximillion", hpMul: 123, dot: "poison", reward: 1600 },
-  { name: "Sentinela Sombria · Renascida III", element: "Chaos", bossKind: "guardian", hpMul: 132, dot: "freeze", reward: 1600 },
-  { name: "Aizen · Ilusão Absoluta III", element: "Chaos", bossKind: "aizen", hpMul: 142, dot: null, reward: 1600 },
-  { name: "Sukuna · Devorador de Eras III", element: "Chaos", bossKind: "sukuna", hpMul: 153, dot: "burn", reward: 1600 },
-  { name: "Kaiba · Singularidade Negra III", element: "Chaos", bossKind: "godkaiba", hpMul: 165, dot: "poison", reward: 1600 },
-  { name: "Ryoshu · Rainha Aracnídea III", element: "Chaos", bossKind: "ryoshu_boss", hpMul: 179, dot: "freeze", reward: 1600 },
-  { name: "Frieren · Herança dos Mil Anos III", element: "Chaos", bossKind: "frieren_boss", hpMul: 194, dot: null, reward: 1600 },
-  { name: "Omegamon · Protocolo Definitivo III", element: "Chaos", bossKind: "omegamon_boss", hpMul: 210, dot: "burn", reward: 1600 },
-  { name: "Soberano do Vazio · Colapso Final III", element: "Chaos", bossKind: "void_sovereign", hpMul: 228, dot: "poison", reward: 1600 },
-  { name: "Soberano da Espiral · Além do Caos III", element: "Chaos", bossKind: "espiral_lord", hpMul: 248, dot: "freeze", reward: 1600, espiralLordHpMul: 1 },
-  { name: "Maximillion · O Ilusionista Eterno III", element: "Chaos", bossKind: "maximillion", hpMul: 270, dot: null, reward: 1600 },
-  { name: "Sentinela Sombria · Renascida IV", element: "Chaos", bossKind: "guardian", hpMul: 294, dot: "burn", reward: 1600 },
-  { name: "Aizen · Ilusão Absoluta IV", element: "Chaos", bossKind: "aizen", hpMul: 321, dot: "poison", reward: 1600 },
-  { name: "Sukuna · Devorador de Eras IV", element: "Chaos", bossKind: "sukuna", hpMul: 350, dot: "freeze", reward: 1600 },
-  { name: "Kaiba · Singularidade Negra IV", element: "Chaos", bossKind: "godkaiba", hpMul: 382, dot: null, reward: 1600 },
-  { name: "Ryoshu · Rainha Aracnídea IV", element: "Chaos", bossKind: "ryoshu_boss", hpMul: 418, dot: "burn", reward: 1600 },
-  { name: "Frieren · Herança dos Mil Anos IV", element: "Chaos", bossKind: "frieren_boss", hpMul: 458, dot: "poison", reward: 1600 },
-  { name: "Omegamon · Protocolo Definitivo IV", element: "Chaos", bossKind: "omegamon_boss", hpMul: 502, dot: "freeze", reward: 1600 },
-  { name: "Soberano do Vazio · Colapso Final IV", element: "Chaos", bossKind: "void_sovereign", hpMul: 551, dot: null, reward: 1600 },
-  { name: "Soberano da Espiral · Além do Caos IV", element: "Chaos", bossKind: "espiral_lord", hpMul: 605, dot: "burn", reward: 1600, espiralLordHpMul: 1 },
-  { name: "Maximillion · O Ilusionista Eterno IV", element: "Chaos", bossKind: "maximillion", hpMul: 665, dot: "poison", reward: 1600 },
+  { name: "Sentinela Sombria",        element: "Chaos",  bossKind: "guardian",       hpMul: 33,  dot: null,     reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Aizen · Eco Sombrio",      element: "Holy",   bossKind: "aizen",          hpMul: 36,  dot: null,     reward: 1600, res: ["Holy"], weak: ["Fogo", "Vento"] },
+  { name: "Sukuna · Fome Eterna",     element: "Chaos",  bossKind: "sukuna",         hpMul: 38,  dot: "burn",   reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Kaiba · Obelisco Negro",   element: "Eletro", bossKind: "godkaiba",       hpMul: 41,  dot: null,     reward: 1600, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Ryoshu · Teia Sombria",    element: "Virus",  bossKind: "ryoshu_boss",    hpMul: 44,  dot: "poison", reward: 1600, res: ["Virus"], weak: ["Fogo", "Vento"] },
+  { name: "Frieren · Memória Rota",   element: "Holy",   bossKind: "frieren_boss",   hpMul: 47,  dot: "freeze", reward: 1600, res: ["Holy"], weak: ["Fogo", "Vento"] },
+  { name: "Omegamon · Núcleo Corrompido", element: "Virus", bossKind: "omegamon_boss", hpMul: 50, dot: "poison", reward: 1600, res: ["Virus"], weak: ["Fogo", "Vento"] },
+  { name: "Soberano do Vazio · Sombra", element: "Chaos", bossKind: "void_sovereign", hpMul: 52,  dot: "burn",   reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Soberano da Espiral Negra", element: "Chaos", bossKind: "espiral_lord",   hpMul: 56,  dot: "freeze", reward: 1600, espiralLordHpMul: 1, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Maximillion · Máscara Final", element: "Chaos", bossKind: "maximillion",  hpMul: 62,  dot: "poison", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Sentinela Sombria · Renascida II", element: "Chaos", bossKind: "guardian", hpMul: 66, dot: "burn", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Aizen · Ilusão Absoluta II", element: "Chaos", bossKind: "aizen", hpMul: 70, dot: "poison", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Sukuna · Devorador de Eras II", element: "Chaos", bossKind: "sukuna", hpMul: 75, dot: "freeze", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Kaiba · Singularidade Negra II", element: "Chaos", bossKind: "godkaiba", hpMul: 80, dot: null, reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Ryoshu · Rainha Aracnídea II", element: "Chaos", bossKind: "ryoshu_boss", hpMul: 86, dot: "burn", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Frieren · Herança dos Mil Anos II", element: "Chaos", bossKind: "frieren_boss", hpMul: 92, dot: "poison", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Omegamon · Protocolo Definitivo II", element: "Chaos", bossKind: "omegamon_boss", hpMul: 99, dot: "freeze", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Soberano do Vazio · Colapso Final II", element: "Chaos", bossKind: "void_sovereign", hpMul: 106, dot: null, reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Soberano da Espiral · Além do Caos II", element: "Chaos", bossKind: "espiral_lord", hpMul: 114, dot: "burn", reward: 1600, espiralLordHpMul: 1, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Maximillion · O Ilusionista Eterno II", element: "Chaos", bossKind: "maximillion", hpMul: 123, dot: "poison", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Sentinela Sombria · Renascida III", element: "Chaos", bossKind: "guardian", hpMul: 132, dot: "freeze", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Aizen · Ilusão Absoluta III", element: "Chaos", bossKind: "aizen", hpMul: 142, dot: null, reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Sukuna · Devorador de Eras III", element: "Chaos", bossKind: "sukuna", hpMul: 153, dot: "burn", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Kaiba · Singularidade Negra III", element: "Chaos", bossKind: "godkaiba", hpMul: 165, dot: "poison", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Ryoshu · Rainha Aracnídea III", element: "Chaos", bossKind: "ryoshu_boss", hpMul: 179, dot: "freeze", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Frieren · Herança dos Mil Anos III", element: "Chaos", bossKind: "frieren_boss", hpMul: 194, dot: null, reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Omegamon · Protocolo Definitivo III", element: "Chaos", bossKind: "omegamon_boss", hpMul: 210, dot: "burn", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Soberano do Vazio · Colapso Final III", element: "Chaos", bossKind: "void_sovereign", hpMul: 228, dot: "poison", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Soberano da Espiral · Além do Caos III", element: "Chaos", bossKind: "espiral_lord", hpMul: 248, dot: "freeze", reward: 1600, espiralLordHpMul: 1, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Maximillion · O Ilusionista Eterno III", element: "Chaos", bossKind: "maximillion", hpMul: 270, dot: null, reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Sentinela Sombria · Renascida IV", element: "Chaos", bossKind: "guardian", hpMul: 294, dot: "burn", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Aizen · Ilusão Absoluta IV", element: "Chaos", bossKind: "aizen", hpMul: 321, dot: "poison", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Sukuna · Devorador de Eras IV", element: "Chaos", bossKind: "sukuna", hpMul: 350, dot: "freeze", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Kaiba · Singularidade Negra IV", element: "Chaos", bossKind: "godkaiba", hpMul: 382, dot: null, reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Ryoshu · Rainha Aracnídea IV", element: "Chaos", bossKind: "ryoshu_boss", hpMul: 418, dot: "burn", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Frieren · Herança dos Mil Anos IV", element: "Chaos", bossKind: "frieren_boss", hpMul: 458, dot: "poison", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Omegamon · Protocolo Definitivo IV", element: "Chaos", bossKind: "omegamon_boss", hpMul: 502, dot: "freeze", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Soberano do Vazio · Colapso Final IV", element: "Chaos", bossKind: "void_sovereign", hpMul: 551, dot: null, reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Soberano da Espiral · Além do Caos IV", element: "Chaos", bossKind: "espiral_lord", hpMul: 605, dot: "burn", reward: 1600, espiralLordHpMul: 1, res: ["Chaos"], weak: ["Fogo", "Vento"] },
+  { name: "Maximillion · O Ilusionista Eterno IV", element: "Chaos", bossKind: "maximillion", hpMul: 665, dot: "poison", reward: 1600, res: ["Chaos"], weak: ["Fogo", "Vento"] },
 ].map((b, i) => { const w = DARK_TOWER_WEAKNESS[i]; return { ...b, weak: [w], res: ELEMENT_NAMES.filter(e => e !== w) }; });
 function darkTowerEncounter(level, power) {
   const bd = DARK_TOWER_BOSSES[level - 1]; if (!bd) return null;
@@ -1445,256 +1464,256 @@ const FARM_STAGES = [
   { id: "medio",   name: "Médio · Ruínas Cintilantes",   level: 50, count: 3, cost: 45, exp: 42,  boss: true, desc: "Nv 20-50 — drop equilibrado (melhor custo/benefício)." },
   { id: "dificil", name: "Difícil · Abismo Estelar",     level: 80, count: 3, cost: 60, exp: 72,  boss: true, desc: "Nv 60-80 — para times fortes. Drop máximo de Lágrimas de XP." },
   // ══ ABISSO PROFUNDO — 250 níveis novos, HP muito maior e mecânicas rotativas ══
-  { name: "Umbra do Fim · N41", element: "Chaos", bossKind: "devorador", hpMul: 50, dot: "burn", reward: 2200 },
-  { name: "Eco do Fim · N42", element: "Unknown", bossKind: "espelho", hpMul: 52, dot: null, reward: 2224 },
-  { name: "Fantasma do Fim · N43", element: "Holy", bossKind: "temporal", hpMul: 55, dot: "poison", reward: 2248 },
-  { name: "Ruína do Fim · N44", element: "Virus", bossKind: "praga", hpMul: 57, dot: null, reward: 2272 },
-  { name: "Abismo do Fim · N45", element: "Fogo", bossKind: "juiz", hpMul: 60, dot: "burn", reward: 2296 },
-  { name: "Vazio do Fim · N46", element: "Glacial", bossKind: "vazio", hpMul: 63, dot: null, reward: 2320 },
-  { name: "Presságio do Fim · N47", element: "Vento", bossKind: "colosso", hpMul: 65, dot: "poison", reward: 2344 },
-  { name: "Carrasco do Fim · N48", element: "Eletro", bossKind: "fenix", hpMul: 68, dot: null, reward: 2368 },
-  { name: "Herege do Fim · N49", element: "Chaos", bossKind: "tirano", hpMul: 70, dot: "burn", reward: 2392 },
-  { name: "Miasma do Fim · N50", element: "Unknown", bossKind: "leviata", hpMul: 73, dot: null, reward: 2416 },
-  { name: "Espectro do Fim · N51", element: "Holy", bossKind: "guardian", hpMul: 76, dot: "poison", reward: 2440 },
-  { name: "Nêmesis do Fim · N52", element: "Virus", bossKind: "aizen", hpMul: 78, dot: null, reward: 2464 },
-  { name: "Umbra Sem Nome · N53", element: "Fogo", bossKind: "sukuna", hpMul: 81, dot: "burn", reward: 2488 },
-  { name: "Eco Sem Nome · N54", element: "Glacial", bossKind: "godkaiba", hpMul: 83, dot: null, reward: 2512 },
-  { name: "Fantasma Sem Nome · N55", element: "Vento", bossKind: "devorador", hpMul: 86, dot: "poison", reward: 2536 },
-  { name: "Ruína Sem Nome · N56", element: "Eletro", bossKind: "espelho", hpMul: 89, dot: null, reward: 2560 },
-  { name: "Abismo Sem Nome · N57", element: "Chaos", bossKind: "temporal", hpMul: 91, dot: "burn", reward: 2584 },
-  { name: "Vazio Sem Nome · N58", element: "Unknown", bossKind: "praga", hpMul: 94, dot: null, reward: 2608 },
-  { name: "Presságio Sem Nome · N59", element: "Holy", bossKind: "juiz", hpMul: 96, dot: "poison", reward: 2632 },
-  { name: "Carrasco Sem Nome · N60", element: "Virus", bossKind: "vazio", hpMul: 99, dot: null, reward: 2656 },
-  { name: "Herege Sem Nome · N61", element: "Fogo", bossKind: "colosso", hpMul: 102, dot: "burn", reward: 2680 },
-  { name: "Miasma Sem Nome · N62", element: "Glacial", bossKind: "fenix", hpMul: 104, dot: null, reward: 2704 },
-  { name: "Espectro Sem Nome · N63", element: "Vento", bossKind: "tirano", hpMul: 107, dot: "poison", reward: 2728 },
-  { name: "Nêmesis Sem Nome · N64", element: "Eletro", bossKind: "leviata", hpMul: 109, dot: null, reward: 2752 },
-  { name: "Umbra da Noite Eterna · N65", element: "Chaos", bossKind: "guardian", hpMul: 112, dot: "burn", reward: 2776 },
-  { name: "Eco da Noite Eterna · N66", element: "Unknown", bossKind: "aizen", hpMul: 115, dot: null, reward: 2800 },
-  { name: "Fantasma da Noite Eterna · N67", element: "Holy", bossKind: "sukuna", hpMul: 117, dot: "poison", reward: 2824 },
-  { name: "Ruína da Noite Eterna · N68", element: "Virus", bossKind: "godkaiba", hpMul: 120, dot: null, reward: 2848 },
-  { name: "Abismo da Noite Eterna · N69", element: "Fogo", bossKind: "devorador", hpMul: 122, dot: "burn", reward: 2872 },
-  { name: "Vazio da Noite Eterna · N70", element: "Glacial", bossKind: "espelho", hpMul: 125, dot: null, reward: 2896 },
-  { name: "Presságio da Noite Eterna · N71", element: "Vento", bossKind: "temporal", hpMul: 128, dot: "poison", reward: 2920 },
-  { name: "Carrasco da Noite Eterna · N72", element: "Eletro", bossKind: "praga", hpMul: 130, dot: null, reward: 2944 },
-  { name: "Herege da Noite Eterna · N73", element: "Chaos", bossKind: "juiz", hpMul: 133, dot: "burn", reward: 2968 },
-  { name: "Miasma da Noite Eterna · N74", element: "Unknown", bossKind: "vazio", hpMul: 135, dot: null, reward: 2992 },
-  { name: "Espectro da Noite Eterna · N75", element: "Holy", bossKind: "colosso", hpMul: 138, dot: "poison", reward: 3016 },
-  { name: "Nêmesis da Noite Eterna · N76", element: "Virus", bossKind: "fenix", hpMul: 141, dot: null, reward: 3040 },
-  { name: "Umbra do Trono Caído · N77", element: "Fogo", bossKind: "tirano", hpMul: 143, dot: "burn", reward: 3064 },
-  { name: "Eco do Trono Caído · N78", element: "Glacial", bossKind: "leviata", hpMul: 146, dot: null, reward: 3088 },
-  { name: "Fantasma do Trono Caído · N79", element: "Vento", bossKind: "guardian", hpMul: 148, dot: "poison", reward: 3112 },
-  { name: "Ruína do Trono Caído · N80", element: "Eletro", bossKind: "aizen", hpMul: 151, dot: null, reward: 3136 },
-  { name: "Abismo do Trono Caído · N81", element: "Chaos", bossKind: "sukuna", hpMul: 154, dot: "burn", reward: 3160 },
-  { name: "Vazio do Trono Caído · N82", element: "Unknown", bossKind: "godkaiba", hpMul: 156, dot: null, reward: 3184 },
-  { name: "Presságio do Trono Caído · N83", element: "Holy", bossKind: "devorador", hpMul: 159, dot: "poison", reward: 3208 },
-  { name: "Carrasco do Trono Caído · N84", element: "Virus", bossKind: "espelho", hpMul: 161, dot: null, reward: 3232 },
-  { name: "Herege do Trono Caído · N85", element: "Fogo", bossKind: "temporal", hpMul: 164, dot: "burn", reward: 3256 },
-  { name: "Miasma do Trono Caído · N86", element: "Glacial", bossKind: "praga", hpMul: 167, dot: null, reward: 3280 },
-  { name: "Espectro do Trono Caído · N87", element: "Vento", bossKind: "juiz", hpMul: 169, dot: "poison", reward: 3304 },
-  { name: "Nêmesis do Trono Caído · N88", element: "Eletro", bossKind: "vazio", hpMul: 172, dot: null, reward: 3328 },
-  { name: "Umbra das Profundezas · N89", element: "Chaos", bossKind: "colosso", hpMul: 174, dot: "burn", reward: 3352 },
-  { name: "Eco das Profundezas · N90", element: "Unknown", bossKind: "fenix", hpMul: 177, dot: null, reward: 3376 },
-  { name: "Fantasma das Profundezas · N91", element: "Holy", bossKind: "tirano", hpMul: 180, dot: "poison", reward: 3400 },
-  { name: "Ruína das Profundezas · N92", element: "Virus", bossKind: "leviata", hpMul: 182, dot: null, reward: 3424 },
-  { name: "Abismo das Profundezas · N93", element: "Fogo", bossKind: "guardian", hpMul: 185, dot: "burn", reward: 3448 },
-  { name: "Vazio das Profundezas · N94", element: "Glacial", bossKind: "aizen", hpMul: 187, dot: null, reward: 3472 },
-  { name: "Presságio das Profundezas · N95", element: "Vento", bossKind: "sukuna", hpMul: 190, dot: "poison", reward: 3496 },
-  { name: "Carrasco das Profundezas · N96", element: "Eletro", bossKind: "godkaiba", hpMul: 193, dot: null, reward: 3520 },
-  { name: "Herege das Profundezas · N97", element: "Chaos", bossKind: "devorador", hpMul: 195, dot: "burn", reward: 3544 },
-  { name: "Miasma das Profundezas · N98", element: "Unknown", bossKind: "espelho", hpMul: 198, dot: null, reward: 3568 },
-  { name: "Espectro das Profundezas · N99", element: "Holy", bossKind: "temporal", hpMul: 200, dot: "poison", reward: 3592 },
-  { name: "Nêmesis das Profundezas · N100", element: "Virus", bossKind: "praga", hpMul: 203, dot: null, reward: 3616 },
-  { name: "Umbra do Colapso · N101", element: "Fogo", bossKind: "juiz", hpMul: 206, dot: "burn", reward: 3640 },
-  { name: "Eco do Colapso · N102", element: "Glacial", bossKind: "vazio", hpMul: 208, dot: null, reward: 3664 },
-  { name: "Fantasma do Colapso · N103", element: "Vento", bossKind: "colosso", hpMul: 211, dot: "poison", reward: 3688 },
-  { name: "Ruína do Colapso · N104", element: "Eletro", bossKind: "fenix", hpMul: 213, dot: null, reward: 3712 },
-  { name: "Abismo do Colapso · N105", element: "Chaos", bossKind: "tirano", hpMul: 216, dot: "burn", reward: 3736 },
-  { name: "Vazio do Colapso · N106", element: "Unknown", bossKind: "leviata", hpMul: 219, dot: null, reward: 3760 },
-  { name: "Presságio do Colapso · N107", element: "Holy", bossKind: "guardian", hpMul: 221, dot: "poison", reward: 3784 },
-  { name: "Carrasco do Colapso · N108", element: "Virus", bossKind: "aizen", hpMul: 224, dot: null, reward: 3808 },
-  { name: "Herege do Colapso · N109", element: "Fogo", bossKind: "sukuna", hpMul: 226, dot: "burn", reward: 3832 },
-  { name: "Miasma do Colapso · N110", element: "Glacial", bossKind: "godkaiba", hpMul: 229, dot: null, reward: 3856 },
-  { name: "Espectro do Colapso · N111", element: "Vento", bossKind: "devorador", hpMul: 232, dot: "poison", reward: 3880 },
-  { name: "Nêmesis do Colapso · N112", element: "Eletro", bossKind: "espelho", hpMul: 234, dot: null, reward: 3904 },
-  { name: "Umbra da Última Era · N113", element: "Chaos", bossKind: "temporal", hpMul: 237, dot: "burn", reward: 3928 },
-  { name: "Eco da Última Era · N114", element: "Unknown", bossKind: "praga", hpMul: 239, dot: null, reward: 3952 },
-  { name: "Fantasma da Última Era · N115", element: "Holy", bossKind: "juiz", hpMul: 242, dot: "poison", reward: 3976 },
-  { name: "Ruína da Última Era · N116", element: "Virus", bossKind: "vazio", hpMul: 245, dot: null, reward: 4000 },
-  { name: "Abismo da Última Era · N117", element: "Fogo", bossKind: "colosso", hpMul: 247, dot: "burn", reward: 4024 },
-  { name: "Vazio da Última Era · N118", element: "Glacial", bossKind: "fenix", hpMul: 250, dot: null, reward: 4048 },
-  { name: "Presságio da Última Era · N119", element: "Vento", bossKind: "tirano", hpMul: 252, dot: "poison", reward: 4072 },
-  { name: "Carrasco da Última Era · N120", element: "Eletro", bossKind: "leviata", hpMul: 255, dot: null, reward: 4096 },
-  { name: "Herege da Última Era · N121", element: "Chaos", bossKind: "guardian", hpMul: 258, dot: "burn", reward: 4120 },
-  { name: "Miasma da Última Era · N122", element: "Unknown", bossKind: "aizen", hpMul: 260, dot: null, reward: 4144 },
-  { name: "Espectro da Última Era · N123", element: "Holy", bossKind: "sukuna", hpMul: 263, dot: "poison", reward: 4168 },
-  { name: "Nêmesis da Última Era · N124", element: "Virus", bossKind: "godkaiba", hpMul: 265, dot: null, reward: 4192 },
-  { name: "Umbra do Silêncio · N125", element: "Fogo", bossKind: "devorador", hpMul: 268, dot: "burn", reward: 4216 },
-  { name: "Eco do Silêncio · N126", element: "Glacial", bossKind: "espelho", hpMul: 271, dot: null, reward: 4240 },
-  { name: "Fantasma do Silêncio · N127", element: "Vento", bossKind: "temporal", hpMul: 273, dot: "poison", reward: 4264 },
-  { name: "Ruína do Silêncio · N128", element: "Eletro", bossKind: "praga", hpMul: 276, dot: null, reward: 4288 },
-  { name: "Abismo do Silêncio · N129", element: "Chaos", bossKind: "juiz", hpMul: 278, dot: "burn", reward: 4312 },
-  { name: "Vazio do Silêncio · N130", element: "Unknown", bossKind: "vazio", hpMul: 281, dot: null, reward: 4336 },
-  { name: "Presságio do Silêncio · N131", element: "Holy", bossKind: "colosso", hpMul: 284, dot: "poison", reward: 4360 },
-  { name: "Carrasco do Silêncio · N132", element: "Virus", bossKind: "fenix", hpMul: 286, dot: null, reward: 4384 },
-  { name: "Herege do Silêncio · N133", element: "Fogo", bossKind: "tirano", hpMul: 289, dot: "burn", reward: 4408 },
-  { name: "Miasma do Silêncio · N134", element: "Glacial", bossKind: "leviata", hpMul: 291, dot: null, reward: 4432 },
-  { name: "Espectro do Silêncio · N135", element: "Vento", bossKind: "guardian", hpMul: 294, dot: "poison", reward: 4456 },
-  { name: "Nêmesis do Silêncio · N136", element: "Eletro", bossKind: "aizen", hpMul: 297, dot: null, reward: 4480 },
-  { name: "Umbra do Fim · N137", element: "Chaos", bossKind: "sukuna", hpMul: 299, dot: "burn", reward: 4504 },
-  { name: "Eco do Fim · N138", element: "Unknown", bossKind: "godkaiba", hpMul: 302, dot: null, reward: 4528 },
-  { name: "Fantasma do Fim · N139", element: "Holy", bossKind: "devorador", hpMul: 304, dot: "poison", reward: 4552 },
-  { name: "Ruína do Fim · N140", element: "Virus", bossKind: "espelho", hpMul: 307, dot: null, reward: 4576 },
-  { name: "Abismo do Fim · N141", element: "Fogo", bossKind: "temporal", hpMul: 310, dot: "burn", reward: 4600 },
-  { name: "Vazio do Fim · N142", element: "Glacial", bossKind: "praga", hpMul: 312, dot: null, reward: 4624 },
-  { name: "Presságio do Fim · N143", element: "Vento", bossKind: "juiz", hpMul: 315, dot: "poison", reward: 4648 },
-  { name: "Carrasco do Fim · N144", element: "Eletro", bossKind: "vazio", hpMul: 317, dot: null, reward: 4672 },
-  { name: "Herege do Fim · N145", element: "Chaos", bossKind: "colosso", hpMul: 320, dot: "burn", reward: 4696 },
-  { name: "Miasma do Fim · N146", element: "Unknown", bossKind: "fenix", hpMul: 323, dot: null, reward: 4720 },
-  { name: "Espectro do Fim · N147", element: "Holy", bossKind: "tirano", hpMul: 325, dot: "poison", reward: 4744 },
-  { name: "Nêmesis do Fim · N148", element: "Virus", bossKind: "leviata", hpMul: 328, dot: null, reward: 4768 },
-  { name: "Umbra Sem Nome · N149", element: "Fogo", bossKind: "guardian", hpMul: 330, dot: "burn", reward: 4792 },
-  { name: "Eco Sem Nome · N150", element: "Glacial", bossKind: "aizen", hpMul: 333, dot: null, reward: 4816 },
-  { name: "Fantasma Sem Nome · N151", element: "Vento", bossKind: "sukuna", hpMul: 336, dot: "poison", reward: 4840 },
-  { name: "Ruína Sem Nome · N152", element: "Eletro", bossKind: "godkaiba", hpMul: 338, dot: null, reward: 4864 },
-  { name: "Abismo Sem Nome · N153", element: "Chaos", bossKind: "devorador", hpMul: 341, dot: "burn", reward: 4888 },
-  { name: "Vazio Sem Nome · N154", element: "Unknown", bossKind: "espelho", hpMul: 343, dot: null, reward: 4912 },
-  { name: "Presságio Sem Nome · N155", element: "Holy", bossKind: "temporal", hpMul: 346, dot: "poison", reward: 4936 },
-  { name: "Carrasco Sem Nome · N156", element: "Virus", bossKind: "praga", hpMul: 349, dot: null, reward: 4960 },
-  { name: "Herege Sem Nome · N157", element: "Fogo", bossKind: "juiz", hpMul: 351, dot: "burn", reward: 4984 },
-  { name: "Miasma Sem Nome · N158", element: "Glacial", bossKind: "vazio", hpMul: 354, dot: null, reward: 5008 },
-  { name: "Espectro Sem Nome · N159", element: "Vento", bossKind: "colosso", hpMul: 356, dot: "poison", reward: 5032 },
-  { name: "Nêmesis Sem Nome · N160", element: "Eletro", bossKind: "fenix", hpMul: 359, dot: null, reward: 5056 },
-  { name: "Umbra da Noite Eterna · N161", element: "Chaos", bossKind: "tirano", hpMul: 362, dot: "burn", reward: 5080 },
-  { name: "Eco da Noite Eterna · N162", element: "Unknown", bossKind: "leviata", hpMul: 364, dot: null, reward: 5104 },
-  { name: "Fantasma da Noite Eterna · N163", element: "Holy", bossKind: "guardian", hpMul: 367, dot: "poison", reward: 5128 },
-  { name: "Ruína da Noite Eterna · N164", element: "Virus", bossKind: "aizen", hpMul: 369, dot: null, reward: 5152 },
-  { name: "Abismo da Noite Eterna · N165", element: "Fogo", bossKind: "sukuna", hpMul: 372, dot: "burn", reward: 5176 },
-  { name: "Vazio da Noite Eterna · N166", element: "Glacial", bossKind: "godkaiba", hpMul: 375, dot: null, reward: 5200 },
-  { name: "Presságio da Noite Eterna · N167", element: "Vento", bossKind: "devorador", hpMul: 377, dot: "poison", reward: 5224 },
-  { name: "Carrasco da Noite Eterna · N168", element: "Eletro", bossKind: "espelho", hpMul: 380, dot: null, reward: 5248 },
-  { name: "Herege da Noite Eterna · N169", element: "Chaos", bossKind: "temporal", hpMul: 382, dot: "burn", reward: 5272 },
-  { name: "Miasma da Noite Eterna · N170", element: "Unknown", bossKind: "praga", hpMul: 385, dot: null, reward: 5296 },
-  { name: "Espectro da Noite Eterna · N171", element: "Holy", bossKind: "juiz", hpMul: 388, dot: "poison", reward: 5320 },
-  { name: "Nêmesis da Noite Eterna · N172", element: "Virus", bossKind: "vazio", hpMul: 390, dot: null, reward: 5344 },
-  { name: "Umbra do Trono Caído · N173", element: "Fogo", bossKind: "colosso", hpMul: 393, dot: "burn", reward: 5368 },
-  { name: "Eco do Trono Caído · N174", element: "Glacial", bossKind: "fenix", hpMul: 395, dot: null, reward: 5392 },
-  { name: "Fantasma do Trono Caído · N175", element: "Vento", bossKind: "tirano", hpMul: 398, dot: "poison", reward: 5416 },
-  { name: "Ruína do Trono Caído · N176", element: "Eletro", bossKind: "leviata", hpMul: 401, dot: null, reward: 5440 },
-  { name: "Abismo do Trono Caído · N177", element: "Chaos", bossKind: "guardian", hpMul: 403, dot: "burn", reward: 5464 },
-  { name: "Vazio do Trono Caído · N178", element: "Unknown", bossKind: "aizen", hpMul: 406, dot: null, reward: 5488 },
-  { name: "Presságio do Trono Caído · N179", element: "Holy", bossKind: "sukuna", hpMul: 408, dot: "poison", reward: 5512 },
-  { name: "Carrasco do Trono Caído · N180", element: "Virus", bossKind: "godkaiba", hpMul: 411, dot: null, reward: 5536 },
-  { name: "Herege do Trono Caído · N181", element: "Fogo", bossKind: "devorador", hpMul: 414, dot: "burn", reward: 5560 },
-  { name: "Miasma do Trono Caído · N182", element: "Glacial", bossKind: "espelho", hpMul: 416, dot: null, reward: 5584 },
-  { name: "Espectro do Trono Caído · N183", element: "Vento", bossKind: "temporal", hpMul: 419, dot: "poison", reward: 5608 },
-  { name: "Nêmesis do Trono Caído · N184", element: "Eletro", bossKind: "praga", hpMul: 421, dot: null, reward: 5632 },
-  { name: "Umbra das Profundezas · N185", element: "Chaos", bossKind: "juiz", hpMul: 424, dot: "burn", reward: 5656 },
-  { name: "Eco das Profundezas · N186", element: "Unknown", bossKind: "vazio", hpMul: 427, dot: null, reward: 5680 },
-  { name: "Fantasma das Profundezas · N187", element: "Holy", bossKind: "colosso", hpMul: 429, dot: "poison", reward: 5704 },
-  { name: "Ruína das Profundezas · N188", element: "Virus", bossKind: "fenix", hpMul: 432, dot: null, reward: 5728 },
-  { name: "Abismo das Profundezas · N189", element: "Fogo", bossKind: "tirano", hpMul: 434, dot: "burn", reward: 5752 },
-  { name: "Vazio das Profundezas · N190", element: "Glacial", bossKind: "leviata", hpMul: 437, dot: null, reward: 5776 },
-  { name: "Presságio das Profundezas · N191", element: "Vento", bossKind: "guardian", hpMul: 440, dot: "poison", reward: 5800 },
-  { name: "Carrasco das Profundezas · N192", element: "Eletro", bossKind: "aizen", hpMul: 442, dot: null, reward: 5824 },
-  { name: "Herege das Profundezas · N193", element: "Chaos", bossKind: "sukuna", hpMul: 445, dot: "burn", reward: 5848 },
-  { name: "Miasma das Profundezas · N194", element: "Unknown", bossKind: "godkaiba", hpMul: 447, dot: null, reward: 5872 },
-  { name: "Espectro das Profundezas · N195", element: "Holy", bossKind: "devorador", hpMul: 450, dot: "poison", reward: 5896 },
-  { name: "Nêmesis das Profundezas · N196", element: "Virus", bossKind: "espelho", hpMul: 453, dot: null, reward: 5920 },
-  { name: "Umbra do Colapso · N197", element: "Fogo", bossKind: "temporal", hpMul: 455, dot: "burn", reward: 5944 },
-  { name: "Eco do Colapso · N198", element: "Glacial", bossKind: "praga", hpMul: 458, dot: null, reward: 5968 },
-  { name: "Fantasma do Colapso · N199", element: "Vento", bossKind: "juiz", hpMul: 460, dot: "poison", reward: 5992 },
-  { name: "Ruína do Colapso · N200", element: "Eletro", bossKind: "vazio", hpMul: 463, dot: null, reward: 6016 },
-  { name: "Abismo do Colapso · N201", element: "Chaos", bossKind: "colosso", hpMul: 466, dot: "burn", reward: 6040 },
-  { name: "Vazio do Colapso · N202", element: "Unknown", bossKind: "fenix", hpMul: 468, dot: null, reward: 6064 },
-  { name: "Presságio do Colapso · N203", element: "Holy", bossKind: "tirano", hpMul: 471, dot: "poison", reward: 6088 },
-  { name: "Carrasco do Colapso · N204", element: "Virus", bossKind: "leviata", hpMul: 473, dot: null, reward: 6112 },
-  { name: "Herege do Colapso · N205", element: "Fogo", bossKind: "guardian", hpMul: 476, dot: "burn", reward: 6136 },
-  { name: "Miasma do Colapso · N206", element: "Glacial", bossKind: "aizen", hpMul: 479, dot: null, reward: 6160 },
-  { name: "Espectro do Colapso · N207", element: "Vento", bossKind: "sukuna", hpMul: 481, dot: "poison", reward: 6184 },
-  { name: "Nêmesis do Colapso · N208", element: "Eletro", bossKind: "godkaiba", hpMul: 484, dot: null, reward: 6208 },
-  { name: "Umbra da Última Era · N209", element: "Chaos", bossKind: "devorador", hpMul: 486, dot: "burn", reward: 6232 },
-  { name: "Eco da Última Era · N210", element: "Unknown", bossKind: "espelho", hpMul: 489, dot: null, reward: 6256 },
-  { name: "Fantasma da Última Era · N211", element: "Holy", bossKind: "temporal", hpMul: 492, dot: "poison", reward: 6280 },
-  { name: "Ruína da Última Era · N212", element: "Virus", bossKind: "praga", hpMul: 494, dot: null, reward: 6304 },
-  { name: "Abismo da Última Era · N213", element: "Fogo", bossKind: "juiz", hpMul: 497, dot: "burn", reward: 6328 },
-  { name: "Vazio da Última Era · N214", element: "Glacial", bossKind: "vazio", hpMul: 499, dot: null, reward: 6352 },
-  { name: "Presságio da Última Era · N215", element: "Vento", bossKind: "colosso", hpMul: 502, dot: "poison", reward: 6376 },
-  { name: "Carrasco da Última Era · N216", element: "Eletro", bossKind: "fenix", hpMul: 505, dot: null, reward: 6400 },
-  { name: "Herege da Última Era · N217", element: "Chaos", bossKind: "tirano", hpMul: 507, dot: "burn", reward: 6424 },
-  { name: "Miasma da Última Era · N218", element: "Unknown", bossKind: "leviata", hpMul: 510, dot: null, reward: 6448 },
-  { name: "Espectro da Última Era · N219", element: "Holy", bossKind: "guardian", hpMul: 512, dot: "poison", reward: 6472 },
-  { name: "Nêmesis da Última Era · N220", element: "Virus", bossKind: "aizen", hpMul: 515, dot: null, reward: 6496 },
-  { name: "Umbra do Silêncio · N221", element: "Fogo", bossKind: "sukuna", hpMul: 518, dot: "burn", reward: 6520 },
-  { name: "Eco do Silêncio · N222", element: "Glacial", bossKind: "godkaiba", hpMul: 520, dot: null, reward: 6544 },
-  { name: "Fantasma do Silêncio · N223", element: "Vento", bossKind: "devorador", hpMul: 523, dot: "poison", reward: 6568 },
-  { name: "Ruína do Silêncio · N224", element: "Eletro", bossKind: "espelho", hpMul: 525, dot: null, reward: 6592 },
-  { name: "Abismo do Silêncio · N225", element: "Chaos", bossKind: "temporal", hpMul: 528, dot: "burn", reward: 6616 },
-  { name: "Vazio do Silêncio · N226", element: "Unknown", bossKind: "praga", hpMul: 531, dot: null, reward: 6640 },
-  { name: "Presságio do Silêncio · N227", element: "Holy", bossKind: "juiz", hpMul: 533, dot: "poison", reward: 6664 },
-  { name: "Carrasco do Silêncio · N228", element: "Virus", bossKind: "vazio", hpMul: 536, dot: null, reward: 6688 },
-  { name: "Herege do Silêncio · N229", element: "Fogo", bossKind: "colosso", hpMul: 538, dot: "burn", reward: 6712 },
-  { name: "Miasma do Silêncio · N230", element: "Glacial", bossKind: "fenix", hpMul: 541, dot: null, reward: 6736 },
-  { name: "Espectro do Silêncio · N231", element: "Vento", bossKind: "tirano", hpMul: 544, dot: "poison", reward: 6760 },
-  { name: "Nêmesis do Silêncio · N232", element: "Eletro", bossKind: "leviata", hpMul: 546, dot: null, reward: 6784 },
-  { name: "Umbra do Fim · N233", element: "Chaos", bossKind: "guardian", hpMul: 549, dot: "burn", reward: 6808 },
-  { name: "Eco do Fim · N234", element: "Unknown", bossKind: "aizen", hpMul: 551, dot: null, reward: 6832 },
-  { name: "Fantasma do Fim · N235", element: "Holy", bossKind: "sukuna", hpMul: 554, dot: "poison", reward: 6856 },
-  { name: "Ruína do Fim · N236", element: "Virus", bossKind: "godkaiba", hpMul: 557, dot: null, reward: 6880 },
-  { name: "Abismo do Fim · N237", element: "Fogo", bossKind: "devorador", hpMul: 559, dot: "burn", reward: 6904 },
-  { name: "Vazio do Fim · N238", element: "Glacial", bossKind: "espelho", hpMul: 562, dot: null, reward: 6928 },
-  { name: "Presságio do Fim · N239", element: "Vento", bossKind: "temporal", hpMul: 564, dot: "poison", reward: 6952 },
-  { name: "Carrasco do Fim · N240", element: "Eletro", bossKind: "praga", hpMul: 567, dot: null, reward: 6976 },
-  { name: "Herege do Fim · N241", element: "Chaos", bossKind: "juiz", hpMul: 570, dot: "burn", reward: 7000 },
-  { name: "Miasma do Fim · N242", element: "Unknown", bossKind: "vazio", hpMul: 572, dot: null, reward: 7024 },
-  { name: "Espectro do Fim · N243", element: "Holy", bossKind: "colosso", hpMul: 575, dot: "poison", reward: 7048 },
-  { name: "Nêmesis do Fim · N244", element: "Virus", bossKind: "fenix", hpMul: 577, dot: null, reward: 7072 },
-  { name: "Umbra Sem Nome · N245", element: "Fogo", bossKind: "tirano", hpMul: 580, dot: "burn", reward: 7096 },
-  { name: "Eco Sem Nome · N246", element: "Glacial", bossKind: "leviata", hpMul: 583, dot: null, reward: 7120 },
-  { name: "Fantasma Sem Nome · N247", element: "Vento", bossKind: "guardian", hpMul: 585, dot: "poison", reward: 7144 },
-  { name: "Ruína Sem Nome · N248", element: "Eletro", bossKind: "aizen", hpMul: 588, dot: null, reward: 7168 },
-  { name: "Abismo Sem Nome · N249", element: "Chaos", bossKind: "sukuna", hpMul: 590, dot: "burn", reward: 7192 },
-  { name: "Vazio Sem Nome · N250", element: "Unknown", bossKind: "godkaiba", hpMul: 593, dot: null, reward: 7216 },
-  { name: "Presságio Sem Nome · N251", element: "Holy", bossKind: "devorador", hpMul: 596, dot: "poison", reward: 7240 },
-  { name: "Carrasco Sem Nome · N252", element: "Virus", bossKind: "espelho", hpMul: 598, dot: null, reward: 7264 },
-  { name: "Herege Sem Nome · N253", element: "Fogo", bossKind: "temporal", hpMul: 601, dot: "burn", reward: 7288 },
-  { name: "Miasma Sem Nome · N254", element: "Glacial", bossKind: "praga", hpMul: 603, dot: null, reward: 7312 },
-  { name: "Espectro Sem Nome · N255", element: "Vento", bossKind: "juiz", hpMul: 606, dot: "poison", reward: 7336 },
-  { name: "Nêmesis Sem Nome · N256", element: "Eletro", bossKind: "vazio", hpMul: 609, dot: null, reward: 7360 },
-  { name: "Umbra da Noite Eterna · N257", element: "Chaos", bossKind: "colosso", hpMul: 611, dot: "burn", reward: 7384 },
-  { name: "Eco da Noite Eterna · N258", element: "Unknown", bossKind: "fenix", hpMul: 614, dot: null, reward: 7408 },
-  { name: "Fantasma da Noite Eterna · N259", element: "Holy", bossKind: "tirano", hpMul: 616, dot: "poison", reward: 7432 },
-  { name: "Ruína da Noite Eterna · N260", element: "Virus", bossKind: "leviata", hpMul: 619, dot: null, reward: 7456 },
-  { name: "Abismo da Noite Eterna · N261", element: "Fogo", bossKind: "guardian", hpMul: 622, dot: "burn", reward: 7480 },
-  { name: "Vazio da Noite Eterna · N262", element: "Glacial", bossKind: "aizen", hpMul: 624, dot: null, reward: 7504 },
-  { name: "Presságio da Noite Eterna · N263", element: "Vento", bossKind: "sukuna", hpMul: 627, dot: "poison", reward: 7528 },
-  { name: "Carrasco da Noite Eterna · N264", element: "Eletro", bossKind: "godkaiba", hpMul: 629, dot: null, reward: 7552 },
-  { name: "Herege da Noite Eterna · N265", element: "Chaos", bossKind: "devorador", hpMul: 632, dot: "burn", reward: 7576 },
-  { name: "Miasma da Noite Eterna · N266", element: "Unknown", bossKind: "espelho", hpMul: 635, dot: null, reward: 7600 },
-  { name: "Espectro da Noite Eterna · N267", element: "Holy", bossKind: "temporal", hpMul: 637, dot: "poison", reward: 7624 },
-  { name: "Nêmesis da Noite Eterna · N268", element: "Virus", bossKind: "praga", hpMul: 640, dot: null, reward: 7648 },
-  { name: "Umbra do Trono Caído · N269", element: "Fogo", bossKind: "juiz", hpMul: 642, dot: "burn", reward: 7672 },
-  { name: "Eco do Trono Caído · N270", element: "Glacial", bossKind: "vazio", hpMul: 645, dot: null, reward: 7696 },
-  { name: "Fantasma do Trono Caído · N271", element: "Vento", bossKind: "colosso", hpMul: 648, dot: "poison", reward: 7720 },
-  { name: "Ruína do Trono Caído · N272", element: "Eletro", bossKind: "fenix", hpMul: 650, dot: null, reward: 7744 },
-  { name: "Abismo do Trono Caído · N273", element: "Chaos", bossKind: "tirano", hpMul: 653, dot: "burn", reward: 7768 },
-  { name: "Vazio do Trono Caído · N274", element: "Unknown", bossKind: "leviata", hpMul: 655, dot: null, reward: 7792 },
-  { name: "Presságio do Trono Caído · N275", element: "Holy", bossKind: "guardian", hpMul: 658, dot: "poison", reward: 7816 },
-  { name: "Carrasco do Trono Caído · N276", element: "Virus", bossKind: "aizen", hpMul: 661, dot: null, reward: 7840 },
-  { name: "Herege do Trono Caído · N277", element: "Fogo", bossKind: "sukuna", hpMul: 663, dot: "burn", reward: 7864 },
-  { name: "Miasma do Trono Caído · N278", element: "Glacial", bossKind: "godkaiba", hpMul: 666, dot: null, reward: 7888 },
-  { name: "Espectro do Trono Caído · N279", element: "Vento", bossKind: "devorador", hpMul: 668, dot: "poison", reward: 7912 },
-  { name: "Nêmesis do Trono Caído · N280", element: "Eletro", bossKind: "espelho", hpMul: 671, dot: null, reward: 7936 },
-  { name: "Umbra das Profundezas · N281", element: "Chaos", bossKind: "temporal", hpMul: 674, dot: "burn", reward: 7960 },
-  { name: "Eco das Profundezas · N282", element: "Unknown", bossKind: "praga", hpMul: 676, dot: null, reward: 7984 },
-  { name: "Fantasma das Profundezas · N283", element: "Holy", bossKind: "juiz", hpMul: 679, dot: "poison", reward: 8008 },
-  { name: "Ruína das Profundezas · N284", element: "Virus", bossKind: "vazio", hpMul: 681, dot: null, reward: 8032 },
-  { name: "Abismo das Profundezas · N285", element: "Fogo", bossKind: "colosso", hpMul: 684, dot: "burn", reward: 8056 },
-  { name: "Vazio das Profundezas · N286", element: "Glacial", bossKind: "fenix", hpMul: 687, dot: null, reward: 8080 },
-  { name: "Presságio das Profundezas · N287", element: "Vento", bossKind: "tirano", hpMul: 689, dot: "poison", reward: 8104 },
-  { name: "Carrasco das Profundezas · N288", element: "Eletro", bossKind: "leviata", hpMul: 692, dot: null, reward: 8128 },
-  { name: "Herege das Profundezas · N289", element: "Chaos", bossKind: "guardian", hpMul: 694, dot: "burn", reward: 8152 },
-  { name: "Miasma das Profundezas · N290", element: "Unknown", bossKind: "aizen", hpMul: 697, dot: null, reward: 8176 },
+  { name: "Umbra do Fim · N41", element: "Chaos", bossKind: "devorador", hpMul: 50, dot: "burn", reward: 2200, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Eco do Fim · N42", element: "Unknown", bossKind: "espelho", hpMul: 52, dot: null, reward: 2224, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Fantasma do Fim · N43", element: "Holy", bossKind: "temporal", hpMul: 55, dot: "poison", reward: 2248, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Ruína do Fim · N44", element: "Virus", bossKind: "praga", hpMul: 57, dot: null, reward: 2272, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Abismo do Fim · N45", element: "Fogo", bossKind: "juiz", hpMul: 60, dot: "burn", reward: 2296, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Vazio do Fim · N46", element: "Glacial", bossKind: "vazio", hpMul: 63, dot: null, reward: 2320, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Presságio do Fim · N47", element: "Vento", bossKind: "colosso", hpMul: 65, dot: "poison", reward: 2344, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Carrasco do Fim · N48", element: "Eletro", bossKind: "fenix", hpMul: 68, dot: null, reward: 2368, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Herege do Fim · N49", element: "Chaos", bossKind: "tirano", hpMul: 70, dot: "burn", reward: 2392, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Miasma do Fim · N50", element: "Unknown", bossKind: "leviata", hpMul: 73, dot: null, reward: 2416, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Espectro do Fim · N51", element: "Holy", bossKind: "guardian", hpMul: 76, dot: "poison", reward: 2440, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Nêmesis do Fim · N52", element: "Virus", bossKind: "aizen", hpMul: 78, dot: null, reward: 2464, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Umbra Sem Nome · N53", element: "Fogo", bossKind: "sukuna", hpMul: 81, dot: "burn", reward: 2488, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Eco Sem Nome · N54", element: "Glacial", bossKind: "godkaiba", hpMul: 83, dot: null, reward: 2512, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Fantasma Sem Nome · N55", element: "Vento", bossKind: "devorador", hpMul: 86, dot: "poison", reward: 2536, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Ruína Sem Nome · N56", element: "Eletro", bossKind: "espelho", hpMul: 89, dot: null, reward: 2560, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Abismo Sem Nome · N57", element: "Chaos", bossKind: "temporal", hpMul: 91, dot: "burn", reward: 2584, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Vazio Sem Nome · N58", element: "Unknown", bossKind: "praga", hpMul: 94, dot: null, reward: 2608, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Presságio Sem Nome · N59", element: "Holy", bossKind: "juiz", hpMul: 96, dot: "poison", reward: 2632, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Carrasco Sem Nome · N60", element: "Virus", bossKind: "vazio", hpMul: 99, dot: null, reward: 2656, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Herege Sem Nome · N61", element: "Fogo", bossKind: "colosso", hpMul: 102, dot: "burn", reward: 2680, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Miasma Sem Nome · N62", element: "Glacial", bossKind: "fenix", hpMul: 104, dot: null, reward: 2704, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Espectro Sem Nome · N63", element: "Vento", bossKind: "tirano", hpMul: 107, dot: "poison", reward: 2728, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Nêmesis Sem Nome · N64", element: "Eletro", bossKind: "leviata", hpMul: 109, dot: null, reward: 2752, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Umbra da Noite Eterna · N65", element: "Chaos", bossKind: "guardian", hpMul: 112, dot: "burn", reward: 2776, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Eco da Noite Eterna · N66", element: "Unknown", bossKind: "aizen", hpMul: 115, dot: null, reward: 2800, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Fantasma da Noite Eterna · N67", element: "Holy", bossKind: "sukuna", hpMul: 117, dot: "poison", reward: 2824, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Ruína da Noite Eterna · N68", element: "Virus", bossKind: "godkaiba", hpMul: 120, dot: null, reward: 2848, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Abismo da Noite Eterna · N69", element: "Fogo", bossKind: "devorador", hpMul: 122, dot: "burn", reward: 2872, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Vazio da Noite Eterna · N70", element: "Glacial", bossKind: "espelho", hpMul: 125, dot: null, reward: 2896, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Presságio da Noite Eterna · N71", element: "Vento", bossKind: "temporal", hpMul: 128, dot: "poison", reward: 2920, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Carrasco da Noite Eterna · N72", element: "Eletro", bossKind: "praga", hpMul: 130, dot: null, reward: 2944, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Herege da Noite Eterna · N73", element: "Chaos", bossKind: "juiz", hpMul: 133, dot: "burn", reward: 2968, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Miasma da Noite Eterna · N74", element: "Unknown", bossKind: "vazio", hpMul: 135, dot: null, reward: 2992, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Espectro da Noite Eterna · N75", element: "Holy", bossKind: "colosso", hpMul: 138, dot: "poison", reward: 3016, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Nêmesis da Noite Eterna · N76", element: "Virus", bossKind: "fenix", hpMul: 141, dot: null, reward: 3040, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Umbra do Trono Caído · N77", element: "Fogo", bossKind: "tirano", hpMul: 143, dot: "burn", reward: 3064, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Eco do Trono Caído · N78", element: "Glacial", bossKind: "leviata", hpMul: 146, dot: null, reward: 3088, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Fantasma do Trono Caído · N79", element: "Vento", bossKind: "guardian", hpMul: 148, dot: "poison", reward: 3112, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Ruína do Trono Caído · N80", element: "Eletro", bossKind: "aizen", hpMul: 151, dot: null, reward: 3136, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Abismo do Trono Caído · N81", element: "Chaos", bossKind: "sukuna", hpMul: 154, dot: "burn", reward: 3160, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Vazio do Trono Caído · N82", element: "Unknown", bossKind: "godkaiba", hpMul: 156, dot: null, reward: 3184, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Presságio do Trono Caído · N83", element: "Holy", bossKind: "devorador", hpMul: 159, dot: "poison", reward: 3208, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Carrasco do Trono Caído · N84", element: "Virus", bossKind: "espelho", hpMul: 161, dot: null, reward: 3232, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Herege do Trono Caído · N85", element: "Fogo", bossKind: "temporal", hpMul: 164, dot: "burn", reward: 3256, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Miasma do Trono Caído · N86", element: "Glacial", bossKind: "praga", hpMul: 167, dot: null, reward: 3280, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Espectro do Trono Caído · N87", element: "Vento", bossKind: "juiz", hpMul: 169, dot: "poison", reward: 3304, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Nêmesis do Trono Caído · N88", element: "Eletro", bossKind: "vazio", hpMul: 172, dot: null, reward: 3328, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Umbra das Profundezas · N89", element: "Chaos", bossKind: "colosso", hpMul: 174, dot: "burn", reward: 3352, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Eco das Profundezas · N90", element: "Unknown", bossKind: "fenix", hpMul: 177, dot: null, reward: 3376, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Fantasma das Profundezas · N91", element: "Holy", bossKind: "tirano", hpMul: 180, dot: "poison", reward: 3400, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Ruína das Profundezas · N92", element: "Virus", bossKind: "leviata", hpMul: 182, dot: null, reward: 3424, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Abismo das Profundezas · N93", element: "Fogo", bossKind: "guardian", hpMul: 185, dot: "burn", reward: 3448, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Vazio das Profundezas · N94", element: "Glacial", bossKind: "aizen", hpMul: 187, dot: null, reward: 3472, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Presságio das Profundezas · N95", element: "Vento", bossKind: "sukuna", hpMul: 190, dot: "poison", reward: 3496, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Carrasco das Profundezas · N96", element: "Eletro", bossKind: "godkaiba", hpMul: 193, dot: null, reward: 3520, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Herege das Profundezas · N97", element: "Chaos", bossKind: "devorador", hpMul: 195, dot: "burn", reward: 3544, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Miasma das Profundezas · N98", element: "Unknown", bossKind: "espelho", hpMul: 198, dot: null, reward: 3568, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Espectro das Profundezas · N99", element: "Holy", bossKind: "temporal", hpMul: 200, dot: "poison", reward: 3592, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Nêmesis das Profundezas · N100", element: "Virus", bossKind: "praga", hpMul: 203, dot: null, reward: 3616, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Umbra do Colapso · N101", element: "Fogo", bossKind: "juiz", hpMul: 206, dot: "burn", reward: 3640, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Eco do Colapso · N102", element: "Glacial", bossKind: "vazio", hpMul: 208, dot: null, reward: 3664, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Fantasma do Colapso · N103", element: "Vento", bossKind: "colosso", hpMul: 211, dot: "poison", reward: 3688, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Ruína do Colapso · N104", element: "Eletro", bossKind: "fenix", hpMul: 213, dot: null, reward: 3712, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Abismo do Colapso · N105", element: "Chaos", bossKind: "tirano", hpMul: 216, dot: "burn", reward: 3736, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Vazio do Colapso · N106", element: "Unknown", bossKind: "leviata", hpMul: 219, dot: null, reward: 3760, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Presságio do Colapso · N107", element: "Holy", bossKind: "guardian", hpMul: 221, dot: "poison", reward: 3784, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Carrasco do Colapso · N108", element: "Virus", bossKind: "aizen", hpMul: 224, dot: null, reward: 3808, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Herege do Colapso · N109", element: "Fogo", bossKind: "sukuna", hpMul: 226, dot: "burn", reward: 3832, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Miasma do Colapso · N110", element: "Glacial", bossKind: "godkaiba", hpMul: 229, dot: null, reward: 3856, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Espectro do Colapso · N111", element: "Vento", bossKind: "devorador", hpMul: 232, dot: "poison", reward: 3880, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Nêmesis do Colapso · N112", element: "Eletro", bossKind: "espelho", hpMul: 234, dot: null, reward: 3904, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Umbra da Última Era · N113", element: "Chaos", bossKind: "temporal", hpMul: 237, dot: "burn", reward: 3928, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Eco da Última Era · N114", element: "Unknown", bossKind: "praga", hpMul: 239, dot: null, reward: 3952, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Fantasma da Última Era · N115", element: "Holy", bossKind: "juiz", hpMul: 242, dot: "poison", reward: 3976, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Ruína da Última Era · N116", element: "Virus", bossKind: "vazio", hpMul: 245, dot: null, reward: 4000, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Abismo da Última Era · N117", element: "Fogo", bossKind: "colosso", hpMul: 247, dot: "burn", reward: 4024, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Vazio da Última Era · N118", element: "Glacial", bossKind: "fenix", hpMul: 250, dot: null, reward: 4048, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Presságio da Última Era · N119", element: "Vento", bossKind: "tirano", hpMul: 252, dot: "poison", reward: 4072, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Carrasco da Última Era · N120", element: "Eletro", bossKind: "leviata", hpMul: 255, dot: null, reward: 4096, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Herege da Última Era · N121", element: "Chaos", bossKind: "guardian", hpMul: 258, dot: "burn", reward: 4120, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Miasma da Última Era · N122", element: "Unknown", bossKind: "aizen", hpMul: 260, dot: null, reward: 4144, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Espectro da Última Era · N123", element: "Holy", bossKind: "sukuna", hpMul: 263, dot: "poison", reward: 4168, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Nêmesis da Última Era · N124", element: "Virus", bossKind: "godkaiba", hpMul: 265, dot: null, reward: 4192, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Umbra do Silêncio · N125", element: "Fogo", bossKind: "devorador", hpMul: 268, dot: "burn", reward: 4216, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Eco do Silêncio · N126", element: "Glacial", bossKind: "espelho", hpMul: 271, dot: null, reward: 4240, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Fantasma do Silêncio · N127", element: "Vento", bossKind: "temporal", hpMul: 273, dot: "poison", reward: 4264, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Ruína do Silêncio · N128", element: "Eletro", bossKind: "praga", hpMul: 276, dot: null, reward: 4288, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Abismo do Silêncio · N129", element: "Chaos", bossKind: "juiz", hpMul: 278, dot: "burn", reward: 4312, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Vazio do Silêncio · N130", element: "Unknown", bossKind: "vazio", hpMul: 281, dot: null, reward: 4336, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Presságio do Silêncio · N131", element: "Holy", bossKind: "colosso", hpMul: 284, dot: "poison", reward: 4360, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Carrasco do Silêncio · N132", element: "Virus", bossKind: "fenix", hpMul: 286, dot: null, reward: 4384, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Herege do Silêncio · N133", element: "Fogo", bossKind: "tirano", hpMul: 289, dot: "burn", reward: 4408, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Miasma do Silêncio · N134", element: "Glacial", bossKind: "leviata", hpMul: 291, dot: null, reward: 4432, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Espectro do Silêncio · N135", element: "Vento", bossKind: "guardian", hpMul: 294, dot: "poison", reward: 4456, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Nêmesis do Silêncio · N136", element: "Eletro", bossKind: "aizen", hpMul: 297, dot: null, reward: 4480, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Umbra do Fim · N137", element: "Chaos", bossKind: "sukuna", hpMul: 299, dot: "burn", reward: 4504, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Eco do Fim · N138", element: "Unknown", bossKind: "godkaiba", hpMul: 302, dot: null, reward: 4528, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Fantasma do Fim · N139", element: "Holy", bossKind: "devorador", hpMul: 304, dot: "poison", reward: 4552, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Ruína do Fim · N140", element: "Virus", bossKind: "espelho", hpMul: 307, dot: null, reward: 4576, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Abismo do Fim · N141", element: "Fogo", bossKind: "temporal", hpMul: 310, dot: "burn", reward: 4600, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Vazio do Fim · N142", element: "Glacial", bossKind: "praga", hpMul: 312, dot: null, reward: 4624, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Presságio do Fim · N143", element: "Vento", bossKind: "juiz", hpMul: 315, dot: "poison", reward: 4648, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Carrasco do Fim · N144", element: "Eletro", bossKind: "vazio", hpMul: 317, dot: null, reward: 4672, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Herege do Fim · N145", element: "Chaos", bossKind: "colosso", hpMul: 320, dot: "burn", reward: 4696, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Miasma do Fim · N146", element: "Unknown", bossKind: "fenix", hpMul: 323, dot: null, reward: 4720, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Espectro do Fim · N147", element: "Holy", bossKind: "tirano", hpMul: 325, dot: "poison", reward: 4744, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Nêmesis do Fim · N148", element: "Virus", bossKind: "leviata", hpMul: 328, dot: null, reward: 4768, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Umbra Sem Nome · N149", element: "Fogo", bossKind: "guardian", hpMul: 330, dot: "burn", reward: 4792, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Eco Sem Nome · N150", element: "Glacial", bossKind: "aizen", hpMul: 333, dot: null, reward: 4816, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Fantasma Sem Nome · N151", element: "Vento", bossKind: "sukuna", hpMul: 336, dot: "poison", reward: 4840, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Ruína Sem Nome · N152", element: "Eletro", bossKind: "godkaiba", hpMul: 338, dot: null, reward: 4864, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Abismo Sem Nome · N153", element: "Chaos", bossKind: "devorador", hpMul: 341, dot: "burn", reward: 4888, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Vazio Sem Nome · N154", element: "Unknown", bossKind: "espelho", hpMul: 343, dot: null, reward: 4912, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Presságio Sem Nome · N155", element: "Holy", bossKind: "temporal", hpMul: 346, dot: "poison", reward: 4936, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Carrasco Sem Nome · N156", element: "Virus", bossKind: "praga", hpMul: 349, dot: null, reward: 4960, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Herege Sem Nome · N157", element: "Fogo", bossKind: "juiz", hpMul: 351, dot: "burn", reward: 4984, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Miasma Sem Nome · N158", element: "Glacial", bossKind: "vazio", hpMul: 354, dot: null, reward: 5008, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Espectro Sem Nome · N159", element: "Vento", bossKind: "colosso", hpMul: 356, dot: "poison", reward: 5032, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Nêmesis Sem Nome · N160", element: "Eletro", bossKind: "fenix", hpMul: 359, dot: null, reward: 5056, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Umbra da Noite Eterna · N161", element: "Chaos", bossKind: "tirano", hpMul: 362, dot: "burn", reward: 5080, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Eco da Noite Eterna · N162", element: "Unknown", bossKind: "leviata", hpMul: 364, dot: null, reward: 5104, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Fantasma da Noite Eterna · N163", element: "Holy", bossKind: "guardian", hpMul: 367, dot: "poison", reward: 5128, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Ruína da Noite Eterna · N164", element: "Virus", bossKind: "aizen", hpMul: 369, dot: null, reward: 5152, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Abismo da Noite Eterna · N165", element: "Fogo", bossKind: "sukuna", hpMul: 372, dot: "burn", reward: 5176, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Vazio da Noite Eterna · N166", element: "Glacial", bossKind: "godkaiba", hpMul: 375, dot: null, reward: 5200, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Presságio da Noite Eterna · N167", element: "Vento", bossKind: "devorador", hpMul: 377, dot: "poison", reward: 5224, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Carrasco da Noite Eterna · N168", element: "Eletro", bossKind: "espelho", hpMul: 380, dot: null, reward: 5248, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Herege da Noite Eterna · N169", element: "Chaos", bossKind: "temporal", hpMul: 382, dot: "burn", reward: 5272, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Miasma da Noite Eterna · N170", element: "Unknown", bossKind: "praga", hpMul: 385, dot: null, reward: 5296, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Espectro da Noite Eterna · N171", element: "Holy", bossKind: "juiz", hpMul: 388, dot: "poison", reward: 5320, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Nêmesis da Noite Eterna · N172", element: "Virus", bossKind: "vazio", hpMul: 390, dot: null, reward: 5344, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Umbra do Trono Caído · N173", element: "Fogo", bossKind: "colosso", hpMul: 393, dot: "burn", reward: 5368, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Eco do Trono Caído · N174", element: "Glacial", bossKind: "fenix", hpMul: 395, dot: null, reward: 5392, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Fantasma do Trono Caído · N175", element: "Vento", bossKind: "tirano", hpMul: 398, dot: "poison", reward: 5416, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Ruína do Trono Caído · N176", element: "Eletro", bossKind: "leviata", hpMul: 401, dot: null, reward: 5440, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Abismo do Trono Caído · N177", element: "Chaos", bossKind: "guardian", hpMul: 403, dot: "burn", reward: 5464, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Vazio do Trono Caído · N178", element: "Unknown", bossKind: "aizen", hpMul: 406, dot: null, reward: 5488, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Presságio do Trono Caído · N179", element: "Holy", bossKind: "sukuna", hpMul: 408, dot: "poison", reward: 5512, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Carrasco do Trono Caído · N180", element: "Virus", bossKind: "godkaiba", hpMul: 411, dot: null, reward: 5536, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Herege do Trono Caído · N181", element: "Fogo", bossKind: "devorador", hpMul: 414, dot: "burn", reward: 5560, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Miasma do Trono Caído · N182", element: "Glacial", bossKind: "espelho", hpMul: 416, dot: null, reward: 5584, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Espectro do Trono Caído · N183", element: "Vento", bossKind: "temporal", hpMul: 419, dot: "poison", reward: 5608, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Nêmesis do Trono Caído · N184", element: "Eletro", bossKind: "praga", hpMul: 421, dot: null, reward: 5632, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Umbra das Profundezas · N185", element: "Chaos", bossKind: "juiz", hpMul: 424, dot: "burn", reward: 5656, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Eco das Profundezas · N186", element: "Unknown", bossKind: "vazio", hpMul: 427, dot: null, reward: 5680, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Fantasma das Profundezas · N187", element: "Holy", bossKind: "colosso", hpMul: 429, dot: "poison", reward: 5704, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Ruína das Profundezas · N188", element: "Virus", bossKind: "fenix", hpMul: 432, dot: null, reward: 5728, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Abismo das Profundezas · N189", element: "Fogo", bossKind: "tirano", hpMul: 434, dot: "burn", reward: 5752, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Vazio das Profundezas · N190", element: "Glacial", bossKind: "leviata", hpMul: 437, dot: null, reward: 5776, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Presságio das Profundezas · N191", element: "Vento", bossKind: "guardian", hpMul: 440, dot: "poison", reward: 5800, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Carrasco das Profundezas · N192", element: "Eletro", bossKind: "aizen", hpMul: 442, dot: null, reward: 5824, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Herege das Profundezas · N193", element: "Chaos", bossKind: "sukuna", hpMul: 445, dot: "burn", reward: 5848, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Miasma das Profundezas · N194", element: "Unknown", bossKind: "godkaiba", hpMul: 447, dot: null, reward: 5872, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Espectro das Profundezas · N195", element: "Holy", bossKind: "devorador", hpMul: 450, dot: "poison", reward: 5896, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Nêmesis das Profundezas · N196", element: "Virus", bossKind: "espelho", hpMul: 453, dot: null, reward: 5920, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Umbra do Colapso · N197", element: "Fogo", bossKind: "temporal", hpMul: 455, dot: "burn", reward: 5944, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Eco do Colapso · N198", element: "Glacial", bossKind: "praga", hpMul: 458, dot: null, reward: 5968, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Fantasma do Colapso · N199", element: "Vento", bossKind: "juiz", hpMul: 460, dot: "poison", reward: 5992, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Ruína do Colapso · N200", element: "Eletro", bossKind: "vazio", hpMul: 463, dot: null, reward: 6016, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Abismo do Colapso · N201", element: "Chaos", bossKind: "colosso", hpMul: 466, dot: "burn", reward: 6040, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Vazio do Colapso · N202", element: "Unknown", bossKind: "fenix", hpMul: 468, dot: null, reward: 6064, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Presságio do Colapso · N203", element: "Holy", bossKind: "tirano", hpMul: 471, dot: "poison", reward: 6088, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Carrasco do Colapso · N204", element: "Virus", bossKind: "leviata", hpMul: 473, dot: null, reward: 6112, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Herege do Colapso · N205", element: "Fogo", bossKind: "guardian", hpMul: 476, dot: "burn", reward: 6136, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Miasma do Colapso · N206", element: "Glacial", bossKind: "aizen", hpMul: 479, dot: null, reward: 6160, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Espectro do Colapso · N207", element: "Vento", bossKind: "sukuna", hpMul: 481, dot: "poison", reward: 6184, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Nêmesis do Colapso · N208", element: "Eletro", bossKind: "godkaiba", hpMul: 484, dot: null, reward: 6208, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Umbra da Última Era · N209", element: "Chaos", bossKind: "devorador", hpMul: 486, dot: "burn", reward: 6232, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Eco da Última Era · N210", element: "Unknown", bossKind: "espelho", hpMul: 489, dot: null, reward: 6256, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Fantasma da Última Era · N211", element: "Holy", bossKind: "temporal", hpMul: 492, dot: "poison", reward: 6280, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Ruína da Última Era · N212", element: "Virus", bossKind: "praga", hpMul: 494, dot: null, reward: 6304, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Abismo da Última Era · N213", element: "Fogo", bossKind: "juiz", hpMul: 497, dot: "burn", reward: 6328, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Vazio da Última Era · N214", element: "Glacial", bossKind: "vazio", hpMul: 499, dot: null, reward: 6352, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Presságio da Última Era · N215", element: "Vento", bossKind: "colosso", hpMul: 502, dot: "poison", reward: 6376, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Carrasco da Última Era · N216", element: "Eletro", bossKind: "fenix", hpMul: 505, dot: null, reward: 6400, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Herege da Última Era · N217", element: "Chaos", bossKind: "tirano", hpMul: 507, dot: "burn", reward: 6424, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Miasma da Última Era · N218", element: "Unknown", bossKind: "leviata", hpMul: 510, dot: null, reward: 6448, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Espectro da Última Era · N219", element: "Holy", bossKind: "guardian", hpMul: 512, dot: "poison", reward: 6472, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Nêmesis da Última Era · N220", element: "Virus", bossKind: "aizen", hpMul: 515, dot: null, reward: 6496, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Umbra do Silêncio · N221", element: "Fogo", bossKind: "sukuna", hpMul: 518, dot: "burn", reward: 6520, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Eco do Silêncio · N222", element: "Glacial", bossKind: "godkaiba", hpMul: 520, dot: null, reward: 6544, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Fantasma do Silêncio · N223", element: "Vento", bossKind: "devorador", hpMul: 523, dot: "poison", reward: 6568, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Ruína do Silêncio · N224", element: "Eletro", bossKind: "espelho", hpMul: 525, dot: null, reward: 6592, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Abismo do Silêncio · N225", element: "Chaos", bossKind: "temporal", hpMul: 528, dot: "burn", reward: 6616, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Vazio do Silêncio · N226", element: "Unknown", bossKind: "praga", hpMul: 531, dot: null, reward: 6640, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Presságio do Silêncio · N227", element: "Holy", bossKind: "juiz", hpMul: 533, dot: "poison", reward: 6664, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Carrasco do Silêncio · N228", element: "Virus", bossKind: "vazio", hpMul: 536, dot: null, reward: 6688, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Herege do Silêncio · N229", element: "Fogo", bossKind: "colosso", hpMul: 538, dot: "burn", reward: 6712, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Miasma do Silêncio · N230", element: "Glacial", bossKind: "fenix", hpMul: 541, dot: null, reward: 6736, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Espectro do Silêncio · N231", element: "Vento", bossKind: "tirano", hpMul: 544, dot: "poison", reward: 6760, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Nêmesis do Silêncio · N232", element: "Eletro", bossKind: "leviata", hpMul: 546, dot: null, reward: 6784, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Umbra do Fim · N233", element: "Chaos", bossKind: "guardian", hpMul: 549, dot: "burn", reward: 6808, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Eco do Fim · N234", element: "Unknown", bossKind: "aizen", hpMul: 551, dot: null, reward: 6832, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Fantasma do Fim · N235", element: "Holy", bossKind: "sukuna", hpMul: 554, dot: "poison", reward: 6856, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Ruína do Fim · N236", element: "Virus", bossKind: "godkaiba", hpMul: 557, dot: null, reward: 6880, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Abismo do Fim · N237", element: "Fogo", bossKind: "devorador", hpMul: 559, dot: "burn", reward: 6904, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Vazio do Fim · N238", element: "Glacial", bossKind: "espelho", hpMul: 562, dot: null, reward: 6928, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Presságio do Fim · N239", element: "Vento", bossKind: "temporal", hpMul: 564, dot: "poison", reward: 6952, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Carrasco do Fim · N240", element: "Eletro", bossKind: "praga", hpMul: 567, dot: null, reward: 6976, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Herege do Fim · N241", element: "Chaos", bossKind: "juiz", hpMul: 570, dot: "burn", reward: 7000, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Miasma do Fim · N242", element: "Unknown", bossKind: "vazio", hpMul: 572, dot: null, reward: 7024, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Espectro do Fim · N243", element: "Holy", bossKind: "colosso", hpMul: 575, dot: "poison", reward: 7048, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Nêmesis do Fim · N244", element: "Virus", bossKind: "fenix", hpMul: 577, dot: null, reward: 7072, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Umbra Sem Nome · N245", element: "Fogo", bossKind: "tirano", hpMul: 580, dot: "burn", reward: 7096, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Eco Sem Nome · N246", element: "Glacial", bossKind: "leviata", hpMul: 583, dot: null, reward: 7120, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Fantasma Sem Nome · N247", element: "Vento", bossKind: "guardian", hpMul: 585, dot: "poison", reward: 7144, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Ruína Sem Nome · N248", element: "Eletro", bossKind: "aizen", hpMul: 588, dot: null, reward: 7168, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Abismo Sem Nome · N249", element: "Chaos", bossKind: "sukuna", hpMul: 590, dot: "burn", reward: 7192, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Vazio Sem Nome · N250", element: "Unknown", bossKind: "godkaiba", hpMul: 593, dot: null, reward: 7216, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Presságio Sem Nome · N251", element: "Holy", bossKind: "devorador", hpMul: 596, dot: "poison", reward: 7240, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Carrasco Sem Nome · N252", element: "Virus", bossKind: "espelho", hpMul: 598, dot: null, reward: 7264, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Herege Sem Nome · N253", element: "Fogo", bossKind: "temporal", hpMul: 601, dot: "burn", reward: 7288, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Miasma Sem Nome · N254", element: "Glacial", bossKind: "praga", hpMul: 603, dot: null, reward: 7312, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Espectro Sem Nome · N255", element: "Vento", bossKind: "juiz", hpMul: 606, dot: "poison", reward: 7336, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Nêmesis Sem Nome · N256", element: "Eletro", bossKind: "vazio", hpMul: 609, dot: null, reward: 7360, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Umbra da Noite Eterna · N257", element: "Chaos", bossKind: "colosso", hpMul: 611, dot: "burn", reward: 7384, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Eco da Noite Eterna · N258", element: "Unknown", bossKind: "fenix", hpMul: 614, dot: null, reward: 7408, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Fantasma da Noite Eterna · N259", element: "Holy", bossKind: "tirano", hpMul: 616, dot: "poison", reward: 7432, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Ruína da Noite Eterna · N260", element: "Virus", bossKind: "leviata", hpMul: 619, dot: null, reward: 7456, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Abismo da Noite Eterna · N261", element: "Fogo", bossKind: "guardian", hpMul: 622, dot: "burn", reward: 7480, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Vazio da Noite Eterna · N262", element: "Glacial", bossKind: "aizen", hpMul: 624, dot: null, reward: 7504, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Presságio da Noite Eterna · N263", element: "Vento", bossKind: "sukuna", hpMul: 627, dot: "poison", reward: 7528, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Carrasco da Noite Eterna · N264", element: "Eletro", bossKind: "godkaiba", hpMul: 629, dot: null, reward: 7552, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Herege da Noite Eterna · N265", element: "Chaos", bossKind: "devorador", hpMul: 632, dot: "burn", reward: 7576, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Miasma da Noite Eterna · N266", element: "Unknown", bossKind: "espelho", hpMul: 635, dot: null, reward: 7600, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Espectro da Noite Eterna · N267", element: "Holy", bossKind: "temporal", hpMul: 637, dot: "poison", reward: 7624, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Nêmesis da Noite Eterna · N268", element: "Virus", bossKind: "praga", hpMul: 640, dot: null, reward: 7648, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Umbra do Trono Caído · N269", element: "Fogo", bossKind: "juiz", hpMul: 642, dot: "burn", reward: 7672, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Eco do Trono Caído · N270", element: "Glacial", bossKind: "vazio", hpMul: 645, dot: null, reward: 7696, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Fantasma do Trono Caído · N271", element: "Vento", bossKind: "colosso", hpMul: 648, dot: "poison", reward: 7720, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Ruína do Trono Caído · N272", element: "Eletro", bossKind: "fenix", hpMul: 650, dot: null, reward: 7744, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Abismo do Trono Caído · N273", element: "Chaos", bossKind: "tirano", hpMul: 653, dot: "burn", reward: 7768, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Vazio do Trono Caído · N274", element: "Unknown", bossKind: "leviata", hpMul: 655, dot: null, reward: 7792, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Presságio do Trono Caído · N275", element: "Holy", bossKind: "guardian", hpMul: 658, dot: "poison", reward: 7816, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Carrasco do Trono Caído · N276", element: "Virus", bossKind: "aizen", hpMul: 661, dot: null, reward: 7840, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Herege do Trono Caído · N277", element: "Fogo", bossKind: "sukuna", hpMul: 663, dot: "burn", reward: 7864, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Miasma do Trono Caído · N278", element: "Glacial", bossKind: "godkaiba", hpMul: 666, dot: null, reward: 7888, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Espectro do Trono Caído · N279", element: "Vento", bossKind: "devorador", hpMul: 668, dot: "poison", reward: 7912, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Nêmesis do Trono Caído · N280", element: "Eletro", bossKind: "espelho", hpMul: 671, dot: null, reward: 7936, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Umbra das Profundezas · N281", element: "Chaos", bossKind: "temporal", hpMul: 674, dot: "burn", reward: 7960, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Eco das Profundezas · N282", element: "Unknown", bossKind: "praga", hpMul: 676, dot: null, reward: 7984, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
+  { name: "Fantasma das Profundezas · N283", element: "Holy", bossKind: "juiz", hpMul: 679, dot: "poison", reward: 8008, res: ["Holy"], weak: ["Vento", "Unknown"] },
+  { name: "Ruína das Profundezas · N284", element: "Virus", bossKind: "vazio", hpMul: 681, dot: null, reward: 8032, res: ["Virus"], weak: ["Holy", "Fisico"] },
+  { name: "Abismo das Profundezas · N285", element: "Fogo", bossKind: "colosso", hpMul: 684, dot: "burn", reward: 8056, res: ["Fogo"], weak: ["Virus", "Glacial"] },
+  { name: "Vazio das Profundezas · N286", element: "Glacial", bossKind: "fenix", hpMul: 687, dot: null, reward: 8080, res: ["Glacial"], weak: ["Unknown", "Eletro"] },
+  { name: "Presságio das Profundezas · N287", element: "Vento", bossKind: "tirano", hpMul: 689, dot: "poison", reward: 8104, res: ["Vento"], weak: ["Fisico", "Eletro"] },
+  { name: "Carrasco das Profundezas · N288", element: "Eletro", bossKind: "leviata", hpMul: 692, dot: null, reward: 8128, res: ["Eletro"], weak: ["Fogo", "Holy"] },
+  { name: "Herege das Profundezas · N289", element: "Chaos", bossKind: "guardian", hpMul: 694, dot: "burn", reward: 8152, res: ["Chaos"], weak: ["Glacial", "Holy"] },
+  { name: "Miasma das Profundezas · N290", element: "Unknown", bossKind: "aizen", hpMul: 697, dot: null, reward: 8176, res: ["Unknown"], weak: ["Eletro", "Chaos"] },
 
 ];
 function expToLevel(level) { return 2 + Math.floor(level / 10); } // Lácrimas de XP por nível (curva suave)
@@ -1916,7 +1935,7 @@ function Game({ email, isAdmin, onLogout }) {
   const [playerName, setPlayerName] = useState("Pioneiro");
   const [images, setImages] = useState({});
   const [tierList, setTierList] = useState(TIER_LIST_DEFAULT);
-  const TOWER_SEASON = "s3_arquetipos"; // reset geral: Torre e Torre Sombria voltam ao zero // troque esta chave pra resetar a Torre pra todo mundo de novo
+  const TOWER_SEASON = "s4_reset_total"; // reset geral: Torre e Torre Sombria voltam ao zero // reset geral: Torre e Torre Sombria voltam ao zero // troque esta chave pra resetar a Torre pra todo mundo de novo
   const [navOpen, setNavOpen] = useState(false); // menu central de modos
   const [activeTitle, setActiveTitle] = useState(null); // título de chat exibido pros amigos
   // Sanitiza a Stamina: qualquer NaN/undefined vindo de save antigo ou custo inválido volta a ser número
@@ -3815,6 +3834,11 @@ function St({ k, v, pct, color }) {
 }
 function buffText(b) { const p = []; for (const k of ["atk", "def", "spd", "critRate", "critDmg", "dmgBonus"]) if (b[k]) p.push(`+${b[k]}${k === "spd" ? " VEL" : "% " + (STAT_LABEL[k] || k)}`); return `${p.join(", ")}${b.all ? " (time)" : ""} por ${b.turns}t`; }
 const SKILL_DESC = {
+  aizensosuke: {
+    basic: ["<b>Kyōka Suigetsu — Corte Silencioso</b>", "Causa <b>110% do ATQ</b> como Dano Chaos.", "Obtém <b>1 Selo de Ilusão</b>.", "Se o alvo estiver em <b>Ilusão Absoluta</b>, recupera <b>5 de Energia</b>."],
+    skill: ["<b>Kyōka Suigetsu — O Mundo Sob Meus Olhos</b>", "Consome <b>1 Ponto de Perícia</b>.", "Causa <b>240% do ATQ</b> como Dano Chaos ao alvo principal e <b>140% do ATQ</b> aos inimigos adjacentes.", "Aplica <b>Marca da Hipnose</b> por 3 turnos.", "Enquanto a marca existir: o alvo recebe <b>25% mais Dano Chaos</b>; a DEF do alvo é reduzida em <b>20%</b> contra ataques Chaos; personagens Chaos ganham <b>15% de Dano CRÍTICO</b> ao atacar esse alvo; e sempre que esse alvo sofrer dano de Chaos, recebe <b>1 Camada de Colapso Mental</b> (máximo de 10).", "Se um alvo atingir 10 Camadas, elas explodem imediatamente causando <b>320% do ATQ</b> de Aizen como Dano Chaos e renovando a Marca da Hipnose em 1 turno."],
+    ult: ["<b>Kyōka Suigetsu: Shatter of Perfect Hypnosis</b> — Energia: <b>180</b>", "\"Desde quando... você acreditou que não estava sob minha hipnose?\"", "Causa <b>450% do ATQ</b> como Dano Chaos a todos os inimigos e cria o domínio <b>Mundo da Hipnose</b> por 2 turnos.", "Enquanto ativo: inimigos recebem <b>+35% de Vulnerabilidade a Dano Chaos</b>; a Perfuração de todos os aliados aumenta em <b>30%</b>; a Penetração de Resistência Chaos aumenta em <b>25%</b>; o Dano CRÍTICO de personagens Chaos aumenta em <b>30%</b>; a Eficiência de Quebra aumenta em <b>20%</b>.", "Sempre que um aliado Chaos consumir Energia para usar sua Suprema, recupera <b>12 de Energia</b> após o ataque (1 vez por Suprema).", "Cada nova Camada de Colapso Mental durante o domínio dá <b>+6% de Vulnerabilidade</b> adicional (até 30%).", "Ao terminar, todas as Camadas explodem: cada uma causa <b>55% do ATQ</b> de Aizen, ignorando <b>15% da DEF</b>."],
+  },
   gilgamesh: {
     basic: ["<b>Espada do Primeiro Rei</b>", "Causa <b>120% do ATQ</b> como Dano Unknown.", "Recebe <b>1 Tesouro</b>.",
       "<b>Ataque Básico Aprimorado · Arsenal do Rei</b> — disponível apenas durante Reinado Dourado.", "Invoca oito armas. Cada arma causa <b>65% do ATQ</b>. A última arma explode causando <b>280% do ATQ</b>.", "Cada golpe possui chance de disparar um Ataque Extra."],
@@ -4904,7 +4928,7 @@ function DarkTowerScreen({ darkTowerCleared, darkTowerClaimed, start, team, flas
               <div style={{ fontSize: 26, width: 40, textAlign: "center" }}>{cleared ? "✅" : locked ? "🔒" : "🌑"}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ ...ORB, fontWeight: 800, fontSize: 14 }}>Nível {lvl} · {bd.name}</div>
-                <div style={{ fontSize: 11, color: el.color }}>{el.glyph} {bd.element} · resiste a tudo, fraco a <b style={{ color: (ELEMENTS[bd.weak[0]] || {}).color }}>{bd.weak[0]}</b>{bd.dot ? ` · aplica ${DOT_INFO[bd.dot]?.n || bd.dot}` : ""} · ignora escudo</div>
+                <div style={{ fontSize: 11, color: el.color }}>{el.glyph} {bd.element} · resiste a tudo, fraco a <b style={{ color: (ELEMENTS[(bd.weak || [])[0]] || {}).color }}>{(bd.weak || ["—"]).join(" / ")}</b> · HP ×{bd.hpMul || 1}</div>
               </div>
               <div style={{ fontWeight: 800, color: "#F6C95B", fontSize: 13 }}>+{bd.reward}💎</div>
             </button>
@@ -5464,7 +5488,7 @@ function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx, allowSelf) {
   }
 }
 function spCapOf(s) { const shk = s.heroes && s.heroes.find(h => h.id === "shorekeeper" && h.alive && h.stFlags?.shkC2); return shk ? 7 : 5; }
-function pushLog(s, m) { if (m) s.log = [...s.log.slice(-40), m]; }
+function pushLog(s, m) { if (!s || !m) return; if (!Array.isArray(s.log)) s.log = []; s.log = [...s.log.slice(-40), m]; } // robusto: nunca quebra com estado parcial
 function pushLogGlobalFx(fx, uid, txt) { fx.push({ uid, txt, crit: true, id: Math.random(), el: "Eletro" }); }
 // Yanagi — Teorema da Desordem: gatilho reativo sempre que ela causa dano a um alvo com DoT ativo
 function triggerDesordem(yanagi, target, fx, opts) {
@@ -5555,7 +5579,7 @@ function sinfoniaProc(u, allies, fx) {
 }
 // Corrige crash "aliveEnemies is not defined": essa função só existia dentro do redutor de batalha (escopo local),
 // então qualquer função de kit definida fora dele (Lupa, Hitori, etc.) quebrava ao chamá-la. Agora é global.
-function aliveEnemies(s) { return s.enemies.filter((e) => e.alive); }
+function aliveEnemies(s) { return (s && Array.isArray(s.enemies) ? s.enemies : []).filter((e) => e && e.alive); }
 // ══════════════════════════════════════════════════════════════════════════
 // REWORK DO CÁLCULO DE DANO — Curva de Normalização
 // Problema antigo: kits com muitos multiplicadores em cadeia (1.6 × 1.4 × 1.35 …) explodiam
@@ -5720,6 +5744,43 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   }
   dmg *= 1 + effStat(attacker, "dmgBonus") / 100;
   if (attacker.id === "lupa" && f.lupaC5) dmg *= 1.55; // C5 · Garra de Almas // C5 · Garra de Almas: +75% de Dano de Fogo incondicional
+  // ══ Aizen — Selos, Camadas de Colapso e efeitos de aliado Chaos ══
+  if (attacker.side === "H" && attacker.element === "Chaos" && dmg > 0 && !opts?.isDot && defender.alive) {
+    const az = (attacker._sibs || []).find(h => h.id === "aizensosuke" && h.alive);
+    if (az) {
+      const af = az.stFlags || {};
+      // Aliado Chaos causa dano: +1 Selo (máx 2/turno)
+      const _azS = { heroes: attacker._sibs || [], enemies: defender._sibs || [defender], log: [], fx, _azDomain: 0 }; // shim seguro
+      if (attacker.uid !== az.uid && (az._azSeloTurn || 0) < 2) { az._azSeloTurn = (az._azSeloTurn || 0) + 1; azGainSelo(az, 1, _azS, fx); }
+      // Durante Hipnose Perfeita: cada dano Chaos registra 1 Camada
+      if ((az._azHipnose || 0) > 0) azAddCollapse(az, defender, 1, _azS, fx);
+      // Marca da Hipnose: alvo marcado ganha camada ao sofrer dano Chaos
+      else if ((defender.debuffs || []).some(d => d.name === "Marca da Hipnose")) azAddCollapse(az, defender, 1, _azS, fx);
+      // A4: -2% RES Chaos por acerto em alvo marcado (até 5)
+      if (af.azA4 && (defender.debuffs || []).some(d => d.name === "Marca da Hipnose")) {
+        defender._azA4 = Math.min(5, (defender._azA4 || 0) + 1);
+        const ex = defender.debuffs.find(d => d.name === "Além da Compreensão");
+        if (ex) ex.value = -2 * defender._azA4; else defender.debuffs.push({ stat: "elemRes", value: -2, turns: 9999, name: "Além da Compreensão" });
+        if (defender._azA4 >= 5 && !defender._azA4Done) { defender._azA4Done = true; defender.debuffs.push({ stat: "vuln", value: 20, turns: 2, name: "Colapso Espiritual" }); }
+      }
+      // Cone Kyōka Suigetsu: aliado Chaos atacando alvo com debuff do Aizen recupera 4 de energia
+      if (az.weapon?.buff?.azWeapon && (az._azIlusao || 0) > 0 && (az._azIluTurn || 0) < 4 && (defender.debuffs || []).some(d => ["Marca da Hipnose", "Ilusão Absoluta"].includes(d.name))) {
+        az._azIluTurn = (az._azIluTurn || 0) + 1; attacker.energy = Math.min(attacker.energyMax, attacker.energy + 4);
+      }
+    }
+  }
+  // Aizen: +30% contra alvos marcados (cone)
+  if (attacker.id === "aizensosuke" && attacker.weapon?.buff?.azWeapon && (defender.debuffs || []).some(d => ["Marca da Hipnose", "Ilusão Absoluta"].includes(d.name))) dmg = Math.round(dmg * 1.30);
+  // E1: alvo sob Hipnose Completa perdendo 25% da Vida Máx ganha 2 Camadas
+  if (defender.side !== "H" && dmg > 0) {
+    const az1 = (attacker._sibs || []).find(h => h.id === "aizensosuke" && h.alive && h.stFlags?.azE1);
+    if (az1 && defender._azMarked) {
+      defender._azHpAcc = (defender._azHpAcc || 0) + dmg;
+      const q = Math.round(defender.maxHp * 0.25);
+      const _azS1 = { heroes: attacker._sibs || [], enemies: defender._sibs || [defender], log: [], fx, _azDomain: 0 };
+      while (defender._azHpAcc >= q) { defender._azHpAcc -= q; azAddCollapse(az1, defender, 2, _azS1, fx); }
+    }
+  }
   // ── Gilgamesh — Tesouros / Reinado / Trono / Jardim / Ea / Rei Absoluto ──
   if (attacker.id === "gilgamesh" && !opts?.isDot) {
     const gf = attacker.stFlags || {};
@@ -6207,6 +6268,85 @@ function hitoriUltimate(s, u, fx) {
   }
   return `🎤🔥 ${u.name} solta o "KESSOKU BAND"! +${crGain}% CRIT, +${cdGain}% CRIT DMG pra equipe (${dur}t), +${elemGain}% Dano Elemental pros 2 primeiros slots, +${enGain}⚡ de energia pra todos.${overclock ? " OVERCLOCK: os 2 primeiros slots agem AGORA e ignoram DEF/RES no próximo golpe!" : ""}`;
 }
+// ══ Aizen Sōsuke · Selos de Ilusão / Hipnose Perfeita / Colapso Mental ══
+function azCollapseCap(u) { return u.stFlags?.azE6 ? 9999 : 10; }
+function azAddCollapse(az, target, n, s, fx) {
+  if (!az || !target || !target.alive || n <= 0) return;
+  const cap = azCollapseCap(az);
+  const cur = target._azCol || 0;
+  target._azCol = Math.min(cap, cur + n);
+  // E2: cada camada dá +3% dano Chaos recebido (máx 30%) e -2% DEF (máx 20%)
+  if (az.stFlags?.azE2) {
+    target.debuffs = target.debuffs.filter(d => d.name !== "Colapso (E2)");
+    const st = Math.min(10, target._azCol);
+    target.debuffs.push({ stat: "vuln", value: st * 3, turns: 9999, name: "Colapso (E2)" }, { stat: "def", value: -st * 2, pct: true, turns: 9999, name: "Colapso (E2)" });
+  }
+  // Suprema ativa: cada nova camada dá +6% vulnerabilidade (até 30%)
+  if ((s._azDomain || 0) > 0) {
+    const ex = target.debuffs.find(d => d.name === "Hipnose: Vulnerabilidade");
+    if (ex) ex.value = Math.min(30, ex.value + 6);
+    else target.debuffs.push({ stat: "vuln", value: 6, turns: 9999, name: "Hipnose: Vulnerabilidade" });
+  }
+  if (target._azCol >= cap && cap !== 9999) azExplode(az, target, s, fx, "cap");
+}
+function azExplode(az, target, s, fx, reason) {
+  const n = target._azCol || 0; if (n <= 0 || !target.alive) return 0;
+  target._azCol = 0;
+  const f = az.stFlags || {};
+  let per = reason === "ult" ? 0.55 : reason === "cap" ? 3.20 / Math.max(1, n) : 0.40;
+  let mul = 1;
+  if (f.azE4 && (s._azDesor || 0) > 0) mul *= 2.2;           // E4: +120% no dano dos Colapsos
+  if (f.azE6) mul *= 1 + 0.12 * n;                            // E6: +12% por camada, cumulativo
+  if (f.azA4 && (target._azA4 || 0) >= 5) mul *= 1.30;        // A4: +30% em Colapso Espiritual
+  const defPen = f.azE6 ? 50 : (f.azE2 && reason === "cap") ? 25 : (reason === "ult" ? 15 : 0);
+  const raw = effStat(az, "atk") * per * n * mul;
+  const dmg = balanceDamage(raw * (1 - Math.max(0, (effStat(target, "def") * (1 - defPen / 100)) / 12000)), az, { bigNuke: n >= 8 });
+  target.hp -= dmg; if (target.hp <= 0) { target.hp = 0; target.alive = false; }
+  fx.push({ uid: target.uid, txt: "🌙 " + dmg, crit: true, id: Math.random(), el: "Chaos" });
+  // E1: Fratura Espiritual
+  if (f.azE1 && target.alive) { target.debuffs = target.debuffs.filter(d => d.name !== "Fratura Espiritual"); target.debuffs.push({ stat: "elemRes", value: -15, turns: 2, name: "Fratura Espiritual" }); }
+  // E5: Colapso Espiritual Permanente
+  if (f.azE5 && target.alive) {
+    target.debuffs = target.debuffs.filter(d => !["Colapso Espiritual Perm."].includes(d.name));
+    target.debuffs.push({ stat: "vuln", value: 35, turns: 3, name: "Colapso Espiritual Perm." }, { stat: "def", value: -25, pct: true, turns: 3, name: "Colapso Espiritual Perm." }, { stat: "elemRes", value: -20, turns: 3, name: "Colapso Espiritual Perm." });
+    az.energy = Math.min(az.energyMax, az.energy + 30);
+  }
+  // E2 Colapso Total: aliados Chaos recuperam 8 de energia e Aizen ganha meio medidor
+  if (f.azE2 && reason === "cap") {
+    s.heroes.filter(h => h.alive && h.element === "Chaos" && h.energyMax).forEach(h => { h.energy = Math.min(h.energyMax, h.energy + 8); });
+    az._azSelos = Math.min(6, (az._azSelos || 0) + 3);
+  }
+  // E6: transfere camadas ao matar
+  if (f.azE6 && !target.alive) {
+    const alvo = aliveEnemies(s).sort((a, b) => b.hp - a.hp)[0];
+    if (alvo) { alvo._azCol = (alvo._azCol || 0) + n; fx.push({ uid: alvo.uid, txt: "🌙 CAMADAS TRANSFERIDAS", crit: true, id: Math.random(), el: "Chaos" }); }
+  }
+  pushLog(s, `🌙 COLAPSO MENTAL — ${n} camadas explodem em ${target.name}: ${dmg} de Dano Chaos!`);
+  return dmg;
+}
+function azGainSelo(az, n, s, fx) {
+  if (!az || !az.alive || n <= 0) return;
+  if ((az._azHipnose || 0) > 0) return;
+  az._azSelos = Math.min(6, (az._azSelos || 0) + n);
+  if (az._azSelos >= 6) { az._azSelos = 0; azActivateHipnose(az, s, fx); }
+}
+function azActivateHipnose(az, s, fx) {
+  const f = az.stFlags || {};
+  const e6 = !!f.azE6;
+  az._azHipnose = e6 ? 3 : 2;
+  aliveEnemies(s).forEach((e) => {
+    e.debuffs = e.debuffs.filter(d => d.name !== "Ilusão Absoluta");
+    e.debuffs.push({ stat: "vuln", value: e6 ? 50 : 30, turns: az._azHipnose, name: "Ilusão Absoluta" });
+    e.debuffs.push({ stat: "def", value: -18, pct: true, turns: az._azHipnose, name: "Ilusão Absoluta" });
+  });
+  s.heroes.filter(h => h.alive && h.element === "Chaos").forEach((h) => {
+    h.buffs = h.buffs.filter(b => b.name !== "Hipnose Perfeita");
+    h.buffs.push({ stat: "defPen", value: e6 ? 40 : 25, turns: az._azHipnose, name: "Hipnose Perfeita" });
+    if (e6) h.buffs.push({ stat: "critDmg", value: 45, turns: 3, name: "Hipnose Perfeita" }, { stat: "breakEffect", value: 40, turns: 3, name: "Hipnose Perfeita" });
+  });
+  if (f.azE4) s._azDesor = az._azHipnose; // E4: Desorientação Absoluta
+  pushLog(s, e6 ? `🌙👁️ ${az.name} — DOMÍNIO DA REALIDADE ABSOLUTA por 3 turnos!` : `🌙 ${az.name} — HIPNOSE PERFEITA por 2 turnos: inimigos em Ilusão Absoluta!`);
+}
 // ── Gilgamesh · Portão da Babilônia / Tesouros Reais / Trono do Rei ──
 function gilCap(u) { return u.stFlags?.gilE6 && (u._gilAbs || 0) > 0 ? 9999 : ((u._gilReinado || 0) > 0 ? 30 : 16); }
 function gilGainTesouro(u, n, s) {
@@ -6557,6 +6697,12 @@ function applyMutPostAction(s, actor) {
   });
 }
 function tickDots(u, fx, allies) {
+  // Trava: cada unidade só processa DoT UMA vez por turno. Chamadas repetidas no mesmo
+  // turno (vários caminhos do redutor chamam tickDots) faziam o DoT inteiro sair de uma vez.
+  const _stamp = (u._dotStamp || 0) + 1;
+  if (u._dotTickedAt === u._turnSeq) return;
+  u._turnSeq = u._turnSeq || 0;
+  u._dotTickedAt = u._turnSeq;
   // Cooldown de reaplicação de DoT (2 turnos inteiros após o encerramento) — decrementa mesmo sem dots ativos
   if (u._dotCd) { for (const k in u._dotCd) { if (u._dotCd[k] > 0) u._dotCd[k] -= 1; } }
   if (!u.dots || !u.dots.length) return;
@@ -6739,6 +6885,19 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         const FOLLOWUP_IDS = ["yoruichi", "soifon", "nami"]; // personagens com mecânica de Ataque Extra no jogo
         heroes.forEach((h) => { if (!h.isSummon && h.alive && FOLLOWUP_IDS.includes(h.id)) h.buffs.push({ stat: "followupDmg", value: 250, turns: 9999, name: "Ressonância de Palco (Hitori)" }); });
       } }
+    { const az0 = heroes.find((h) => h.id === "aizensosuke");
+      if (az0) { az0._azSelos = 0; az0._azHipnose = 0;
+        if (az0.stFlags?.azA6) { // A6: escala com a quantidade de personagens Chaos
+          const nChaos = heroes.filter(h => !h.isSummon && h.element === "Chaos").length;
+          heroes.filter(h => !h.isSummon).forEach((h) => {
+            if (nChaos >= 3) { h.buffs.push({ stat: "critRate", value: 6, turns: 9999, name: "A6 · Acima dos Céus" }, { stat: "critDmg", value: 6, turns: 9999, name: "A6 · Acima dos Céus" }, { stat: "atk", value: Math.round((h.base.atk || 500) * 0.20), turns: 9999, name: "A6 · Acima dos Céus" }, { stat: "defPen", value: 15, turns: 9999, name: "A6 · Acima dos Céus" });
+              if (h.element === "Chaos") h.buffs.push({ stat: "elemDmg", value: 25, turns: 9999, name: "A6 · Acima dos Céus" }); }
+            else { h.buffs.push({ stat: "critRate", value: 3, turns: 9999, name: "A6 · Acima dos Céus" }, { stat: "critDmg", value: 3, turns: 9999, name: "A6 · Acima dos Céus" });
+              if (nChaos >= 2 && h.element === "Chaos") h.buffs.push({ stat: "elemDmg", value: 18, turns: 9999, name: "A6 · Acima dos Céus" }); }
+          });
+        }
+        if (az0.stFlags?.azA2) { heroes.filter(h => !h.isSummon && h.element === "Chaos").forEach(h => h.buffs.push({ stat: "energyRegen", value: 15, turns: 9999, name: "A2 · Meu Plano" }, { stat: "defPen", value: 10, turns: 9999, name: "A2 · Meu Plano" })); }
+      } }
     { const gg0 = heroes.find((h) => h.id === "gilgamesh"); if (gg0) { // Técnica · A Chave do Rei
         gg0._gilTes = 10; gg0.energy = Math.min(gg0.energyMax, gg0.energy + 70); gg0._gilPortao = 3;
         gg0.buffs.push({ stat: "dmgBonus", value: 80, turns: 3, name: "Portão da Babilônia" }, { stat: "critRate", value: 40, turns: 3, name: "Portão da Babilônia" }, { stat: "critDmg", value: 90, turns: 3, name: "Portão da Babilônia" }, { stat: "spd", value: 40, turns: 3, name: "Portão da Babilônia" }); } }
@@ -6886,7 +7045,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
   }
   
 
-  function aliveEnemies(s) { return s.enemies.filter((e) => e.alive); }
+  function aliveEnemies(s) { return (s && Array.isArray(s.enemies) ? s.enemies : []).filter((e) => e && e.alive); }
   function targetEnemy(s) { const al = aliveEnemies(s); return al[target] || al[0]; }
 
   function skillPreviewLines(hero, kind) {
@@ -7102,6 +7261,16 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           msg = u.name + " conjura Magia Comum em área — " + frTot + " de Dano Holy" + (frCrit ? " (CRÍTICO!)" : "") + (f.frGrimoire ? (" [" + (u._frPoints||0) + "/4 pts]") : "") + ".";
           miyDone = true;
         }
+        if (!miyDone && u.id === "aizensosuke") {
+          if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
+          if (enemy) {
+            const r = dealDamage(u, enemy, (sk.basicMul || 110) * (u.tBasic || 1) * ampB, fx, { el: "Chaos" });
+            azGainSelo(u, 1, s, fx);
+            if ((enemy.debuffs || []).some(d => d.name === "Ilusão Absoluta")) u.energy = Math.min(u.energyMax, u.energy + 5);
+            msg = `🌙 Corte Silencioso em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} de Dano Chaos. (Selos: ${u._azSelos || 0}/6)`;
+          }
+          miyDone = true;
+        }
         if (!miyDone && u.id === "gilgamesh") {
           if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
           if (enemy) {
@@ -7230,6 +7399,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         if (f.uraAdvance && u.id === "uraraka") { u.av = Math.max(0.1, u.av * 0.85); msg += " Uraraka avança na linha do tempo (Zero G)!"; }
         s.sp = Math.min(spCapOf(s), s.sp + 1); u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enBasic || 15));
       } else if (kind === "skill") {
+        // Corrige crash: 'allies' era usado por kits (Wonder of You, Gilgamesh) mas nunca declarado aqui.
+        const allies = s.heroes.filter((h) => h.alive && !h.isSummon);
         if (u.id === "uraraka" && sk.uraSkill) { s.choice = { uid: u.uid, kind: "uraraka" }; return s; }
         s.sp -= 1; u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enSkill || 22)); advanceServosSummon(s, u); shkGenButterfly(s, u.uid);
         // Crisol da Chama Primordial (4pç): uso da Perícia concede 1 acúmulo de Núcleo Incandescente
@@ -7293,6 +7464,24 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             tot += fd;
           });
           msg = u.name + " usa Marionetes de Sangue! Drena " + totalDrained + " HP" + (tensao ? " [Tensão x" + tensao + "]" : "") + " e causa " + tot + " de dano (" + Math.round(flatBase) + " Dano Fixo" + (inkMul > 1 ? " [Gotas de Tinta]" : "") + ")." + (f.ryoC2 ? " [Fio Guia] ao time!" : "");
+        }
+        else if (u.id === "aizensosuke" && sk.azSkill) {
+          const tgt = enemy && enemy.alive ? enemy : aliveEnemies(s)[0];
+          if (tgt) {
+            const sM = (u.tSkill || 1) * ampS;
+            const r = dealDamage(u, tgt, (sk.skillMul || 240) * sM, fx, { el: "Chaos", breakW: 2 });
+            let tot = r.dmg;
+            aliveEnemies(s).filter(e => e.uid !== tgt.uid).forEach(e => { tot += dealDamage(u, e, 140 * sM, fx, { el: "Chaos", breakW: 1 }).dmg; });
+            // Marca da Hipnose
+            if (tgt.alive) {
+              tgt.debuffs = tgt.debuffs.filter(d => d.name !== "Marca da Hipnose");
+              const vuln = 25 + (u.stFlags?.azE1 ? 18 : 0); // E1: Hipnose Completa
+              tgt.debuffs.push({ stat: "vuln", value: vuln, turns: 3, name: "Marca da Hipnose" }, { stat: "def", value: -20, pct: true, turns: 3, name: "Marca da Hipnose" });
+              tgt._azMarked = true;
+            }
+            azGainSelo(u, 2, s, fx);
+            msg = `🌙 O Mundo Sob Meus Olhos — ${tot} de Dano Chaos${r.crit ? " (CRÍTICO!)" : ""}! [Marca da Hipnose] por 3 turnos. (Selos: ${u._azSelos || 0}/6)`;
+          }
         }
         else if (u.id === "gilgamesh" && sk.gilSkill) {
           if (s.sp >= 1) s.sp -= 1; // custa 2 PH no total (1 já foi debitado pelo dispatcher)
@@ -7916,6 +8105,24 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           const allLow = drainable.every(a => a.hp / a.maxHp < 0.5);
           if (f.ryoC6 && allLow) { u.av = 0.01; }
           msg = "A TELA DA ARANHA! " + u.name + " sacrifica " + totalDrained + " HP do time — " + tot2 + " de dano total!" + (defPenBonus > 0 ? " (perfura " + defPenBonus.toFixed(0) + "% DEF!)" : "") + (f.ryoC6 && allLow ? " [C6] Ryoshu age NOVAMENTE!" : "");
+        } else if (u.id === "aizensosuke" && sk.azUlt) {
+          u.energy = enGain(5);
+          const f2 = u.stFlags || {};
+          const e3 = !!f2.azE3, boost = e3 ? 1.25 : 1;
+          let tot = 0;
+          aliveEnemies(s).forEach((e) => { tot += dealDamage(u, e, (sk.ultMul || 450) * (u.tUlt || 1) * ampU, fx, { el: "Chaos", breakW: 3, bigNuke: true }).dmg; });
+          s._azDomain = e3 ? 3 : 2; s._azDomainOwner = u.uid;
+          aliveEnemies(s).forEach((e) => { e.debuffs = e.debuffs.filter(d => d.name !== "Mundo da Hipnose"); e.debuffs.push({ stat: "vuln", value: Math.round(35 * boost), turns: s._azDomain, name: "Mundo da Hipnose" }); });
+          s.heroes.filter(h => h.alive && !h.isSummon).forEach((h) => {
+            h.buffs = h.buffs.filter(b => b.name !== "Mundo da Hipnose");
+            h.buffs.push({ stat: "defPen", value: Math.round(30 * boost), turns: s._azDomain, name: "Mundo da Hipnose" }, { stat: "breakEffect", value: Math.round(20 * boost), turns: s._azDomain, name: "Mundo da Hipnose" });
+            if (h.element === "Chaos") h.buffs.push({ stat: "critDmg", value: Math.round(30 * boost), turns: s._azDomain, name: "Mundo da Hipnose" });
+          });
+          if (e3) u.buffs.push({ stat: "energyRegen", value: 30, turns: s._azDomain, name: "Mundo da Hipnose" });
+          azGainSelo(u, 3, s, fx);
+          // Cone: prolonga o Domínio da Ilusão, +20 energia e +1 camada em todos
+          if (u.weapon?.buff?.azWeapon && (u._azIlusao || 0) > 0) { u._azIlusao += 1; u.energy = Math.min(u.energyMax, u.energy + 20); aliveEnemies(s).forEach(e => azAddCollapse(u, e, 1, s, fx)); }
+          msg = `🌙👁️ SHATTER OF PERFECT HYPNOSIS — ${tot} de Dano Chaos em área! Mundo da Hipnose por ${s._azDomain} turnos: +${Math.round(35 * boost)}% Vulnerabilidade, +${Math.round(30 * boost)}% Perfuração aos aliados.`;
         } else if (u.id === "gilgamesh" && sk.gilUlt && enemy) {
           const freeE6 = u.stFlags?.gilE6 && (u._gilAbs || 0) > 0 && !u._gilE6Used;
           u.energy = freeE6 ? u.energy : enGain(5);
@@ -8084,12 +8291,32 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         if (u.weapon?.ultEnergy) allies.forEach((a) => { if (a.energyMax) a.energy = Math.min(a.energyMax, a.energy + u.weapon.ultEnergy); });
         } // end soifon ult else
       }
-      u._actDmg = 0; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      u._actDmg = 0; u._turnSeq = (u._turnSeq || 0) + 1; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       if (u._avMul != null) { u.av = Math.max(0.01, u.av * u._avMul); u._avMul = null; }
       if (u.id === "miyabi" && (s.frostZone || 0) > 0) s.frostZone -= 1;
       if (u.id === "lupa" && (u._lupaOverclock || 0) > 0) { u._lupaOverclock -= 1; if (u._lupaOverclock <= 0) pushLog(s, `🔥 O Overclock de ${u.name} terminou.`); }
       if (u.id === "lupa" && (u._lupaSupernova || 0) > 0) u._lupaSupernova -= 1;
       if (u.id === "lupa" && (u._lupaLeapCd || 0) > 0) u._lupaLeapCd -= 1;
+      if (u.id === "aizensosuke") {
+        u._azSeloTurn = 0; u._azIluTurn = 0;
+        if ((u._azHipnose || 0) > 0) { u._azHipnose -= 1;
+          if (u._azHipnose <= 0) { // fim da Hipnose: todas as camadas explodem
+            s.enemies.filter(e => e.alive && (e._azCol || 0) > 0).forEach(e => azExplode(u, e, s, s.fx, "hipnose"));
+            s._azDesor = 0; pushLog(s, "🌙 A Hipnose Perfeita se desfaz — as Camadas de Colapso Mental explodem!");
+          } }
+        if ((s._azDomain || 0) > 0 && s._azDomainOwner === u.uid) { s._azDomain -= 1;
+          if (s._azDomain <= 0) { s.enemies.filter(e => e.alive && (e._azCol || 0) > 0).forEach(e => azExplode(u, e, s, s.fx, "ult")); pushLog(s, "🌙 O Mundo da Hipnose se encerra — Colapso Mental detonado!"); } }
+        if ((s._azDesor || 0) > 0) s._azDesor -= 1;
+        if ((u._azIlusao || 0) > 0) u._azIlusao -= 1;
+        // Cone: acúmulos de Hipnose ao aplicar debuffs
+        if (u.weapon?.buff?.azWeapon && (u._azIlusao || 0) <= 0) {
+          u._azHipStack = Math.min(6, (u._azHipStack || 0) + 1);
+          if (u._azHipStack >= 6) { u._azHipStack = 0; u._azIlusao = 2;
+            aliveEnemies(s).forEach(e => e.debuffs.push({ stat: "vuln", value: 20, turns: 2, name: "Domínio da Ilusão" }));
+            s.heroes.filter(h => h.alive && h.element === "Chaos").forEach(h => h.buffs.push({ stat: "elemDmg", value: 20, turns: 2, name: "Domínio da Ilusão" }, { stat: "critDmg", value: 15, turns: 2, name: "Domínio da Ilusão" }, { stat: "defPen", value: 15, turns: 2, name: "Domínio da Ilusão" }));
+            pushLog(s, "🌙 Kyōka Suigetsu — DOMÍNIO DA ILUSÃO ativado por 2 turnos!"); }
+        }
+      }
       if (u.id === "gilgamesh") {
         while ((u._gilAuthPend || 0) > 0) { u._gilAuthPend -= 1; gilAuth(u, s); }
         if ((u._gilKillTes || 0) > 0) { gilGainTesouro(u, u._gilKillTes, s); u._gilKillTes = 0; }
@@ -8334,7 +8561,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       }
       if (ff.kS4) { applyBuff(allies, { critDmg: 35, all: true, turns: 3 }, u.name, fx, u); msg += " Decreto Soberano: +35% Dano CRÍTICO para o time por 3 turnos!"; }
       refreshKaibaBuffs(s);
-      u._actDmg = 0; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      u._actDmg = 0; u._turnSeq = (u._turnSeq || 0) + 1; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
   }
@@ -8379,7 +8606,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         allies.forEach(a => { a.buffs.push({ stat: "dmgBonus", value: 15 + extraBonus, turns: 2, name: "HorizonteUlt" }); a.buffs.push({ stat: "critDmg", value: 12, turns: 2, name: "HorizonteCrit" }); });
         msg += (extraBonus > 0 ? " [Além do Horizonte] +15%+" + extraBonus + "% Dano Bônus e +12% CRIT DMG ao time!" : " [Além do Horizonte] +15% Dano Bônus e +12% CRIT DMG ao time!");
       }
-      u._actDmg = 0; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      u._actDmg = 0; u._turnSeq = (u._turnSeq || 0) + 1; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
   }
@@ -8467,7 +8694,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         ? ` ${houseTarget.name} é o(a) GUARDIÃO(Ã) e recebe tudo em DOBRO: +60% VEL, +60% DEF, +40% CRIT, +40% Dano, +50% CRIT DMG!`
         : ` ${houseTarget.name} é o(a) Guardião(ã) das Sete Casas!`;
       let msg = `🕊️✨ JULGAMENTO DO OLIMPO! ${u.name} invoca as Sete Casas — todo o time recebe +30% VEL, +30% DEF, +20% CRIT, +20% Dano e +25% CRIT DMG${f.athC6 ? " PERMANENTES (C6!)" : ` por ${houseTurns} turnos`}! ${u.name} entra no Modo Aprimorado por ${u._athEnhancedTurns} turnos.${_guardianLine}`;
-      u._actDmg = 0; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      u._actDmg = 0; u._turnSeq = (u._turnSeq || 0) + 1; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
   }
@@ -8488,7 +8715,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       let msg = `🎈 ${u.name} usa Zero Gravity em ${buffTarget.name} — +${atkPct}% ATK e +10 VEL por 2 turnos!`;
       if (f.uraC6 && buffTarget.energyMax) { buffTarget.energy = Math.min(buffTarget.energyMax, buffTarget.energy + 10); msg += ` [C6] +10 de Energia para ${buffTarget.name}!`; }
       if (f.uraC2) { const _uraSh = capShieldAdd(u, Math.round(u.maxHp * 0.10)); u.shield = (u.shield || 0) + _uraSh; msg += ` Escudo Orbital: +${_uraSh} de escudo.`; }
-      u._actDmg = 0; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      u._actDmg = 0; u._turnSeq = (u._turnSeq || 0) + 1; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
   }
@@ -8587,7 +8814,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         else if (role === "debuffer" && sk.skillDebuff && enemies[0]) { applyDebuff([enemies[0]], sk.skillDebuff, 0, u); if (sk.skillDot) applyDot([enemies[0]], sk.skillDot, u, fx); if (sk.skillMul) dealDamage(u, enemies[0], sk.skillMul, fx); msg = `${u.name} enfraquece o inimigo`; }
         else { const tgt = enemies.slice().sort((a, b) => b.hp - a.hp)[0]; if (tgt) { const full = u.energyMax && u.energy >= u.energyMax; if (full && sk.ultMul) { u.energy = 0; if (sk.ultAoe) enemies.forEach((e) => dealDamage(u, e, sk.ultMul, fx)); else dealDamage(u, tgt, sk.ultMul, fx); msg = `💥 ${u.name} usa Ultimate!`; } else { const m = sk.skillMul || sk.basicMul || 100; if (sk.aoe && sk.skillMul) enemies.forEach((e) => dealDamage(u, e, m, fx)); else dealDamage(u, tgt, m, fx); if (sk.skillDot) applyDot(sk.aoe ? enemies : [tgt], sk.skillDot, u, fx); u.energy = Math.min(u.energyMax, u.energy + 22); msg = `${u.name} ataca ${tgt.name}`; } } }
       }
-      u._actDmg = 0; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      u._actDmg = 0; u._turnSeq = (u._turnSeq || 0) + 1; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       s.hitFx = { el: u.element, big: !!(u.elements && u.elements.length > 1), support: !fx.some((x) => !x.heal && !x.dot), id: Math.random() };
       pushLog(s, msg); s = checkEnd(s); s.turn = null; return s;
     });
@@ -8972,7 +9199,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             pushLog(s, `☢️ [Vírus Defeat] x${omg.omgCharges} — +${15 * omg.omgCharges}% CRIT DMG em ${omg.name}; DEF do atacante reduzida.`);
           }
         } }
-      u._actDmg = 0; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      u._actDmg = 0; u._turnSeq = (u._turnSeq || 0) + 1; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       // ═══ Agumon: termodinâmica no fim do turno dele ═══
       if (u.id === "agumon" && u.alive) {
         // Reforço defensivo: garante que os buffs da forma atual nunca sumam por engano
