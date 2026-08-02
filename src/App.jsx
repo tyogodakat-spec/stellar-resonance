@@ -1441,7 +1441,8 @@ function darkTowerEncounter(level, power) {
   // e a cada 3 níveis vem SELADO (só toma dano de verdade depois que os Minions caem).
   const ARCH = ["perfuracao", "hypercarry", "dot", "summon", "mono"];
   const aw = ARCH[level % ARCH.length], ar = ARCH[(level + 2) % ARCH.length];
-  const gated = level % 3 === 0;
+  const gated = false; // Selo de Minions desativado na Torre Sombria: o encontro é de chefe ÚNICO,
+  // e pedir count:3 gerava lacaios sem dados válidos, quebrando a batalha (crash no N3, N6, N9...).
   const MONO_EL = ["Chaos", "Unknown", "Holy", "Virus", "Fogo", "Glacial", "Vento", "Eletro"];
   const monoEl = level % 4 === 0 ? MONO_EL[level % MONO_EL.length] : null; // fraco a mono daquele elemento
   return {
@@ -5085,6 +5086,7 @@ function refreshKaibaBuffs(s) {
   }
 }
 function makeEnemy(idx, enc) {
+  if (!enc) enc = {};
   const _dummy = !!enc.dummy;
   const _isBoss0 = enc.boss && idx === 0;
   const _archWeak = _isBoss0 ? (enc.archWeak || null) : null;
@@ -5574,7 +5576,9 @@ function crisolAddStack(u, fx) {
 function infernoExplosao(owner, enemies, fx) {
   if (!owner || !owner.stFlags?.setInferno6) return;
   const atkVal = Math.max(1, effStat(owner, "atk"));
-  const dmgBase = Math.round(atkVal * 1.80);
+  // Corrigido: a explosão ignorava a curva de balanceamento (dano cru), então saía irrisória
+  // perto do resto do jogo. Agora passa por balanceDamage e escala com build/cópias.
+  const dmgBase = balanceDamage(atkVal * 9.5, owner, {});
   (enemies || []).filter(e => e && e.alive).forEach(e => {
     e.hp = Math.max(0, (e.hp || 0) - dmgBase);
     if (e.hp <= 0) e.alive = false;
@@ -6933,7 +6937,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         as0._asRuinas = 8; as0.energy = Math.min(as0.energyMax, as0.energy + 40);
         as0._asAlter = 3;
         as0.buffs.push({ stat: "spd", value: 60, turns: 3, name: "Modo Alter" }, { stat: "dmgBonus", value: 70, turns: 3, name: "Modo Alter" }, { stat: "critRate", value: 35, turns: 3, name: "Modo Alter" }, { stat: "critDmg", value: 90, turns: 3, name: "Modo Alter" });
-        enemies.forEach((e) => e.debuffs.push({ stat: "vuln", value: 15, turns: 2, name: "Marca do Fim" })); } }
+        as0._asMarcaFim = true; } } // (a Marca do Fim é aplicada depois que os inimigos existem)
     { const lp0 = heroes.find((h) => h.id === "lupa"); if (lp0) { lp0._lupaVor = 0; lp0._lupaOverclock = 0;
         if (lp0.stFlags?.lupaT1 && lp0.energyMax) { lp0._lupaVor = 3; lp0.energy = Math.min(lp0.energyMax, lp0.energy + 20); } } } // Rastro 1 · Rastro da Caçada
     { const kb0 = heroes.find((h) => h.id === "kaiba"); if (kb0 && kb0.stFlags?.kaibaT1) { const starter = makeSummon(kb0, { uid: "S_" + kb0.uid + "_mon0", name: "Vorse Raider", avatar: "👹", imgKey: "card_vorse", kind: "monster", mul: 260, spd: effStat(kb0, "spd"), atkMul: 1.2, hpMul: 0.001, life: Infinity }); starter.cardBleed = 0.5; heroes.push(starter); } }
@@ -6967,6 +6971,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     // ══ Chefes protegidos por Minions: fraqueza só libera ao derrotar os lacaios ══
     { const bossG = enemies.find(e => e.boss && e.gateMinions);
       if (bossG) { bossG._gated = true; bossG._gateCount = enemies.filter(e => !e.boss).length; } }
+    { const as1 = heroes.find(h => h.id === "altersaber" && h._asMarcaFim);
+      if (as1) enemies.forEach((e) => e.debuffs.push({ stat: "vuln", value: 15, turns: 2, name: "Marca do Fim" })); } // Técnica · A Rainha do Crepúsculo
     { const lp1 = heroes.find(h => h.id === "lupa" && h.stFlags?.lupaC1); if (lp1) { enemies.forEach(e => applyDot([e], { type: "burn", mul: 60, turns: 3 }, lp1, [])); lp1.buffs.push({ stat: "energyRegen", value: 15, turns: 9999, name: "Rastreadora de Cinzas" }); } } // C1 · Rastreadora de Cinzas: 1 Ignição em todos ao entrar em combate + Regen Energia +15% permanente
     { const yn0 = heroes.find(h => h.id === "yanagi"); if (yn0 && yn0.stFlags?.yanaT1) { enemies.forEach(e => { e.debuffs.push({ stat: "mark", value: 0, turns: 3, name: "Fagulha de Anomalia" }); }); } }
     // ══ ABISMO DE DADOS: HP persistente (permadeath), mutador do andar e glitches da run ══
