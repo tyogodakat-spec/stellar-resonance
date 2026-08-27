@@ -8,9 +8,9 @@ import React, { useState, useEffect, useRef, useMemo, createContext, useContext 
 
 /* ---------- TEMA ---------- */
 const C = {
-  bg0: "#070613", bg1: "#100E26", panel: "#181433", panelHi: "#221C47",
-  line: "#322a63", lineHi: "#473c80", gold: "#F6C95B", goldDim: "#A9842F",
-  text: "#EDEBFF", mute: "#9089C4", dim: "#615a93", good: "#74E8A6", bad: "#FF6B82",
+  bg0: "#04070D", bg1: "#0B111D", panel: "#121A28", panelHi: "#1B2536",
+  line: "#28344A", lineHi: "#3A4A66", gold: "#F6C95B", goldDim: "#A9842F",
+  text: "#EAF1FB", mute: "#7C8CA8", dim: "#57647E", good: "#6FE0A8", bad: "#FF6B82",
 };
 const ELEMENTS = {
   Holy:    { color: "#FFE08A", glyph: "✟", soft: "#3a3216" },
@@ -466,7 +466,7 @@ function ToughnessBar({ cur, max, broken }) {
   return <div className="flex items-center" style={{ gap: 2, width: "100%" }}>
     {Array.from({ length: segs }).map((_, i) => (
       <div key={i} style={{ flex: 1, height: 6, borderRadius: 2,
-        background: broken ? "#7CFFB033" : (i < filled ? "linear-gradient(180deg,#FFE9A8,#F2C245)" : "#2a2438"),
+        background: broken ? "#7CFFB033" : (i < filled ? "linear-gradient(180deg,#FFE9A8,#F2C245)" : "#1A2233"),
         boxShadow: !broken && i < filled ? "0 0 5px #F2C24588" : "none",
         border: broken ? "1px solid #7CFFB055" : "none", transition: "all .25s" }} />
     ))}
@@ -528,9 +528,43 @@ function sanitizeRelicSlots(arr) { const out = (Array.isArray(arr) ? arr.slice(0
 const setBonusText = (sd) => { if (!sd) return ""; const p2 = sd.d2 || (sd.p2 ? Object.entries(sd.p2).map(([k, v]) => `+${v}${relicSuffix(k)} ${statName(k)}`).join(", ") : "—"); return `2pç: ${p2} · 4pç: ${sd.d4 || "—"}${sd.d6 ? ` · 6pç: ${sd.d6}` : ""}`; };
 
 /* ---------- STATS ---------- */
-const levelMul = (lv) => 0.45 + 0.55 * (Math.min(Math.max(lv || 1, 1), 90) - 1) / 89; // nv1≈0.45 → nv90=1.0 (escala HSR, sem bloat)
+// Curva de progressão estilo HSR: 5 patamares de ascensão (nv1-20 / 20-40 / 40-60 / 60-80 / 80-90).
+// Cada ascensão dá um SALTO de poder instantâneo (igual ao HSR real), não só crescimento contínuo.
+// TIER_START = valor logo após ascender pra esse patamar · TIER_END = valor no teto do patamar, antes de ascender.
+const LEVEL_TIER_START = [0.180, 0.400, 0.620, 0.800, 0.970];
+const LEVEL_TIER_END   = [0.360, 0.580, 0.760, 0.940, 1.000];
+const levelMul = (lv, asc) => {
+  const gates = [20, 40, 60, 80]; // espelha ASC_GATES (definido mais abaixo no arquivo)
+  const cap = (a) => (a >= gates.length ? 90 : gates[a]);
+  const a = Math.max(0, Math.min(asc == null ? gates.length : asc, 4));
+  const lo = a === 0 ? 1 : gates[a - 1];
+  const hi = cap(a);
+  const l = Math.min(Math.max(lv || 1, lo), hi);
+  const span = hi - lo || 1;
+  const t = (l - lo) / span;
+  const eased = 1 - Math.pow(1 - t, 1.5); // ease-out: cresce mais rápido logo após ascender, estabiliza perto do teto
+  return LEVEL_TIER_START[a] + (LEVEL_TIER_END[a] - LEVEL_TIER_START[a]) * eased;
+};
+// Compensação de dificuldade dos INIMIGOS: como a curva nova deixa personagens de nível baixo/médio
+// proporcionalmente mais fracos (nv1: 45%→18%), este fator "abaixa" o poder dos inimigos na mesma
+// proporção pra manter a dificuldade relativa igual à de antes. Converge pra 1.0 (sem mudança) a partir
+// do nível ~70 — ou seja, o endgame continua EXATAMENTE como estava.
+const _oldLevelMulRef = (lv) => 0.45 + 0.55 * (Math.min(Math.max(lv || 1, 1), 90) - 1) / 89;
+const _tierForLevel = (lv) => (lv <= 20 ? 0 : lv <= 40 ? 1 : lv <= 60 ? 2 : lv <= 80 ? 3 : 4);
+const enemyLevelComp = (lv) => Math.max(0.30, Math.min(1.0, levelMul(lv, _tierForLevel(lv)) / _oldLevelMulRef(lv)));
 const WEAPON_MAX_LEVEL = 80;
-const weaponLevelMul = (lv) => 0.15 + 0.85 * (Math.min(Math.max(lv || 1, 1), 80) - 1) / 79; // arma nv1≈0.15 → nv80=1.0 (cresce bastante)
+// Mesma filosofia HSR: crescimento suave dentro do tier + salto ao virar de tier (nv20/40/60).
+const WPN_TIER_START = [0.150, 0.420, 0.680, 0.880];
+const WPN_TIER_END   = [0.380, 0.640, 0.860, 1.000];
+const weaponLevelMul = (lv) => {
+  const l = Math.min(Math.max(lv || 1, 1), 80);
+  const tier = Math.min(3, Math.floor((l - 1) / 20));
+  const lo = tier * 20 + 1, hi = (tier + 1) * 20;
+  const span = hi - lo || 1;
+  const t = (l - lo) / span;
+  const eased = 1 - Math.pow(1 - t, 1.5);
+  return WPN_TIER_START[tier] + (WPN_TIER_END[tier] - WPN_TIER_START[tier]) * eased;
+};
 // Custo escalona a cada 20 niveis (HSR-style): Tier1=1 Tier2=2 Tier3=4 Tier4=6 engrenagens
 const WPN_TIER_COST = [1, 2, 4, 6];
 const weaponCost = (lv) => { const t = Math.min(3, Math.floor((lv - 1) / 20)); return { wmat: WPN_TIER_COST[t], exp: 0 }; };
@@ -1090,7 +1124,7 @@ function normChar(o) {
 function computeStats(owned) {
   const def = CHAR_MAP[owned.id];
   if (!def) return null;
-  const m = levelMul(owned.level || 1);
+  const m = levelMul(owned.level || 1, owned.asc || 0);
   // flats = somados DEPOIS da % (não recebem multiplicador). pct = % que incide SÓ na base (personagem + arma).
   const flat = { hp: 0, atk: 0, def: 0, spd: 0, critRate: 0, critDmg: 0, dmgBonus: 0, energyRegen: 0, healBonus: 0, defPen: 0, dotDmg: 0, breakEffect: 0, breakEff: 0 };
   const pct = { hp: 0, atk: 0, def: 0 };
@@ -1734,7 +1768,7 @@ const useImg = () => useContext(ImgCtx);
    UI BÁSICOS
    ========================================================================== */
 function Glow({ color, children, style }) { return <span style={{ color, textShadow: `0 0 14px ${color}55`, ...style }}>{children}</span>; }
-function Bar({ value, max, color, bg = "#0b0920", h = 8, glow, ticks }) {
+function Bar({ value, max, color, bg = "#0A0F1A", h = 8, glow, ticks }) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
   if (ticks) return <div style={{ position: "relative", background: bg, borderRadius: 99, height: h + 2, overflow: "hidden", width: "100%", boxShadow: "inset 0 1px 3px #00000080", border: "1px solid #ffffff12" }}>
     <div style={{ width: pct + "%", height: "100%", borderRadius: 99, transition: "width .4s cubic-bezier(.4,0,.2,1)", background: `linear-gradient(90deg, ${color}aa, ${color})`, boxShadow: `0 0 12px ${color}99, inset 0 1px 0 #ffffff55` }} />
@@ -1867,6 +1901,21 @@ function Chip({ active, color, onClick, children }) {
 function ElTag({ el }) { const e = ELEMENTS[el]; return <Glow color={e.color}>{e.glyph} {el}</Glow>; }
 function Empty({ msg }) { return <Panel style={{ textAlign: "center", padding: 32 }}><div style={{ fontSize: 36, marginBottom: 8 }}>🌌</div><div style={{ color: C.mute }}>{msg}</div></Panel>; }
 
+function ScrollTopButton() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 500);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  if (!show) return null;
+  return (
+    <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} title="Voltar ao topo"
+      style={{ position: "fixed", bottom: 78, right: 14, zIndex: 40, width: 40, height: 40, borderRadius: 99, background: C.panelHi, border: `1px solid ${C.line}`, color: C.gold, fontSize: 18, fontWeight: 800, boxShadow: "0 4px 14px #00000055", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      ↑
+    </button>
+  );
+}
 function FontInject() {
   useEffect(() => {
     const l = document.createElement("link");
@@ -1884,6 +1933,7 @@ const ORB = { fontFamily: "Orbitron, ui-sans-serif, system-ui, sans-serif" };
 function Game({ email, isAdmin, onLogout }) {
   const SAVE_KEY = useMemo(() => saveKeyFor(email), [email]);
   const [loaded, setLoaded] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState(0);
   const [screen, setScreen] = useState("home");
   const [toast, setToast] = useState(null);
   const [pullResults, setPullResults] = useState(null);
@@ -2078,6 +2128,7 @@ function Game({ email, isAdmin, onLogout }) {
   useEffect(() => {
     if (!loaded) return;
     writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredSpecial, featuredStandard, featuredWeapon, activeTitle, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed, mail8Claimed });
+    setLastSavedAt(Date.now());
   }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredSpecial, featuredStandard, featuredWeapon, activeTitle, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed, mail8Claimed]);
 
   const teamPower = () => Math.round(team.reduce((a, id) => { const s = ownedMap[id] && computeStats(ownedMap[id]); return a + (s ? s.atk : 0); }, 0)) || 2500;
@@ -2195,6 +2246,21 @@ function Game({ email, isAdmin, onLogout }) {
     if (!isAdmin) setExpItems((v) => v - needExp);
     setOwnedField(id, { level: Math.min(cap, o.level + 1) });
   }
+  function levelUpMax(id) {
+    const o = ownedMap[id]; if (!o) return;
+    const cap = levelCap(o.asc || 0);
+    if (o.level >= cap) { flash(o.level >= MAX_LEVEL ? "Nível máximo (90)" : `Ascenda primeiro para passar do nível ${cap}`, C.bad); return; }
+    let lv = o.level, exp = expItems, spent = 0, ups = 0;
+    while (lv < cap) {
+      const needExp = expToLevel(lv);
+      if (!isAdmin && exp < needExp) break;
+      exp -= needExp; spent += needExp; lv++; ups++;
+    }
+    if (ups === 0) { flash(`Faltam Lácrimas de XP (precisa ${expToLevel(o.level)})`, C.bad); return; }
+    if (!isAdmin) setExpItems((v) => v - spent);
+    setOwnedField(id, { level: lv });
+    flash(`⬆️ +${ups} nível(is) · agora nível ${lv}`, C.good);
+  }
   function ascendChar(id) {
     const o = ownedMap[id]; if (!o) return;
     const asc = o.asc || 0;
@@ -2218,6 +2284,20 @@ function Game({ email, isAdmin, onLogout }) {
     setOwnedWeapons((p) => p.map((w) => w.id === o.weapon ? { ...w, lv: nextLv } : w));
     flash(`Arma → Nível ${nextLv}`, C.good);
   }
+  function weaponLevelUpMax(id) {
+    const o = ownedMap[id]; if (!o || !o.weapon) { flash("Equipe uma arma primeiro", C.bad); return; }
+    let lv = o.weaponLv || 1, mats = weaponMats, spent = 0, ups = 0;
+    while (lv < WEAPON_MAX_LEVEL) {
+      const c = weaponCost(lv);
+      if (!isAdmin && mats < c.wmat) break;
+      mats -= c.wmat; spent += c.wmat; lv++; ups++;
+    }
+    if (ups === 0) { flash(`Faltam Engrenagens de Arma (precisa ${weaponCost(o.weaponLv || 1).wmat})`, C.bad); return; }
+    if (!isAdmin) setWeaponMats((v) => v - spent);
+    setOwnedField(id, { weaponLv: lv });
+    setOwnedWeapons((p) => p.map((w) => w.id === o.weapon ? { ...w, lv } : w));
+    flash(`⚔️ Arma +${ups} nível(is) · agora nível ${lv}`, C.good);
+  }
   function traceLevelUp(id, which) {
     const o = normChar(ownedMap[id] || { id }); const lvl = o.traces[which] || 1;
     if (lvl >= TRACE_MAX) { flash("Rastro no máximo", C.gold); return; }
@@ -2228,6 +2308,20 @@ function Game({ email, isAdmin, onLogout }) {
     if (!isAdmin) { setSkillMats((v) => v - needSkill); if (needBoss > 0) setBossMats((v) => v - needBoss); }
     setOwnedField(id, { traces: { ...o.traces, [which]: lvl + 1 } });
     flash(`${which === "basic" ? "Básico" : which === "skill" ? "Habilidade" : "Ultimate"} → Nv ${lvl + 1}`, C.good);
+  }
+  function traceLevelUpMax(id, which) {
+    const o = normChar(ownedMap[id] || { id });
+    let lvl = o.traces[which] || 1, sk = skillMats, bm = bossMats, ups = 0;
+    while (lvl < TRACE_MAX) {
+      const needSkill = 1 + Math.floor(lvl / 3);
+      const needBoss = lvl >= 5 ? 1 : 0;
+      if (!isAdmin && (sk < needSkill || bm < needBoss)) break;
+      sk -= needSkill; bm -= needBoss; lvl++; ups++;
+    }
+    if (ups === 0) { flash("Faltam materiais para subir esse rastro", C.bad); return; }
+    if (!isAdmin) { setSkillMats(sk); setBossMats(bm); }
+    setOwnedField(id, { traces: { ...o.traces, [which]: lvl } });
+    flash(`${which === "basic" ? "Básico" : which === "skill" ? "Habilidade" : "Ultimate"} +${ups} · agora Nv ${lvl}`, C.good);
   }
   function unlockTraceNode(id, idx) {
     const o = normChar(ownedMap[id] || { id }); if (o.traceNodes[idx]) return;
@@ -2711,8 +2805,9 @@ function Game({ email, isAdmin, onLogout }) {
   return (
     <ImgCtx.Provider value={images}>
       <FontInject />
+      <style>{`@keyframes srPulseSoft{0%,100%{box-shadow:0 0 6px #FF6B8244}50%{box-shadow:0 0 14px #FF6B82aa}}`}</style>
       {needsNick && <NicknameModal onSave={(nick) => setPlayerName(nick)} />}
-      <div style={{ minHeight: "100vh", background: `radial-gradient(1200px 600px at 75% -12%, ${C.bg1}, ${C.bg0}), radial-gradient(900px 500px at 10% 110%, #160d2e, ${C.bg0})`, color: C.text, fontFamily: "ui-sans-serif, system-ui, 'Segoe UI', sans-serif" }}>
+      <div style={{ minHeight: "100vh", background: `radial-gradient(1200px 600px at 75% -12%, ${C.bg1}, ${C.bg0}), radial-gradient(900px 500px at 10% 110%, #0d1524, ${C.bg0})`, color: C.text, fontFamily: "ui-sans-serif, system-ui, 'Segoe UI', sans-serif" }}>
         {/* TOP BAR */}
         <div style={{ position: "sticky", top: 0, zIndex: 30, backdropFilter: "blur(10px)", background: `${C.bg0}d9`, borderBottom: `1px solid ${C.line}` }}>
           <div className="px-4 py-3 flex items-center justify-between" style={{ maxWidth: 1000, margin: "0 auto", gap: 8, flexWrap: "wrap" }}>
@@ -2726,8 +2821,9 @@ function Game({ email, isAdmin, onLogout }) {
               <Res icon="🎴" v={charTickets} color={C.gold} itemId="item_ticket_char" />
               <Res icon="🔧" v={weaponTickets} color="#B98BFF" itemId="item_ticket_wpn" />
               <Res icon="🔷" v={relicMats} color="#60c8ff" itemId="item_relic_mat" />
-              <Res icon="⚡" v={`${stamina}/320`} color={C.good} />
-              <button onClick={onLogout} title={email} className="flex items-center gap-1" style={{ background: C.panelHi, padding: "4px 10px", borderRadius: 99, border: `1px solid ${C.line}`, color: C.mute, fontWeight: 700, fontSize: 13 }}>
+              <Res icon="⚡" v={`${stamina}/320`} color={C.good} pulse={stamina >= 320} warn={stamina >= 240 && stamina < 320} />
+              <SaveIndicator ts={lastSavedAt} />
+              <button onClick={() => { const msg = stamina >= 300 ? `Sua Stamina está quase cheia (${stamina}/320) — considere gastar antes de sair! Sair mesmo assim?` : "Sair da conta? Seu progresso já está salvo automaticamente."; if (window.confirm(msg)) onLogout(); }} title={email} className="flex items-center gap-1" style={{ background: C.panelHi, padding: "4px 10px", borderRadius: 99, border: `1px solid ${C.line}`, color: C.mute, fontWeight: 700, fontSize: 13 }}>
                 {isAdmin && <span style={{ color: C.gold }}>👑</span>}⎋ Sair
               </button>
             </div>
@@ -2747,10 +2843,10 @@ function Game({ email, isAdmin, onLogout }) {
             <ReworkScreen icon="👑" name="Boss Rush" desc="O Boss Rush está fechado para rework — novos chefes, fases e recompensas a caminho." goto={["tower", "Ir para a Torre 🗼"]} setScreen={(k) => { setPendingBoss(null); setScreen(k); }} />
           ) : (
             <>
-              {screen === "home" && <Home email={email} isAdmin={isAdmin} playerName={playerName} setPlayerName={setPlayerName} owned={owned} setScreen={setScreen} setJade={setJade} setCharTickets={setCharTickets} setStandardTickets={setStandardTickets} setWeaponTickets={setWeaponTickets} flash={flash} towerCleared={towerCleared} bossRushCleared={bossRushCleared} startBossRush={startBossRush} images={images} setImages={setImages} />}
+              {screen === "home" && <Home email={email} isAdmin={isAdmin} playerName={playerName} setPlayerName={setPlayerName} owned={owned} setScreen={setScreen} setJade={setJade} setCharTickets={setCharTickets} setStandardTickets={setStandardTickets} setWeaponTickets={setWeaponTickets} flash={flash} towerCleared={towerCleared} bossRushCleared={bossRushCleared} startBossRush={startBossRush} images={images} setImages={setImages} dailyClaimedAt={dailyClaimedAt} weeklyClaimedAt={weeklyClaimedAt} stamina={stamina} mailClaimed={mailClaimed} mail2Claimed={mail2Claimed} lastWeeklyBoss={lastWeeklyBoss} />}
               {screen === "social" && <Social email={email} flash={flash} owned={owned} activeTitle={activeTitle} setActiveTitle={setActiveTitle} playerName={playerName} />}
               {screen === "gacha" && <Gacha doPull={doPull} pity={pity} jade={jade} chronicles={chronicles} charTickets={charTickets} weaponTickets={weaponTickets} standardTickets={standardTickets} featuredChar={featuredChar} setFeaturedChar={setFeaturedChar} featuredSpecial={featuredSpecial} setFeaturedSpecial={setFeaturedSpecial} featuredStandard={featuredStandard} setFeaturedStandard={setFeaturedStandard} featuredWeapon={featuredWeapon} setFeaturedWeapon={setFeaturedWeapon} pullHistory={pullHistory} owned={owned} ownedWeapons={ownedWeapons} />}
-              {screen === "roster" && <Roster owned={owned} ownedWeapons={ownedWeapons} relicInv={relicInv} setOwnedField={setOwnedField} levelUp={levelUp} ascendChar={ascendChar} ascMats={ascMats} jade={jade} isAdmin={isAdmin} expItems={expItems} bossMats={bossMats} traceLevelUp={traceLevelUp} unlockTraceNode={unlockTraceNode} unlockSpecialTrace={unlockSpecialTrace} publish={async (o) => { await publishChar(playerName, o); flash("Publicado no Co-op global", C.good); }} onUpgradeRelic={onUpgradeRelic} weaponLevelUp={weaponLevelUp} weaponMats={weaponMats} skillMats={skillMats} tagMats={tagMats} team={team} setTeam={setTeam} teamPresets={teamPresets} setTeamPresets={setTeamPresets} startTest={startTest} flash={flash} />}
+              {screen === "roster" && <Roster owned={owned} ownedWeapons={ownedWeapons} relicInv={relicInv} setOwnedField={setOwnedField} levelUp={levelUp} levelUpMax={levelUpMax} ascendChar={ascendChar} ascMats={ascMats} jade={jade} isAdmin={isAdmin} expItems={expItems} bossMats={bossMats} traceLevelUp={traceLevelUp} traceLevelUpMax={traceLevelUpMax} unlockTraceNode={unlockTraceNode} unlockSpecialTrace={unlockSpecialTrace} publish={async (o) => { await publishChar(playerName, o); flash("Publicado no Co-op global", C.good); }} onUpgradeRelic={onUpgradeRelic} weaponLevelUp={weaponLevelUp} weaponLevelUpMax={weaponLevelUpMax} weaponMats={weaponMats} skillMats={skillMats} tagMats={tagMats} team={team} setTeam={setTeam} teamPresets={teamPresets} setTeamPresets={setTeamPresets} startTest={startTest} flash={flash} />}
               {screen === "farm" && <Farm stamina={stamina} start={startFarm} expItems={expItems} startTagDungeon={startTagDungeon} tagMats={tagMats} weaponMats={weaponMats} skillMats={skillMats} startRelicDungeon={startRelicDungeon} startRotatingRelicDungeon={startRotatingRelicDungeon} dailyClaimedAt={dailyClaimedAt} weeklyClaimedAt={weeklyClaimedAt} claimDaily={claimDaily} claimWeekly={claimWeekly} />}
               {screen === "tower" && <Tower towerCleared={towerCleared} towerClaimed={towerClaimed} start={startTower} team={team} flash={flash} />}
               {screen === "darktower" && <DarkTowerScreen darkTowerCleared={darkTowerCleared} darkTowerClaimed={darkTowerClaimed} start={startDarkTower} team={team} flash={flash} />}
@@ -2785,22 +2881,22 @@ function Game({ email, isAdmin, onLogout }) {
         </div>
 
         {!battle && (
-          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: `${C.bg0}f5`, borderTop: `1px solid ${C.line}`, backdropFilter: "blur(10px)" }}>
+          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: `${C.bg0}f5`, borderTop: `1px solid ${C.line}`, backdropFilter: "blur(10px)", boxShadow: `0 -1px 0 ${C.gold}22, 0 -12px 30px -10px #00000090` }}>
             <div className="flex items-center justify-around px-2 py-2" style={{ maxWidth: 620, margin: "0 auto", gap: 2 }}>
               {[["home", "Portal", "✦"], ["roster", "Elenco", "👥"]].map(([k, label, ic]) => (
-                <button key={k} onClick={() => setScreen(k)} className="flex flex-col items-center px-3 py-1 rounded-xl transition" style={{ minWidth: 62, position: "relative", color: screen === k ? C.gold : C.mute }}>
+                <button key={k} onClick={() => setScreen(k)} className="flex flex-col items-center px-3 py-1 rounded-xl transition" style={{ minWidth: 62, position: "relative", color: screen === k ? C.gold : C.mute, background: screen === k ? `linear-gradient(180deg, ${C.gold}18, transparent)` : "transparent" }}>
                   {screen === k && <span style={{ position: "absolute", top: -8, width: 26, height: 3, borderRadius: 9, background: C.gold, boxShadow: `0 0 10px ${C.gold}` }} />}
                   <span style={{ fontSize: 18 }}>{ic}</span><span style={{ fontSize: 11, fontWeight: 700 }}>{label}</span>
                 </button>
               ))}
               {/* Botão central — abre o menu de modos por categoria */}
               <button onClick={() => setNavOpen(true)} style={{ position: "relative", width: 60, height: 60, marginTop: -22, borderRadius: 99,
-                background: `radial-gradient(circle at 50% 35%, ${C.gold}, #8a6a10)`, border: `2px solid ${C.gold}`,
-                boxShadow: `0 0 22px ${C.gold}88, inset 0 2px 6px #ffffff55`, color: "#1a1200", fontSize: 24, fontWeight: 900 }}>
+                background: `radial-gradient(circle at 50% 35%, ${C.gold}, #8a6a10)`, border: `2px solid ${C.gold}`, outline: `3px solid ${C.bg0}`,
+                boxShadow: `0 0 22px ${C.gold}88, 0 0 0 5px #6FA8FF22, inset 0 2px 6px #ffffff55`, color: "#1a1200", fontSize: 24, fontWeight: 900 }}>
                 ✦<span style={{ position: "absolute", bottom: -16, left: 0, right: 0, fontSize: 9, fontWeight: 800, color: C.gold }}>MODOS</span>
               </button>
               {[["gacha", "Invocar", "🎴"], ["relics", "Relíquias", "💠"]].map(([k, label, ic]) => (
-                <button key={k} onClick={() => setScreen(k)} className="flex flex-col items-center px-3 py-1 rounded-xl transition" style={{ minWidth: 62, position: "relative", color: screen === k ? C.gold : C.mute }}>
+                <button key={k} onClick={() => setScreen(k)} className="flex flex-col items-center px-3 py-1 rounded-xl transition" style={{ minWidth: 62, position: "relative", color: screen === k ? C.gold : C.mute, background: screen === k ? `linear-gradient(180deg, ${C.gold}18, transparent)` : "transparent" }}>
                   {screen === k && <span style={{ position: "absolute", top: -8, width: 26, height: 3, borderRadius: 9, background: C.gold, boxShadow: `0 0 10px ${C.gold}` }} />}
                   <span style={{ fontSize: 18 }}>{ic}</span><span style={{ fontSize: 11, fontWeight: 700 }}>{label}</span>
                 </button>
@@ -2820,6 +2916,7 @@ function Game({ email, isAdmin, onLogout }) {
         {navOpen && <NavMenu screen={screen} setScreen={(k) => { setScreen(k); setNavOpen(false); }} onClose={() => setNavOpen(false)} draftActive={draftActive} isAdmin={isAdmin} />}
         {toast && <div style={{ position: "fixed", top: 76, left: "50%", transform: "translateX(-50%)", zIndex: 70, background: C.panelHi, border: `1px solid ${toast.color}`, color: toast.color, padding: "10px 18px", borderRadius: 99, fontWeight: 700, boxShadow: `0 0 26px ${toast.color}45` }}>{toast.msg}</div>}
         {pullResults && <PullModal data={pullResults} onClose={() => setPullResults(null)} />}
+        <ScrollTopButton />
       </div>
     </ImgCtx.Provider>
   );
@@ -2833,8 +2930,34 @@ function ItemIcon({ id, emoji, size = 18 }) {
   if (url && !err) return <img src={url} alt="" onError={() => setErr(true)} style={{ width: size, height: size, objectFit: "cover", borderRadius: 3, flexShrink: 0, display: "block" }} />;
   return <span>{emoji}</span>;
 }
-function Res({ icon, v, color, itemId }) {
-  return <span className="flex items-center gap-1" style={{ background: C.panelHi, padding: "4px 10px", borderRadius: 99, border: `1px solid ${C.line}` }}><ItemIcon id={itemId} emoji={icon} size={18} /><b style={{ color }}>{v}</b></span>;
+function fmtNum(n) {
+  if (typeof n !== "number" || !isFinite(n)) return n;
+  const abs = Math.abs(n);
+  if (abs >= 1000000) return (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1).replace(".0", "") + "M";
+  if (abs >= 10000) return (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1).replace(".0", "") + "K";
+  return n.toLocaleString("pt-BR");
+}
+function SaveIndicator({ ts }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    if (!ts) return;
+    setShow(true);
+    const t = setTimeout(() => setShow(false), 1800);
+    return () => clearTimeout(t);
+  }, [ts]);
+  if (!ts) return null;
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: show ? "#9be7a0" : C.mute, opacity: show ? 1 : 0.45, transition: "opacity .6s ease, color .6s ease" }} title="Progresso salvo automaticamente">
+      <span style={{ width: 6, height: 6, borderRadius: 99, background: show ? "#9be7a0" : C.mute, transition: "background .6s ease" }} />
+      {show ? "Salvo" : "Sincronizado"}
+    </span>
+  );
+}
+function Res({ icon, v, color, itemId, pulse, warn }) {
+  const isNum = typeof v === "number";
+  const display = isNum ? fmtNum(v) : v;
+  const borderC = pulse ? "#FF6B82" : warn ? "#FFC24B" : C.line;
+  return <span className="flex items-center gap-1" style={{ background: C.panelHi, padding: "4px 10px", borderRadius: 99, border: `1px solid ${borderC}`, boxShadow: pulse ? "0 0 10px #FF6B8266" : undefined, animation: pulse ? "srPulseSoft 1.6s ease-in-out infinite" : undefined }} title={isNum ? v.toLocaleString("pt-BR") + (pulse ? " · CHEIO! Gaste antes de perder!" : warn ? " · quase cheio — considere gastar em breve" : "") : undefined}><ItemIcon id={itemId} emoji={icon} size={18} /><b style={{ color }}>{display}</b></span>;
 }
 
 /* ==========================================================================
@@ -3087,12 +3210,23 @@ function ContentTabs({ bossRushCleared, startBossRush, isAdmin, images, setImage
     </Panel>
   );
 }
-function Home({ email, isAdmin, playerName, setPlayerName, owned, setScreen, setJade, setCharTickets, setStandardTickets, setWeaponTickets, flash, towerCleared, bossRushCleared, startBossRush, images, setImages }) {
+function Home({ email, isAdmin, playerName, setPlayerName, owned, setScreen, setJade, setCharTickets, setStandardTickets, setWeaponTickets, flash, towerCleared, bossRushCleared, startBossRush, images, setImages, dailyClaimedAt, weeklyClaimedAt, stamina, mailClaimed, mail2Claimed, lastWeeklyBoss }) {
   const fives = owned.filter((o) => CHAR_MAP[o.id]?.rarity === 5).length;
+  const dailyReady = Date.now() - (dailyClaimedAt || 0) > 24 * 3600 * 1000;
+  const weeklyReady = Date.now() - (weeklyClaimedAt || 0) > 7 * 24 * 3600 * 1000;
+  const weeklyBossReady = Date.now() - (lastWeeklyBoss || 0) > 7 * 24 * 3600 * 1000;
+  const checklist = [
+    dailyReady && { label: "Recompensa diária disponível", go: "farm" },
+    weeklyReady && { label: "Recompensa semanal disponível", go: "farm" },
+    weeklyBossReady && { label: "Chefe semanal disponível", go: "weekly" },
+    !mailClaimed && { label: "Correio de boas-vindas te espera", go: "correio" },
+    !mail2Claimed && { label: "Você tem correio não lido", go: "correio" },
+    stamina >= 280 && { label: `Stamina quase cheia (${stamina}/320) — gaste antes de perder!`, go: "farm" },
+  ].filter(Boolean);
   return (
     <div className="flex flex-col gap-4">
       <Panel glow={C.gold} style={{ position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(420px 200px at 90% 0%, #B98BFF22, transparent)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(420px 200px at 90% 0%, #6FA8FF22, transparent)" }} />
         <div className="flex items-center justify-between" style={{ position: "relative" }}>
           <div>
             <div style={{ fontSize: 12, color: C.mute, letterSpacing: 2 }}>BEM-VINDO,</div>
@@ -3103,6 +3237,18 @@ function Home({ email, isAdmin, playerName, setPlayerName, owned, setScreen, set
           <div style={{ fontSize: 44 }}>🌌</div>
         </div>
       </Panel>
+      {checklist.length > 0 && (
+        <Panel style={{ padding: 10 }}>
+          <b style={{ fontSize: 12, color: C.mute, letterSpacing: 0.5 }}>📋 PENDÊNCIAS DE HOJE</b>
+          <div className="flex flex-col gap-1" style={{ marginTop: 6 }}>
+            {checklist.map((c, i) => (
+              <button key={i} onClick={() => setScreen(c.go)} className="flex items-center justify-between" style={{ background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 10px", fontSize: 12, textAlign: "left" }}>
+                <span>🔸 {c.label}</span><span style={{ color: C.gold, fontWeight: 700 }}>ir ›</span>
+              </button>
+            ))}
+          </div>
+        </Panel>
+      )}
       <div className="grid grid-cols-2 gap-3">
         <Tile t="Invocar" s="Banner de personagem e armas" e="🎴" onClick={() => setScreen("gacha")} />
         <Tile t="Torre Estelar" s="200 andares · 78.500💎 totais" e="🗼" onClick={() => setScreen("tower")} />
@@ -3128,6 +3274,10 @@ function Tile({ t, s, e, onClick }) {
 function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, skillMats, startRelicDungeon, startRotatingRelicDungeon, dailyClaimedAt, weeklyClaimedAt, claimDaily, claimWeekly }) {
   const dailyReady = Date.now() - (dailyClaimedAt || 0) > 24 * 3600 * 1000;
   const weeklyReady = Date.now() - (weeklyClaimedAt || 0) > 7 * 24 * 3600 * 1000;
+  const [, forceTick] = useState(0);
+  useEffect(() => { const t = setInterval(() => forceTick((v) => v + 1), 1000); return () => clearInterval(t); }, []);
+  const dailyMsLeft = Math.max(0, 24 * 3600 * 1000 - (Date.now() - (dailyClaimedAt || 0)));
+  const weeklyMsLeft = Math.max(0, 7 * 24 * 3600 * 1000 - (Date.now() - (weeklyClaimedAt || 0)));
   const featSet = featuredFarmSet();
   return <div className="flex flex-col gap-4">
     <Panel glow="#9be7a0">
@@ -3144,11 +3294,11 @@ function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, 
       <div className="flex flex-col gap-2 mt-3">
         <div className="flex items-center justify-between" style={{ background: C.panelHi, borderRadius: 10, padding: "10px 14px" }}>
           <div><b style={{ fontSize: 13 }}>Diária</b><div style={{ fontSize: 11, color: C.mute }}>+25 ⚙️ · +25 💠 · +15 🔷 · +2 de uma tag aleatória</div></div>
-          <Btn kind={dailyReady ? "primary" : "soft"} disabled={!dailyReady} onClick={claimDaily} style={{ padding: "6px 14px" }}>{dailyReady ? "Resgatar" : "Feito ✓"}</Btn>
+          <Btn kind={dailyReady ? "primary" : "soft"} disabled={!dailyReady} onClick={claimDaily} style={{ padding: "6px 14px" }}>{dailyReady ? "Resgatar" : formatCountdown(dailyMsLeft)}</Btn>
         </div>
         <div className="flex items-center justify-between" style={{ background: C.panelHi, borderRadius: 10, padding: "10px 14px" }}>
           <div><b style={{ fontSize: 13 }}>Semanal</b><div style={{ fontSize: 11, color: C.mute }}>+90 ⚙️ · +90 💠 · +6 🔮 · +6 🔶 · +50 🔷 · +3 de cada tag</div></div>
-          <Btn kind={weeklyReady ? "primary" : "soft"} disabled={!weeklyReady} onClick={claimWeekly} style={{ padding: "6px 14px" }}>{weeklyReady ? "Resgatar" : "Feito ✓"}</Btn>
+          <Btn kind={weeklyReady ? "primary" : "soft"} disabled={!weeklyReady} onClick={claimWeekly} style={{ padding: "6px 14px" }}>{weeklyReady ? "Resgatar" : formatCountdown(weeklyMsLeft)}</Btn>
         </div>
       </div>
     </Panel>
@@ -3229,7 +3379,9 @@ function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, 
 }
 function WeeklyBoss({ start, stamina, bossMats, lastWeeklyBoss, startAscension, ascMats }) {
   const ready = Date.now() - lastWeeklyBoss > 7 * 24 * 3600 * 1000;
-  const days = Math.max(0, Math.ceil((7 * 24 * 3600 * 1000 - (Date.now() - lastWeeklyBoss)) / (24 * 3600 * 1000)));
+  const [, forceTick] = useState(0);
+  useEffect(() => { if (ready) return; const t = setInterval(() => forceTick((v) => v + 1), 1000); return () => clearInterval(t); }, [ready, lastWeeklyBoss]);
+  const msLeft = Math.max(0, 7 * 24 * 3600 * 1000 - (Date.now() - lastWeeklyBoss));
   return <div className="flex flex-col gap-4">
     <Panel glow={C.gold} style={{ position: "relative", overflow: "hidden" }}>
       <div style={{ position: "absolute", inset: 0, background: "radial-gradient(420px 200px at 90% 0%, #ffcf4a22, transparent)" }} />
@@ -3239,7 +3391,7 @@ function WeeklyBoss({ start, stamina, bossMats, lastWeeklyBoss, startAscension, 
         <div style={{ color: C.mute, fontSize: 13, marginTop: 4 }}>Um chefe poderoso que escala com a força da sua equipe. Derrote-o para coletar 🔮 Núcleos de Vestígio, usados para desbloquear os 3 Rastros Especiais de cada personagem.</div>
         <div className="flex items-center gap-3" style={{ marginTop: 10, flexWrap: "wrap" }}>
           <Res icon="🔮" v={bossMats} color={C.gold} itemId="item_boss_mat" />
-          <span style={{ fontSize: 12, color: ready ? C.good : C.mute }}>{ready ? "✅ Bônus semanal disponível (+3)" : `Bônus semanal em ${days} dia(s) · clears extras dão +1`}</span>
+          <span style={{ fontSize: 12, color: ready ? C.good : C.mute }}>{ready ? "✅ Bônus semanal disponível (+3)" : `Bônus semanal em ${formatCountdown(msLeft)} · clears extras dão +1`}</span>
         </div>
         <Btn kind={stamina < 50 ? "soft" : "primary"} disabled={stamina < 50} style={{ marginTop: 12 }} onClick={start}>Desafiar o boss — 50⚡</Btn>
       </div>
@@ -3428,9 +3580,12 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
             <Bar value={curPity} max={90} color={C.gold} />
           </div>
           <div className="flex gap-2 mt-4">
-            <Btn disabled={isSpecial && specialExpired} onClick={() => doPull(tab, 1)}>Invocar x1</Btn>
-            <Btn kind="soft" disabled={isSpecial && specialExpired} onClick={() => doPull(tab, 10)}>Invocar x10</Btn>
+            <Btn disabled={isSpecial && specialExpired} onClick={() => doPull(tab, 1)} title={`${isSpecial ? "" : "1 bilhete ou "}160💎`}>Invocar x1</Btn>
+            <Btn kind="soft" disabled={isSpecial && specialExpired} onClick={() => doPull(tab, 10)} title={`${isSpecial ? "" : "10 bilhetes ou "}1.600💎`}>Invocar x10</Btn>
           </div>
+          {!isAdmin && (isChar ? charTickets : isStd ? standardTickets : isWeapon ? weaponTickets : 0) === 0 && jade < 160 && !isSpecial && (
+            <div style={{ fontSize: 11, color: C.bad, marginTop: 6 }}>⚠️ Sem bilhetes nem gemas suficientes para invocar (precisa 160💎)</div>
+          )}
           <div style={{ fontSize: 11, color: C.mute, marginTop: 8 }}>{isSpecial ? "160💎 por puxada (sem bilhete próprio)" : `Bilhete ${ticketIcon} ou 160💎 por puxada`} · você tem {!isSpecial && <><b style={{ color: C.text }}>{ticketCount}</b> {ticketIcon}, </>}<b style={{ color: C.text }}>{jade}</b>💎 e <b style={{ color: C.text }}>{chronicles}</b>📜</div>
           </>}
         </div>
@@ -3537,12 +3692,15 @@ function PullModal({ data, onClose }) {
 /* ==========================================================================
    ELENCO + DETALHE
    ========================================================================== */
-function Roster({ owned, ownedWeapons, relicInv, setOwnedField, levelUp, ascendChar, ascMats, jade, isAdmin, expItems, bossMats, traceLevelUp, unlockTraceNode, unlockSpecialTrace, publish, onUpgradeRelic, weaponLevelUp, weaponMats, skillMats, tagMats, team, setTeam, teamPresets, setTeamPresets, startTest, flash }) {
+function Roster({ owned, ownedWeapons, relicInv, setOwnedField, levelUp, levelUpMax, ascendChar, ascMats, jade, isAdmin, expItems, bossMats, traceLevelUp, traceLevelUpMax, unlockTraceNode, unlockSpecialTrace, publish, onUpgradeRelic, weaponLevelUp, weaponLevelUpMax, weaponMats, skillMats, tagMats, team, setTeam, teamPresets, setTeamPresets, startTest, flash }) {
   const [sel, setSel] = useState(null);
   const [presetName, setPresetName] = useState("");
   const [showPresets, setShowPresets] = useState(false);
+  const [rosterQuery, setRosterQuery] = useState("");
+  const [rosterSort, setRosterSort] = useState("fav");
+  const [rosterElFilter, setRosterElFilter] = useState("Todos");
   if (!owned.length) return <Empty msg="Sem personagens. Invoque no banner!" />;
-  if (sel) { const o = owned.find((x) => x.id === sel); if (!o) { setSel(null); return null; } return <CharDetail o={o} back={() => setSel(null)} ownedWeapons={ownedWeapons} relicInv={relicInv} setOwnedField={setOwnedField} levelUp={levelUp} ascendChar={ascendChar} ascMats={ascMats} jade={jade} isAdmin={isAdmin} expItems={expItems} bossMats={bossMats} traceLevelUp={traceLevelUp} unlockTraceNode={unlockTraceNode} unlockSpecialTrace={unlockSpecialTrace} publish={publish} onUpgradeRelic={onUpgradeRelic} weaponLevelUp={weaponLevelUp} weaponMats={weaponMats} skillMats={skillMats} tagMats={tagMats} />; }
+  if (sel) { const o = owned.find((x) => x.id === sel); if (!o) { setSel(null); return null; } return <CharDetail o={o} back={() => setSel(null)} ownedWeapons={ownedWeapons} relicInv={relicInv} setOwnedField={setOwnedField} levelUp={levelUp} levelUpMax={levelUpMax} ascendChar={ascendChar} ascMats={ascMats} jade={jade} isAdmin={isAdmin} expItems={expItems} bossMats={bossMats} traceLevelUp={traceLevelUp} traceLevelUpMax={traceLevelUpMax} unlockTraceNode={unlockTraceNode} unlockSpecialTrace={unlockSpecialTrace} publish={publish} onUpgradeRelic={onUpgradeRelic} weaponLevelUp={weaponLevelUp} weaponLevelUpMax={weaponLevelUpMax} weaponMats={weaponMats} skillMats={skillMats} tagMats={tagMats} />; }
 
   const toggle = (id) => setTeam((t) => t.includes(id) ? t.filter((x) => x !== id) : t.length < 4 ? [...t, id] : t);
   function savePreset() {
@@ -3553,7 +3711,7 @@ function Roster({ owned, ownedWeapons, relicInv, setOwnedField, levelUp, ascendC
     flash && flash(`Preset "${name}" salvo!`, C.good);
   }
   function loadPreset(idx) { const p = teamPresets[idx]; if (p) { setTeam(p.ids.filter((id) => owned.some((o) => o.id === id))); flash && flash(`Preset "${p.name}" carregado`, C.good); } }
-  function deletePreset(idx) { setTeamPresets((p) => p.filter((_, i) => i !== idx)); }
+  function deletePreset(idx) { const p = teamPresets[idx]; if (p && !window.confirm(`Excluir o preset "${p.name}"?`)) return; setTeamPresets((p2) => p2.filter((_, i) => i !== idx)); }
 
   return (
     <div className="flex flex-col gap-3">
@@ -3568,7 +3726,7 @@ function Roster({ owned, ownedWeapons, relicInv, setOwnedField, levelUp, ascendC
           </div>); })}</div>
         <div className="flex gap-2 mt-3" style={{ flexWrap: "wrap" }}>
           <Btn disabled={!team.length} onClick={() => team.length ? startTest() : flash("Monte uma equipe", C.bad)} style={{ padding: "6px 14px", fontSize: 12 }}>Batalha de teste ⚔️</Btn>
-          <Btn kind="soft" onClick={() => setTeam([])} style={{ padding: "6px 14px", fontSize: 12 }}>Limpar</Btn>
+          <Btn kind="soft" onClick={() => { if (team.length && !window.confirm("Limpar a equipe atual?")) return; setTeam([]); }} style={{ padding: "6px 14px", fontSize: 12 }}>Limpar</Btn>
         </div>
         <div style={{ fontSize: 11, color: C.mute, marginTop: 8 }}>Toque no ⚔️ de um personagem abaixo pra equipar/desequipar. Toque num slot preenchido acima pra remover.</div>
         {showPresets && (
@@ -3592,17 +3750,69 @@ function Roster({ owned, ownedWeapons, relicInv, setOwnedField, levelUp, ascendC
           </div>
         )}
       </Panel>
+      <Panel style={{ padding: 10 }}>
+        <div style={{ fontSize: 11, color: C.mute, marginBottom: 8 }}>
+          📦 <b style={{ color: C.text }}>{owned.length}</b> personagens · ⭐5: <b style={{ color: C.gold }}>{owned.filter((o) => CHAR_MAP[o.id]?.rarity === 5).length}</b> · nível médio: <b style={{ color: C.text }}>{Math.round(owned.reduce((a, o) => a + (o.level || 1), 0) / owned.length)}</b>
+        </div>
+        <div className="flex gap-2" style={{ flexWrap: "wrap", alignItems: "center" }}>
+          <input value={rosterQuery} onChange={(e) => setRosterQuery(e.target.value)} placeholder="🔎 Buscar personagem..." style={{ flex: "1 1 160px", background: C.panel, border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 10px", fontSize: 12, color: C.text }} />
+          {rosterQuery && <button onClick={() => setRosterQuery("")} style={{ color: C.mute, fontSize: 16, padding: "0 6px" }} title="Limpar busca">×</button>}
+          <select value={rosterSort} onChange={(e) => setRosterSort(e.target.value)} style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 8px", fontSize: 12, color: C.text }}>
+            <option value="fav">Ordenar: Favoritos ★</option>
+            <option value="rarity">Ordenar: Raridade</option>
+            <option value="level">Ordenar: Nível</option>
+            <option value="name">Ordenar: Nome (A-Z)</option>
+            <option value="element">Ordenar: Elemento</option>
+          </select>
+          <select value={rosterElFilter} onChange={(e) => setRosterElFilter(e.target.value)} style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 8px", fontSize: 12, color: C.text }}>
+            <option value="Todos">Todos elementos</option>
+            {ELEMENT_NAMES.map((el) => <option key={el} value={el}>{el}</option>)}
+          </select>
+        </div>
+      </Panel>
+      {(() => {
+        const filteredOwned = owned
+          .filter((o) => { const def = CHAR_MAP[o.id]; if (!def) return true; if (rosterElFilter !== "Todos" && def.element !== rosterElFilter) return false; if (rosterQuery.trim() && !def.name.toLowerCase().includes(rosterQuery.trim().toLowerCase())) return false; return true; })
+          .sort((a, b) => {
+            const da = CHAR_MAP[a.id], db = CHAR_MAP[b.id]; if (!da || !db) return 0;
+            if (rosterSort === "fav") return (b.fav ? 1 : 0) - (a.fav ? 1 : 0) || db.rarity - da.rarity;
+            if (rosterSort === "rarity") return db.rarity - da.rarity || b.level - a.level;
+            if (rosterSort === "level") return b.level - a.level;
+            if (rosterSort === "name") return da.name.localeCompare(db.name);
+            if (rosterSort === "element") return da.element.localeCompare(db.element);
+            return 0;
+          });
+        if (!filteredOwned.length) return <Empty msg="Nenhum personagem encontrado com esse filtro." />;
+        return null;
+      })()}
       <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))" }}>
-        {owned.map((o) => {
+        {owned
+          .filter((o) => { const def = CHAR_MAP[o.id]; if (!def) return true; if (rosterElFilter !== "Todos" && def.element !== rosterElFilter) return false; if (rosterQuery.trim() && !def.name.toLowerCase().includes(rosterQuery.trim().toLowerCase())) return false; return true; })
+          .sort((a, b) => {
+            const da = CHAR_MAP[a.id], db = CHAR_MAP[b.id]; if (!da || !db) return 0;
+            if (rosterSort === "fav") return (b.fav ? 1 : 0) - (a.fav ? 1 : 0) || db.rarity - da.rarity;
+            if (rosterSort === "rarity") return db.rarity - da.rarity || b.level - a.level;
+            if (rosterSort === "level") return b.level - a.level;
+            if (rosterSort === "name") return da.name.localeCompare(db.name);
+            if (rosterSort === "element") return da.element.localeCompare(db.element);
+            return 0;
+          })
+          .map((o) => {
           const def = CHAR_MAP[o.id]; if (!def) return null; const el = ELEMENTS[def.element]; const inTeam = team.includes(o.id);
           return (
-            <div key={o.id} className="text-left active:scale-95 transition" style={{ position: "relative" }}>
-              <Panel glow={inTeam ? C.gold : def.rarity === 5 ? C.gold : null} style={{ padding: 12, border: inTeam ? `2px solid ${C.gold}` : undefined, cursor: "pointer" }} onClick={() => setSel(o.id)}>
-                <div className="flex items-center gap-2"><Avatar ch={def} size={48} /><div style={{ overflow: "hidden" }}><div style={{ fontWeight: 800, fontSize: 14, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{def.name}</div><Rarity n={def.rarity} /></div></div>
-                <div className="flex items-center justify-between mt-2" style={{ fontSize: 11, color: C.mute }}><span>Nv {o.level}</span><span style={{ color: el.color }}>{el.glyph}</span>{o.eidolon > 0 && <span style={{ color: C.gold }}>E{o.eidolon}</span>}</div>
+            <div key={o.id} className="text-left active:scale-95 transition" style={{ position: "relative" }} data-roster-card="1">
+              <Panel glow={inTeam ? C.gold : def.rarity === 5 ? C.gold : null} style={{ padding: 0, overflow: "hidden", border: inTeam ? `2px solid ${C.gold}` : undefined, cursor: "pointer" }} onClick={() => setSel(o.id)}>
+                <div style={{ padding: 12 }}>
+                  <div className="flex items-center gap-2"><Avatar ch={def} size={48} /><div style={{ overflow: "hidden" }}><div style={{ fontWeight: 800, fontSize: 14, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{def.name}</div><Rarity n={def.rarity} /></div></div>
+                </div>
+                <div className="flex items-center justify-between" style={{ fontSize: 11, color: C.text, padding: "5px 12px", background: `linear-gradient(90deg, ${el.color}22, ${el.color}08)`, borderTop: `1px solid ${el.color}33` }}>
+                  <span style={{ fontWeight: 700 }}>Nv {o.level}</span><span style={{ color: el.color, fontWeight: 700 }}>{el.glyph} {def.element}</span>{o.eidolon > 0 && <span style={{ color: C.gold, fontWeight: 800 }}>E{o.eidolon}</span>}
+                </div>
               </Panel>
               <button onClick={(e) => { e.stopPropagation(); toggle(o.id); }} title={inTeam ? "Remover da equipe" : "Equipar na equipe"}
                 style={{ position: "absolute", top: 6, right: 6, width: 26, height: 26, borderRadius: 99, background: inTeam ? C.gold : "#00000088", color: inTeam ? "#1a1000" : "#fff", border: `1px solid ${inTeam ? C.gold : C.line}`, fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>⚔️</button>
+              <button onClick={(e) => { e.stopPropagation(); setOwnedField(o.id, { fav: !o.fav }); }} title={o.fav ? "Remover dos favoritos" : "Favoritar"}
+                style={{ position: "absolute", top: 6, left: 6, width: 26, height: 26, borderRadius: 99, background: o.fav ? "#ffd76a" : "#00000088", color: o.fav ? "#1a1000" : "#fff", border: `1px solid ${o.fav ? "#ffd76a" : C.line}`, fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>{o.fav ? "★" : "☆"}</button>
             </div>
           );
         })}
@@ -3611,8 +3821,9 @@ function Roster({ owned, ownedWeapons, relicInv, setOwnedField, levelUp, ascendC
   );
 }
 
-function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, ascendChar, ascMats, jade, isAdmin, expItems, bossMats, traceLevelUp, unlockTraceNode, unlockSpecialTrace, publish, onUpgradeRelic, weaponLevelUp, weaponMats, skillMats, tagMats }) {
+function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, levelUpMax, ascendChar, ascMats, jade, isAdmin, expItems, bossMats, traceLevelUp, traceLevelUpMax, unlockTraceNode, unlockSpecialTrace, publish, onUpgradeRelic, weaponLevelUp, weaponLevelUpMax, weaponMats, skillMats, tagMats }) {
   const def = CHAR_MAP[o.id]; const [tab, setTab] = useState("status");
+  const [weaponQuery, setWeaponQuery] = useState("");
   if (!def) {
     // Corrige crash de tela branca: personagem com id desconhecido/desatualizado (save antigo ou fora de sincronia)
     return (
@@ -3657,7 +3868,8 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
           <span style={{ fontSize: 13 }}>Nível {o.level}/{cap}{cap < MAX_LEVEL ? ` (máx ${MAX_LEVEL})` : ""}</span>
           {atCap
             ? <Btn kind="primary" style={{ padding: "6px 12px" }} onClick={() => ascendChar(o.id)}>Ascender {isAdmin ? "(admin)" : <span className="flex items-center gap-1">(<ItemIcon id="item_asc_mat" emoji="🔶" size={13} />{ascCost})</span>}</Btn>
-            : <Btn kind="soft" style={{ padding: "6px 12px" }} onClick={() => levelUp(o.id)}>Subir nível {isAdmin ? "(admin)" : <span className="flex items-center gap-1">(<ItemIcon id="item_exp" emoji="📘" size={13} />{needExp})</span>}</Btn>}
+            : <><Btn kind="soft" style={{ padding: "6px 12px" }} onClick={() => levelUp(o.id)}>Subir nível {isAdmin ? "(admin)" : <span className="flex items-center gap-1">(<ItemIcon id="item_exp" emoji="📘" size={13} />{needExp})</span>}</Btn>
+                <Btn kind="ghost" style={{ padding: "6px 12px" }} onClick={() => levelUpMax(o.id)}>⏫ Até o máx</Btn></>}
           <Btn kind="ghost" style={{ padding: "6px 12px", marginLeft: "auto" }} onClick={() => publish(o)}>Publicar p/ Co-op</Btn>
         </div>
         {atCap && <div className="flex items-center gap-1 flex-wrap" style={{ fontSize: 11, color: "#ffb86b", marginTop: 6 }}>Limite de nível atingido — derrote o Guardião da Ascensão (aba Boss) para conseguir <ItemIcon id="item_asc_mat" emoji="🔶" size={11} /> Núcleos de Ascensão. Você tem {ascMats}.</div>}
@@ -3728,7 +3940,8 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
               <div style={{ display: "flex", gap: 2, marginBottom: 8 }}>
                 {Array.from({ length: TRACE_MAX }).map((_, i) => <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i < lvl ? col : "#2a2438", boxShadow: i < lvl ? `0 0 5px ${col}88` : "none" }} />)}
               </div>
-            <div className="flex items-center justify-end">
+            <div className="flex items-center justify-end gap-1">
+              {!max && !isAdmin && <Btn kind="ghost" style={{ padding: "5px 8px", fontSize: 10 }} onClick={() => traceLevelUpMax(o.id, key)}>⏫</Btn>}
               <Btn kind={max ? "ghost" : "soft"} disabled={max} style={{ padding: "5px 10px" }} onClick={() => traceLevelUp(o.id, key)}>{max ? "MÁX" : isAdmin ? "Subir" : (<span className="flex items-center gap-1 flex-wrap" style={{ justifyContent: "center" }}><span className="flex items-center gap-1"><ItemIcon id="item_skill_mat" emoji="💠" size={13} />{1 + Math.floor(lvl / 3)}</span>{lvl >= 5 && <span className="flex items-center gap-1">+<ItemIcon id="item_boss_mat" emoji="🔮" size={13} />1</span>}</span>)}</Btn>
             </div>
             </div>); })}
@@ -3798,9 +4011,12 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
                     {curLv < WEAPON_MAX_LEVEL && <span> · <b style={{ color: toMax > weaponMats ? C.bad : C.good }}>{toMax}</b> para maximizar</span>}
                   </div>
                 </div>
-                <Btn kind={curLv >= WEAPON_MAX_LEVEL ? "ghost" : "primary"} disabled={curLv >= WEAPON_MAX_LEVEL} style={{ padding: "6px 14px" }} onClick={() => weaponLevelUp(o.id)}>
-                  {curLv >= WEAPON_MAX_LEVEL ? "MAX" : "Up (" + cost.wmat + " engr.)"}
-                </Btn>
+                <div className="flex gap-1">
+                  <Btn kind={curLv >= WEAPON_MAX_LEVEL ? "ghost" : "primary"} disabled={curLv >= WEAPON_MAX_LEVEL} style={{ padding: "6px 14px" }} onClick={() => weaponLevelUp(o.id)}>
+                    {curLv >= WEAPON_MAX_LEVEL ? "MAX" : "Up (" + cost.wmat + " engr.)"}
+                  </Btn>
+                  {curLv < WEAPON_MAX_LEVEL && toMax <= weaponMats && <Btn kind="ghost" style={{ padding: "6px 10px" }} onClick={() => weaponLevelUpMax(o.id)}>⏫ Máx</Btn>}
+                </div>
               </div>
               <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(4,1fr)" }}>
                 {[0,1,2,3].map(t => {
@@ -3820,18 +4036,42 @@ function CharDetail({ o, back, ownedWeapons, relicInv, setOwnedField, levelUp, a
         })() : <div style={{ color: C.mute, fontSize: 13 }}>Nenhuma arma equipada.</div>}
         <div style={{ borderTop: `1px solid ${C.line}`, margin: "12px 0", paddingTop: 12 }}>
           <b style={{ fontSize: 13 }}>Inventario {invWeapons.length === 0 && "(vazio — invoque armas)"}</b>
-          <div className="flex flex-col gap-2 mt-2">{invWeapons.map((w) => <button key={w.id} onClick={() => setOwnedField(o.id, { weapon: w.id, weaponLv: w._storedLv || 1 })} className="text-left active:scale-95"><WeaponRow w={w} active={o.weapon === w.id} match={w.role===def.role} /></button>)}</div>
+          {invWeapons.length > 3 && <input value={weaponQuery} onChange={(e) => setWeaponQuery(e.target.value)} placeholder="🔎 Buscar arma..." style={{ width: "100%", marginTop: 8, background: C.panel, border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 10px", fontSize: 12, color: C.text }} />}
+          <div className="flex flex-col gap-2 mt-2">
+            {invWeapons
+              .filter((w) => !weaponQuery.trim() || w.name.toLowerCase().includes(weaponQuery.trim().toLowerCase()))
+              .sort((a, b) => (b.role === def.role ? 1 : 0) - (a.role === def.role ? 1 : 0) || (b.rarity || 0) - (a.rarity || 0))
+              .map((w) => <button key={w.id} onClick={() => setOwnedField(o.id, { weapon: w.id, weaponLv: w._storedLv || 1 })} className="text-left active:scale-95"><WeaponRow w={w} active={o.weapon === w.id} match={w.role===def.role} /></button>)}
+          </div>
         </div>
       </Panel>}
       {tab === "relics" && <RelicEquip o={o} setOwnedField={setOwnedField} relicInv={relicInv} onUpgradeRelic={onUpgradeRelic} />}
     </div>
   );
 }
+const STAT_TOOLTIPS = {
+  "HP": "Pontos de Vida. Chegar a 0 derrota o personagem.",
+  "ATK": "Ataque. Base do cálculo de dano de básicos, perícias e supremos.",
+  "DEF": "Defesa. Reduz o dano recebido de ataques inimigos.",
+  "VEL": "Velocidade. Determina a ordem de turnos — quanto maior, mais vezes o personagem age.",
+  "CRIT": "Chance de Crítico. Probabilidade de um ataque causar dano crítico.",
+  "CRIT DMG": "Dano Crítico. Multiplicador extra de dano quando um golpe crítico acontece.",
+  "Bônus Elemental": "Aumenta o dano causado do elemento do personagem.",
+  "Bônus de Dano": "Aumenta todo o dano causado, independente do tipo.",
+  "Cura/Escudo": "Aumenta a quantidade de HP curado e o valor de escudos concedidos.",
+  "Regen de Energia": "Acelera o ganho de Energia, antecipando a Habilidade Suprema.",
+  "Penetração de DEF": "Ignora uma parcela da DEF do inimigo ao calcular dano.",
+  "Dano de DoT": "Aumenta o dano de efeitos contínuos (queimadura, veneno, sangramento etc.).",
+  "Efeito de Perfuração": "Aumenta o dano e os efeitos causados ao Perfurar a Fraqueza do inimigo.",
+  "Eficiência de Perfuração": "Acelera o acúmulo da barra de Perfuração de Fraqueza do inimigo.",
+  "Energia Máx": "Energia necessária para usar a Habilidade Suprema.",
+};
 function St({ k, v, pct, color }) {
   const col = color || C.gold;
-  return <div style={{ position: "relative", background: `linear-gradient(120deg, ${col}12, ${C.panelHi})`, padding: "9px 11px", borderRadius: 12, overflow: "hidden", border: `1px solid ${C.line}` }}>
+  const tip = STAT_TOOLTIPS[k];
+  return <div title={tip} style={{ position: "relative", background: `linear-gradient(120deg, ${col}12, ${C.panelHi})`, padding: "9px 11px", borderRadius: 12, overflow: "hidden", border: `1px solid ${C.line}`, cursor: tip ? "help" : undefined }}>
     <div className="flex justify-between items-center" style={{ position: "relative" }}>
-      <span style={{ color: C.mute, fontSize: 11, letterSpacing: 0.4, textTransform: "uppercase", fontWeight: 700 }}>{k}</span>
+      <span style={{ color: C.mute, fontSize: 11, letterSpacing: 0.4, textTransform: "uppercase", fontWeight: 700 }}>{k}{tip && <span style={{ opacity: 0.55, marginLeft: 3 }}>ⓘ</span>}</span>
       <b style={{ ...ORB, fontSize: 15, color: C.text }}>{v}</b>
     </div>
     <div style={{ position: "absolute", left: 0, bottom: 0, height: 2, width: (pct != null ? Math.max(4, Math.min(100, pct)) : 100) + "%", background: `linear-gradient(90deg, ${col}, transparent)` }} />
@@ -4696,6 +4936,14 @@ function RelicEquip({ o, setOwnedField, relicInv, onUpgradeRelic }) {
    ========================================================================== */
 function TeamScreen({ owned, team, setTeam, startTest, flash }) {
   const toggle = (id) => setTeam((t) => t.includes(id) ? t.filter((x) => x !== id) : t.length < 4 ? [...t, id] : t);
+  function autoFill() {
+    const sorted = [...owned].filter((o) => CHAR_MAP[o.id]).sort((a, b) => {
+      const da = CHAR_MAP[a.id], db = CHAR_MAP[b.id];
+      return db.rarity - da.rarity || (b.level || 1) - (a.level || 1);
+    });
+    setTeam(sorted.slice(0, 4).map((o) => o.id));
+    flash("⚔️ Equipe preenchida com os 4 personagens de maior raridade/nível", C.gold);
+  }
   return (
     <div className="flex flex-col gap-4">
       <Panel glow={C.gold}>
@@ -4704,7 +4952,7 @@ function TeamScreen({ owned, team, setTeam, startTest, flash }) {
           <div key={i} style={{ flex: 1, border: `1px dashed ${C.line}`, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 70 }}>
             {def ? <div style={{ textAlign: "center" }}><div style={{ fontSize: 24 }}>{def.avatar}</div><div style={{ fontSize: 10, color: ELEMENTS[def.element].color }}>{ROLES[def.role].label}</div></div> : <span style={{ color: C.mute, fontSize: 12 }}>vazio</span>}
           </div>); })}</div>
-        <div className="flex gap-2 mt-3"><Btn disabled={!team.length} onClick={() => team.length ? startTest() : flash("Monte uma equipe", C.bad)}>Batalha de teste ⚔️</Btn><Btn kind="soft" onClick={() => setTeam([])}>Limpar</Btn></div>
+        <div className="flex gap-2 mt-3"><Btn disabled={!team.length} onClick={() => team.length ? startTest() : flash("Monte uma equipe", C.bad)}>Batalha de teste ⚔️</Btn><Btn kind="soft" onClick={autoFill}>Auto-preencher ✨</Btn><Btn kind="soft" onClick={() => { if (team.length && !window.confirm("Limpar a equipe atual?")) return; setTeam([]); }}>Limpar</Btn></div>
         <div style={{ fontSize: 12, color: C.mute, marginTop: 8 }}>Dica: 1-2 DPS + suportes. Coloque o Kaiba pra invocar o dragão em combate.</div>
       </Panel>
       <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))" }}>
@@ -5095,15 +5343,16 @@ function makeEnemy(idx, enc) {
   const _monoWeakEl = _isBoss0 ? (enc.monoWeakEl || null) : null; // Boneco de Treino: HP infinito (modo de teste)
   const lvl = enc.level, boss = enc.boss && idx === 0, finalBoss = enc.finalBoss && idx === 0, weekly = enc.weekly && idx === 0, ascend = enc.ascend && idx === 0;
   const power = enc.teamPower || 2500;
+  const _comp = enemyLevelComp(lvl); // suaviza dificuldade em conteúdo de nível baixo/médio (ver comentário acima)
   let baseHp;
   if (enc.tagDungeon) {
     // HP fixo baseado no nível — não escala com poder do time (estilo HSR)
     // Ondas regulares têm HP substancialmente maior que dungeons de farm
-    baseHp = 210 * Math.pow(lvl, 1.26) + idx * 400;
+    baseHp = 210 * Math.pow(lvl, 1.26) * _comp + idx * 400;
     if (boss) baseHp *= 4.0; // Guardião da Tag (rebalance: -27%)
   } else {
     // HP atrelado ao PODER da equipe (invariante de escala) — mantém a luta justa mesmo após o rebalanceamento HSR
-    baseHp = power * 0.55 + lvl * 260 + idx * 120; // HSR: HP guiado pelo nível do inimigo
+    baseHp = power * 0.55 + lvl * 260 * _comp + idx * 120; // HSR: HP guiado pelo nível do inimigo
     if (enc.relicFarm) baseHp *= 0.20; // Dungeon de relíquias: bem mais rápida
     if (enc.ascend) baseHp *= 0.35; // Dungeon de ascensão: mais acessível
     // Torre: NPCs do andar 90+ têm HP escalado (1× no 90 → 5× no 200)
@@ -5116,7 +5365,9 @@ function makeEnemy(idx, enc) {
       const f = enc.floor || enc.level;
       // Recalibrado para a curva de dano nova (250k build média · 1.5M build boa · 2-3M E6 perfeito):
       // andar 50 ≈ 250k · 100 ≈ 1.3M · 200 ≈ 7M · 300 ≈ 19M · 450 ≈ 52M (≈25 golpes de 2M)
-      baseHp = Math.round(250000 * Math.pow(Math.max(1, f) / 50, 2.4));
+      // Andares 10-69 recebem a mesma compensação de dificuldade da curva de personagem (converge a 1.0 no andar 70+,
+      // então os pontos de referência acima — calibrados a partir do andar 50 — continuam intactos).
+      baseHp = Math.round(250000 * Math.pow(Math.max(1, f) / 50, 2.4) * enemyLevelComp(f));
     } else if (boss) {
       baseHp *= enc.darkTower ? (enc.darkTowerHpMul || 6) : (finalBoss ? 7.0 : weekly ? 7.0 : ascend ? 2.4 : enc.relicFarm ? 0.85 : 4.0);
     }
@@ -5128,8 +5379,8 @@ function makeEnemy(idx, enc) {
   const dungeonAtkMult = enc.tagDungeon ? 1.38 : enc.isTower ? Math.min(1.55, 0.9 + Math.max(0, (enc.floor || enc.level || 50) - 50) / 130) : enc.espiral ? 1.3 : enc.abismo ? 1.25 : 1.5;
   // HSR-style: ATK vem do nível do inimigo (não do poder do time), então investir em build
   // realmente te protege. Só um resíduo pequeno acompanha o time pra não ficar trivial.
-  const atk = Math.round((lvl * 8.5 + power * 0.012 + 120) * (boss ? 1.45 : 1) * atkReduce * dungeonAtkMult);
-  const def = Math.round(lvl * 6 + power * 0.012 + (boss ? lvl * 4 : 0)); // DEF também por nível (HSR)
+  const atk = Math.round((lvl * 8.5 * _comp + power * 0.012 + 120) * (boss ? 1.45 : 1) * atkReduce * dungeonAtkMult);
+  const def = Math.round(lvl * 6 * _comp + power * 0.012 + (boss ? lvl * 4 * _comp : 0)); // DEF também por nível (HSR)
   const spd = 102 + idx * 3 + (boss ? 14 : 4);
   if (enc.bossRush && idx === 0) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===enc.bossId;}); if (bd) { const atkBr = Math.round(3300 + (enc.level||90) * 11); const defBr = Math.round(2450 + (enc.level||90) * 8); return { uid: "E0", side: "enemy", name: bd.name, bossTitle: bd.lore, bossImgId: bd.imgKey, avatar: bd.avatar, element: bd.element, level: bd.level, roleKey: "dps", bossKind: bd.kind, boss: true, finalBoss: false, weekly: false, ascend: false, elite: false, res: bd.res || [], weak: bd.weak || [], base: { atk: atkBr, def: defBr, spd: 112, critRate: 15, critDmg: 60, dmgBonus: 0 }, hp: bd.hp, maxHp: bd.hp, shield: 0, av: 10000 / 112, buffs: [], debuffs: [], dots: [], alive: true, actCount: 0, _hasToughness: (bd.weak || []).length > 0, toughness: 150, maxToughness: 150 }; } }
   const bossEl = enc.bossElement || pick(ELEMENT_NAMES);
@@ -7236,7 +7487,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         const kAllies = s.heroes.filter(h => h.alive);
         kAllies.forEach(a => { if (!a.buffs.some(b => b.name === "GuardiaoCos")) a.buffs.push({ stat: "dmgReduce", value: 15, turns: 2, name: "GuardiaoCos" }); });
       }
-      const fx = s.fx, sk = u.skill, allies = s.heroes.filter((h) => h.alive), enemy = targetEnemy(s);
+      const fx = s.fx, sk = u.skill, allies = s.heroes.filter((h) => h.alive);
+      let enemy = targetEnemy(s);
       const f = u.stFlags || {};
       // ── Protocolo Ômega 4pç: 3 Fases de HP ──────────────────────────────
       if (f.setOmega4 && !u.isSummon) {
@@ -9332,7 +9584,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         <div className="flex gap-2" style={{ flexWrap: "wrap" }}>
           {state.enemies.map((e, i) => { const al = aliveEnemies(state); const isTarget = al[target]?.uid === e.uid; const eel = ELEMENTS[e.element] || { color: C.line, glyph: "✦" }; return (
             <button key={e.uid} disabled={!e.alive} onClick={() => { const idx = al.findIndex((x) => x.uid === e.uid); if (idx >= 0) { if (isTarget) setInspectUid(e.uid); else setTarget(idx); } }}
-              style={{ flex: 1, minWidth: 96, position: "relative", opacity: e.alive ? 1 : 0.3, border: `2px solid ${isTarget && e.alive ? C.bad : C.line}`, borderRadius: 12, padding: 8, background: e.boss ? "linear-gradient(180deg,#2a1020,#160a16)" : C.panel, boxShadow: isTarget && e.alive ? `0 0 14px ${C.bad}66` : "none" }}>
+              style={{ flex: 1, minWidth: 96, position: "relative", opacity: e.alive ? 1 : 0.3, border: `2px solid ${isTarget && e.alive ? C.bad : C.line}`, borderRadius: 12, padding: 8, background: e.boss ? "linear-gradient(180deg,#2a1020,#160a16)" : `linear-gradient(165deg, ${C.panelHi}, ${C.panel})`, boxShadow: isTarget && e.alive ? `0 0 14px ${C.bad}66` : "none" }}>
               <FX fx={state.fx} uid={e.uid} />
               <div className="flex items-center justify-between" style={{ marginBottom: 2 }}>
                 <span style={{ fontSize: 9, color: eel.color }}>{eel.glyph} {e.boss ? "CHEFE" : `Nv ${e.level}`}</span>
@@ -9466,7 +9718,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         <div className="flex gap-2" style={{ flexWrap: "wrap" }}>
           {state.heroes.map((h) => { const active = current && current.uid === h.uid; const el = ELEMENTS[h.element] || { color: C.line }; const full = !h.isSummon && h.energyMax > 0 && h.energy >= h.energyMax;
             const lupaOC = h.id === "lupa" && (h._lupaOverclock || 0) > 0; return (
-            <div key={h.uid} onClick={() => setInspectUid(h.uid)} style={{ flex: 1, minWidth: 112, position: "relative", opacity: h.alive ? 1 : 0.35, border: `2px solid ${lupaOC ? "#FF3B30" : active ? C.gold : el.color + "55"}`, borderRadius: 12, padding: 8, background: lupaOC ? "linear-gradient(180deg,#3a0e08,#150402)" : C.panel, boxShadow: lupaOC ? "0 0 22px #FF3B30aa, 0 0 8px #FF7A2988 inset" : active ? `0 0 16px ${C.gold}55` : "none", cursor: "pointer", animation: lupaOC ? "srLupaFire 1.1s ease-in-out infinite" : "none" }}>
+            <div key={h.uid} onClick={() => setInspectUid(h.uid)} style={{ flex: 1, minWidth: 112, position: "relative", opacity: h.alive ? 1 : 0.35, border: `2px solid ${lupaOC ? "#FF3B30" : active ? C.gold : el.color + "55"}`, borderRadius: 12, padding: 8, background: lupaOC ? "linear-gradient(180deg,#3a0e08,#150402)" : `linear-gradient(165deg, ${C.panelHi}, ${C.panel})`, boxShadow: lupaOC ? "0 0 22px #FF3B30aa, 0 0 8px #FF7A2988 inset" : active ? `0 0 16px ${C.gold}55` : "none", cursor: "pointer", animation: lupaOC ? "srLupaFire 1.1s ease-in-out infinite" : "none" }}>
               {lupaOC && <style>{`@keyframes srLupaFire{0%,100%{box-shadow:0 0 18px #FF3B30aa,0 0 6px #FF7A2988 inset}50%{box-shadow:0 0 30px #FF6A00cc,0 0 14px #FFD24988 inset}}`}</style>}
               <FX fx={state.fx} uid={h.uid} />
               <div className="flex items-center gap-2">
@@ -9474,7 +9726,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: lupaOC ? "#FF8A5C" : undefined }}>{lupaOC ? "🔥 " : ""}{h.name}{h.isSummon && <span style={{ color: el.color }}> ⟡</span>}</div>
                   {h.isSummon && isFinite(h.life) && <div style={{ fontSize: 9, color: el.color }}>⏳ {h.life} turno(s)</div>}
-                  {!h.isSummon && h.energyMax > 0 && <div style={{ fontSize: 9, color: full ? C.gold : "#B98BFF" }}>⚡ {Math.round(h.energy)}/{h.energyMax}{full ? " · PRONTO" : ""}</div>}
+                  {!h.isSummon && h.energyMax > 0 && <div style={{ fontSize: 9, color: full ? C.gold : "#6FA8FF" }}>⚡ {Math.round(h.energy)}/{h.energyMax}{full ? " · PRONTO" : ""}</div>}
                   {h.id === "agumon" && <div style={{ fontSize: 9, color: (h.agHeat || 0) > 70 ? "#FF7043" : "#FFB74D" }}>{AGU_FORMS[h.agForm || "agumon"]?.emoji} {AGU_FORMS[h.agForm || "agumon"]?.name}{(h.agModoX || 0) > 0 ? " · MODO X⚡" : ""} · 🔥{h.agHeat || 0} · 🧬{h.agSP || 0} SP{(h.agHeat || 0) >= 85 ? " ☢️" : ""}</div>}
                   {h.id === "miyabi" && (h.stFlags?.miPostura) && <div style={{ fontSize: 9, color: "#6FE3FF" }}>{"❄".repeat(Math.min(h.posturePH || 0, h.stFlags?.miC6 ? 4 : 3))}{"·".repeat(Math.max(0, (h.stFlags?.miC6 ? 4 : 3) - (h.posturePH || 0)))} {((h.posturePH || 0) >= (h.stFlags?.miC6 ? 4 : 3)) ? "Postura Iaido!" : "PH"}</div>}
                   {h.id === "soifon" && <div style={{ fontSize: 9, color: ELEMENTS["Vento"]?.color || "#7CFFB0" }}>{h.sfPostura ? "🦋 POSTURA DE FERRÃO!" : `🦋 Vibração ${h.sfCharges || 0}/3`}</div>}
@@ -9706,8 +9958,8 @@ function abilityHint(h) {
 function EnergyRing({ pct, full, size }) {
   const r = size / 2 - 2, c = 2 * Math.PI * r, off = c * (1 - Math.max(0, Math.min(1, pct)));
   return <svg width={size} height={size} style={{ position: "absolute", top: -3, left: -3, transform: "rotate(-90deg)", pointerEvents: "none" }}>
-    <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#2a2350" strokeWidth="3" />
-    <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={full ? C.gold : "#B98BFF"} strokeWidth="3" strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" style={{ filter: full ? `drop-shadow(0 0 4px ${C.gold})` : "none", transition: "stroke-dashoffset .35s" }} />
+    <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#1A2436" strokeWidth="3" />
+    <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={full ? C.gold : "#6FA8FF"} strokeWidth="3" strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" style={{ filter: full ? `drop-shadow(0 0 4px ${C.gold})` : "none", transition: "stroke-dashoffset .35s" }} />
   </svg>;
 }
 function DotPips({ unit }) {
@@ -9768,16 +10020,17 @@ function predictTurnOrder(units, n) {
 }
 function TurnOrderBar({ units }) {
   const order = predictTurnOrder(units, 7);
-  return <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 2px 10px", overflowX: "auto" }}>
-    <span style={{ fontSize: 9, color: C.mute, whiteSpace: "nowrap", marginRight: 2 }}>PRÓXIMOS ▸</span>
+  return <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "6px 10px 12px", overflowX: "auto", background: `linear-gradient(180deg, ${C.bg0}cc, transparent)`, borderBottom: `1px solid ${C.line}66`, borderRadius: "0 0 14px 14px" }}>
+    <span style={{ fontSize: 9, color: C.mute, whiteSpace: "nowrap", marginRight: 2, fontWeight: 700, letterSpacing: 0.5 }}>PRÓXIMOS ▸</span>
     {order.map((u, i) => { const el = ELEMENTS[u.element] || { color: C.line }; const enemy = u.side === "enemy"; const isHero = u.side === "H"; return (
       <React.Fragment key={i}>
-        {u._cycleBreakBefore && <div style={{ flexShrink: 0, width: 2, height: 30, background: "#8AA0FF77", borderRadius: 2, margin: "0 2px" }} title="Novo Ciclo" />}
+        {u._cycleBreakBefore && <div style={{ flexShrink: 0, width: 2, height: 30, background: "#6FA8FF77", borderRadius: 2, margin: "0 2px" }} title="Novo Ciclo" />}
         <div style={{ position: "relative", flexShrink: 0 }}>
-          <div style={{ width: i === 0 ? 38 : 30, height: i === 0 ? 38 : 30, borderRadius: 99, border: `2px solid ${enemy ? C.bad : el.color}`, background: enemy ? "#2a1018" : C.panelHi, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", boxShadow: i === 0 ? `0 0 8px ${enemy ? C.bad : el.color}` : "none" }}>
+          <div style={{ width: i === 0 ? 38 : 30, height: i === 0 ? 38 : 30, borderRadius: 99, border: `2px solid ${enemy ? C.bad : el.color}`, background: enemy ? "#2A121A" : C.panelHi, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", boxShadow: i === 0 ? `0 0 10px ${enemy ? C.bad : el.color}99` : "none" }}>
             {isHero ? <Avatar ch={{ id: u.id || u.imgKey, element: u.element, avatar: u.avatar }} size={i === 0 ? 38 : 30} /> : <span style={{ fontSize: i === 0 ? 20 : 16 }}>{u.avatar}</span>}
           </div>
-          {i === 0 && <div style={{ position: "absolute", bottom: -9, left: 0, right: 0, textAlign: "center", fontSize: 7, color: C.gold, fontWeight: 800 }}>AGORA</div>}
+          {i === 0 && <div style={{ position: "absolute", top: -3, left: "50%", transform: "translateX(-50%) rotate(45deg)", width: 6, height: 6, background: C.gold, boxShadow: `0 0 6px ${C.gold}` }} />}
+          {i === 0 && <div style={{ position: "absolute", bottom: -9, left: 0, right: 0, textAlign: "center", fontSize: 7, color: C.gold, fontWeight: 800, letterSpacing: 0.5 }}>AGORA</div>}
         </div>
       </React.Fragment>); })}
   </div>;
@@ -9842,6 +10095,7 @@ function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, setRelicMats, 
   const [allyList, setAllyList] = useState([]);
   const [picking, setPicking] = useState(false);
   const [loadingList, setLoadingList] = useState(false);
+  const [allyQuery, setAllyQuery] = useState("");
   useEffect(() => { (async () => setAlly((await fetchRandomAlly()) || defaultAlly()))(); }, []);
 
   async function openPicker() {
@@ -9886,8 +10140,11 @@ function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, setRelicMats, 
         <Panel glow={C.gold}>
           <div className="flex items-center justify-between"><b>Escolher aliado</b><button onClick={() => setPicking(false)} style={{ color: C.mute, fontSize: 12 }}>fechar ✕</button></div>
           {loadingList ? <div style={{ color: C.mute, fontSize: 12, marginTop: 8 }}>Carregando aliados…</div> :
-            <div className="flex flex-col gap-2 mt-2" style={{ maxHeight: 320, overflowY: "auto" }}>
-              {allyList.map((a, i) => (
+            <>
+              {allyList.length > 5 && <input value={allyQuery} onChange={(e) => setAllyQuery(e.target.value)} placeholder="🔎 Buscar por nome ou jogador..." style={{ width: "100%", marginTop: 8, background: C.panel, border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 10px", fontSize: 12, color: C.text }} />}
+              <div className="flex flex-col gap-2 mt-2" style={{ maxHeight: 320, overflowY: "auto" }}>
+                {allyQuery.trim() && allyList.filter((a) => a.name.toLowerCase().includes(allyQuery.trim().toLowerCase()) || (a.player || "").toLowerCase().includes(allyQuery.trim().toLowerCase())).length === 0 && <div style={{ color: C.mute, fontSize: 12, padding: 8 }}>Nenhum aliado encontrado com esse termo.</div>}
+                {allyList.filter((a) => !allyQuery.trim() || a.name.toLowerCase().includes(allyQuery.trim().toLowerCase()) || (a.player || "").toLowerCase().includes(allyQuery.trim().toLowerCase())).map((a, i) => (
                 <button key={i} onClick={() => { setAlly(a); setPicking(false); }} className="flex items-center gap-3 text-left" style={{ background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: 8 }}>
                   <Avatar ch={{ id: a.player === "Aliada IA" ? "yoruichi" : "ally", element: a.element, avatar: a.avatar }} size={40} />
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -9896,7 +10153,8 @@ function Coop({ team, ownedMap, stamina, setStamina, setRelicInv, setRelicMats, 
                   </div>
                 </button>
               ))}
-            </div>}
+              </div>
+            </>}
         </Panel>
       )}
       <Panel>
@@ -9923,6 +10181,7 @@ function RelicsScreen({ relicInv, setRelicInv, owned, setRelicMats, relicMats, o
   const [confirmSell, setConfirmSell] = useState(null); // relic id pending sell confirmation
   const [onlyFree, setOnlyFree] = useState(false); // só não-equipadas
   const [confirmBulk, setConfirmBulk] = useState(false);
+  const [relicQuery, setRelicQuery] = useState("");
   const semRelics = !relicInv.length; // não retorna cedo: os Domínios precisam aparecer mesmo sem relíquias
 
   // Mapa de relíquias equipadas: relicId -> [{charName, avatar}]
@@ -9933,12 +10192,21 @@ function RelicsScreen({ relicInv, setRelicInv, owned, setRelicMats, relicMats, o
   });
 
   function sellRelic(id) {
+    const r = relicInv.find((x) => x.id === id);
+    if (r && r.locked) { flash && flash("Relíquia travada 🔒 — destrave antes de vender", C.bad); setConfirmSell(null); return; }
+    if (r && (r.level || 0) >= 9 && confirmSell === id) {
+      // segunda confirmação nativa pra relíquias já bem investidas (nível 9+)
+      if (!window.confirm(`Essa relíquia está no nível +${r.level}! Tem certeza que quer vender mesmo assim?`)) { setConfirmSell(null); return; }
+    }
     setRelicInv((p) => p.filter((r) => r.id !== id));
     setRelicMats((v) => v + 8);
     setConfirmSell(null);
     flash && flash("Relíquia vendida · +8 🔷 Matéria de Relíquia", C.gold);
   }
-  const junk = relicInv.filter((r) => !equippedBy[r.id] && (r.level || 0) === 0);
+  function toggleLockRelic(id) {
+    setRelicInv((p) => p.map((r) => r.id === id ? { ...r, locked: !r.locked } : r));
+  }
+  const junk = relicInv.filter((r) => !equippedBy[r.id] && (r.level || 0) === 0 && !r.locked);
   function sellJunk() {
     if (!junk.length) return;
     const ids = new Set(junk.map((r) => r.id));
@@ -9948,7 +10216,8 @@ function RelicsScreen({ relicInv, setRelicInv, owned, setRelicMats, relicMats, o
     flash && flash(`${junk.length} relíquias vendidas · +${junk.length * 8} 🔷 Matéria de Relíquia`, C.gold);
   }
 
-  const filtered = onlyFree ? relicInv.filter((r) => !equippedBy[r.id]) : relicInv;
+  const filtered = (onlyFree ? relicInv.filter((r) => !equippedBy[r.id]) : relicInv)
+    .filter((r) => !relicQuery.trim() || (r.set || "").toLowerCase().includes(relicQuery.trim().toLowerCase()));
   const groups = (group === "set"
     ? Object.entries(filtered.reduce((acc, r) => { (acc[r.set] = acc[r.set] || []).push(r); return acc; }, {}))
     : RELIC_SLOTS.map((sl) => [sl.name, filtered.filter((r) => (r.slot ?? 0) === sl.i)]).filter(([, list]) => list.length)
@@ -10016,6 +10285,7 @@ function RelicsScreen({ relicInv, setRelicInv, owned, setRelicMats, relicMats, o
           <Chip active={onlyFree} onClick={() => setOnlyFree((v) => !v)}>Só não-equipadas</Chip>
         </div>
       </div>
+      <input value={relicQuery} onChange={(e) => setRelicQuery(e.target.value)} placeholder="🔎 Buscar por conjunto..." style={{ width: "100%", marginTop: 8, background: C.panel, border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 10px", fontSize: 12, color: C.text }} />
       {junk.length > 0 && (
         <div className="flex items-center justify-between mt-3" style={{ background: "#2a1414", border: `1px solid ${C.bad}55`, borderRadius: 10, padding: "8px 12px" }}>
           <div style={{ fontSize: 12 }}>🗑️ <b>{junk.length}</b> relíquias nível 0 sem uso — dá pra vender.</div>
@@ -10044,15 +10314,18 @@ function RelicsScreen({ relicInv, setRelicInv, owned, setRelicMats, relicMats, o
             {setData.d2 && <div><b style={{ color: setData.color }}>2pç:</b> {setData.d2}</div>}
             {setData.d4 && <div style={{ marginTop: 2 }}><b style={{ color: setData.color }}>4pç:</b> {setData.d4}</div>}
             {setData.d6 && <div style={{ marginTop: 2 }}><b style={{ color: setData.color }}>6pç:</b> {setData.d6}</div>}
+            <div style={{ marginTop: 4, opacity: 0.8 }}>💼 {list.length} peça(s) no inventário — o bônus só ativa com peças <b>equipadas no mesmo personagem</b>.</div>
           </div>}
           <div className="grid gap-2 mt-3" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(140px,1fr))" }}>
             {list.map((r) => {
               const equipped = equippedBy[r.id];
               return (
                 <div key={r.id} style={{ position: "relative" }}>
-                  <RelicCardHSR r={r} def={null} badge={equipped ? "✓ EQUIPADA" : null} onClick={() => setDetail(r)} />
+                  <RelicCardHSR r={r} def={null} badge={equipped ? "✓ EQUIPADA" : r.locked ? "🔒" : null} onClick={() => setDetail(r)} />
+                  <button onClick={(e) => { e.stopPropagation(); toggleLockRelic(r.id); }} title={r.locked ? "Destravar" : "Travar (protege contra venda)"}
+                    style={{ position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: 99, background: r.locked ? "#ffd76a" : "#00000088", color: r.locked ? "#1a1000" : "#fff", border: `1px solid ${r.locked ? "#ffd76a" : C.line}`, fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center" }}>{r.locked ? "🔒" : "🔓"}</button>
                   {equipped && <div style={{ fontSize: 10, color: C.good, marginTop: 4, fontWeight: 700 }}>em {equipped.join(", ")}</div>}
-                  {!equipped && (confirmSell === r.id ? (
+                  {!equipped && !r.locked && (confirmSell === r.id ? (
                     <div className="flex gap-1 mt-2">
                       <button onClick={() => sellRelic(r.id)} style={{ flex: 1, fontSize: 11, fontWeight: 700, color: "#fff", background: C.bad, borderRadius: 6, padding: "3px 0" }}>Confirmar</button>
                       <button onClick={() => setConfirmSell(null)} style={{ flex: 1, fontSize: 11, color: C.mute, background: C.panel, borderRadius: 6, padding: "3px 0" }}>Cancelar</button>
@@ -10060,6 +10333,7 @@ function RelicsScreen({ relicInv, setRelicInv, owned, setRelicMats, relicMats, o
                   ) : (
                     <button onClick={() => setConfirmSell(r.id)} style={{ marginTop: 6, fontSize: 11, color: C.bad, fontWeight: 700 }}>🗑️ Vender (+8 🔷)</button>
                   ))}
+                  {!equipped && r.locked && <div style={{ marginTop: 6, fontSize: 11, color: C.mute }}>🔒 protegida</div>}
                 </div>
               );
             })}
@@ -10741,13 +11015,19 @@ function SynthesisBench({ res, flash }) {
     if ((r.have || 0) < r.cost) { flash(`Faltam recursos — precisa de ${r.cost} de ${r.from}`, C.bad); return; }
     r.pay(); r.give(); flash(`✅ ${r.cost} ${r.from} → ${r.gain} ${r.to}`, C.good);
   }
+  function craftMax(r) {
+    const times = Math.floor((r.have || 0) / r.cost);
+    if (times <= 0) { flash(`Faltam recursos — precisa de ${r.cost} de ${r.from}`, C.bad); return; }
+    for (let i = 0; i < times; i++) { r.pay(); r.give(); }
+    flash(`✅ Sintetizado ${times}× · ${times * r.cost} ${r.from} → ${times * r.gain} ${r.to}`, C.good);
+  }
   return (
     <Panel glow="#7CFFB0">
       <div style={{ ...ORB, fontWeight: 800, fontSize: 16 }}>⚗️ Bancada de Síntese</div>
       <div style={{ fontSize: 12, color: C.mute, marginTop: 2 }}>Converte o que sobra no que falta. Ideal pra Lácrimas de XP e Crônicas paradas.</div>
       <div className="flex flex-col gap-2" style={{ marginTop: 10 }}>
         {RECIPES.map((r) => { const ok = (r.have || 0) >= r.cost; return (
-          <div key={r.id} style={{ background: `linear-gradient(110deg, ${r.c}16, ${C.panelHi})`, border: `1px solid ${r.c}44`, borderRadius: 12, padding: "10px 12px" }}>
+          <div key={r.id} style={{ background: `linear-gradient(110deg, ${r.c}16, ${C.panelHi})`, border: `1px solid ${r.c}44`, borderRadius: 12, padding: "10px 12px", opacity: ok ? 1 : 0.55 }}>
             <div className="flex items-center justify-between" style={{ gap: 10 }}>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: 12, fontWeight: 800 }}>
@@ -10758,7 +11038,10 @@ function SynthesisBench({ res, flash }) {
                 <div style={{ fontSize: 10, color: C.mute, marginTop: 2 }}>{r.why}</div>
                 <div style={{ fontSize: 10, color: ok ? C.mute : C.bad, marginTop: 2 }}>Você tem: <b>{r.have || 0}</b></div>
               </div>
-              <Btn kind={ok ? "primary" : "soft"} disabled={!ok} style={{ padding: "7px 14px", fontSize: 12, whiteSpace: "nowrap" }} onClick={() => craft(r)}>Sintetizar</Btn>
+              <div className="flex gap-1" style={{ flexDirection: "column" }}>
+                <Btn kind={ok ? "primary" : "soft"} disabled={!ok} style={{ padding: "7px 14px", fontSize: 12, whiteSpace: "nowrap" }} onClick={() => craft(r)}>Sintetizar</Btn>
+                {ok && Math.floor((r.have || 0) / r.cost) > 1 && <Btn kind="soft" style={{ padding: "5px 14px", fontSize: 10, whiteSpace: "nowrap" }} onClick={() => craftMax(r)}>Máx (×{Math.floor((r.have || 0) / r.cost)})</Btn>}
+              </div>
             </div>
           </div>); })}
       </div>
@@ -10891,7 +11174,7 @@ function Loja({ chronicles, setChronicles, expItems, setExpItems, weaponMats, se
             const canBuy = left > 0 && (isAdmin || chronicles >= item.cost);
             const isSpec = item.cat === "special";
             return (
-              <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 12, background: isSpec ? "#e8c97a08" : C.panelHi, border: "1px solid " + (isSpec ? "#e8c97a33" : C.line), borderRadius: 12, padding: "12px 14px" }}>
+              <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 12, background: isSpec ? "#e8c97a08" : C.panelHi, border: "1px solid " + (isSpec ? "#e8c97a33" : C.line), borderRadius: 12, padding: "12px 14px", opacity: canBuy ? 1 : 0.55, filter: canBuy ? "none" : "grayscale(0.3)" }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 700, fontSize: 14 }}>{item.label}</div>
                   <div style={{ fontSize: 11, color: C.mute, marginTop: 2 }}>{item.desc}</div>
@@ -11823,11 +12106,26 @@ function Correio({ mailClaimed, setMailClaimed, mailIniciante, setMailIniciante,
     { icon: "🔶", label: "Núcleos de Ascensão de Personagem", value: "10" },
   ];
 
+  const autoClaimables = [
+    { done: mailClaimed, fn: claimMail },
+    { done: mailIniciante, fn: claimMailIniciante },
+    { done: mail2Claimed, fn: claimMail2Reward },
+    { done: mail4Claimed, fn: claimMail4Reward },
+    { done: mail6Claimed, fn: claimMail6Reward },
+    { done: mail7Claimed, fn: claimMail7Reward },
+    { done: mail8Claimed, fn: claimMail8Reward },
+  ];
+  const pendingCount = autoClaimables.filter((m) => !m.done).length;
+  function claimAllSimple() {
+    for (const m of autoClaimables) if (!m.done) m.fn();
+    if (pendingCount > 0) flash(`📬 ${pendingCount} correio(s) coletado(s)! (itens que exigem escolha de personagem continuam abaixo)`, C.gold);
+  }
   return (
     <div className="flex flex-col gap-4">
       <Panel glow={C.gold}>
         <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>📬 Correio</div>
         <div style={{ fontSize: 13, color: C.mute, marginTop: 4 }}>Mensagens e recompensas enviadas pelo sistema.</div>
+        {pendingCount > 0 && <Btn kind="primary" style={{ width: "100%", marginTop: 10, padding: "10px 18px", fontWeight: 800 }} onClick={claimAllSimple}>📦 Reivindicar tudo ({pendingCount})</Btn>}
       </Panel>
 
       {!mail8Claimed && (
@@ -12179,38 +12477,43 @@ const WIKI_DOTS = [
   { n: "Ciclone", c: "#74E8A6", icon: "🌀", tag: "Vento · dano por turno", txt: "DoT de vento padrão aplicado por algumas habilidades (ex: Nami)." },
 ];
 function WikiScreen() {
+  const [wikiQuery, setWikiQuery] = useState("");
+  const filteredDots = WIKI_DOTS.filter((d) => !wikiQuery.trim() || d.n.toLowerCase().includes(wikiQuery.trim().toLowerCase()) || d.tag.toLowerCase().includes(wikiQuery.trim().toLowerCase()));
   return <div className="flex flex-col gap-4">
     <Panel glow="#8AA0FF">
       <div style={{ ...ORB, fontWeight: 900, fontSize: 20 }}>📚 Wiki — Efeitos de Combate</div>
       <div style={{ fontSize: 12, color: C.mute, marginTop: 4 }}>Como os efeitos ao longo do tempo (DoTs) e efeitos de gatilho funcionam no motor de batalha.</div>
+      <input value={wikiQuery} onChange={(e) => setWikiQuery(e.target.value)} placeholder="🔎 Buscar efeito (ex: Sangramento, Fogo...)" style={{ width: "100%", marginTop: 10, background: C.panel, border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 10px", fontSize: 12, color: C.text }} />
+      {wikiQuery && <button onClick={() => setWikiQuery("")} style={{ color: C.mute, fontSize: 12, marginTop: 4 }}>× limpar busca</button>}
     </Panel>
-    <Panel glow="#F2C245">
+    {!wikiQuery.trim() && <Panel glow="#F2C245">
       <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 4 }}>⏳ Recarga de Reaplicação de DoT</div>
       <div style={{ fontSize: 12, color: C.mute, lineHeight: 1.75 }}>
         Todo DoT (de qualquer tipo) que <b>termina naturalmente</b> num alvo entra numa recarga de <b>2 turnos inteiros</b> antes de poder ser reaplicado nesse mesmo alvo — evita manter um alvo perpetuamente sob o mesmo efeito só reaplicando sem parar. Enquanto o DoT ainda estiver ATIVO, reaplicar continua funcionando normalmente (acumula/estende); a recarga só entra em ação depois que ele acaba.
       </div>
-    </Panel>
-    <Panel glow="#8AA0FF">
+    </Panel>}
+    {!wikiQuery.trim() && <Panel glow="#8AA0FF">
       <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🔄 Sistema de Ciclos (Torre)</div>
       <div style={{ fontSize: 12, color: C.mute, lineHeight: 1.75 }}>
         Assim como no Honkai: Star Rail, o combate acompanha um relógio global de Valor de Ação: cada 10.000 de VA consumidos entre todos os personagens e inimigos equivale a <b>1 Ciclo</b>. Na Torre, um indicador mostra o ciclo atual e pisca ao trocar. Não há limite de ciclos — é só informativo, pra você comparar a velocidade da sua equipe entre tentativas.
       </div>
-    </Panel>
-    <Panel glow="#F2C245">
+    </Panel>}
+    {!wikiQuery.trim() && <Panel glow="#F2C245">
       <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🛡️💢 Sistema de Perfuração (Resistência)</div>
       <div style={{ fontSize: 12, color: C.mute, lineHeight: 1.75 }}>
         Chefes e Elites com fraqueza elemental têm uma <b>barra de Resistência</b> além do HP. Enquanto ela estiver ativa, o inimigo recebe <b>-10% de todo dano</b>. Só ataques do elemento que ele é FRACO consomem a barra: Ataque Básico tira 1 unidade, Perícia 2, Suprema 3 — qualquer personagem consegue quebrar, não só um "boneco de perfuração" dedicado.<br/><br/>
         Ao zerar, ocorre a <b>Perfuração</b>: dano instantâneo baseado no tamanho da barra e no nível de quem quebrou, atraso na ação do inimigo, e um efeito exclusivo do elemento (Fogo queima, Vento lacera acumulando, Glacial congela, Holy atrasa e reduz VEL, Vírus corrói DEF/ATK, Eletro aplica Fulgur Resonance, Chaos marca uma explosão que cresce a cada hit sofrido até estourar no turno do inimigo).<br/><br/>
         A barra se regenera sozinha no início do próximo turno natural do inimigo. Dois atributos de build controlam isso: <b>Efeito de Perfuração</b> (amplifica o dano/atraso/DoT da quebra — não a velocidade) e <b>Eficiência de Perfuração</b> (faz cada ataque tirar mais unidades da barra — esse é o atributo que só personagens dedicados a esse nicho conseguem empilhar alto, 100%+, pra quebrar quase instantaneamente).
       </div>
-    </Panel>
-    <Panel>
+    </Panel>}
+    {!wikiQuery.trim() && <Panel>
       <div style={{ ...ORB, fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🕒 DoTs de tick clássico vs. DoTs de gatilho</div>
       <div style={{ fontSize: 12, color: C.mute, lineHeight: 1.7 }}>
         A maioria dos efeitos (Ignis, Glacier, Veneno, Choque, Corrosão, Ciclone) causa dano automaticamente no <b>início do turno do alvo afetado</b> — o "tick". Já <b>Sangramento</b>, <b>Afundamento</b> e <b>Fulgur Resonance</b> não têm tick: eles ficam "armados" e disparam quando uma condição acontece (o alvo ataca, o alvo é atingido, etc). <b>Aero Sunder</b> é híbrido: causa dano no tick E acumula até colapsar.
       </div>
-    </Panel>
-    {WIKI_DOTS.map(d => (
+    </Panel>}
+    {wikiQuery.trim() && filteredDots.length === 0 && <Empty msg="Nenhum efeito encontrado com esse termo." />}
+    {filteredDots.map(d => (
       <Panel key={d.n} glow={d.c}>
         <div className="flex items-center gap-2" style={{ marginBottom: 6 }}>
           <span style={{ fontSize: 22 }}>{d.icon}</span>
@@ -12509,6 +12812,7 @@ function Social({ email, flash, owned, activeTitle, setActiveTitle, playerName }
   const cur = titles.find((t) => t.id === activeTitle);
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [playerQuery, setPlayerQuery] = useState("");
   useEffect(() => {
     (async () => {
       try {
@@ -12552,10 +12856,12 @@ function Social({ email, flash, owned, activeTitle, setActiveTitle, playerName }
       </Panel>
       <Panel>
         <b>Jogadores</b>
+        {players.length > 5 && <input value={playerQuery} onChange={(e) => setPlayerQuery(e.target.value)} placeholder="🔎 Buscar jogador..." style={{ width: "100%", marginTop: 8, background: C.panel, border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 10px", fontSize: 12, color: C.text }} />}
         {loading && <div style={{ color: C.mute, fontSize: 13, marginTop: 8 }}>Carregando…</div>}
         <div className="flex flex-col" style={{ marginTop: 8 }}>
           {!loading && players.length === 0 && <div style={{ color: C.mute, fontSize: 13 }}>Nenhum jogador encontrado.</div>}
-          {players.map((p) => {
+          {!loading && players.length > 0 && players.filter((p) => !playerQuery.trim() || p.nick.toLowerCase().includes(playerQuery.trim().toLowerCase())).length === 0 && <div style={{ color: C.mute, fontSize: 13 }}>Nenhum jogador com esse nome.</div>}
+          {players.filter((p) => !playerQuery.trim() || p.nick.toLowerCase().includes(playerQuery.trim().toLowerCase())).map((p) => {
             const online = isOnline(p.lastSeen);
             return (
               <div key={p.id} className="flex items-center justify-between" style={{ padding: "10px 0", borderBottom: `1px solid ${C.line}` }}>
@@ -12624,7 +12930,7 @@ function Login({ onLogin }) {
   const onKey = (ev) => { if (ev.key === "Enter") submit(); };
 
   return (
-    <div style={{ minHeight: "100vh", background: `radial-gradient(1200px 600px at 75% -12%, ${C.bg1}, ${C.bg0}), radial-gradient(900px 500px at 10% 110%, #160d2e, ${C.bg0})`, color: C.text, fontFamily: "ui-sans-serif, system-ui, 'Segoe UI', sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: 18 }}>
+    <div style={{ minHeight: "100vh", background: `radial-gradient(1200px 600px at 75% -12%, ${C.bg1}, ${C.bg0}), radial-gradient(900px 500px at 10% 110%, #0d1524, ${C.bg0})`, color: C.text, fontFamily: "ui-sans-serif, system-ui, 'Segoe UI', sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: 18 }}>
       <div style={{ width: "100%", maxWidth: 420 }}>
         <div style={{ textAlign: "center", marginBottom: 18 }}>
           <div style={{ fontSize: 44 }}>🌌</div>
