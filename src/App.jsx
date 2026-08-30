@@ -169,12 +169,12 @@ const WEAPONS = [
   { id: "relampago_fugaz",  name: "Relâmpago Fugaz",       rarity: 5, role: "dps",      hpFlat: 1058, defFlat: 463, spd: 10,      passive: "Passo Fantasma: HP 1058 · DEF 463 · +10 de VEL Base fixa. Efeito 1: +12% da VEL total do portador, sempre ativo. Efeito 2: cada Ataque Extra do portador aumenta o dano dos PRÓXIMOS Ataques Extras dele mesmo em +10% (acumula até 3×, cada acúmulo renova a duração de 2 turnos). Efeito 3 (com VEL > 150): todo Ataque Extra do portador concede +12% de Taxa de CRIT e +24% de CRIT DMG a TODA a equipe por 2 turnos, e recupera 2 de Energia sempre que o Talento intercepta uma ação aliada (independe do limiar de 150 VEL).", buff: { yoruWeapon: true, spdPct: 12 } },
   { id: "sinfonia_estelar",  name: "Sinfonia Estelar",      rarity: 5, role: "healer",   hpFlat: 1270, atk: 423, defFlat: 463, hpPct: 40.0, energyRegen: 20.0, passive: "Atributos Base: Nv. 1: HP 58 | ATK 21 | DEF 21 — Nv. 80 (máximo): HP 1270 | ATK 423 | DEF 463. Efeito Passivo — Eco do Mar Negro (valores no nível máximo): Expansão de Hardware — aumenta o HP Máximo do portador incondicionalmente em 40%. Otimização de Bateria — aumenta a Taxa de Regeneração de Energia do portador em 20%. Sincronização de Rede — ao ativar a Habilidade Suprema, todos os aliados (exceto o portador) regeneram instantaneamente 14 de Energia; além disso, enquanto o efeito da Suprema estiver ativo em campo, o Dano Final de toda a equipe sobe 24%.", buff: { shkWeapon: true } },
   { id: "tecelao_tempo",    name: "Tecelão do Tempo",      rarity: 5, role: "debuffer", hpFlat: 1058, atk: 635, defFlat: 463, critRate: 12.5,      passive: "Atributos Base (Nv. 80): HP 1058 | ATK 635 | DEF 463. Efeito Passivo — Fio da Ruptura Contínua: Sobrecarga Base — aumenta o ATK do portador incondicionalmente em 24% e a Taxa de CRIT dele em 12.5% (no nível máximo). Ressonância de Equipe: aumenta a Taxa de CRIT de TODA a equipe em 7%. Foco em Anomalia: sempre que o portador atacar um inimigo sofrendo pelo menos 1 DoT, ganha o buff Linha do Tempo — cada acúmulo dá +6% de Taxa de Perfuração de DEF ao portador (acumula até 3×, dura 3 turnos). Ressonância da Desordem: se o portador desencadear um dano instantâneo a partir de uma reação de DoT (como a Desordem de Yanagi), esse golpe específico ativa a Fissão Temporal — ignora completamente 12% da Resistência Elemental do alvo e regenera instantaneamente 4 de Energia para o portador.", buff: { yanaWeapon: true, teamCritRate: 7 } },
-  { id: "disco_nexo",       name: "Disco de Duelo — Protótipo Nexo", rarity: 5, role: "summoner", hpFlat: 1164, atk: 582, defFlat: 396, critRate: 12,     passive: "Jogo de Alta Linhagem: HP 1164 · ATK 582 · DEF 396 · +12% de Taxa de CRIT sempre ativa. Sempre que o portador puxar uma carta ou ativar uma carta da Mão Virtual, o Monstro Invocado ativo ganha 1 acúmulo de 'Soberania do Duelista' (máx 3): cada acúmulo dá +16% de dano às invocações e faz seus ataques ignorarem +10% de DEF — expira após 2 turnos do monstro. Quando um Monstro Invocado deixa o campo, o portador recupera 6 de Energia instantaneamente e o PRÓXIMO monstro invocado ganha +30% de Dano Crítico por 2 rodadas.", buff: { kaibaWeapon: true } },
+  // (Removido: "disco_nexo" era um duplicado morto de "duelo_nexo" — mesmo nome/stats, mas sem a lógica de combate conectada. Nunca esteve disponível pra invocar.)
   { id: "starblade",        name: "Lâmina Estelar",       rarity: 5, role: "dps",      atk: 882, critDmg: 52.8,                    passive: "Fio Cortante: após a Habilidade, ganha +24% de Bônus de Dano por 2 turnos.",                                                    buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
   { id: "radiant",          name: "Cetro Radiante",        rarity: 5, role: "buffer",   atk: 720, energyRegen: 26.4,                passive: "Pulso de Apoio: ao buffar aliados, concede +12% de Bônus de Dano por 2 turnos.",                                                buff: { onBuff: { dmgBonus: 12, turns: 2 } } },
   { id: "duelo_nexo",        name: "Disco de Duelo — Protótipo Nexo", rarity: 5, role: "summoner", hpFlat: 1164, atk: 582, defFlat: 396, critRate: 12.0, passive: "Atributos Base: HP 1164 | ATK 582 | DEF 396. Efeito Passivo — Jogo de Alta Linhagem: aumenta a Taxa Crítica do portador em 12% / 15% / 18% / 21% / 24% (por nível de refinamento; este jogo aplica o valor de nível 1: 12%). Sempre que o portador utilizar a Perícia para puxar uma carta ou ativar uma carta diretamente de sua Mão Virtual, o Monstro Invocado atualmente ativo no campo ganha 1 acúmulo do status Soberania do Duelista (limite máximo de 3 acúmulos). Cada acúmulo aumenta o Dano causado pelas invocações em 16% / 20% / 24% / 28% / 32% (nível 1: 16%) e faz com que seus ataques ignorem 10% / 12% / 14% / 16% / 18% da DEF dos alvos atingidos (nível 1: 10%). Este efeito expira após 2 turnos do monstro. Quando um Monstro Invocado aliado deixa o campo de batalha (seja por destruição, substituição automática ou mecânica de Tributo), o portador regenera de forma instantânea 6.0 / 7.5 / 9.0 / 10.5 / 12.0 pontos de Energia (nível 1: 6.0). Adicionalmente, o próximo Monstro Invocado que entrar em campo recebe um bônus compulsório de 30% / 37.5% / 45% / 52.5% / 60% de Dano Crítico em todas as suas ações ofensivas por 2 rodadas completas (nível 1: 30%).", buff: { kaibaWeapon: true } },
-  { id: "hailstorm",        name: "Nevasca de Outono",     rarity: 5, role: "aoe",      atk: 756, critRate: 36.0, critDmg: 64.8,    passive: "Fio do Zero Absoluto: DoTs de Geada amplificados. Apos a Habilidade, +24% Bonus de Dano por 2 turnos.",                         buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
-  { id: "thunderclaws",     name: "Garras do Trovao",      rarity: 5, role: "dps",      atk: 952, critRate: 44.0,                   passive: "Descarga Predatoria: apos a Habilidade, +20% de VEL por 2 turnos.",                                                             buff: { onSkill: { spd: 20, turns: 2 } } },
+  { id: "hailstorm",        name: "Nevasca de Outono",     rarity: 5, role: "aoe",      atk: 700, critRate: 30.0, critDmg: 52.0,    passive: "Fio do Zero Absoluto: DoTs de Geada amplificados. Apos a Habilidade, +24% Bonus de Dano por 2 turnos.",                         buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
+  { id: "thunderclaws",     name: "Garras do Trovao",      rarity: 5, role: "dps",      atk: 850, critRate: 38.0,                   passive: "Descarga Predatoria: apos a Habilidade, +20% de VEL por 2 turnos.",                                                             buff: { onSkill: { spd: 20, turns: 2 } } },
   { id: "originpistol",     name: "Pistola da Origem",     rarity: 5, role: "debuffer", atk: 840, critDmg: 58.8, extraDefDown: 14,  passive: "Mira Calculada: debuffs reduzem +14% de DEF adicional do alvo." },
   { id: "starmantle",       name: "Manto Estelar",         rarity: 5, role: "shield",   atk: 476, def: 476, shieldBonus: 52,        passive: "Barreira Estelar: +52% no valor dos Escudos gerados pelo portador." },
   { id: "ferrao_borboleta", name: "Ferrao da Borboleta",   rarity: 5, role: "dps",      atk: 840, spd: 36.0, critRate: 36.0,        passive: "Carga Eletrica: acumula 1 carga por golpe de Vento (max 5). Cada carga +10% dano follow-up. Na Postura de Ferrao, consome todas e concede +24% Dano Verdadeiro por carga. Exclusivo: Soi Fon." },
@@ -186,7 +186,7 @@ const WEAPONS = [
     // ── ★★★★ 4-estrelas ────────────────────────────────────────────────────────
   { id: "shadowkunai", name: "Kunai Sombria",       rarity: 4, role: "dps",      atk: 528, critDmg: 38.4, defPen: 10,       passive: "Sombra Rastreadora: perfura 10% da DEF do inimigo em todos os ataques." },
   { id: "slingshot",   name: "Estilingue de Elite", rarity: 4, role: "debuffer", atk: 476, critDmg: 28.8, extraDefDown: 12, passive: "Mira de Precisao: debuffs reduzem +12% de DEF adicional." },
-  { id: "healstaff",   name: "Bordao Curativo",     rarity: 4, role: "healer",   atk: 396, energyRegen: 22.0, ultEnergy: 10, passive: "Pulso Vital: a Ultimate concede +10 de Energia a todo o time." },
+  { id: "healstaff",   name: "Bordao Curativo",     rarity: 4, role: "healer",   atk: 396, energyRegen: 22.0, healBonus: 10, ultEnergy: 10, passive: "Pulso Vital: a Ultimate concede +10 de Energia a todo o time." },
   { id: "chaostome",   name: "Tomo do Caos",        rarity: 4, role: "aoe",      atk: 504, dmgBonus: 36.0,               passive: "Entropia Pura: +36% de Bonus de Dano permanente em todos os ataques." },
   { id: "aegis",       name: "Egide Brilhante",     rarity: 4, role: "shield",   atk: 396, def: 396, shieldBonus: 38,    passive: "Muralha Brilhante: +38% no valor dos Escudos gerados pelo portador." },
 ];
@@ -216,9 +216,9 @@ const RELIC_SETS = {
   "Sopro Glacial":     { color: "#6FE3FF", el: "Glacial", p2: { critRate: 9, elemDmg: 16 }, flag4: "setGlacial4", d2: "+9% CRIT e +16% de dano Glacial", d4: "ao aplicar DoT glacial (Geada), aplica +3% de vulnerabilidade (acumula até +15%). Além disso, contra alvos Congelados o portador causa +18% de Dano." },
   "Núcleo Ardente":    { color: "#FF6B45", flag2: "setFire2", flag4: "setFire4", d2: "dano de DoT de Fogo +10%", d4: "dano da Ultimate +20%; após a Ultimate, +8% de ATK no próximo turno" },
   "Praga Viral":       { color: "#A6E22E", p2: { dmgBonus: 8 }, flag4: "setViral4", d2: "+8% de dano", d4: "com Sangramento OU Veneno no alvo: +12% de dano; com AMBOS: +20% e cura 8% do HP máx" },
-  "Benção Sagrada":    { color: "#FFE08A", p2: { hp: 20 }, flag4: "setHoly4", d2: "+20% de HP máx", d4: "+15% de cura e, ao curar, aplica escudo de 2% do HP máx do alvo" },
+  "Benção Sagrada":    { color: "#FFE08A", p2: { hp: 20 }, p4: { healBonus: 15 }, flag4: "setHoly4", d2: "+20% de HP máx", d4: "+15% de cura e, ao curar, aplica escudo de 2% do HP máx do alvo" },
   "Protocolo Ômega":  { color: "#00E5CC", el: "Virus", p2: { spd: 5, dmgBonus: 8 }, flag4: "setOmega4", d2: "+5% VEL e +8% Dano", d4: "HP≥75%: +25% ATK e +15% Dano ao time · HP 30–74%: +20% CRIT e +35% CRIT DMG · HP<30% [1x]: +50% ATK, escudo 10% HP ao time, +2 SP" },
-  "Asas de Borboleta": { color: "#FF6EE7", p2: { critRate: 8, critDmg: 32 }, p4: { critRate: 10, dmgBonus: 22, atkPct: 10 }, flag4: "setButterfly4", d2: "+8% CRIT Rate e +32% CRIT DMG — bônus amplificados em Ataques de Seguimento", d4: "+10% CRIT Rate, +22% Dano Bônus e +10% ATK; Ataques de Seguimento aplicam [Fragilidade] no alvo (+25% dano recebido por 1 turno) e cada follow-up realizado no mesmo turno concede +1% de CRIT Rate empilhável (máx +10% por combate). Ideal para Soi Fon e futuros personagens de follow-up." },
+  "Asas de Borboleta": { color: "#FF6EE7", p2: { critRate: 8, critDmg: 32 }, p4: { critRate: 10, dmgBonus: 22, atk: 10 }, flag4: "setButterfly4", d2: "+8% CRIT Rate e +32% CRIT DMG — bônus amplificados em Ataques de Seguimento", d4: "+10% CRIT Rate, +22% Dano Bônus e +10% ATK; Ataques de Seguimento aplicam [Fragilidade] no alvo (+25% dano recebido por 1 turno) e cada follow-up realizado no mesmo turno concede +1% de CRIT Rate empilhável (máx +10% por combate). Ideal para Soi Fon e futuros personagens de follow-up." },
   "Teia da Agonia": { color: "#8B1A1A", el: "Virus", p2: { hp: 20 }, flag2: "setTeia2", flag4: "setTeia4",
     d2: "+20% de HP Máx — quanto mais HP o portador tiver, maior o Dano Fixo gerado pelos drenos",
     d4: "Dano Fixo causado por dreno de HP de aliados +30%. Além disso, para cada 10% de HP faltando nos aliados após o dreno, o portador ganha +3% de penetração de DEF (máx +30%). Ideal para Ryoshu e futuros personagens de sacrifício de HP." },
@@ -241,7 +241,7 @@ const RELIC_SETS = {
     d4: "Sempre que a Invocação aliada agir ou atacar na Ordem de Turnos, ganha 1 acúmulo de Sintonia Sincrônica (máx 2). Cada acúmulo dá +20% de Dano Crítico à própria Invocação por 2 turnos. No limite de 2 acúmulos, todos os ataques da Invocação passam a ignorar automaticamente 16% da DEF dos alvos. Além disso, sempre que o portador consumir um Ponto de Habilidade ou ativar a Habilidade Suprema, a Invocação atual avança 15% na Ordem de Turnos imediatamente. Funciona com QUALQUER Invocação do jogo (dragões, monstros do Kaiba, clones, etc.)." },
   "Traje do Astrólogo do Destino": { color: "#D4A017", el: "Holy", p2: { energyRegen: 15 }, flag2: "setAstrologo2", flag4: "setAstrologo4",
     d2: "+15% de Eficiência de Recarga de Energia · ao usar a Perícia, compartilha 10% do atributo mais alto (ATK ou DEF) com o aliado de menor HP por 2 rodadas",
-    d4: "Cada Acerto Crítico de qualquer aliado gera 1 Energia Estelar (máx 8). Ao atingir 8 acúmulos: ativa Apogeu do Zodíaco — o próximo ataque ou habilidade causa Dano Adaptativo (muda para a fraqueza elemental do inimigo) e concede +30% de CRIT DMG ao grupo por 1 rodada. Ideal para Athena." },
+    d4: "Cada Acerto Crítico de qualquer aliado gera 1 Energia Estelar pro portador (máx 8). Ao atingir 8 acúmulos: ativa Apogeu do Zodíaco — concede +30% de CRIT DMG a todo o time por 1 rodada. Ideal para Athena." },
   "Muralha do Guardião": { color: "#4FC3F7", el: "Holy", p2: { shieldBonus: 30 }, flag2: "setMuralha2",
     d2: "+30% no valor de todos os Escudos gerados pelo portador — toda barreira criada pela Habilidade, Ultimate ou efeito passivo absorve 30% a mais de dano. Ideal para personagens que geram escudos (Kirara, Omegamon etc.).",
     d4: null },
@@ -262,7 +262,7 @@ const RELIC_SETS = {
   "Vestígios do Trono Profanado": { color: "#B24BFF", p2: { elemDmg: 18, critRate: 10 }, flag4: "setTronoProf4",
     d2: "Aumenta o Dano Chaos em 18%. Aumenta a Taxa CRÍTICA em 10%.",
     d4: "O Rei que Devora o Destino — Sempre que o usuário obtiver ou consumir Ruínas, recebe 1 acúmulo de Coroa Quebrada (máx 10): cada acúmulo concede +4% Dano CRÍTICO e +2% Dano Chaos. Ao atingir 10 acúmulos, todos são consumidos e o usuário entra em Reinado do Fim por 2 turnos: ignora 25% DEF, Ataques Extras causam 60% mais dano, a Suprema causa 45% mais dano, e sempre que uma Cópia Espectral ou Ataque Extra atingir um inimigo recupera 3 de Energia. Caso o usuário entre em Reino Absoluto, Reinado do Fim é prolongado em 1 turno." },
-  "Tesouros da Primeira Babilônia": { color: "#FFD249", p2: { atkP: 12, elemDmg: 18 }, flag4: "setBabilonia4",
+  "Tesouros da Primeira Babilônia": { color: "#FFD249", p2: { atk: 12, elemDmg: 18 }, flag4: "setBabilonia4",
     d2: "Aumenta o ATQ em 12%. Aumenta o Dano Unknown em 18%.",
     d4: "O Portão do Rei dos Heróis — Sempre que o usuário realizar um Ataque Extra, recebe 1 acúmulo de Tesouro Antigo (máx 15): cada acúmulo concede +3% de Dano de Ataques Extras e +2% de Dano CRÍTICO. Ao utilizar a Suprema, todos os acúmulos são consumidos e cada um aumenta o dano da Suprema em 5%. Após a Suprema, o usuário entra em Arsenal Dourado por 2 turnos: +30% ATQ, +30% Dano Unknown, Ataques Extras ignoram 20% DEF, cada Ataque Extra recupera 4 de Energia, e sempre que um Ataque Extra derrotar um inimigo recupera 1 Ponto de Perícia (máx 2 por turno). O primeiro Ataque Extra de cada turno dispara imediatamente mais 3 Armas Nobres, cada uma causando 90% do ATQ como Dano Unknown." },
   "Matilha Voraz": { color: "#FF6A3D", p2: { elemDmg: 14, critDmg: 12 }, flag4: "setMatilha4",
@@ -1150,7 +1150,7 @@ function computeStats(owned) {
   flat.energyRegen += def.base.energyRegen || 0;
   if (def.base.elemDmg) addElem(def.element, def.base.elemDmg);
   if (w) {
-    ["critRate", "critDmg", "energyRegen", "dmgBonus", "defPen", "spd"].forEach((k) => { if (w[k]) flat[k] += w[k] * wm; });
+    ["critRate", "critDmg", "energyRegen", "dmgBonus", "defPen", "spd", "healBonus"].forEach((k) => { if (w[k]) flat[k] += w[k] * wm; });
     if (w.atkPct) pct.atk += w.atkPct * wm;
   }
 
@@ -2976,12 +2976,14 @@ function NickEditor({ playerName, setPlayerName, flash }) {
   const [draft, setDraft] = useState("");
   const [blocked, setBlocked] = useState(null);
   useEffect(() => {
-    const ts = localStorage.getItem("sr_nick_last_change");
-    if (ts) {
-      const diff = Date.now() - parseInt(ts, 10);
-      const seven = 7 * 24 * 60 * 60 * 1000;
-      if (diff < seven) setBlocked(Math.ceil((seven - diff) / (24 * 60 * 60 * 1000)));
-    }
+    try {
+      const ts = localStorage.getItem("sr_nick_last_change");
+      if (ts) {
+        const diff = Date.now() - parseInt(ts, 10);
+        const seven = 7 * 24 * 60 * 60 * 1000;
+        if (diff < seven) setBlocked(Math.ceil((seven - diff) / (24 * 60 * 60 * 1000)));
+      }
+    } catch {}
   }, []);
   const startEdit = () => {
     if (blocked) { flash(`Bloqueado: aguarde ${blocked} dia(s) para alterar o nick.`, C.bad); return; }
@@ -2992,7 +2994,7 @@ function NickEditor({ playerName, setPlayerName, flash }) {
     if (!n) { flash("Nick não pode estar vazio.", C.bad); return; }
     if (n.length > 20) { flash("Nick muito longo (máx 20 caracteres).", C.bad); return; }
     setPlayerName(n);
-    localStorage.setItem("sr_nick_last_change", String(Date.now()));
+    try { localStorage.setItem("sr_nick_last_change", String(Date.now())); } catch {}
     setBlocked(7); setEditing(false);
     flash("Nickname atualizado! Próxima troca liberada em 7 dias.", C.good);
   };
@@ -3418,21 +3420,25 @@ function WeeklyBoss({ start, stamina, bossMats, lastWeeklyBoss, startAscension, 
 function useBannerTimer(key, durationMs = 5 * 24 * 60 * 60 * 1000) {
   const storageKey = "sr_banner_end_" + key;
   const getEnd = () => {
-    const stored = localStorage.getItem(storageKey);
-    if (stored) return parseInt(stored, 10);
-    const end = Date.now() + durationMs;
-    localStorage.setItem(storageKey, String(end));
-    return end;
+    try {
+      const stored = localStorage.getItem(storageKey);
+      if (stored) return parseInt(stored, 10);
+      const end = Date.now() + durationMs;
+      localStorage.setItem(storageKey, String(end));
+      return end;
+    } catch { return Date.now() + durationMs; } // localStorage indisponível neste ambiente — segue com prazo em memória, sem quebrar o banner
   };
   const [remaining, setRemaining] = useState(() => Math.max(0, getEnd() - Date.now()));
   useEffect(() => {
     const tick = () => {
-      let end = parseInt(localStorage.getItem(storageKey) || "0", 10);
-      if (!end || Date.now() >= end) {
-        end = Date.now() + durationMs;
-        localStorage.setItem(storageKey, String(end));
-      }
-      setRemaining(Math.max(0, end - Date.now()));
+      try {
+        let end = parseInt(localStorage.getItem(storageKey) || "0", 10);
+        if (!end || Date.now() >= end) {
+          end = Date.now() + durationMs;
+          localStorage.setItem(storageKey, String(end));
+        }
+        setRemaining(Math.max(0, end - Date.now()));
+      } catch { setRemaining((r) => (r > 1000 ? r - 1000 : durationMs)); } // sem storage: mantém contando em memória em vez de travar
     };
     tick();
     const id = setInterval(tick, 1000);
@@ -3621,6 +3627,114 @@ function PoolRow({ ids, ownedSet }) {
     </div>); })}</div>;
 }
 
+// ── Assinaturas visuais únicas por personagem 5★ — cada um com combinação própria de partícula/cor/movimento ──
+const PULL_SIGNATURES = {
+  miyabi:        { type: "fall",   shape: "❄",  c1: "#BEEFFF", c2: "#3FA9E8", speed: 1.0, spin: true  }, // Glacial — fragmentos de gelo
+  kaiba:         { type: "fall",   shape: "🎴", c1: "#FFD76A", c2: "#3D6BFF", speed: 1.6, spin: true  }, // cartas de duelo girando
+  kirara:        { type: "spiral", shape: "•",  c1: "#FF8A3D", c2: "#B93DFF", speed: 1.1 },              // labaredas de raposa em espiral
+  yoruichi:      { type: "streak", c1: "#B98BFF", c2: "#FFE24B", count: 14, horiz: true },               // shunpo — riscos horizontais velozes
+  kiritsugu:     { type: "streak", c1: "#3E5E3A", c2: "#0C1A0C", count: 10, converge: true },             // trajetórias de disparo convergindo
+  ryoshu:        { type: "curl",   c1: "#8B1A1A", c2: "#2A0505" },                                        // fios de sangue se curvando
+  frieren:       { type: "fall",   shape: "✦",  c1: "#DFF5EA", c2: "#5FD9A8", speed: 0.5, gentle: true }, // poeira estelar mágica lenta
+  lupa:          { type: "rise",   c1: "#FF5A2E", c2: "#FFD24B" },                                        // brasas ascendendo
+  hitori:        { type: "ring",   c1: "#FF7AC8", c2: "#B98BFF", count: 4 },                              // ondas de vibração de corda
+  altersaber:    { type: "streak", c1: "#0A0A0A", c2: "#B00020", count: 8, cross: true },                 // cortes de lâmina cruzados
+  aizensosuke:   { type: "fall",   shape: "◆",  c1: "#E38BFF", c2: "#4A1E66", speed: 1.3, shatter: true },// estilhaços de ilusão
+  gilgamesh:     { type: "ring",   c1: "#FFD24B", c2: "#8A6A10", count: 5 },                              // portões dourados se abrindo
+  soifon:        { type: "fall",   shape: "🦋", c1: "#B9FFCB", c2: "#3FE87A", speed: 0.8, spin: true  }, // borboletas de vento
+  omegamon:      { type: "fall",   shape: "▪",  c1: "#7ADFFF", c2: "#1A3A5C", speed: 2.0, jitter: true },// blocos digitais glitch
+  wonderofyou:   { type: "streak", c1: "#6B21A8", c2: "#000000", count: 9, crack: true },                 // rachaduras da calamidade
+  athena:        { type: "ring",   c1: "#FFE9A8", c2: "#FFD24B", count: 6, rays: true },                  // raios olímpicos
+  agumon:        { type: "rise",   c1: "#FF7A29", c2: "#FFCF4A", burst: true },                           // explosão de chamas
+  shorekeeper:   { type: "fall",   shape: "✦",  c1: "#7FDBFF", c2: "#FFE08A", speed: 0.6, gentle: true },// estrelas à deriva
+  yanagi:        { type: "streak", c1: "#B98BFF", c2: "#3D6BFF", count: 11, erratic: true },              // arcos elétricos ramificados
+  // ── Armas Lendárias 5★ (Cones de Luz) ──
+  digivice:      { type: "rise",   c1: "#FF9A2E", c2: "#FFE24B", burst: true },                           // Digivice — explosão de evolução
+  starblade:     { type: "streak", c1: "#EAF1FB", c2: "#7ADFFF", count: 7, cross: true },                  // Lâmina Estelar — cortes de luz estelar
+  radiant:       { type: "ring",   c1: "#FFE9A8", c2: "#FFD24B", count: 4 },                               // Cetro Radiante — auréolas de apoio
+  hailstorm:     { type: "fall",   shape: "❋",  c1: "#DFF8FF", c2: "#7ADFFF", speed: 1.4, spin: true },  // Nevasca de Outono — floco denso
+  thunderclaws:  { type: "streak", c1: "#FFE24B", c2: "#B98BFF", count: 13, erratic: true },               // Garras do Trovão — arcos elétricos densos
+  originpistol:  { type: "streak", c1: "#3E5E3A", c2: "#0C1A0C", count: 6, converge: true },               // Pistola da Origem — trajetórias calculadas
+  starmantle:    { type: "ring",   c1: "#C7CEDB", c2: "#6FA8FF", count: 5, rays: true },                   // Manto Estelar — barreira em anéis
+  calamidade:    { type: "spiral", shape: "•",  c1: "#6B21A8", c2: "#B00020", speed: 0.8 },                // Calamidade — espiral sombria e vermelha
+};
+function SignatureFX({ id }) {
+  const sig = PULL_SIGNATURES[id];
+  if (!sig) return null;
+  const n = sig.count || 16;
+  return <>
+    {/* Onda de impacto dramática — dispara uma vez na cor da assinatura de cada personagem/arma */}
+    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+      <div style={{ position: "absolute", width: 40, height: 40, borderRadius: "50%", border: `3px solid ${sig.c1}`, animation: "srSigShock 1.1s cubic-bezier(.1,.7,.3,1) both", boxShadow: `0 0 30px ${sig.c1}` }} />
+      <div style={{ position: "absolute", width: 40, height: 40, borderRadius: "50%", border: `2px solid ${sig.c2}`, animation: "srSigShock 1.1s .12s cubic-bezier(.1,.7,.3,1) both", boxShadow: `0 0 30px ${sig.c2}` }} />
+    </div>
+    <SignatureFXAmbient sig={sig} n={n} />
+  </>;
+}
+function SignatureFXAmbient({ sig, n }) {
+  if (sig.type === "fall") {
+    return <div style={{ position: "absolute", inset: -60, overflow: "hidden", pointerEvents: "none" }}>
+      {Array.from({ length: 14 }).map((_, i) => {
+        const x = 8 + (i * 6.5) % 92, delay = (i * 0.19) % 2.4, dur = (sig.gentle ? 3.2 : 1.6) / sig.speed;
+        return <div key={i} style={{ position: "absolute", left: `${x}%`, top: -20, fontSize: sig.shape === "▪" ? 8 : 15, color: i % 2 ? sig.c1 : sig.c2,
+          animation: `srSigFall ${dur}s ${delay}s linear infinite${sig.jitter ? ", srSigJitter .3s linear infinite" : ""}`,
+          textShadow: `0 0 6px ${sig.c1}`, opacity: 0.85 }}>{sig.shape}</div>;
+      })}
+    </div>;
+  }
+  if (sig.type === "rise") {
+    return <div style={{ position: "absolute", inset: -60, overflow: "hidden", pointerEvents: "none" }}>
+      {Array.from({ length: sig.burst ? 20 : 14 }).map((_, i) => {
+        const x = 10 + (i * 5.8) % 80, delay = (i * 0.13) % 2, size = 4 + (i % 4) * 2;
+        return <div key={i} style={{ position: "absolute", left: `${x}%`, bottom: -10, width: size, height: size, borderRadius: "50%",
+          background: `radial-gradient(circle, ${sig.c2}, ${sig.c1}00)`, boxShadow: `0 0 8px ${sig.c1}`,
+          animation: `srSigRise ${1.4 + (i % 3) * 0.3}s ${delay}s ease-in infinite` }} />;
+      })}
+    </div>;
+  }
+  if (sig.type === "streak") {
+    return <div style={{ position: "absolute", inset: -60, overflow: "hidden", pointerEvents: "none" }}>
+      {Array.from({ length: n }).map((_, i) => {
+        const ang = sig.cross ? (i % 2 ? 45 : -45) : sig.horiz ? 0 : sig.converge ? (i / n) * 40 - 20 : (i / n) * 360;
+        const delay = (i * 0.09) % 1.8;
+        const animName = sig.horiz ? "srSigHoriz" : sig.erratic ? "srSigErratic" : "srSigStreak2";
+        return (
+          <div key={i} style={{ position: "absolute", left: "50%", top: "50%", transformOrigin: sig.horiz ? "left center" : "center bottom", transform: `translate(-50%,-50%) rotate(${ang}deg)` }}>
+            <div style={{ width: sig.cross ? 3 : 2, height: sig.horiz ? 2 : "42%",
+              background: `linear-gradient(${i % 2 ? sig.c1 : sig.c2}, transparent)`,
+              animation: `${animName} ${sig.horiz ? 0.9 : 1.3}s ${delay}s ease-out infinite` }} />
+          </div>
+        );
+      })}
+    </div>;
+  }
+  if (sig.type === "ring") {
+    return <div style={{ position: "absolute", inset: -60, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+      {Array.from({ length: sig.count }).map((_, i) => (
+        <div key={i} style={{ position: "absolute", width: 60 + i * 26, height: 60 + i * 26, borderRadius: "50%", border: `1.5px solid ${i % 2 ? sig.c1 : sig.c2}`,
+          animation: `srSigRingPulse 2.2s ${i * 0.22}s ease-in-out infinite`, boxShadow: sig.rays ? `0 0 12px ${sig.c1}` : "none" }} />
+      ))}
+    </div>;
+  }
+  if (sig.type === "spiral") {
+    return <div style={{ position: "absolute", inset: -60, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+      {Array.from({ length: 16 }).map((_, i) => (
+        <div key={i} style={{ position: "absolute", width: 5, height: 5, borderRadius: "50%", background: i % 2 ? sig.c1 : sig.c2, boxShadow: `0 0 8px ${sig.c1}`,
+          animation: `srSigSpiral ${2.4 / sig.speed}s ${i * 0.14}s linear infinite`, "--ri": i }} />
+      ))}
+    </div>;
+  }
+  if (sig.type === "curl") {
+    return <div style={{ position: "absolute", inset: -60, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} style={{ position: "absolute", width: 2, height: 90, background: `linear-gradient(${i % 2 ? sig.c1 : sig.c2}, transparent)`,
+          transformOrigin: "center bottom", "--r": `${i * 45}deg`, transform: `rotate(${i * 45}deg)`, borderRadius: 4,
+          animation: `srSigCurl 1.8s ${i * 0.1}s ease-in-out infinite` }} />
+      ))}
+    </div>;
+  }
+  return null;
+}
 function PullModal({ data, onClose }) {
   const has5 = data.results.some((r) => r.rarity === 5);
   const has4 = data.results.some((r) => r.rarity === 4 && r.id !== "shard");
@@ -3642,6 +3756,16 @@ function PullModal({ data, onClose }) {
         @keyframes srHero{0%{transform:scale(.5) translateY(20px);opacity:0;filter:blur(8px)}60%{opacity:1;filter:blur(0)}100%{transform:scale(1) translateY(0);opacity:1}}
         @keyframes srHalo{0%,100%{box-shadow:0 0 40px #ffcf4a,0 0 90px #ff7adf66}50%{box-shadow:0 0 70px #ffe08a,0 0 140px #7adfff66}}
         @keyframes srBadge{0%{transform:translateY(8px);opacity:0}100%{transform:translateY(0);opacity:1}}
+        @keyframes srSigFall{0%{transform:translateY(-20px) rotate(0deg);opacity:0}10%{opacity:.9}90%{opacity:.7}100%{transform:translateY(340px) rotate(160deg);opacity:0}}
+        @keyframes srSigJitter{0%,100%{margin-left:0}50%{margin-left:4px}}
+        @keyframes srSigRise{0%{transform:translateY(0) scale(1);opacity:0}15%{opacity:1}100%{transform:translateY(-320px) scale(.3);opacity:0}}
+        @keyframes srSigHoriz{0%{transform:scaleX(.3);opacity:0}20%{opacity:1}100%{transform:translateX(160px) scaleX(1);opacity:0}}
+        @keyframes srSigStreak2{0%{transform:translateY(0);opacity:0}30%{opacity:1}100%{transform:translateY(-140px);opacity:0}}
+        @keyframes srSigErratic{0%{opacity:0;transform:translateY(0) translateX(0)}20%{opacity:1}50%{transform:translateY(-70px) translateX(14px)}100%{opacity:0;transform:translateY(-150px) translateX(-10px)}}
+        @keyframes srSigRingPulse{0%{transform:scale(.6);opacity:0}40%{opacity:.8}100%{transform:scale(1.15);opacity:0}}
+        @keyframes srSigSpiral{0%{transform:rotate(0deg) translateX(10px) rotate(0deg);opacity:0}20%{opacity:1}100%{transform:rotate(720deg) translateX(70px) rotate(-720deg);opacity:0}}
+        @keyframes srSigCurl{0%,100%{transform:rotate(var(--r,0deg)) scaleY(.7);opacity:.4}50%{transform:rotate(calc(var(--r,0deg) + 12deg)) scaleY(1);opacity:.9}}
+        @keyframes srSigShock{0%{transform:scale(.3);opacity:1}100%{transform:scale(9);opacity:0}}
       `}</style>
       {phase === "warp" ? (
         <div style={{ position: "fixed", inset: 0, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -3654,12 +3778,14 @@ function PullModal({ data, onClose }) {
         </div>
       ) : (
         <div onClick={(e) => e.stopPropagation()} style={{ maxWidth: 760, width: "100%" }}>
-          {(limited5 || star5Weapon) && (() => { const r = limited5 || star5Weapon; const isW = !!r.weapon; const obj = isW ? WEAPON_MAP[r.id] : CHAR_MAP[r.id]; return (
+          {(limited5 || star5Weapon) && (() => { const r = limited5 || star5Weapon; const isW = !!r.weapon; const obj = isW ? WEAPON_MAP[r.id] : CHAR_MAP[r.id]; const sig = PULL_SIGNATURES[r.id]; return (
             <div style={{ textAlign: "center", marginBottom: 14, animation: "srHero .8s both" }}>
-              <div style={{ display: "inline-block", padding: 6, animation: "srHalo 2.4s ease-in-out infinite", borderRadius: "50%" }}>
-                {isW ? <WeaponIcon w={obj} size={92} /> : <Avatar ch={obj} size={92} ring={C.gold} />}
+              <div style={{ display: "inline-block", position: "relative", padding: 6, animation: sig ? "none" : "srHalo 2.4s ease-in-out infinite", borderRadius: "50%" }}>
+                {sig && <SignatureFX id={r.id} />}
+                {sig && <div style={{ position: "absolute", inset: -4, borderRadius: "50%", boxShadow: `0 0 34px ${sig.c1}99, 0 0 70px ${sig.c2}77` }} />}
+                <div style={{ position: "relative" }}>{isW ? <WeaponIcon w={obj} size={92} /> : <Avatar ch={obj} size={92} ring={sig ? sig.c1 : C.gold} />}</div>
               </div>
-              <div style={{ marginTop: 10, ...ORB, fontWeight: 800, fontSize: 22, background: "linear-gradient(90deg,#ffcf4a,#ff7adf,#7adfff,#ffcf4a)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", animation: "srShine 3s linear infinite" }}>{obj.name}</div>
+              <div style={{ marginTop: 10, ...ORB, fontWeight: 800, fontSize: 22, background: sig ? `linear-gradient(90deg,${sig.c1},${sig.c2},${sig.c1})` : "linear-gradient(90deg,#ffcf4a,#ff7adf,#7adfff,#ffcf4a)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", animation: "srShine 3s linear infinite" }}>{obj.name}</div>
               <div style={{ animation: "srBadge .6s .3s both", marginTop: 4, fontSize: 12, fontWeight: 800, letterSpacing: 2, color: C.gold }}>{isW && !limited5 ? "ARMA LENDÁRIA ★5" : r.won ? "VITÓRIA NO 50/50 · ★5 LIMITADO" : "★5 LIMITADO OBTIDO"}{r.dup ? " · CONSTELAÇÃO +1" : ""}</div>
             </div>); })()}
           <div className="grid grid-cols-5 gap-2" style={{ marginBottom: 16 }}>
@@ -5815,6 +5941,29 @@ function triggerDesordem(yanagi, target, fx, opts) {
   return dmg;
 }
 // ── Crisol da Chama Primordial (4pç): adiciona 1 acúmulo de Núcleo Incandescente ──
+// ── Traje do Astrólogo do Destino (4pç): acúmulo de Energia Estelar via crítico de qualquer aliado ──
+function astrologoOnCrit(u, fx) {
+  const stacks = Math.min(8, (u._astroStacks || 0) + 1);
+  u._astroStacks = stacks;
+  if (stacks >= 8) {
+    u._astroStacks = 0;
+    u.buffs = u.buffs.filter(b => b.name !== "ApogeuZodiaco_cd" && b.name !== "ApogeuZodiaco_time");
+    u.buffs.push({ stat: "critDmg", value: 30, turns: 1, name: "ApogeuZodiaco_cd" });
+    (u._sibs || []).filter(h => h.alive && !h.isSummon).forEach(h => { h.buffs = h.buffs.filter(b => b.name !== "ApogeuZodiaco_time"); h.buffs.push({ stat: "critDmg", value: 30, turns: 1, name: "ApogeuZodiaco_time" }); });
+    fx && fx.push({ uid: u.uid, txt: "🔯 Apogeu do Zodíaco!", crit: true, id: Math.random() });
+  }
+}
+// Traje do Astrólogo do Destino (2pç): ao usar Perícia, compartilha 10% do maior atributo (ATK/DEF) com o aliado de menor HP
+function astrologoSkillShare(u, allies, fx) {
+  if (!u?.stFlags?.setAstrologo2) return;
+  const lowest = (allies || []).filter(h => h.alive && !h.isSummon && h.uid !== u.uid).sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+  if (!lowest) return;
+  const atkV = effStat(u, "atk"), defV = effStat(u, "def");
+  const useAtk = atkV >= defV;
+  lowest.buffs = lowest.buffs.filter(b => b.name !== "EstrelaCompartilhada");
+  lowest.buffs.push({ stat: useAtk ? "atk" : "def", value: Math.round((useAtk ? atkV : defV) * 0.10), turns: 2, name: "EstrelaCompartilhada" });
+  fx && fx.push({ uid: lowest.uid, txt: `🔯 +${useAtk ? "ATK" : "DEF"} compartilhado`, heal: true, id: Math.random() });
+}
 function crisolAddStack(u, fx) {
   const existingBuff = u.buffs.find(b => b.name === "NúcleoIncandescente_atk");
   const cur = Math.min(3, (existingBuff ? Math.round((existingBuff.value || 0) / 8) : 0) + 1);
@@ -6017,6 +6166,11 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   if (crit) dmg *= 1 + effStat(attacker, "critDmg") / 100;
   // Crisol da Chama Primordial (4pç): acerto crítico de Fogo → ganha 1 acúmulo de Núcleo Incandescente
   if (crit && f.setCrisol4 && (opts?.el || attacker.element) === "Fogo") crisolAddStack(attacker, fx);
+  // Traje do Astrólogo do Destino (4pç): qualquer crítico ALIADO gera 1 Energia Estelar pro portador (máx 8) — ao completar, Apogeu do Zodíaco
+  if (crit && attacker.side === "H" && !attacker.isSummon) {
+    const astro = (attacker._sibs || []).find(h => h.alive && h.stFlags?.setAstrologo4);
+    if (astro) astrologoOnCrit(astro, fx);
+  }
   // Corrente Trovão-Relâmpago (4pç): consome acúmulos de Condutividade em Ataques Extra para bônus de dano
   if (_trovaoHitStacks > 0) {
     dmg *= (1 + _trovaoHitStacks * 0.15);
@@ -6331,6 +6485,18 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   // ── Yoruichi — Frequência Shunpo: gatilho central p/ QUALQUER Ataque Extra aliado (corrige clones que quase nunca disparavam) ──
   if (dmg > 0 && opts?.isFollowup && !opts?.isYoruClone && attacker.side === "H" && !attacker.isSummon && attacker.alive) {
     yoruFollowupProc(attacker, defender, dmg, fx);
+  }
+  // ── Asas de Borboleta (4pç): Ataque de Seguimento aplica [Fragilidade] no alvo e acumula CRIT Rate no portador ──
+  if (dmg > 0 && opts?.isFollowup && attacker.stFlags?.setButterfly4 && attacker.side === "H" && !attacker.isSummon) {
+    defender.debuffs = defender.debuffs || [];
+    const frag = defender.debuffs.find(d => d.name === "Fragilidade");
+    if (frag) frag.turns = Math.max(frag.turns, 1); else defender.debuffs.push({ stat: "vuln", value: 25, turns: 1, name: "Fragilidade" });
+    const combatStacks = attacker._butterflyStacks || 0;
+    if (combatStacks < 10) {
+      attacker._butterflyStacks = combatStacks + 1;
+      attacker.buffs = attacker.buffs.filter(b => b.name !== "AsasDeBorboleta");
+      attacker.buffs.push({ stat: "critRate", value: attacker._butterflyStacks, turns: 9999, name: "AsasDeBorboleta" });
+    }
   }
   // ── Lupa — Fome da Predadora: TODO Dano de Fogo dela contra alvo com DoT ativo consome 1 rodada e ganha Voracidade ──
   if (dmg > 0 && attacker.id === "lupa" && !attacker.isSummon && attacker.alive && (opts?.el || attacker.element) === "Fogo" && !opts?.noLupaProc) {
@@ -7058,6 +7224,12 @@ function healUnit(u, amount, fx) {
   let amt = amount; if (u._mut === "ventos") amt = Math.round(amt * 2); if (u._glitchHealHalf) amt = Math.round(amt * 0.5);
   const before = u.hp; u.hp = Math.min(u.maxHp, u.hp + amt); const done = u.hp - before;
   fx.push({ uid: u.uid, txt: "+" + done, heal: true, id: Math.random() });
+  // Benção Sagrada (4pç): ao curar, aplica escudo de 2% do HP máx do alvo (a própria cura já ganha +15% via p4.healBonus)
+  if (done > 0 && u.stFlags?.setHoly4) {
+    const shieldAmt = Math.round(u.maxHp * 0.02);
+    u.shield = (u.shield || 0) + shieldAmt;
+    fx.push({ uid: u.uid, txt: `🛡️ +${shieldAmt}`, heal: true, id: Math.random() });
+  }
   // Arquivos da Costa Negra (6pç): registra a Cura Excedente enquanto a Suprema da Shorekeeper estiver rastreando
   const over = amt - done;
   if (over > 0) { const shkH = (u._sibs || []).find(h => h.id === "shorekeeper" && h.alive && h.stFlags?.setCostaNegra6 && (h._costaNegraTrack || 0) > 0); if (shkH) shkH._costaNegraOverheal = (shkH._costaNegraOverheal || 0) + over; }
@@ -7112,6 +7284,26 @@ function applyBuff(targets, spec, name, fx, caster) {
     if (spec.maxStacks) { const st = t.buffs.filter(b => b.name === name && b.stat === stat).length; if (st >= spec.maxStacks) continue; }
     t.buffs.push({ stat, value: spec[stat], pct: !!PCT[stat], turns: (spec.turns ?? 9999) + extra, name });
   } });
+  if (caster && (caster.stFlags?.setCalamidade2 || caster.stFlags?.setCalamidade4) && targets.length) calamidadeStack(caster, fx);
+}
+// ── Vestígios da Calamidade Eterna (2pç: energia ao aplicar buff/debuff · 4pç: acúmulos de dano/VEL/CD) ──
+function calamidadeStack(u, fx) {
+  if (!u) return;
+  if (u.stFlags?.setCalamidade2 && !u._calamidadeEnergyThisAction) {
+    u._calamidadeEnergyThisAction = true;
+    if (u.energyMax) u.energy = Math.min(u.energyMax, u.energy + 3);
+  }
+  if (!u.stFlags?.setCalamidade4) return;
+  const stacks = Math.min(10, ((u.buffs.find(b => b.name === "CalamidadeStack")?.value || 0) / 4) + 1);
+  u.buffs = u.buffs.filter(b => b.name !== "CalamidadeStack" && b.name !== "CalamidadeVel" && b.name !== "CalamidadeCd");
+  u.buffs.push({ stat: "atk", value: stacks * 4, pct: true, turns: 9999, name: "CalamidadeStack" }); // usa ATK% como proxy visível do "Dano Chaos +4%/stack"
+  u.buffs.push({ stat: "spd", value: stacks * 3, turns: 9999, name: "CalamidadeVel" });
+  u.buffs.push({ stat: "critDmg", value: stacks * 4, turns: 9999, name: "CalamidadeCd" });
+  if (stacks >= 10 && !u._calamidadeMaxed) {
+    u._calamidadeMaxed = true;
+    u.buffs.push({ stat: "defPen", value: 25, turns: 9999, name: "CalamidadeMax" });
+    fx && fx.push({ uid: u.uid, txt: "☠️ Calamidade Máxima!", crit: true, id: Math.random() });
+  }
 }
 function applyDebuff(targets, spec, extraDef, caster) {
   const f = caster?.stFlags || {};
@@ -7128,6 +7320,7 @@ function applyDebuff(targets, spec, extraDef, caster) {
       if (_st < (_od.maxStacks || 8)) t.debuffs.push({ stat: "def", value: -(_od.defRedTarget || 10), pct: true, turns: 2, name: "WpnShred" });
     }
   });
+  if (caster && (caster.stFlags?.setCalamidade2 || caster.stFlags?.setCalamidade4) && targets.length) calamidadeStack(caster, null);
 }
 
 function EnemyAvatar({ e, size = 40 }) {
@@ -7139,6 +7332,7 @@ function EnemyAvatar({ e, size = 40 }) {
   return <span style={{ fontSize: e.boss ? 30 : 26, lineHeight: 1 }}>{e.avatar}</span>;
 }
 function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNext, flash }) {
+  const [autoMode, setAutoMode] = useState(false);
   const [state, setState] = useState(() => {
     const heroes = team.map((id, i) => (ownedMap[id] ? makeUnit(ownedMap[id], "H", i) : null)).filter(Boolean);
     if (ally) heroes.push(makeAllyUnit(ally, heroes.length));
@@ -7269,7 +7463,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     if (!current) { const t = setTimeout(advance, 250); return () => clearTimeout(t); }
     if (current.side === "enemy") { const t = setTimeout(enemyAct, 750); return () => clearTimeout(t); }
     if (current.auto || current.isSummon) { const t = setTimeout(() => autoAct(current.uid), 700); return () => clearTimeout(t); }
-  }, [current, state.over]); // eslint-disable-line
+    if (autoMode && current.side === "H" && !state.choice) { const t = setTimeout(() => autoAct(current.uid), 550); return () => clearTimeout(t); } // Modo Automático: a IA joga pelo herói também (nunca durante uma escolha manual pendente)
+  }, [current, state.over, autoMode, state.choice]); // eslint-disable-line
   useEffect(() => { if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight; }, [state.log]);
   useEffect(() => {
     if (state.over) {
@@ -7383,7 +7578,15 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
       const u = findUnit(s, current.uid); if (!u || !u.alive) { s.turn = null; return s; }
       if (kind === "skill" && s.sp <= 0) return s;
+      const f = u.stFlags || {}; // flags de constelação/relíquia do personagem que está agindo (faltava — corrigido)
+      u._calamidadeEnergyThisAction = false; // reseta a cada ação — 1 energia de Calamidade por ação, não por aplicação de buff/debuff
       s.heroTurns = (s.heroTurns || 0) + 1;
+      // Tempestade Eletro (4pç): a cada ação do portador, +2% de dano (empilha até +12%)
+      if (f.setEletro4) {
+        const stacks = Math.min(6, (u.buffs.find(b => b.name === "TempestadeEletro")?.value || 0) / 2 + 1);
+        u.buffs = u.buffs.filter(b => b.name !== "TempestadeEletro");
+        u.buffs.push({ stat: "dmgBonus", value: stacks * 2, turns: 9999, name: "TempestadeEletro" });
+      }
       // Nanami Hora Extra
       if (u.id === "nanami" && !u._horaExtra && s.heroTurns >= 5 && f.nanamHoraExtra) {
         u._horaExtra = true; u.buffs.push({ stat: "atk", value: 30, pct: true, turns: 99, name: "HoraExtra" });
@@ -7489,7 +7692,6 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       }
       const fx = s.fx, sk = u.skill, allies = s.heroes.filter((h) => h.alive);
       let enemy = targetEnemy(s);
-      const f = u.stFlags || {};
       // ── Protocolo Ômega 4pç: 3 Fases de HP ──────────────────────────────
       if (f.setOmega4 && !u.isSummon) {
         const hpRatio = u.hp / Math.max(1, u.maxHp);
@@ -7691,6 +7893,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         s.sp -= 1; u.energy = Math.min(u.energyMax, u.energy + enGain(sk.enSkill || 22)); advanceServosSummon(s, u); shkGenButterfly(s, u.uid);
         // Crisol da Chama Primordial (4pç): uso da Perícia concede 1 acúmulo de Núcleo Incandescente
         if (f.setCrisol4) crisolAddStack(u, fx);
+        // Traje do Astrólogo do Destino (2pç): uso da Perícia compartilha atributo com o aliado de menor HP
+        if (f.setAstrologo2) astrologoSkillShare(u, allies, fx);
         // Shorekeeper: Estelarador Estágio 2 — evolui ao acumular 3 PH gastos com o domínio ativo
         { const shkH = s.heroes.find(h => h.id === "shorekeeper" && h.alive);
           if (shkH && shkH._domainStage === 1) {
@@ -7736,7 +7940,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           u._ryoTensao = tensao;
           if (u.weapon?.id === "lamina_matriarca") u._inkDrops = Math.min(3, (u._inkDrops || 0) + 1);
           const inkMul = u.weapon?.id === "lamina_matriarca" ? (1 + (u._inkDrops || 0) * 0.15) : 1;
-          const flatBase = Math.round(totalDrained * 2.40 * (1 + tensao * 0.18) * inkMul * (f.setTeia4 ? 1.40 : 1));
+          // Teia da Agonia 2pç: quanto mais HP máx o portador tiver, maior o Dano Fixo gerado pelos drenos (até +20% a 5000 HP)
+          const teia2Mul = f.setTeia2 ? (1 + Math.min(0.20, (u.maxHp || 0) / 25000)) : 1;
+          const flatBase = Math.round(totalDrained * 2.40 * (1 + tensao * 0.18) * inkMul * teia2Mul * (f.setTeia4 ? 1.40 : 1));
           // Teia 4pc: +3% DEF pen per 10% missing HP on allies (max 30%)
           if (f.setTeia4) { let mp = 0; drainable.forEach(a => { mp += (1 - a.hp/a.maxHp)*100; }); u._teiaDefPen = Math.min(30, Math.round(mp/10)*3); } else u._teiaDefPen = 0;
           let tot = 0;
@@ -8370,7 +8576,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           const inkMul2 = u.weapon?.id === "lamina_matriarca" ? (1 + (u._inkDrops || 0) * 0.15) : 1;
           let defPenBonus = 0;
           if (f.ryoAAM) { let mp = 0; drainable.forEach(a => { mp += (1 - a.hp / a.maxHp) * 100; }); defPenBonus = Math.min(65, mp * 0.6); }
-          const flatBase2 = Math.round(totalDrained * 4.20 * inkMul2 * (f.setTeia4 ? 1.45 : 1));
+          const flatBase2 = Math.round(totalDrained * 4.20 * inkMul2 * (f.setTeia2 ? (1 + Math.min(0.20, (u.maxHp || 0) / 25000)) : 1) * (f.setTeia4 ? 1.45 : 1));
           if (f.setTeia4) { let mp2 = 0; drainable.forEach(a => { mp2 += (1-a.hp/a.maxHp)*100; }); defPenBonus = Math.max(defPenBonus, Math.min(30, Math.round(mp2/10)*3)); }
           let tot2 = 0;
           aliveEnemies(s).forEach(e => {
@@ -9113,6 +9319,12 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     setState((s0) => {
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
       const u = findUnit(s, current.uid); if (!u || !u.alive) { s.turn = null; return s; }
+      // Boneco de Treino (Batalha de Teste): não ataca nem aplica nada nos heróis — só passa o turno, pra você testar builds sem tomar dano
+      if (u._dummy) {
+        pushLog(s, `${u.name} observa, sem atacar (Batalha de Teste).`);
+        s.turn = null;
+        return s;
+      }
       tickDots(u, s.fx, s.heroes.filter((h) => h.alive));
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
       // ══ Mecânicas exclusivas dos chefes da Ascensão Estelar (andares 201–450) ══
@@ -9529,7 +9741,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     });
   }
 
-  const isHeroTurn = current && current.side === "H" && !current.auto && !current.isSummon;
+  const isHeroTurn = current && current.side === "H" && !current.auto && !current.isSummon && !autoMode;
   const activeHero = isHeroTurn ? state.heroes.find((h) => h.uid === current.uid) : null;
   const canUlt = activeHero && activeHero.energyMax && (activeHero.energy >= activeHero.energyMax || (activeHero.id === "athena" && activeHero.stFlags?.athC6 && state._athHouseActive && (activeHero._athC6Cd || 0) <= 0));
   const stageEl = (current ? ELEMENTS[current.element] : null) || ELEMENTS.Holy;
@@ -9541,7 +9753,13 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         <div className="flex items-center justify-between">
           <span style={{ ...ORB, fontWeight: 800, fontSize: 14 }}>{context === "tower" ? `🗼 Andar ${encounter.floor}` : context === "coop" ? "🛰️ Domínio Co-op" : context === "tagdungeon" ? `🗝️ ${encounter.tag || "Dungeon"}` : "⚔️ Batalha"}{(state.totalWaves || 1) > 1 && <span style={{ color: C.gold }}> · Onda {state.wave}/{state.totalWaves}</span>}</span>
           {current && <span style={{ fontSize: 12, color: C.mute }}>Vez de <Glow color={stageEl.color}>{current.name}</Glow></span>}
-          {!state.over && <button onClick={() => onEnd({ win: false, abort: true, turns: state.heroTurns })} style={{ fontSize: 12, color: C.mute, border: `1px solid ${C.line}`, borderRadius: 8, padding: "3px 10px" }}>Recuar</button>}
+          <div className="flex items-center gap-2">
+            {!state.over && <button onClick={() => setAutoMode((v) => !v)} title="A IA joga automaticamente pelo seu time"
+              style={{ fontSize: 12, fontWeight: 800, color: autoMode ? "#1a1200" : C.gold, background: autoMode ? C.gold : "transparent", border: `1px solid ${C.gold}`, borderRadius: 8, padding: "3px 10px", boxShadow: autoMode ? `0 0 10px ${C.gold}88` : "none" }}>
+              {autoMode ? "⏵ AUTO ON" : "⏵ Auto"}
+            </button>}
+            {!state.over && <button onClick={() => onEnd({ win: false, abort: true, turns: state.heroTurns })} style={{ fontSize: 12, color: C.mute, border: `1px solid ${C.line}`, borderRadius: 8, padding: "3px 10px" }}>Recuar</button>}
+          </div>
         </div>
 
         {!state.over && encounter.isTower && (
