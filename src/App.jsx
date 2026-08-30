@@ -7462,8 +7462,15 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     if (state.over) return;
     if (!current) { const t = setTimeout(advance, 250); return () => clearTimeout(t); }
     if (current.side === "enemy") { const t = setTimeout(enemyAct, 750); return () => clearTimeout(t); }
-    if (current.auto || current.isSummon) { const t = setTimeout(() => autoAct(current.uid), 700); return () => clearTimeout(t); }
-    if (autoMode && current.side === "H" && !state.choice) { const t = setTimeout(() => autoAct(current.uid), 550); return () => clearTimeout(t); } // Modo Automático: a IA joga pelo herói também (nunca durante uma escolha manual pendente)
+    if (current.isSummon) { const t = setTimeout(() => autoAct(current.uid), 700); return () => clearTimeout(t); } // invocações usam a IA simplificada (não têm heroAction)
+    if ((current.auto || autoMode) && current.side === "H" && !state.choice) {
+      const kind = decideAutoKind(current, state);
+      const al = state.enemies.filter((e) => e.alive);
+      // Mira inteligente: prioriza finalizar quem está com HP baixo (mata mais rápido, menos turnos tomando dano)
+      const bestIdx = al.length ? al.reduce((bi, e, i) => (e.hp < al[bi].hp ? i : bi), 0) : null;
+      const t = setTimeout(() => heroAction(kind, bestIdx), 550);
+      return () => clearTimeout(t);
+    } // heróis em auto: mesma lógica real do clique manual, com IA decidindo Suprema/Perícia/Básico + mirando o inimigo mais fraco (alvo passado direto, sem depender de setTarget assíncrono)
   }, [current, state.over, autoMode, state.choice]); // eslint-disable-line
   useEffect(() => { if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight; }, [state.log]);
   useEffect(() => {
@@ -7570,7 +7577,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     holdingRef.current = false;
     setPreviewKind(null);
   }
-  function heroAction(kind) {
+  function heroAction(kind, forcedTargetIdx) {
     const _now = Date.now();
     if (_now - actionLockRef.current < 400) return; // ignora disparo duplicado da mesma ação (toque duplo / race de estado)
     actionLockRef.current = _now;
@@ -7691,7 +7698,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         kAllies.forEach(a => { if (!a.buffs.some(b => b.name === "GuardiaoCos")) a.buffs.push({ stat: "dmgReduce", value: 15, turns: 2, name: "GuardiaoCos" }); });
       }
       const fx = s.fx, sk = u.skill, allies = s.heroes.filter((h) => h.alive);
-      let enemy = targetEnemy(s);
+      let enemy = (forcedTargetIdx != null ? aliveEnemies(s)[forcedTargetIdx] : null) || targetEnemy(s);
       // ── Protocolo Ômega 4pç: 3 Fases de HP ──────────────────────────────
       if (f.setOmega4 && !u.isSummon) {
         const hpRatio = u.hp / Math.max(1, u.maxHp);
@@ -9212,6 +9219,52 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     });
   }
 
+  // Modo Automático: resolve sozinho as escolhas manuais (Kaiba/Frieren/Athena/Uraraka/Agumon) — senão o Auto travaria esperando um clique
+  useEffect(() => {
+    if (!state.choice) return;
+    const u = state.choice.uid ? findUnit(state, state.choice.uid) : null;
+    const isAutoUnit = (u && u.auto) || autoMode;
+    if (!isAutoUnit) return;
+    const t = setTimeout(() => {
+      if (state.choice.kind === "frieren") {
+        const lowHp = state.heroes.some((h) => h.alive && !h.isSummon && h.hp / h.maxHp < 0.55);
+        resolveFrierenUlt(lowHp ? "flowers" : "zoltraak");
+      } else if (state.choice.kind === "athena") {
+        const best = state.heroes.filter((h) => h.alive && !h.isSummon).sort((a, b) => effStat(b, "atk") - effStat(a, "atk"))[0];
+        if (best) resolveAthenaUlt(best.uid);
+      } else if (state.choice.kind === "uraraka") {
+        const best = state.heroes.filter((h) => h.alive && !h.isSummon && h.id !== "uraraka").sort((a, b) => effStat(b, "atk") - effStat(a, "atk"))[0] || state.heroes.find((h) => h.alive);
+        if (best) resolveUrarakaSkill(best.uid);
+      } else if (state.choice.kind === "agumon_evo") {
+        const agU = state.heroes.find((h) => h.id === "agumon" && h.alive);
+        if (agU) {
+          const options = AGU_ORDER.filter((fid) => fid !== (agU.agForm || "agumon") && AGU_FORMS[fid].req).map((fid) => {
+            const F = AGU_FORMS[fid];
+            const okSP = (agU.agSP || 0) >= F.req.sp;
+            const okHeat = (agU.agHeat || 0) >= F.req.heatMin && (agU.agHeat || 0) <= F.req.heatMax;
+            const okTri = !F.req.needTrident || (agU.agTrident || 0) > 0;
+            return { fid, okSP, perfect: okHeat && okTri };
+          }).filter((o) => o.okSP);
+          const pick = options.find((o) => o.perfect) || options[0];
+          if (pick) resolveAgumonEvolve(pick.fid); else setState((s0) => ({ ...s0, choice: null, turn: null }));
+        }
+      } else {
+        resolveKaibaUlt("ultimate"); // fusão sustentada — opção segura padrão
+      }
+    }, 500);
+    return () => clearTimeout(t);
+  }, [state.choice, autoMode]); // eslint-disable-line
+
+  // IA do Modo Automático: decide a MELHOR ação no momento (Suprema > Perícia > Básico), igual jogador otimizado faria
+  function decideAutoKind(u, s) {
+    if (!u) return "basic";
+    const fullEnergy = u.energyMax && u.energy >= u.energyMax;
+    // Suprema pronta: sempre prioridade máxima (seja ela numérica ou de mecânica customizada — heroAction sabe executar as duas)
+    if (fullEnergy) return "ult";
+    // Perícia disponível (tem Ponto de Habilidade — SP): usa sempre, é quase sempre melhor que o básico (dano maior, buff, cura, debuff...)
+    if ((s.sp || 0) > 0) return "skill";
+    return "basic";
+  }
   function autoAct(uid) {
     const _now = Date.now();
     if (_now - actionLockRef.current < 400) return; // trava contra disparo duplicado (ex: invocação atacando 2x)
