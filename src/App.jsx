@@ -92,6 +92,9 @@ const ROSTER = [
   // ---- Alter Saber · Hypercarry Chaos Sem Caminho (Limitada) ----
   mk({ id: "altersaber", name: "Alter Saber", title: "O Rei do Fim de Todas as Eras", element: "Chaos", role: "dps", rarity: 5, avatar: "⚔️", hp: 1180, atk: 980, def: 470, spd: 110, energy: 160, cr: 20, cd: 92, elemDmg: 22.4, tags: ["Chaos", "DPS", "Hypercarry", "Sem Caminho", "Ruína"],
     skill: { basicMul: 100, asBasic: true, skillMul: 0, asSkill: true, ultMul: 760, asUlt: true } }),
+  // ---- Ichigo Kurosaki · Limitado · Unknown ----
+  mk({ id: "ichigo", name: "Ichigo Kurosaki", title: "O Vazio Entre Mundos", element: "Unknown", role: "dps", rarity: 5, avatar: "🌑", hp: 1200, atk: 1020, def: 460, spd: 108, energy: 9999, cr: 12, cd: 56, tags: ["Unknown", "DPS", "Transformação", "Fragmentos"],
+    skill: { basicMul: 95, ichBasic: true, skillMul: 215, ichSkill: true, ultMul: 0, ichUlt: true } }),
   // ---- Aizen Sōsuke · Limitado · Sem Caminho ----
   mk({ id: "aizensosuke", name: "Aizen Sōsuke", title: "A Existência Que Superou o Céu", element: "Chaos", role: "debuffer", rarity: 5, avatar: "🌙", hp: 1180, atk: 880, def: 520, spd: 104, energy: 180, cr: 10, cd: 60, elemDmg: 14.4, energyRegen: 10, tags: ["Chaos", "Sub-DPS", "Amplificador", "Sem Caminho", "Hipnose"],
     skill: { basicMul: 110, azBasic: true, skillMul: 240, azSkill: true, ultMul: 450, ultAoe: true, azUlt: true } }),
@@ -123,7 +126,7 @@ const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 // Tag primária de um personagem (usada como requisito de nó) e todas as tags únicas do elenco
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
-const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon", "lupa", "hitori", "altersaber", "gilgamesh", "aizensosuke"];     // limitados (pool 50/50): só via rate-up
+const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon", "lupa", "hitori", "altersaber", "gilgamesh", "aizensosuke", "ichigo"];     // limitados (pool 50/50): só via rate-up
 const FEATURED_LIMITEDS = ["aizensosuke", "altersaber", "gilgamesh"]; // 3 banners ativos // único banner ativo: Aizen Sōsuke (5 dias) // banners ativos: Gilgamesh e Alter Saber (Lupa e Hitori encerrados) // banners ativos: Gilgamesh e Alter Saber (RELÂMPAGO: 3 HORAS!), Lupa e Hitori
 const BANNER_DURATIONS = { aizensosuke: 5 * 24 * 60 * 60 * 1000, altersaber: 5 * 24 * 60 * 60 * 1000, gilgamesh: 5 * 24 * 60 * 60 * 1000 }; // 5 dias cada // Aizen: 5 dias // Gilgamesh e Alter Saber: banners RELÂMPAGO de 3 HORAS · Lupa/Hitori: 5 dias
 // ══ Títulos de chat — desbloqueados ao levar um personagem ao E6 (todas as cópias) ══
@@ -175,6 +178,7 @@ const WEAPONS = [
   { id: "duelo_nexo",        name: "Disco de Duelo — Protótipo Nexo", rarity: 5, role: "summoner", hpFlat: 1164, atk: 582, defFlat: 396, critRate: 12.0, passive: "Atributos Base: HP 1164 | ATK 582 | DEF 396. Efeito Passivo — Jogo de Alta Linhagem: aumenta a Taxa Crítica do portador em 12% / 15% / 18% / 21% / 24% (por nível de refinamento; este jogo aplica o valor de nível 1: 12%). Sempre que o portador utilizar a Perícia para puxar uma carta ou ativar uma carta diretamente de sua Mão Virtual, o Monstro Invocado atualmente ativo no campo ganha 1 acúmulo do status Soberania do Duelista (limite máximo de 3 acúmulos). Cada acúmulo aumenta o Dano causado pelas invocações em 16% / 20% / 24% / 28% / 32% (nível 1: 16%) e faz com que seus ataques ignorem 10% / 12% / 14% / 16% / 18% da DEF dos alvos atingidos (nível 1: 10%). Este efeito expira após 2 turnos do monstro. Quando um Monstro Invocado aliado deixa o campo de batalha (seja por destruição, substituição automática ou mecânica de Tributo), o portador regenera de forma instantânea 6.0 / 7.5 / 9.0 / 10.5 / 12.0 pontos de Energia (nível 1: 6.0). Adicionalmente, o próximo Monstro Invocado que entrar em campo recebe um bônus compulsório de 30% / 37.5% / 45% / 52.5% / 60% de Dano Crítico em todas as suas ações ofensivas por 2 rodadas completas (nível 1: 30%).", buff: { kaibaWeapon: true } },
   { id: "hailstorm",        name: "Nevasca de Outono",     rarity: 5, role: "aoe",      atk: 700, critRate: 30.0, critDmg: 52.0,    passive: "Fio do Zero Absoluto: DoTs de Geada amplificados. Apos a Habilidade, +24% Bonus de Dano por 2 turnos.",                         buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
   { id: "thunderclaws",     name: "Garras do Trovao",      rarity: 5, role: "dps",      atk: 850, critRate: 38.0,                   passive: "Descarga Predatoria: apos a Habilidade, +20% de VEL por 2 turnos.",                                                             buff: { onSkill: { spd: 20, turns: 2 } } },
+  { id: "tensa_zangetsu", name: "Tensa Zangetsu", rarity: 5, role: "dps", atk: 700, def: 350, critRate: 18.0, passive: "Eco do Corte Perdido: aumenta o ATQ do usuario em 30%. Ao usar a Pericia em Fase Shinigami, existe 55% de chance de conceder 1 Fragmento do Dangai adicional (nao afeta a Pericia aprimorada da Forma Mugetsu). O primeiro Ataque Basico aprimorado de cada Forma Mugetsu nao consome Reserva. O golpe final da Forma Mugetsu causa 28% de dano adicional.", buff: { ichWeapon: true } },
   { id: "originpistol",     name: "Pistola da Origem",     rarity: 5, role: "debuffer", atk: 840, critDmg: 58.8, extraDefDown: 14,  passive: "Mira Calculada: debuffs reduzem +14% de DEF adicional do alvo." },
   { id: "starmantle",       name: "Manto Estelar",         rarity: 5, role: "shield",   atk: 476, def: 476, shieldBonus: 52,        passive: "Barreira Estelar: +52% no valor dos Escudos gerados pelo portador." },
   { id: "ferrao_borboleta", name: "Ferrao da Borboleta",   rarity: 5, role: "dps",      atk: 840, spd: 36.0, critRate: 36.0,        passive: "Carga Eletrica: acumula 1 carga por golpe de Vento (max 5). Cada carga +10% dano follow-up. Na Postura de Ferrao, consome todas e concede +24% Dano Verdadeiro por carga. Exclusivo: Soi Fon." },
@@ -575,6 +579,7 @@ const PASSIVE = {
   aizensosuke: { name: "Kyōka Suigetsu: Hipnose Perfeita", desc: "Aizen utiliza um recurso exclusivo chamado Domínio Hipnótico (máximo: 6 Selos de Ilusão). Obtém Selos ao usar Ataque Básico (+1), Perícia (+2), Suprema (+3) e sempre que um aliado Chaos causar dano (+1, máximo de 2 por turno). Ao atingir 6 Selos, eles são consumidos automaticamente para ativar Hipnose Perfeita por 2 turnos. Enquanto estiver ativa: todos os inimigos recebem Ilusão Absoluta; o dano recebido de personagens Chaos aumenta em 30%; a Perfuração de todos os personagens Chaos aumenta em 25%; a Penetração de Resistência Chaos aumenta em 20%; e a DEF dos inimigos é reduzida em 18%, mas apenas contra ataques do elemento Chaos. Além disso, toda vez que um personagem Chaos causar dano durante Hipnose Perfeita, Aizen registra 1 Camada de Colapso Mental no alvo (máximo de 10). Quando Hipnose Perfeita termina, todas as camadas explodem, causando 40% do ATQ de Aizen por camada como Dano Chaos — esse dano é considerado dano adicional, não Ataque Extra.", flag: "azHipnose" },
   gilgamesh: { name: "Rei dos Heróis", desc: "Sempre que Gilgamesh causar dano, executar Ataque Extra, derrotar um inimigo ou consumir Tesouros, recebe Autoridade Real (máximo: 12). Ao atingir o máximo, entra automaticamente em Trono do Rei por 2 turnos. Enquanto ativo: todos os ataques sempre causam CRÍTICO, +140% Dano CRÍTICO, +50 Velocidade, ataques ignoram Escudos, e Ataques Extras ignoram 40% DEF. Além disso, cada Ataque Extra executa imediatamente Tesouro Celestial: dispara 6 armas, cada uma causando 90% do ATQ, e cada arma possui um efeito aleatório — causar dano adicional, gerar Tesouro, recuperar 3 Energia, reduzir DEF do alvo em 10% por 2 turnos, ou reduzir Resistência Unknown em 10% por 2 turnos. Quando Tesouro Celestial for executado três vezes, Gilgamesh dispara automaticamente Ea Fragmentada: um corte dimensional causando 450% do ATQ em todos os inimigos. — Mecânica Exclusiva · Portão da Babilônia: recurso exclusivo chamado Tesouros Reais (máximo inicial: 16). Obtém Tesouros ao usar Ataque Básico (+1), Perícia (+4), Ataque Extra (+1), derrotar um inimigo (+2) e Suprema (+8). Ao atingir 16 Tesouros, entra automaticamente em Reinado Dourado por 3 turnos: todos os ataques se tornam Dano Unknown, Ataques Extras ignoram 30% DEF, todo Ataque Extra gera outro disparo do Portão (máximo de 3 cadeias), o limite passa para 30 Tesouros e cada Tesouro acima de 16 aumenta o dano em 4%. — Técnica · A Chave do Rei: antes da batalha, obtém 10 Tesouros, recupera 70 de Energia e ativa imediatamente o Portão da Babilônia. Nos dois primeiros turnos, todos os Ataques Extras disparam o dobro de armas.", flag: "gilTalent" },
   altersaber: { name: "O Rei Nunca Cai", desc: "Talento: sempre que Alter Saber acertar um CRÍTICO, executar um Ataque Extra, derrotar um inimigo ou usar a Suprema, recebe uma Marca do Rei (máx 10). Ao atingir 10 marcas, todas são consumidas e ela entra automaticamente em Reino Absoluto por 2 turnos: todos os ataques SEMPRE causam CRIT, +140% de Dano CRÍTICO, +40% de Penetração de Resistência, +50 de Velocidade, ataques ignoram Escudos, e cada golpe cria uma Cópia Espectral (55% do dano do ataque original; a cada 3ª cópia, dispara Excalibur Negra: 300% do ATQ em Dano Chaos em todos os inimigos). Mecânica exclusiva — Reino da Ruína: acumule 12 Ruínas (ataques, contra-ataques, Suprema, abates e Ataques Extras) para entrar em Reino da Ruína, um estado que não pode ser dissipado: não consome Pontos de Perícia, todos os ataques viram Dano Chaos e ignoram 25% DEF, todo CRIT gera uma Ruína Fantasma (sem limite normal), e a cada 3 Ruínas Fantasma consumidas realiza imediatamente um Ataque Extra. Ao terminar o estado, todas as Ruínas Fantasma explodem causando dano proporcional ao acumulado.", flag: "asTalent" },
+  ichigo: { name: "Instabilidade Hollow", desc: "Ichigo não acumula Energia como os demais combatentes. Em vez disso, ele carrega um resíduo espiritual instável chamado Fragmentos do Dangai (máximo: 12), nascido do treinamento em um corredor entre mundos que quase o destruiu. O Ataque Básico não gera nenhum Fragmento — o corte comum é rápido demais pra deixar qualquer resíduo. A Perícia gera 2 Fragmentos fixos, sem bônus por crítico. Derrotar um inimigo concede 1 Fragmento adicional, e sempre que Ichigo for atingido por um inimigo, ele ganha 1 Fragmento — a instabilidade que carrega dentro de si desperta sob pressão, não em segurança. Ao atingir 12 Fragmentos, todos são consumidos automaticamente: Ichigo golpeia todos os inimigos de uma vez e entra em Forma Mugetsu, onde recebe 12 Reservas de Mugetsu (um medidor separado) e seus atributos de ataque sobem drasticamente. Durante a Forma Mugetsu, o Ataque Básico e a Perícia são substituídos por versões aprimoradas que não custam Ponto de Perícia — custam Reservas de Mugetsu. O Básico aprimorado consome 1 Reserva e causa dano superior ao de qualquer ataque comum. A Perícia aprimorada consome 3 Reservas e atinge uma área maior, aplicando um corte que deixa o alvo mais vulnerável. Quando as Reservas de Mugetsu chegam a zero, um golpe final devastador dispara sozinho contra todos os inimigos em campo — ninguém precisa apertar nada, ele simplesmente acontece — e então Ichigo retorna à sua forma comum, com os Fragmentos do Dangai zerados e prontos pra começar o ciclo de novo.", flag: "ichTalent" },
   hitori: { name: "Ansiedade Amplificada", desc: "5 Estrelas - Suporte | Chaos. Ataques básicos não farão nada além de dar uma pequena quantidade de dano de Chaos. Passivas: A cada 3% de dano crítico, Hitori recebe 1 ponto de velocidade. Concede 30 de energia para todos os aliados após ativar seu supremo. Concede 30% de bônus de dano de Holy e Chaos para os aliados nos dois primeiros slots.", flag: "hitoriPassive" },
   lupa: { name: "Fome da Predadora", desc: "Lupa opera como uma força da natureza que se alimenta do caos elemental presente no campo de batalha. Acúmulo de Voracidade: Sempre que Lupa causa Dano de Fogo a um inimigo sob o efeito de qualquer Dano Contínuo (DoT de Fogo, Sangramento, Choque, etc.), ela consome 1 rodada desse efeito e ganha 1 carga de Voracidade (máximo de 10 cargas). Cada carga concede +20% de Dano de Fogo (até +200% no máximo). Cada carga também restaura 5 pontos de Energia instantaneamente para Lupa. Chama Voraz: Quando Lupa possui 10 cargas de Voracidade, ela entra no estado \"Predadora Absoluta\". Seu próximo Ataque Básico ou Perícia ignora 20% da DEF do alvo e consome todas as cargas para garantir que sua próxima Liberação de Ressonância (Ultimate) cause Dano Crítico Garantido.", flag: "lupaVoracity" },
   miyabi:    { name: "Caçadora do Vazio · Geada Profunda", desc: "Talento: sempre que Miyabi atinge um inimigo que esteja sob QUALQUER efeito contínuo (Congelamento, Queimadura, Veneno, Choque ou Sangramento), o golpe causa +30% de dano. Como suas próprias Habilidade e Ultimate marcam congelamento, ela rapidamente se auto-habilita e escala o dano contra alvos já afligidos pela equipe — quanto mais DoTs no campo, mais letal ela fica.", flag: "pShatter" },
@@ -627,6 +632,14 @@ const CONS = {
     { name: "E4 · O Reino Além da Eternidade", flag: "asE4", desc: "\"Mesmo que o tempo termine, o rei permanecerá sentado em seu trono.\" Durante Reino Absoluto: as Cópias Espectrais passam a causar 100% do dano do ataque original (antes 55%); as cópias também podem gerar outras cópias, porém apenas uma vez por ataque; cada Cópia Espectral concede 1 Ruína Fantasma. Sempre que uma Cópia Espectral derrotar um inimigo: prolonga Reino Absoluto em 1 turno (máx +3), recupera 15 Energia e recupera 1 Ponto de Perícia." },
     { name: "E5 · A Última Excalibur", ...A_SKILL, flag: "asE5", desc: "Aumenta o nível da Perícia em +2. Aumenta o nível do Ataque Básico em +2. Nível máximo: 15." },
     { name: "E6 · Excalibur Morgan • O Rei do Fim de Todas as Eras", flag: "asE6", desc: "\"Não existe esperança diante do verdadeiro rei. Apenas o inevitável.\" A mecânica é permanentemente aprimorada. Ao entrar em Reino Absoluto: o limite de Ruínas Fantasma é removido, e cada Ruína Fantasma concede +2% Dano Chaos, +1,5% Penetração de Resistência e +2% Dano CRÍTICO. Sempre que usar a Suprema, uma Sombra do Rei é invocada imediatamente após o golpe: repete exatamente a Suprema utilizada causando 85% do dano original, podendo gerar Ruínas, ativar Cópias Espectrais, Talento, Rastros e demais efeitos do kit. Após a Sombra concluir seu ataque, libera automaticamente Excalibur Morgan • Ruptura do Mundo: 900% do ATQ ao alvo principal, 500% aos demais inimigos, ignora 50% da DEF e 40% da Resistência Chaos, redefine a duração de Modo Alter e Reino da Ruína para o máximo e concede imediatamente 12 Ruínas e 10 Marcas do Rei. Além disso, enquanto Reino Absoluto estiver ativo, recebe apenas 50% do dano de ataques inimigos e não pode ser interrompida durante suas ações." },
+  ],
+  ichigo: [
+    { name: "E1 · Ressurreição Precoce", flag: "ichE1", desc: "Ichigo entra em batalha já carregando 4 Fragmentos do Dangai. Além disso, o ganho de Fragmento por tomar dano deixa de ter limite de uma vez por turno inimigo — agora dispara em todo golpe recebido, sem exceção. Cada vez que esse gatilho ativa, Ichigo também recebe 1 acúmulo permanente de Sede Hollow (máximo de 6, dura a batalha inteira), e cada acúmulo concede +3% de Taxa de CRIT. Um Ichigo que apanha bastante deixa de ser um problema pra virar uma ameaça crescente." },
+    { name: "E2 · Ruptura da Máscara", flag: "ichE2", desc: "Quando o golpe final da Forma Mugetsu dispara automaticamente, a transformação não se encerra de imediato: ela se estende por mais 1 turno, e Ichigo recebe 4 Reservas de Mugetsu adicionais para usar nesse turno extra, mantendo acesso ao Básico e à Perícia aprimorados. Se ele derrotar qualquer inimigo durante esse turno estendido, a extensão se renova por mais 1 turno — a renovação reseta a contagem, não acumula. Contra ondas cheias de inimigos fracos, isso pode prender Ichigo em Forma Mugetsu por vários turnos seguidos, encadeando o golpe final repetidas vezes na mesma batalha." },
+    { name: "E3 · O Nome Que a Lâmina Esqueceu", ...A_ULT, flag: "ichE3", desc: "Aumenta o nível da Suprema em +2. Aumenta o nível do Talento em +2. Nível máximo: 15." },
+    { name: "E4 · Corte que Não Erra", flag: "ichE4", desc: "O custo da Perícia aprimorada da Forma Mugetsu cai permanentemente de 3 para 2 Reservas. Além disso, toda vez que o Básico aprimorado acerta, aplica 1 acúmulo de Corrosão do Vazio no alvo (máximo de 5, cada acúmulo reduz a DEF dele em 4%). Se um inimigo morrer carregando 3 ou mais acúmulos de Corrosão do Vazio, a Reserva de Mugetsu que seria gasta nesse ataque é reembolsada na hora." },
+    { name: "E5 · A Lâmina Que Ainda Sonha", ...A_SKILL, flag: "ichE5", desc: "Aumenta o nível da Perícia em +2. Aumenta o nível do Ataque Básico em +2. Nível máximo: 15." },
+    { name: "E6 · A Lâmina que Cortou o Destino", flag: "ichE6", desc: "O golpe final da Forma Mugetsu é permanentemente transformado. Ele passa a acertar CRÍTICO garantido, ignora 42% da DEF e 25% da Resistência de todos os alvos atingidos, e seu dano base é substancialmente maior. Ao acertar o alvo principal, libera uma onda de choque que concede a todo o time aliado +32% de Dano CRÍTICO por 2 turnos — a explosão de poder reverbera além do próprio Ichigo. Nesse mesmo turno, ele recebe +15% de Redução de Dano recebido: o golpe o deixa momentaneamente vazio, difícil de alcançar. E o efeito mais importante: para cada inimigo que esse golpe final derrotar, Ichigo recupera instantaneamente 3 Fragmentos do Dangai assim que retorna à forma comum — contra uma onda bem limpa, ele pode sair de uma Forma Mugetsu já com metade do caminho pronto pra próxima." },
   ],
   hitori: [
     { name: "C1 · Rastreadora de Cinzas", flag: "hitoriC1", desc: "Aumenta a velocidade de Hitori em 12 pontos. Quando Hitori usar o supremo, ela concederá 24% de taxa de perfuração para todos os aliados." },
@@ -1004,6 +1017,11 @@ function specialTraces(def) {
       { name: "A2 — Trono da Ruína", desc: "Durante Reino da Ruína: cada Ruína Fantasma aumenta o dano causado em 2,5%, até um máximo de 50%. Ao sair do estado, todas as Ruínas Fantasma explodem causando 20% do ATQ por carga como Dano Chaos em todos os inimigos.", combat: "asA2", cost: 2 },
       { name: "A4 — Além do Destino", desc: "Sempre que Alter Saber consumir Ruínas: recupera 4 Energia para cada Ruína consumida. Se consumir 10 ou mais Ruínas de uma vez, recebe imediatamente um turno adicional. Esse efeito pode ocorrer uma vez por ativação da Suprema.", combat: "asA4", cost: 2 },
       { name: "A6 — Coroa do Último Rei", desc: "Enquanto Reino Absoluto estiver ativo: todo dano excedente causado a um inimigo derrotado é redistribuído entre os demais inimigos. Ataques Extras ignoram completamente efeitos que reduzam dano ou impeçam ataques adicionais. Ao derrotar um inimigo, prolonga Reino Absoluto em 1 turno (máximo +2 turnos).", combat: "asA6", cost: 3 },
+    ];
+    if (def.id === "ichigo") return [
+      { name: "Rastro Especial 1 · Ruptura da Máscara", desc: "Rastro Especial de combate: sempre que Ichigo entra em Forma Mugetsu, recebe +200% de Dano CRÍTICO pela duração inteira da transformação — esse bônus desaparece assim que ele retorna à forma comum.", combat: "ichTrace1", cost: 3 },
+      { name: "Rastro Especial 2 · Instabilidade Estável", desc: "Rastro Especial de combate: enquanto estiver em Forma Mugetsu, Ichigo se torna imune a Congelamento, Atordoamento e Enraizamento, e recebe -20% de todo dano recebido.", combat: "ichTrace2", cost: 2 },
+      { name: "Rastro Especial 3 · Salto no Vazio", desc: "Rastro Especial de combate: ao entrar em Forma Mugetsu, Ichigo recupera imediatamente 30% de Valor de Ação, avançando sua posição na ordem de turnos.", combat: "ichTrace3", cost: 2 },
     ];
     if (def.id === "lupa") return [
       { name: "Rastro 1 · Rastro da Caçada (Ascensão 2)", desc: "Ao entrar em combate, Lupa ganha instantaneamente 3 cargas de Voracidade e 20 pontos de Energia. Além disso, a chance-base de aplicar \"Ignição\" com seus Ataques Básicos e Perícias é aumentada para 100%.", combat: "lupaT1", cost: 2 },
@@ -1787,9 +1805,9 @@ function ImgFill({ url, fallback, size }) {
   if (url && !err) return <img src={url} alt="" onError={() => setErr(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />;
   return <span style={{ fontSize: size * 0.5 }}>{fallback}</span>;
 }
-function Avatar({ ch, size = 56, ring }) {
+function Avatar({ ch, size = 56, ring, imgIdOverride }) {
   const images = useImg();
-  const url = (ch?.imgId && images[ch.imgId]) || (ch?.id ? images[ch.id] : null);
+  const url = (imgIdOverride && images[imgIdOverride]) || (ch?.imgId && images[ch.imgId]) || (ch?.id ? images[ch.id] : null);
   const el = ELEMENTS[ch.element] || { color: C.line };
   return <div style={{
     width: size, height: size, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center",
@@ -3629,34 +3647,34 @@ function PoolRow({ ids, ownedSet }) {
 
 // ── Assinaturas visuais únicas por personagem 5★ — cada um com combinação própria de partícula/cor/movimento ──
 const PULL_SIGNATURES = {
-  miyabi:        { type: "fall",   shape: "❄",  c1: "#BEEFFF", c2: "#3FA9E8", speed: 1.0, spin: true  }, // Glacial — fragmentos de gelo
-  kaiba:         { type: "fall",   shape: "🎴", c1: "#FFD76A", c2: "#3D6BFF", speed: 1.6, spin: true  }, // cartas de duelo girando
-  kirara:        { type: "spiral", shape: "•",  c1: "#FF8A3D", c2: "#B93DFF", speed: 1.1 },              // labaredas de raposa em espiral
-  yoruichi:      { type: "streak", c1: "#B98BFF", c2: "#FFE24B", count: 14, horiz: true },               // shunpo — riscos horizontais velozes
-  kiritsugu:     { type: "streak", c1: "#3E5E3A", c2: "#0C1A0C", count: 10, converge: true },             // trajetórias de disparo convergindo
-  ryoshu:        { type: "curl",   c1: "#8B1A1A", c2: "#2A0505" },                                        // fios de sangue se curvando
-  frieren:       { type: "fall",   shape: "✦",  c1: "#DFF5EA", c2: "#5FD9A8", speed: 0.5, gentle: true }, // poeira estelar mágica lenta
-  lupa:          { type: "rise",   c1: "#FF5A2E", c2: "#FFD24B" },                                        // brasas ascendendo
-  hitori:        { type: "ring",   c1: "#FF7AC8", c2: "#B98BFF", count: 4 },                              // ondas de vibração de corda
-  altersaber:    { type: "streak", c1: "#0A0A0A", c2: "#B00020", count: 8, cross: true },                 // cortes de lâmina cruzados
-  aizensosuke:   { type: "fall",   shape: "◆",  c1: "#E38BFF", c2: "#4A1E66", speed: 1.3, shatter: true },// estilhaços de ilusão
-  gilgamesh:     { type: "ring",   c1: "#FFD24B", c2: "#8A6A10", count: 5 },                              // portões dourados se abrindo
-  soifon:        { type: "fall",   shape: "🦋", c1: "#B9FFCB", c2: "#3FE87A", speed: 0.8, spin: true  }, // borboletas de vento
-  omegamon:      { type: "fall",   shape: "▪",  c1: "#7ADFFF", c2: "#1A3A5C", speed: 2.0, jitter: true },// blocos digitais glitch
-  wonderofyou:   { type: "streak", c1: "#6B21A8", c2: "#000000", count: 9, crack: true },                 // rachaduras da calamidade
-  athena:        { type: "ring",   c1: "#FFE9A8", c2: "#FFD24B", count: 6, rays: true },                  // raios olímpicos
-  agumon:        { type: "rise",   c1: "#FF7A29", c2: "#FFCF4A", burst: true },                           // explosão de chamas
-  shorekeeper:   { type: "fall",   shape: "✦",  c1: "#7FDBFF", c2: "#FFE08A", speed: 0.6, gentle: true },// estrelas à deriva
-  yanagi:        { type: "streak", c1: "#B98BFF", c2: "#3D6BFF", count: 11, erratic: true },              // arcos elétricos ramificados
+  miyabi:        { type: "fall",   shape: "❄",  c1: "#BEEFFF", c2: "#3FA9E8", speed: 1.0, spin: true  , motif: "slash" }, // Glacial — fragmentos de gelo
+  kaiba:         { type: "fall",   shape: "🎴", c1: "#FFD76A", c2: "#3D6BFF", speed: 1.6, spin: true  , motif: "cardspiral" }, // cartas de duelo girando
+  kirara:        { type: "spiral", shape: "•",  c1: "#FF8A3D", c2: "#B93DFF", speed: 1.1 , motif: "foxfire" },              // labaredas de raposa em espiral
+  yoruichi:      { type: "streak", c1: "#B98BFF", c2: "#FFE24B", count: 14, horiz: true , motif: "shunpo" },               // shunpo — riscos horizontais velozes
+  kiritsugu:     { type: "streak", c1: "#3E5E3A", c2: "#0C1A0C", count: 10, converge: true , motif: "crosshair" },             // trajetórias de disparo convergindo
+  ryoshu:        { type: "curl",   c1: "#8B1A1A", c2: "#2A0505" , motif: "bloodbloom" },                                        // fios de sangue se curvando
+  frieren:       { type: "fall",   shape: "✦",  c1: "#DFF5EA", c2: "#5FD9A8", speed: 0.5, gentle: true , motif: "snowmandala" }, // poeira estelar mágica lenta
+  lupa:          { type: "rise",   c1: "#FF5A2E", c2: "#FFD24B" , motif: "wolfhowl" },                                        // brasas ascendendo
+  hitori:        { type: "ring",   c1: "#FF7AC8", c2: "#B98BFF", count: 4 , motif: "soundwave" },                              // ondas de vibração de corda
+  altersaber:    { type: "streak", c1: "#0A0A0A", c2: "#B00020", count: 8, cross: true , motif: "voidcrack" },                 // cortes de lâmina cruzados
+  aizensosuke:   { type: "fall",   shape: "◆",  c1: "#E38BFF", c2: "#4A1E66", speed: 1.3, shatter: true , motif: "mirrorshatter" },// estilhaços de ilusão
+  gilgamesh:     { type: "ring",   c1: "#FFD24B", c2: "#8A6A10", count: 5 , motif: "goldgate" },                              // portões dourados se abrindo
+  soifon:        { type: "fall",   shape: "🦋", c1: "#B9FFCB", c2: "#3FE87A", speed: 0.8, spin: true  , motif: "windveil" }, // borboletas de vento
+  omegamon:      { type: "fall",   shape: "▪",  c1: "#7ADFFF", c2: "#1A3A5C", speed: 2.0, jitter: true , motif: "databoot" },// blocos digitais glitch
+  wonderofyou:   { type: "streak", c1: "#6B21A8", c2: "#000000", count: 9, crack: true , motif: "abyssrift" },                 // rachaduras da calamidade
+  athena:        { type: "ring",   c1: "#FFE9A8", c2: "#FFD24B", count: 6, rays: true , motif: "sunburst" },                  // raios olímpicos
+  agumon:        { type: "rise",   c1: "#FF7A29", c2: "#FFCF4A", burst: true , motif: "flamecore" },                           // explosão de chamas
+  shorekeeper:   { type: "fall",   shape: "✦",  c1: "#7FDBFF", c2: "#FFE08A", speed: 0.6, gentle: true , motif: "tidestar" },// estrelas à deriva
+  yanagi:        { type: "streak", c1: "#B98BFF", c2: "#3D6BFF", count: 11, erratic: true , motif: "voltbranch" },              // arcos elétricos ramificados
   // ── Armas Lendárias 5★ (Cones de Luz) ──
-  digivice:      { type: "rise",   c1: "#FF9A2E", c2: "#FFE24B", burst: true },                           // Digivice — explosão de evolução
-  starblade:     { type: "streak", c1: "#EAF1FB", c2: "#7ADFFF", count: 7, cross: true },                  // Lâmina Estelar — cortes de luz estelar
-  radiant:       { type: "ring",   c1: "#FFE9A8", c2: "#FFD24B", count: 4 },                               // Cetro Radiante — auréolas de apoio
-  hailstorm:     { type: "fall",   shape: "❋",  c1: "#DFF8FF", c2: "#7ADFFF", speed: 1.4, spin: true },  // Nevasca de Outono — floco denso
-  thunderclaws:  { type: "streak", c1: "#FFE24B", c2: "#B98BFF", count: 13, erratic: true },               // Garras do Trovão — arcos elétricos densos
-  originpistol:  { type: "streak", c1: "#3E5E3A", c2: "#0C1A0C", count: 6, converge: true },               // Pistola da Origem — trajetórias calculadas
-  starmantle:    { type: "ring",   c1: "#C7CEDB", c2: "#6FA8FF", count: 5, rays: true },                   // Manto Estelar — barreira em anéis
-  calamidade:    { type: "spiral", shape: "•",  c1: "#6B21A8", c2: "#B00020", speed: 0.8 },                // Calamidade — espiral sombria e vermelha
+  digivice:      { type: "rise",   c1: "#FF9A2E", c2: "#FFE24B", burst: true , motif: "evoring" },                           // Digivice — explosão de evolução
+  starblade:     { type: "streak", c1: "#EAF1FB", c2: "#7ADFFF", count: 7, cross: true , motif: "starcut" },                  // Lâmina Estelar — cortes de luz estelar
+  radiant:       { type: "ring",   c1: "#FFE9A8", c2: "#FFD24B", count: 4 , motif: "halobloom" },                               // Cetro Radiante — auréolas de apoio
+  hailstorm:     { type: "fall",   shape: "❋",  c1: "#DFF8FF", c2: "#7ADFFF", speed: 1.4, spin: true , motif: "frostspiral" },  // Nevasca de Outono — floco denso
+  thunderclaws:  { type: "streak", c1: "#FFE24B", c2: "#B98BFF", count: 13, erratic: true , motif: "clawrend" },               // Garras do Trovão — arcos elétricos densos
+  originpistol:  { type: "streak", c1: "#3E5E3A", c2: "#0C1A0C", count: 6, converge: true , motif: "targetscan" },               // Pistola da Origem — trajetórias calculadas
+  starmantle:    { type: "ring",   c1: "#C7CEDB", c2: "#6FA8FF", count: 5, rays: true , motif: "shieldwall" },                   // Manto Estelar — barreira em anéis
+  calamidade:    { type: "spiral", shape: "•",  c1: "#6B21A8", c2: "#B00020", speed: 0.8 , motif: "doomspiral" },                // Calamidade — espiral sombria e vermelha
 };
 function SignatureFX({ id }) {
   const sig = PULL_SIGNATURES[id];
@@ -3671,6 +3689,284 @@ function SignatureFX({ id }) {
     <SignatureFXAmbient sig={sig} n={n} />
   </>;
 }
+// ══════════════════════════════════════════════════════════════════════════
+// CUTSCENES DE INVOCAÇÃO — sequência cinematográfica única por personagem/arma 5★
+// Cada motif é uma COMPOSIÇÃO estrutural própria (não é o mesmo gerador recolorido).
+// ══════════════════════════════════════════════════════════════════════════
+function CutsceneIntro({ id, onDone }) {
+  const sig = PULL_SIGNATURES[id];
+  useEffect(() => { const t = setTimeout(onDone, 2350); return () => clearTimeout(t); }, []); // eslint-disable-line
+  if (!sig || !sig.motif) { onDone(); return null; }
+  const Motif = CUTSCENE_MOTIFS[sig.motif];
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "#000", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <style>{`
+        @keyframes ctFadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes ctSlashCut{0%{transform:translate(-120vw,-120vh) rotate(28deg);opacity:0}35%{opacity:1}55%{transform:translate(120vw,120vh) rotate(28deg);opacity:1}100%{opacity:0}}
+        @keyframes ctSlashGlow{0%{opacity:0;clip-path:polygon(0 0,0 0,0 0,0 0)}45%{opacity:0}55%{opacity:1;clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}100%{opacity:1}}
+        @keyframes ctCardFly{0%{transform:translate(var(--sx),var(--sy)) rotate(var(--sr)) scale(.4);opacity:0}30%{opacity:1}100%{transform:translate(0,0) rotate(720deg) scale(1);opacity:0}}
+        @keyframes ctFoxSwirl{0%{transform:rotate(0deg) scale(.3);opacity:0}30%{opacity:.9}100%{transform:rotate(620deg) scale(1.5);opacity:0}}
+        @keyframes ctFoxCore{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+        @keyframes ctShunpoDash{0%{transform:translateX(var(--fx)) scaleX(.2);opacity:0}15%{opacity:1}50%{transform:translateX(0) scaleX(1)}70%{opacity:1}100%{transform:translateX(calc(-1 * var(--fx))) scaleX(.2);opacity:0}}
+        @keyframes ctScopeZoom{0%{transform:scale(3.5);opacity:0}40%{opacity:1}100%{transform:scale(1);opacity:1}}
+        @keyframes ctScopeFlash{0%,90%{opacity:0}95%{opacity:1}100%{opacity:0}}
+        @keyframes ctBloomPetal{0%{transform:rotate(var(--pr)) translateY(0) scaleY(.2);opacity:0}30%{opacity:1}100%{transform:rotate(var(--pr)) translateY(-130px) scaleY(1);opacity:.9}}
+        @keyframes ctBloomCore{0%{transform:scale(.2);opacity:0}40%{opacity:1}100%{transform:scale(1);opacity:1}}
+        @keyframes ctPulseSlow{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+      `}</style>
+      <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 50% 50%, ${sig.c1}22, #000 72%)`, animation: "ctFadeIn 1.2s ease-out" }} />
+      {Motif ? <Motif sig={sig} /> : null}
+      <div style={{ position: "absolute", bottom: 44, textAlign: "center", animation: "ctFadeIn 1s .9s both" }}>
+        <div style={{ ...ORB, fontSize: 11, fontWeight: 800, letterSpacing: 4, color: sig.c1, textShadow: `0 0 12px ${sig.c1}` }}>✦ RESSONÂNCIA DETECTADA ✦</div>
+      </div>
+    </div>
+  );
+}
+function CutsceneImpact({ id }) {
+  const sig = PULL_SIGNATURES[id] || { c1: C.gold, c2: C.gold };
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 5, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+      <style>{`@keyframes ctImpactFlash{0%{opacity:1}100%{opacity:0}}`}</style>
+      <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle, #fff, ${sig.c1})`, animation: "ctImpactFlash .42s ease-out forwards" }} />
+    </div>
+  );
+}
+/* ---- Motivos individuais (composição própria por personagem, não é o mesmo gerador recolorido) ---- */
+function MotifSlash({ sig }) { // Miyabi — corte de lâmina diagonal que abre a tela em duas
+  return <>
+    <div style={{ position: "absolute", width: "220vmax", height: 5, background: `linear-gradient(90deg, transparent, #fff, ${sig.c1}, #fff, transparent)`, boxShadow: `0 0 30px 8px ${sig.c1}`, animation: "ctSlashCut 1.1s .5s cubic-bezier(.6,0,.2,1) forwards" }} />
+    <div style={{ position: "absolute", inset: 0, background: `linear-gradient(28deg, transparent 49.3%, ${sig.c1}55 49.7%, #fff 50%, ${sig.c1}55 50.3%, transparent 50.7%)`, animation: "ctSlashGlow 1.3s .5s ease-out forwards" }} />
+  </>;
+}
+function MotifCardSpiral({ sig }) { // Kaiba — cartas voando das bordas em espiral até o centro
+  const cards = Array.from({ length: 10 });
+  return <>{cards.map((_, i) => {
+    const ang = (i / cards.length) * 2 * Math.PI, dist = 60;
+    const sx = Math.cos(ang) * dist + "vw", sy = Math.sin(ang) * dist + "vh";
+    return <div key={i} style={{ position: "absolute", width: 46, height: 64, borderRadius: 6, background: `linear-gradient(160deg, ${sig.c1}, ${sig.c2})`, border: "2px solid #fff8", "--sx": sx, "--sy": sy, "--sr": `${i * 70}deg`, animation: `ctCardFly 1.9s ${i * 0.07}s cubic-bezier(.2,.6,.3,1) forwards` }} />;
+  })}</>;
+}
+function MotifFoxfire({ sig }) { // Kirara — labareda de raposa em espiral incandescente cobrindo a tela toda
+  return <>
+    <div style={{ width: "16vmin", height: "16vmin", borderRadius: "50%", background: `radial-gradient(circle, #fff, ${sig.c1})`, boxShadow: `0 0 12vmin ${sig.c1}`, animation: "ctFoxCore 1.4s ease-in-out infinite" }} />
+    {Array.from({ length: 6 }).map((_, i) => (
+      <div key={i} style={{ position: "absolute", width: `${18 + i * 16}vmin`, height: `${18 + i * 16}vmin`, borderRadius: "50%", border: `3px solid ${i % 2 ? sig.c1 : sig.c2}`, borderTopColor: "transparent", borderLeftColor: "transparent", animation: `ctFoxSwirl ${1.6 + i * 0.25}s ${i * 0.1}s ease-in forwards` }} />
+    ))}
+  </>;
+}
+function MotifShunpo({ sig }) { // Yoruichi — múltiplas passagens veloz convergindo (afterimages)
+  return <>{Array.from({ length: 7 }).map((_, i) => (
+    <div key={i} style={{ position: "absolute", top: `${14 + i * 11}%`, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, transparent, ${i % 2 ? sig.c1 : sig.c2}, transparent)`, "--fx": `${i % 2 ? 60 : -60}vw`, animation: `ctShunpoDash ${1.1 - i * 0.03}s ${i * 0.06}s ease-in-out forwards` }} />
+  ))}</>;
+}
+function MotifCrosshair({ sig }) { // Kiritsugu — mira telescópica travando o alvo, cobrindo a tela toda
+  return <>
+    <div style={{ width: "62vmin", height: "62vmin", borderRadius: "50%", border: `2px solid ${sig.c1}`, position: "relative", animation: "ctScopeZoom 1.3s cubic-bezier(.2,.7,.3,1) forwards" }}>
+      <div style={{ position: "absolute", top: "50%", left: "-50vw", right: "-50vw", height: 1.5, background: sig.c1 }} />
+      <div style={{ position: "absolute", left: "50%", top: "-50vh", bottom: "-50vh", width: 1.5, background: sig.c1 }} />
+      <div style={{ position: "absolute", inset: "10vmin", border: `1px solid ${sig.c2}88`, borderRadius: "50%" }} />
+    </div>
+    <div style={{ position: "absolute", inset: 0, background: `${sig.c1}22`, animation: "ctScopeFlash 1.3s forwards" }} />
+  </>;
+}
+function MotifBloodbloom({ sig }) { // Ryoshu — pétalas de fio de sangue desabrochando do centro até a borda da tela
+  return <>
+    <div style={{ width: 30, height: 30, borderRadius: "50%", background: sig.c1, boxShadow: `0 0 24px ${sig.c1}`, animation: "ctBloomCore 1.6s ease-out forwards", position: "absolute" }} />
+    {Array.from({ length: 12 }).map((_, i) => (
+      <div key={i} style={{ position: "absolute", width: 4, height: "26vh", background: `linear-gradient(${sig.c1}, transparent)`, borderRadius: 8, transformOrigin: "center bottom", "--pr": `${i * 30}deg`, animation: `ctBloomPetal 1.9s ${0.2 + i * 0.045}s cubic-bezier(.3,.7,.2,1) forwards` }} />
+    ))}
+  </>;
+}
+function MotifSnowmandala({ sig }) { // Frieren — mandala de gelo simétrica se formando devagar, alcançando a borda da tela
+  return <>
+    <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: `0 0 20px ${sig.c1}`, animation: "ctBloomCore 2s ease-out forwards" }} />
+    {Array.from({ length: 8 }).map((_, i) => (
+      <div key={i} style={{ position: "absolute", width: 3, height: "28vh", background: `linear-gradient(${sig.c1}, transparent 80%)`, transformOrigin: "center bottom", "--pr": `${i * 45}deg`, animation: `ctBloomPetal 2.1s ${0.3 + i * 0.07}s ease-out forwards` }} />
+    ))}
+    {Array.from({ length: 8 }).map((_, i) => (
+      <div key={"b" + i} style={{ position: "absolute", width: 3, height: "16vh", background: `linear-gradient(${sig.c2}, transparent 80%)`, transformOrigin: "center bottom", "--pr": `${i * 45 + 22.5}deg`, animation: `ctBloomPetal 1.8s ${0.5 + i * 0.07}s ease-out forwards` }} />
+    ))}
+  </>;
+}
+function MotifWolfhowl({ sig }) { // Lupa — onda de choque radial tipo uivo cobrindo a tela, brasas subindo
+  return <>
+    <div style={{ position: "absolute", width: "12vmin", height: "12vmin", borderRadius: "50%", background: sig.c1, boxShadow: `0 0 8vmin ${sig.c1}`, animation: "ctFoxCore 1s ease-in-out infinite" }} />
+    {Array.from({ length: 5 }).map((_, i) => (
+      <div key={i} style={{ position: "absolute", width: `${16 + i * 22}vmin`, height: `${16 + i * 22}vmin`, borderRadius: "50%", border: `3px solid ${sig.c2}`, animation: `ctFoxSwirl ${1.3 + i * 0.25}s ${i * 0.15}s ease-out forwards`, borderStyle: "dashed" }} />
+    ))}
+    {Array.from({ length: 16 }).map((_, i) => (
+      <div key={"e" + i} style={{ position: "absolute", bottom: "48%", left: `${4 + i * 6}%`, width: 6, height: 6, borderRadius: "50%", background: sig.c2, boxShadow: `0 0 8px ${sig.c2}`, animation: `ctBloomPetal ${1.4 + (i % 3) * 0.3}s ${i * 0.06}s ease-out forwards`, "--pr": "0deg" }} />
+    ))}
+  </>;
+}
+function MotifSoundwave({ sig }) { // Hitori — ondas de vibração de corda de violão pulsando até a borda
+  return <>{Array.from({ length: 7 }).map((_, i) => (
+    <div key={i} style={{ position: "absolute", width: `${10 + i * 14}vmin`, height: `${10 + i * 14}vmin`, borderRadius: "50%", border: `2px solid ${i % 2 ? sig.c1 : sig.c2}`, animation: `ctFoxSwirl ${1.4 + i * 0.15}s ${i * 0.13}s ease-out forwards`, borderStyle: i % 2 ? "solid" : "dashed" }} />
+  ))}
+  <div style={{ width: 4, height: "30vh", background: `linear-gradient(${sig.c1}, ${sig.c2})`, borderRadius: 4, animation: "ctPulseSlow 0.5s ease-in-out infinite" }} />
+  </>;
+}
+function MotifVoidcrack({ sig }) { // Alter Saber — rachaduras sombrias se espalhando pela tela como vidro
+  const cracks = Array.from({ length: 7 });
+  return <>
+    <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle, ${sig.c2}33, transparent 60%)` }} />
+    {cracks.map((_, i) => {
+      const ang = i * 51;
+      return <div key={i} style={{ position: "absolute", width: 3, height: `${30 + (i % 3) * 12}vh`, background: `linear-gradient(${sig.c2}, transparent)`, transformOrigin: "center top", transform: `rotate(${ang}deg)`, animation: `ctBloomPetal 1s ${i * 0.08}s ease-out forwards` }} />;
+    })}
+    <div style={{ position: "absolute", width: 34, height: 34, background: "#000", border: `2px solid ${sig.c1}`, transform: "rotate(45deg)", boxShadow: `0 0 30px ${sig.c1}`, animation: "ctFoxCore 1.2s ease-in-out infinite" }} />
+  </>;
+}
+function MotifMirrorshatter({ sig }) { // Aizen — espelho de ilusão se estilhaçando em fragmentos
+  const shards = Array.from({ length: 12 });
+  return <>
+    <div style={{ position: "absolute", width: 140, height: 180, border: `2px solid ${sig.c1}`, borderRadius: 8, background: `${sig.c1}11`, animation: "ctBloomCore .9s ease-out forwards" }} />
+    {shards.map((_, i) => {
+      const ang = (i / shards.length) * 360;
+      return <div key={i} style={{ position: "absolute", width: 22, height: 30, background: `linear-gradient(160deg, ${sig.c1}cc, ${sig.c2}cc)`, clipPath: "polygon(50% 0,100% 100%,0 100%)", transform: `rotate(${ang}deg)`, "--pr": `${ang}deg`, animation: `ctBloomPetal 1.5s ${0.7 + i * 0.03}s cubic-bezier(.3,.6,.3,1) forwards` }} />;
+    })}
+  </>;
+}
+function MotifGoldgate({ sig }) { // Gilgamesh — portões dourados ornamentados se abrindo em anéis
+  return <>
+    {Array.from({ length: 6 }).map((_, i) => (
+      <div key={i} style={{ position: "absolute", width: `${14 + i * 20}vmin`, height: `${14 + i * 20}vmin`, borderRadius: "50%", border: `${3 - i * 0.4}px solid ${sig.c1}`, boxShadow: `0 0 16px ${sig.c1}66`, animation: `ctFoxSwirl ${1.6 + i * 0.2}s ${i * 0.15}s ease-out forwards` }} />
+    ))}
+    <div style={{ width: 26, height: 26, transform: "rotate(45deg)", background: sig.c1, boxShadow: `0 0 30px ${sig.c1}`, animation: "ctFoxCore 1.3s ease-in-out infinite" }} />
+  </>;
+}
+function MotifWindveil({ sig }) { // Soi Fon — véus translúcidos de vento se abrindo tipo cortina
+  return <>
+    <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "55%", background: `linear-gradient(90deg, ${sig.c1}55, transparent)`, animation: "ctShunpoDash 1.6s .2s cubic-bezier(.4,0,.2,1) forwards", "--fx": "-70vw" }} />
+    <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "55%", background: `linear-gradient(-90deg, ${sig.c2}55, transparent)`, animation: "ctShunpoDash 1.6s .2s cubic-bezier(.4,0,.2,1) forwards", "--fx": "70vw" }} />
+    {Array.from({ length: 6 }).map((_, i) => (
+      <div key={i} style={{ position: "absolute", top: `${10 + i * 14}%`, width: "100%", height: 2, background: `linear-gradient(90deg, transparent, ${sig.c1}, transparent)`, animation: `ctBloomPetal 1.4s ${0.5 + i * 0.1}s ease-out forwards`, "--pr": "0deg" }} />
+    ))}
+  </>;
+}
+function MotifDataboot({ sig }) { // Omegamon — sequência de boot digital com scanlines resolvendo em nitidez
+  return <>
+    <div style={{ position: "absolute", inset: "20%", border: `1px solid ${sig.c1}88`, animation: "ctBloomCore 1s ease-out forwards" }} />
+    {Array.from({ length: 10 }).map((_, i) => (
+      <div key={i} style={{ position: "absolute", top: `${i * 10}%`, left: 0, right: 0, height: 2, background: sig.c1, opacity: 0.5, animation: `ctShunpoDash ${0.5 + (i % 3) * 0.15}s ${i * 0.05}s linear forwards`, "--fx": `${i % 2 ? 100 : -100}vw` }} />
+    ))}
+    <div style={{ width: "14vmin", height: "14vmin", border: `3px solid ${sig.c1}`, boxShadow: `0 0 30px ${sig.c1}`, animation: "ctFoxCore 0.6s steps(4) infinite" }} />
+  </>;
+}
+function MotifAbyssrift({ sig }) { // Wonder of You — fenda no vazio se abrindo com tentáculos sombrios
+  return <>
+    <div style={{ position: "absolute", width: 4, height: "70vh", background: `linear-gradient(${sig.c2}, ${sig.c1}, ${sig.c2})`, boxShadow: `0 0 40px ${sig.c1}`, animation: "ctBloomCore 1.4s ease-out forwards" }} />
+    {Array.from({ length: 10 }).map((_, i) => (
+      <div key={i} style={{ position: "absolute", width: 3, height: "22vh", background: `linear-gradient(${sig.c1}aa, transparent)`, transformOrigin: "center top", "--pr": `${i * 36 + 18}deg`, animation: `ctBloomPetal 1.6s ${0.5 + i * 0.05}s ease-in forwards` }} />
+    ))}
+  </>;
+}
+function MotifSunburst({ sig }) { // Athena — raios solares dourados se expandindo tipo amanhecer
+  return <>
+    <div style={{ position: "absolute", inset: 0, background: `conic-gradient(from 0deg, ${sig.c1}22, transparent 8%, ${sig.c1}22 16%, transparent 24%, ${sig.c1}22 32%, transparent 40%, ${sig.c1}22 48%, transparent 56%, ${sig.c1}22 64%, transparent 72%, ${sig.c1}22 80%, transparent 88%, ${sig.c1}22 96%)`, animation: "ctFoxSwirl 2.1s ease-out forwards" }} />
+    <div style={{ width: "15vmin", height: "15vmin", borderRadius: "50%", background: `radial-gradient(circle, #fff, ${sig.c1})`, boxShadow: `0 0 12vmin ${sig.c1}`, animation: "ctFoxCore 1.2s ease-in-out infinite" }} />
+  </>;
+}
+function MotifFlamecore({ sig }) { // Agumon — núcleo de fogo pulsando até explodir
+  return <>
+    <div style={{ width: "12vmin", height: "12vmin", borderRadius: "50%", background: `radial-gradient(circle, #fff, ${sig.c1})`, boxShadow: `0 0 10vmin ${sig.c1}`, animation: "ctPulseSlow 0.8s ease-in-out 2, ctFoxCore 1.4s 1.6s ease-in-out infinite" }} />
+    {Array.from({ length: 12 }).map((_, i) => (
+      <div key={i} style={{ position: "absolute", width: 8, height: 8, borderRadius: "50%", background: sig.c2, boxShadow: `0 0 10px ${sig.c2}`, "--pr": `${i * 30}deg`, animation: `ctBloomPetal 1.6s ${1.6 + i * 0.04}s ease-out forwards` }} />
+    ))}
+  </>;
+}
+function MotifTidestar({ sig }) { // Shorekeeper — ondulações suaves de maré com bolhas em forma de estrela subindo
+  return <>{Array.from({ length: 6 }).map((_, i) => (
+    <div key={i} style={{ position: "absolute", width: `${12 + i * 18}vmin`, height: `${12 + i * 18}vmin`, borderRadius: "50%", border: `1.5px solid ${sig.c1}`, animation: `ctFoxSwirl ${1.8 + i * 0.2}s ${i * 0.2}s ease-out forwards`, opacity: 0.7 }} />
+  ))}
+  {Array.from({ length: 6 }).map((_, i) => (
+    <div key={"s" + i} style={{ position: "absolute", left: `${20 + i * 12}%`, fontSize: 14, color: sig.c2, textShadow: `0 0 8px ${sig.c2}`, animation: `ctBloomPetal ${1.6 + (i % 2) * 0.3}s ${0.3 + i * 0.12}s ease-out forwards`, "--pr": "0deg" }}>✦</div>
+  ))}</>;
+}
+function MotifVoltbranch({ sig }) { // Yanagi — árvore de raios ramificando fractalmente pela tela
+  return <>
+    {[0, 35, -35, 70, -70, 105, -105].map((ang, i) => (
+      <div key={i} style={{ position: "absolute", width: 3, height: "30vh", background: `linear-gradient(${sig.c1}, ${sig.c2}, transparent)`, boxShadow: `0 0 10px ${sig.c1}`, transformOrigin: "center top", transform: `rotate(${ang}deg)`, animation: `ctBloomPetal ${0.7 + i * 0.1}s ${i * 0.07}s steps(6) forwards` }} />
+    ))}
+    <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: `0 0 40px ${sig.c1}`, animation: "ctFoxCore 0.4s ease-in-out infinite" }} />
+  </>;
+}
+function MotifEvoring({ sig }) { // Digivice — anéis de evolução digital se expandindo com textura de dados
+  return <>
+    <div style={{ width: "12vmin", height: "12vmin", borderRadius: "50%", background: `radial-gradient(circle, #fff, ${sig.c1})`, boxShadow: `0 0 10vmin ${sig.c1}`, animation: "ctPulseSlow .7s ease-in-out infinite" }} />
+    {Array.from({ length: 6 }).map((_, i) => (
+      <div key={i} style={{ position: "absolute", width: `${16 + i * 17}vmin`, height: `${16 + i * 17}vmin`, borderRadius: "50%", border: `2px dashed ${i % 2 ? sig.c1 : sig.c2}`, animation: `ctFoxSwirl ${1.4 + i * 0.18}s ${i * 0.1}s linear forwards` }} />
+    ))}
+  </>;
+}
+function MotifStarcut({ sig }) { // Lâmina Estelar — estrela cadente corta a tela como uma lâmina de luz
+  return <>
+    <div style={{ position: "absolute", width: 6, height: "160vmax", background: `linear-gradient(180deg, transparent, #fff, ${sig.c1}, transparent)`, boxShadow: `0 0 30px 6px ${sig.c1}`, animation: "ctSlashCut 1s .4s cubic-bezier(.6,0,.2,1) forwards", transform: "rotate(-20deg)" }} />
+    {Array.from({ length: 5 }).map((_, i) => (
+      <div key={i} style={{ position: "absolute", width: 4, height: 4, borderRadius: "50%", background: "#fff", boxShadow: `0 0 8px ${sig.c1}`, "--pr": `${i * 30 - 60}deg`, animation: `ctBloomPetal 1.4s ${0.8 + i * 0.08}s ease-out forwards` }} />
+    ))}
+  </>;
+}
+function MotifHalobloom({ sig }) { // Cetro Radiante — auréola se abrindo com pétalas radiantes
+  return <>
+    <div style={{ width: "14vmin", height: "14vmin", borderRadius: "50%", background: `radial-gradient(circle, #fff, ${sig.c1})`, boxShadow: `0 0 10vmin ${sig.c1}`, animation: "ctFoxCore 1.3s ease-in-out infinite" }} />
+    {Array.from({ length: 10 }).map((_, i) => (
+      <div key={i} style={{ position: "absolute", width: 6, height: "24vh", background: `linear-gradient(${sig.c1}, transparent)`, borderRadius: 10, transformOrigin: "center bottom", "--pr": `${i * 36}deg`, animation: `ctBloomPetal 1.7s ${0.3 + i * 0.05}s ease-out forwards` }} />
+    ))}
+  </>;
+}
+function MotifFrostspiral({ sig }) { // Nevasca de Outono — fragmentos de gelo convergindo em vórtice
+  return <>
+    {Array.from({ length: 14 }).map((_, i) => {
+      const ang = (i / 14) * 360;
+      return <div key={i} style={{ position: "absolute", fontSize: 20, color: sig.c1, textShadow: `0 0 8px ${sig.c1}`, "--pr": `${ang}deg`, animation: `ctBloomPetal 1.8s ${i * 0.05}s ease-in forwards` }}>❋</div>;
+    })}
+    <div style={{ width: "10vmin", height: "10vmin", borderRadius: "50%", background: `radial-gradient(circle, #fff, ${sig.c2})`, boxShadow: `0 0 8vmin ${sig.c2}`, animation: "ctFoxCore 1.2s ease-in-out infinite" }} />
+  </>;
+}
+function MotifClawrend({ sig }) { // Garras do Trovão — 4 rasgos de garra cortando a tela com arcos elétricos
+  return <>
+    {[-24, -8, 8, 24].map((off, i) => (
+      <div key={i} style={{ position: "absolute", width: 8, height: "140vmax", background: `linear-gradient(180deg, transparent, ${sig.c1}, #fff, ${sig.c1}, transparent)`, boxShadow: `0 0 20px ${sig.c1}`, transform: `translateX(${off}vmin) rotate(18deg)`, animation: `ctSlashCut ${0.8 + i * 0.05}s ${0.3 + i * 0.06}s cubic-bezier(.6,0,.2,1) forwards` }} />
+    ))}
+  </>;
+}
+function MotifTargetscan({ sig }) { // Pistola da Origem — grade de mira escaneando com colchetes de travamento
+  return <>
+    <div style={{ width: "50vmin", height: "50vmin", position: "relative", animation: "ctScopeZoom 1.1s cubic-bezier(.2,.7,.3,1) forwards" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, width: "14vmin", height: "14vmin", borderTop: `3px solid ${sig.c1}`, borderLeft: `3px solid ${sig.c1}` }} />
+      <div style={{ position: "absolute", top: 0, right: 0, width: "14vmin", height: "14vmin", borderTop: `3px solid ${sig.c1}`, borderRight: `3px solid ${sig.c1}` }} />
+      <div style={{ position: "absolute", bottom: 0, left: 0, width: "14vmin", height: "14vmin", borderBottom: `3px solid ${sig.c1}`, borderLeft: `3px solid ${sig.c1}` }} />
+      <div style={{ position: "absolute", bottom: 0, right: 0, width: "14vmin", height: "14vmin", borderBottom: `3px solid ${sig.c1}`, borderRight: `3px solid ${sig.c1}` }} />
+      <div style={{ position: "absolute", inset: "20%", border: `1px solid ${sig.c2}77`, borderRadius: "50%" }} />
+    </div>
+  </>;
+}
+function MotifShieldwall({ sig }) { // Manto Estelar — painéis hexagonais de escudo se montando em parede
+  return <>{Array.from({ length: 7 }).map((_, i) => {
+    const ang = (i / 7) * 360;
+    return <div key={i} style={{ position: "absolute", width: "13vmin", height: "15vmin", background: `${sig.c1}33`, border: `2px solid ${sig.c1}`, clipPath: "polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)", "--pr": `${ang}deg`, animation: `ctBloomPetal 1.3s ${i * 0.08}s ease-out forwards` }} />;
+  })}</>;
+}
+function MotifDoomspiral({ sig }) { // Calamidade — vórtice sombrio vermelho/roxo de condenação
+  return <>
+    {Array.from({ length: 6 }).map((_, i) => (
+      <div key={i} style={{ position: "absolute", width: `${14 + i * 18}vmin`, height: `${14 + i * 18}vmin`, borderRadius: "50%", border: `3px solid ${i % 2 ? sig.c1 : sig.c2}`, borderTopColor: "transparent", borderRightColor: "transparent", animation: `ctFoxSwirl ${1.3 + i * 0.2}s ${i * 0.1}s ease-in forwards` }} />
+    ))}
+    <div style={{ width: "10vmin", height: "10vmin", background: sig.c1, transform: "rotate(45deg)", boxShadow: `0 0 8vmin ${sig.c1}`, animation: "ctFoxCore 1s ease-in-out infinite" }} />
+  </>;
+}
+const CUTSCENE_MOTIFS = {
+  slash: MotifSlash, cardspiral: MotifCardSpiral, foxfire: MotifFoxfire, shunpo: MotifShunpo,
+  crosshair: MotifCrosshair, bloodbloom: MotifBloodbloom, snowmandala: MotifSnowmandala,
+  wolfhowl: MotifWolfhowl, soundwave: MotifSoundwave, voidcrack: MotifVoidcrack,
+  mirrorshatter: MotifMirrorshatter, goldgate: MotifGoldgate, windveil: MotifWindveil,
+  databoot: MotifDataboot, abyssrift: MotifAbyssrift, sunburst: MotifSunburst,
+  flamecore: MotifFlamecore, tidestar: MotifTidestar, voltbranch: MotifVoltbranch,
+  evoring: MotifEvoring, starcut: MotifStarcut, halobloom: MotifHalobloom,
+  frostspiral: MotifFrostspiral, clawrend: MotifClawrend, targetscan: MotifTargetscan,
+  shieldwall: MotifShieldwall, doomspiral: MotifDoomspiral,
+};
 function SignatureFXAmbient({ sig, n }) {
   if (sig.type === "fall") {
     return <div style={{ position: "absolute", inset: -60, overflow: "hidden", pointerEvents: "none" }}>
@@ -3741,8 +4037,11 @@ function PullModal({ data, onClose }) {
   const limited5 = data.results.find((r) => r.rarity === 5 && !r.weapon && (r.won === true || LIMITED_5.includes(r.id)));
   const star5Weapon = data.results.find((r) => r.rarity === 5 && r.weapon);
   const featured = !!limited5;
-  const [phase, setPhase] = useState(has5 ? "warp" : "reveal");
+  const cutsceneId = limited5?.id || star5Weapon?.id;
+  const hasCutscene = !!(cutsceneId && PULL_SIGNATURES[cutsceneId]?.motif);
+  const [phase, setPhase] = useState(hasCutscene ? "intro" : has5 ? "warp" : "reveal");
   useEffect(() => { if (phase === "warp") { const t = setTimeout(() => setPhase("reveal"), featured ? 2100 : 1700); return () => clearTimeout(t); } }, [phase]); // eslint-disable-line
+  useEffect(() => { if (phase === "impact") { const t = setTimeout(() => setPhase("reveal"), 420); return () => clearTimeout(t); } }, [phase]); // eslint-disable-line
   const top = has5 ? C.gold : has4 ? "#B98BFF" : "#6d8fb8";
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "#000", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={() => phase === "warp" && setPhase("reveal")}>
@@ -3767,7 +4066,11 @@ function PullModal({ data, onClose }) {
         @keyframes srSigCurl{0%,100%{transform:rotate(var(--r,0deg)) scaleY(.7);opacity:.4}50%{transform:rotate(calc(var(--r,0deg) + 12deg)) scaleY(1);opacity:.9}}
         @keyframes srSigShock{0%{transform:scale(.3);opacity:1}100%{transform:scale(9);opacity:0}}
       `}</style>
-      {phase === "warp" ? (
+      {phase === "intro" ? (
+        <CutsceneIntro id={cutsceneId} onDone={() => setPhase("impact")} />
+      ) : phase === "impact" ? (
+        <CutsceneImpact id={cutsceneId} />
+      ) : phase === "warp" ? (
         <div style={{ position: "fixed", inset: 0, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
           {Array.from({ length: featured ? 28 : 16 }).map((_, i) => { const n = featured ? 28 : 16; const col = featured ? `hsl(${(i / n) * 360},90%,65%)` : top; return (
             <div key={i} style={{ position: "absolute", left: "50%", top: "50%", width: 3, height: "55vh", background: `linear-gradient(${col}, transparent)`, transformOrigin: "center bottom", "--a": `${i * (360 / n)}deg`, animation: `srStreak ${featured ? 2 : 1.6}s ${i * 0.03}s ease-out forwards` }} />); })}
@@ -6371,6 +6674,15 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   else if (defender.shield > 0 && attacker._ignoresShield && !opts?.pierceShield) { fx.push({ uid: defender.uid, txt: "ESCUDO IGNORADO!", crit: true, id: Math.random(), el: "Chaos" }); }
   defender.hp -= dmg;
   if (defender._dummy) { defender.hp = defender.maxHp; defender.alive = true; } // Boneco de Treino: HP infinito, só serve pra medir dano
+  // Ichigo — Instabilidade Hollow: tomar dano concede Fragmento do Dangai (1x/turno inimigo sem E1, ilimitado com E1)
+  if (dmg > 0 && defender.side === "H" && attacker.side !== "H" && defender.id === "ichigo" && defender.alive && !defender._ichMugetsu) {
+    if (defender.stFlags?.ichE1 || !defender._ichHitFragThisTurn) {
+      defender._ichHitFragThisTurn = true;
+      defender._ichFrag = Math.min(12, (defender._ichFrag || 0) + 1);
+      if (defender._ichFrag >= 12) defender._ichPendingTransform = true; // dealDamage não tem acesso ao estado da batalha (s) — a transformação de verdade acontece no início da próxima ação do Ichigo
+      if (defender.stFlags?.ichE1) { const st = Math.min(6, (defender._ichSede || 0) + 1); defender._ichSede = st; defender.buffs = defender.buffs.filter((b) => b.name !== "Sede Hollow"); defender.buffs.push({ stat: "critRate", value: st * 3, turns: 9999, name: "Sede Hollow" }); }
+    }
+  }
   if (dmg > 0 && (defender.debuffs || []).some(d => d.name === "Colapso Entrópico")) defender._chaosHits = (defender._chaosHits || 0) + 1;
   if (defender.hp <= 0) {
     if (defender.stFlags?.lancerRevive && !defender._lancerRevived && defender.side === "H") {
@@ -6897,6 +7209,57 @@ function asGainRuina(u, n, s, fx) {
   const cap = asRuinaCap(u);
   u._asRuinas = Math.min(cap, (u._asRuinas || 0) + n);
   if (u._asRuinas >= cap) { asEnterReino(u, s); if (cap > 12 && !u._asE1Reino) { u._asE1Reino = true; u.energy = Math.min(u.energyMax, u.energy + 30); } }
+}
+// ── Ichigo Kurosaki — Fragmentos do Dangai / Forma Mugetsu ──────────────────────────
+function ichigoGainFragment(u, n, s, fx) {
+  if (!u || n <= 0 || u._ichMugetsu) return; // não acumula Fragmento enquanto já transformado
+  u._ichFrag = Math.min(12, (u._ichFrag || 0) + n);
+  if (u._ichFrag >= 12) ichigoEnterMugetsu(u, s, fx);
+}
+function ichigoEnterMugetsu(u, s, fx) {
+  u._ichFrag = 0;
+  u._ichMugetsu = true;
+  u._ichReserve = 12;
+  u._ichReserveMax = 12;
+  u._ichCorrosao = {}; // uid do alvo -> acúmulos de Corrosão do Vazio (E4)
+  const lvl = u.tUlt || 1;
+  u.buffs = u.buffs.filter((b) => !["MugetsuAtk", "MugetsuCD", "MugetsuTraceCD"].includes(b.name));
+  u.buffs.push({ stat: "atk", value: Math.round(supScale(38, lvl)), pct: true, turns: 9999, name: "MugetsuAtk" });
+  u.buffs.push({ stat: "critDmg", value: Math.round(supScale(45, lvl)), turns: 9999, name: "MugetsuCD" });
+  if (u.stFlags?.ichTrace1) u.buffs.push({ stat: "critDmg", value: 200, turns: 9999, name: "MugetsuTraceCD" }); // Rastro Especial 1 · Ruptura da Máscara
+  if (u.stFlags?.ichTrace3 && u.av != null) u.av = Math.max(0.01, (u.av || 1) * 0.70); // Rastro Especial 3 · Salto no Vazio: +30% VA
+  pushLog(s, `🌑 ${u.name} consome os Fragmentos do Dangai e entra em FORMA MUGETSU! (12 Reservas)`);
+  const enemies = aliveEnemies(s);
+  enemies.forEach((e) => dealDamage(u, e, Math.round(supScale(300, lvl)) * (u.ampUlt || 1), fx, { el: "Unknown", isFollowup: true }));
+}
+function ichigoSpendReserve(u, n, s, fx) {
+  u._ichReserve = Math.max(0, (u._ichReserve || 0) - n);
+  if (u._ichReserve <= 0) ichigoGetsugaFinal(u, s, fx);
+}
+function ichigoGetsugaFinal(u, s, fx) {
+  const lvl = u.tUlt || 1;
+  const e6 = u.stFlags?.ichE6;
+  let kills = 0;
+  aliveEnemies(s).forEach((e) => {
+    const r = dealDamage(u, e, Math.round(supScale(480, lvl)) * (u.ampUlt || 1), fx, { el: "Unknown", isFollowup: true, defPen: e6 ? 42 : 25, resPen: e6 ? 25 : 0, forceCrit: !!e6 });
+    if (!e.alive) kills++;
+  });
+  pushLog(s, `🌑⚔️ GETSUGA FINAL! Corte devastador atinge todos os inimigos.`);
+  if (e6) {
+    u.buffs.push({ stat: "dmgReduce", value: 15, turns: 1, name: "GetsugaFinalDR" });
+    (u._sibs || []).filter((h) => h.alive && !h.isSummon).forEach((h) => h.buffs.push({ stat: "critDmg", value: 32, turns: 2, name: "OndaMugetsu" }));
+  }
+  // E2 · Ruptura da Máscara: estende a Forma Mugetsu em vez de encerrar, com 4 Reservas extras
+  if (u.stFlags?.ichE2 && !u._ichE2Used) {
+    u._ichE2Used = true;
+    u._ichReserve = 4;
+    pushLog(s, "🌑 Ruptura da Máscara — Forma Mugetsu se estende por mais 1 turno! (+4 Reservas)");
+    return;
+  }
+  u._ichMugetsu = false;
+  u._ichE2Used = false;
+  u.buffs = u.buffs.filter((b) => !["MugetsuAtk", "MugetsuCD", "MugetsuTraceCD"].includes(b.name));
+  if (e6 && kills > 0) ichigoGainFragment(u, kills * 3, s, fx); // E6: +3 Fragmentos por abate do golpe final
 }
 function asMark(u, s) {
   u._asMarks = Math.min(10, (u._asMarks || 0) + 1);
@@ -7586,6 +7949,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       const u = findUnit(s, current.uid); if (!u || !u.alive) { s.turn = null; return s; }
       if (kind === "skill" && s.sp <= 0) return s;
       const f = u.stFlags || {}; // flags de constelação/relíquia do personagem que está agindo (faltava — corrigido)
+      if (u.id === "ichigo" && u._ichPendingTransform && !u._ichMugetsu) { u._ichPendingTransform = false; ichigoEnterMugetsu(u, s, s.fx); } // processa a transformação pendente (12º Fragmento ganho tomando dano no turno do inimigo)
       u._calamidadeEnergyThisAction = false; // reseta a cada ação — 1 energia de Calamidade por ação, não por aplicação de buff/debuff
       s.heroTurns = (s.heroTurns || 0) + 1;
       // Tempestade Eletro (4pç): a cada ação do portador, +2% de dano (empilha até +12%)
@@ -7799,6 +8163,35 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           if ((u._asAlter || 0) > 0 && enemy) { asAlterCut(u, enemy, s, fx); msg += " 🌀 Corte dimensional do Modo Alter!"; }
           miyDone = true;
         }
+        if (!miyDone && u.id === "ichigo") {
+          if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
+          if (u._ichMugetsu && enemy) {
+            if ((u._ichReserve || 0) < 1) { const r = dealDamage(u, enemy, (sk.basicMul || 95) * (u.tBasic || 1) * ampB, fx, { el: "Unknown" }); msg = `⚔️ Corte de Zangetsu em ${enemy.name} — ${r.dmg} de Dano Unknown.`; }
+            else {
+              const r = dealDamage(u, enemy, Math.round(supScale(230, u.tBasic || 1)) * ampB, fx, { el: "Unknown" });
+              let extra = "";
+              if (u.stFlags?.ichE4) {
+                u._ichCorrosao = u._ichCorrosao || {};
+                const st = Math.min(5, (u._ichCorrosao[enemy.uid] || 0) + 1);
+                u._ichCorrosao[enemy.uid] = st;
+                enemy.buffs = (enemy.buffs || []).filter((b) => b.name !== "Corrosão do Vazio");
+                enemy.debuffs = (enemy.debuffs || []).filter((b) => b.name !== "Corrosão do Vazio");
+                enemy.debuffs.push({ stat: "def", value: -st * 4, pct: true, turns: 9999, name: "Corrosão do Vazio" });
+                extra = ` 🌑 Corrosão do Vazio (${st}/5).`;
+              }
+              const refundOnKill = u.stFlags?.ichE4 && !enemy.alive && (u._ichCorrosao?.[enemy.uid] || 0) >= 3;
+              if (!refundOnKill) ichigoSpendReserve(u, 1, s, fx);
+              const weaponSkip = u.weapon?.buff?.ichWeapon && !u._ichWpnFreeUsed;
+              if (weaponSkip && !refundOnKill) { u._ichWpnFreeUsed = true; u._ichReserve = Math.min(u._ichReserveMax || 12, (u._ichReserve || 0) + 1); extra += " ✨ Eco do Corte Perdido: Reserva não consumida!"; }
+              msg = `⚔️🌑 Getsuga Tenshō: Investida Negra em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} de Dano Unknown. Reservas: ${u._ichReserve || 0}/${u._ichReserveMax || 12}.${refundOnKill ? " ☠️ Corrosão máxima — Reserva reembolsada!" : ""}${extra}`;
+            }
+          } else if (enemy) {
+            const r = dealDamage(u, enemy, (sk.basicMul || 95) * (u.tBasic || 1) * ampB, fx, { el: "Unknown" });
+            msg = `⚔️ Corte de Zangetsu em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} de Dano Unknown.`;
+          }
+          if (enemy && !enemy.alive) ichigoGainFragment(u, 1, s, fx); // abate concede +1 Fragmento (fase Shinigami)
+          miyDone = true;
+        }
         if (!miyDone && u.id === "hitori") {
           msg = hitoriBasicAttack(s, u, enemy, fx, ampB);
           miyDone = true;
@@ -8002,6 +8395,35 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           if (u.weapon?.buff?.asWeapon) { const st = u.buffs.filter((b) => b.name === "Reino Eterno").length / 2; if (st < 3) u.buffs.push({ stat: "atk", value: Math.round(u.base.atk * 0.12), turns: 9999, name: "Reino Eterno" }, { stat: "spd", value: 8, turns: 9999, name: "Reino Eterno" }); }
           if (u.stFlags?.asE1) { u._asE1Field = 3; }
           msg = `👑 Coroa do Rei Profanado — MODO ALTER por 3 turnos: +60 VEL, +70% Dano Chaos, +35% CRIT, +90% CRIT DMG, cortes dimensionais em cada ataque!${u.stFlags?.asE1 ? " E1: Trono do Rei Esquecido — limite de Ruínas sobe pra 18!" : ""}`;
+        }
+        else if (u.id === "ichigo" && sk.ichSkill) {
+          if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
+          if (u._ichMugetsu) {
+            s.sp = Math.min(spCapOf(s), s.sp + 1); // Forma Mugetsu: a Perícia não consome Ponto de Perícia, gasta Reserva
+            const cost = u.stFlags?.ichE4 ? 2 : 3;
+            if ((u._ichReserve || 0) < cost) {
+              if (enemy) { const r = dealDamage(u, enemy, (sk.basicMul || 95) * (u.tBasic || 1) * ampB, fx, { el: "Unknown" }); msg = `⚔️ Reservas insuficientes — Corte de Zangetsu em ${enemy.name}.`; }
+            } else {
+              const targets = aliveEnemies(s);
+              let tot = 0, anyCrit = false;
+              targets.forEach((e) => { const r = dealDamage(u, e, Math.round(supScale(310, u.tSkill || 1)) * ampS, fx, { el: "Unknown" }); tot += r.dmg; if (r.crit) anyCrit = true; });
+              if (enemy && enemy.alive) enemy.debuffs = [...(enemy.debuffs || []).filter((b) => b.name !== "Corte Sombrio"), { stat: "vuln", value: 22, turns: 2, name: "Corte Sombrio" }];
+              ichigoSpendReserve(u, cost, s, fx);
+              msg = `🌑⚔️ Kuroi Getsuga: Lâmina do Vazio — ${tot} de Dano Unknown em todos os inimigos${anyCrit ? " (CRÍTICO!)" : ""}. Reservas: ${u._ichReserve || 0}/${u._ichReserveMax || 12}.`;
+            }
+          } else if (enemy) {
+            const sMul = (u.tSkill || 1) * ampS;
+            const others = aliveEnemies(s).filter((e) => e.uid !== enemy.uid);
+            const r = dealDamage(u, enemy, (sk.skillMul || 215) * sMul, fx, { el: "Unknown" });
+            let splash = 0;
+            others.forEach((e) => { const rs = dealDamage(u, e, (sk.skillMul || 215) * sMul * 0.35, fx, { el: "Unknown" }); splash += rs.dmg; });
+            const kills = (!enemy.alive ? 1 : 0) + others.filter((e) => !e.alive).length;
+            if (kills > 0) ichigoGainFragment(u, kills, s, fx);
+            ichigoGainFragment(u, 2, s, fx);
+            let bonus = "";
+            if (u.weapon?.buff?.ichWeapon && Math.random() < 0.55) { ichigoGainFragment(u, 1, s, fx); bonus = " ✨ Eco do Corte Perdido concede +1 Fragmento adicional!"; }
+            msg = `⚔️🗡️ Getsuga Tenshō: Onda Espiritual em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}${others.length ? ` + ${splash} em área` : ""} de Dano Unknown. Fragmentos: ${u._ichFrag || 0}/12.${bonus}`;
+          }
         }
         else if (u.id === "hitori" && sk.hitoriSkill) {
           msg = hitoriSkillAttack(s, u, fx);
@@ -9372,6 +9794,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     setState((s0) => {
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
       const u = findUnit(s, current.uid); if (!u || !u.alive) { s.turn = null; return s; }
+      const _ichHero = s.heroes.find((h) => h.id === "ichigo"); if (_ichHero) _ichHero._ichHitFragThisTurn = false; // reseta a trava "1x por turno inimigo" no início de cada turno inimigo
       // Boneco de Treino (Batalha de Teste): não ataca nem aplica nada nos heróis — só passa o turno, pra você testar builds sem tomar dano
       if (u._dummy) {
         pushLog(s, `${u.name} observa, sem atacar (Batalha de Teste).`);
@@ -10000,6 +10423,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
                   {!h.isSummon && h.energyMax > 0 && <div style={{ fontSize: 9, color: full ? C.gold : "#6FA8FF" }}>⚡ {Math.round(h.energy)}/{h.energyMax}{full ? " · PRONTO" : ""}</div>}
                   {h.id === "agumon" && <div style={{ fontSize: 9, color: (h.agHeat || 0) > 70 ? "#FF7043" : "#FFB74D" }}>{AGU_FORMS[h.agForm || "agumon"]?.emoji} {AGU_FORMS[h.agForm || "agumon"]?.name}{(h.agModoX || 0) > 0 ? " · MODO X⚡" : ""} · 🔥{h.agHeat || 0} · 🧬{h.agSP || 0} SP{(h.agHeat || 0) >= 85 ? " ☢️" : ""}</div>}
                   {h.id === "miyabi" && (h.stFlags?.miPostura) && <div style={{ fontSize: 9, color: "#6FE3FF" }}>{"❄".repeat(Math.min(h.posturePH || 0, h.stFlags?.miC6 ? 4 : 3))}{"·".repeat(Math.max(0, (h.stFlags?.miC6 ? 4 : 3) - (h.posturePH || 0)))} {((h.posturePH || 0) >= (h.stFlags?.miC6 ? 4 : 3)) ? "Postura Iaido!" : "PH"}</div>}
+                  {h.id === "ichigo" && !h._ichMugetsu && <div style={{ fontSize: 9, color: (h._ichFrag || 0) >= 12 ? "#EAEAEA" : "#9aa" }}>🌑 Fragmentos: {h._ichFrag || 0}/12</div>}
+                  {h.id === "ichigo" && h._ichMugetsu && <div style={{ fontSize: 9, color: "#EAEAEA", fontWeight: 700 }}>🌑 FORMA MUGETSU · Reservas: {h._ichReserve || 0}/{h._ichReserveMax || 12}</div>}
                   {h.id === "soifon" && <div style={{ fontSize: 9, color: ELEMENTS["Vento"]?.color || "#7CFFB0" }}>{h.sfPostura ? "🦋 POSTURA DE FERRÃO!" : `🦋 Vibração ${h.sfCharges || 0}/3`}</div>}
                   {h.id === "lupa" && <div style={{ fontSize: 9, color: lupaOC ? "#FF6A00" : "#FFB86B" }}>{lupaOC ? `🔥🔥 OVERCLOCK! ${h._lupaOverclock}t restantes` : `🍖 Voracidade ${h._lupaVor || 0}/${h.stFlags?.lupaC6 ? 15 : 10}`}</div>}
                 </div>
@@ -10246,7 +10671,7 @@ function CombatPortrait({ h, size = 44, active }) {
   // Corrige bug: buffs ofensivos (dano/crítico) não refletiam visualmente no retrato — agora acende um selo dourado pulsante
   const buffed = (h.buffs || []).some((b) => ["dmgBonus", "critRate", "critDmg", "elemDmg", "atk", "followupDmg"].includes(b.stat) && (b.value || 0) > 0);
   return <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
-    <Avatar ch={h} size={size} ring={active ? C.gold : buffed ? "#FFD249" : el.color} />
+    <Avatar ch={h} size={size} ring={active ? C.gold : buffed ? "#FFD249" : el.color} imgIdOverride={h.id === "ichigo" && h._ichMugetsu ? "ichigo_mugetsu" : undefined} />
     {buffed && <div style={{ position: "absolute", inset: -3, borderRadius: 16, boxShadow: "0 0 10px #FFD249cc", animation: "srBuffPulse 1s ease-in-out infinite", pointerEvents: "none" }} />}
     {buffed && <div style={{ position: "absolute", bottom: -4, right: -4, fontSize: Math.round(size * 0.32), filter: "drop-shadow(0 0 3px #000)" }}>⚔️↑</div>}
     {buffed && <style>{`@keyframes srBuffPulse{0%,100%{opacity:.5}50%{opacity:1}}`}</style>}
@@ -10826,7 +11251,7 @@ function Admin({ images, setImages, tierList, setTierList, flash, isAdmin, draft
           );
         })}
       </div>}
-      {tab === "chars" && <div className="flex flex-col gap-2">{ROSTER.map((c) => <AdminRow key={c.id} id={c.id} name={`${c.name} · ${c.element} · ${ROLES[c.role].label}`} rarity={c.rarity} fallback={c.avatar} element={c.element} url={images[c.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}<Panel style={{ padding: "10px 12px", marginTop: 4 }}><b style={{ fontSize: 13 }}>🦖 Agumon — Formas de Digievolução</b><p style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>Fotos para cada estágio. O ID correto já está indicado em cada linha.</p></Panel><AdminRow key="agumon_greymon" id="agumon_greymon" name="Greymon · Champion · Fogo" rarity={5} fallback="🦕" element="Fogo" url={images["agumon_greymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><AdminRow key="agumon_metalgreymon" id="agumon_metalgreymon" name="MetalGreymon · Ultimate · Fogo" rarity={5} fallback="🤖" element="Fogo" url={images["agumon_metalgreymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><AdminRow key="agumon_wargreymon" id="agumon_wargreymon" name="WarGreymon · Mega · Fogo" rarity={5} fallback="⚔️" element="Fogo" url={images["agumon_wargreymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><Panel style={{ padding: "10px 12px", marginTop: 4 }}><b style={{ fontSize: 13 }}>🎴 Kaiba — Cartas do Baralho</b><p style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>Fotos pra cada uma das 10 cartas que aparecem na Mão Virtual e na Puxada do Destino.</p></Panel>{Object.entries(KAIBA_CARDS).map(([cid, card]) => <AdminRow key={card.imgId} id={card.imgId} name={`${card.name} · ${card.cat === "monster" ? "Monstro" : card.cat === "magic" ? "Magia" : "Armadilha"}`} rarity={cid === "obelisk" ? 5 : 4} fallback={card.avatar} element="Eletro" url={images[card.imgId] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}<AdminRow key="card_bew" id="card_bew" name="Dragão Branco de Olhos Azuis · Suprema" rarity={5} fallback="🐉" element="Eletro" url={images["card_bew"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /></div>}
+      {tab === "chars" && <div className="flex flex-col gap-2">{ROSTER.map((c) => <AdminRow key={c.id} id={c.id} name={`${c.name} · ${c.element} · ${ROLES[c.role].label}`} rarity={c.rarity} fallback={c.avatar} element={c.element} url={images[c.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}<Panel style={{ padding: "10px 12px", marginTop: 4 }}><b style={{ fontSize: 13 }}>🌑 Ichigo Kurosaki — Forma Mugetsu</b><p style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>Foto exclusiva pra quando ele estiver transformado em combate (12 Fragmentos consumidos). Se não colar nada aqui, usa a foto normal dele.</p></Panel><AdminRow key="ichigo_mugetsu" id="ichigo_mugetsu" name="Ichigo — Forma Mugetsu" rarity={5} fallback="🌑" element="Unknown" url={images["ichigo_mugetsu"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><Panel style={{ padding: "10px 12px", marginTop: 4 }}><b style={{ fontSize: 13 }}>🦖 Agumon — Formas de Digievolução</b><p style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>Fotos para cada estágio. O ID correto já está indicado em cada linha.</p></Panel><AdminRow key="agumon_greymon" id="agumon_greymon" name="Greymon · Champion · Fogo" rarity={5} fallback="🦕" element="Fogo" url={images["agumon_greymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><AdminRow key="agumon_metalgreymon" id="agumon_metalgreymon" name="MetalGreymon · Ultimate · Fogo" rarity={5} fallback="🤖" element="Fogo" url={images["agumon_metalgreymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><AdminRow key="agumon_wargreymon" id="agumon_wargreymon" name="WarGreymon · Mega · Fogo" rarity={5} fallback="⚔️" element="Fogo" url={images["agumon_wargreymon"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /><Panel style={{ padding: "10px 12px", marginTop: 4 }}><b style={{ fontSize: 13 }}>🎴 Kaiba — Cartas do Baralho</b><p style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>Fotos pra cada uma das 10 cartas que aparecem na Mão Virtual e na Puxada do Destino.</p></Panel>{Object.entries(KAIBA_CARDS).map(([cid, card]) => <AdminRow key={card.imgId} id={card.imgId} name={`${card.name} · ${card.cat === "monster" ? "Monstro" : card.cat === "magic" ? "Magia" : "Armadilha"}`} rarity={cid === "obelisk" ? 5 : 4} fallback={card.avatar} element="Eletro" url={images[card.imgId] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}<AdminRow key="card_bew" id="card_bew" name="Dragão Branco de Olhos Azuis · Suprema" rarity={5} fallback="🐉" element="Eletro" url={images["card_bew"] || ""} setImg={setImg} clearImg={clearImg} flash={flash} /></div>}
       {tab === "weapons" && <div className="flex flex-col gap-2">{WEAPONS.map((w) => <AdminRow key={w.id} id={w.id} name={`${w.name} · ${ROLES[w.role].label}`} rarity={w.rarity} fallback="🗡️" weapon url={images[w.id] || ""} setImg={setImg} clearImg={clearImg} flash={flash} />)}</div>}
       {tab === "summons" && <div className="flex flex-col gap-2">
         <Panel style={{ padding: 10 }}><p style={{ fontSize: 12, color: C.mute }}>Fotos das invocações do Kaiba. Aparecem no campo de batalha e na tela de escolha do Ultimate.</p></Panel>
