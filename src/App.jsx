@@ -127,8 +127,8 @@ const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
 const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon", "lupa", "hitori", "altersaber", "gilgamesh", "aizensosuke", "ichigo"];     // limitados (pool 50/50): só via rate-up
-const FEATURED_LIMITEDS = ["aizensosuke", "altersaber", "gilgamesh"]; // 3 banners ativos // único banner ativo: Aizen Sōsuke (5 dias) // banners ativos: Gilgamesh e Alter Saber (Lupa e Hitori encerrados) // banners ativos: Gilgamesh e Alter Saber (RELÂMPAGO: 3 HORAS!), Lupa e Hitori
-const BANNER_DURATIONS = { aizensosuke: 5 * 24 * 60 * 60 * 1000, altersaber: 5 * 24 * 60 * 60 * 1000, gilgamesh: 5 * 24 * 60 * 60 * 1000 }; // 5 dias cada // Aizen: 5 dias // Gilgamesh e Alter Saber: banners RELÂMPAGO de 3 HORAS · Lupa/Hitori: 5 dias
+const FEATURED_LIMITEDS = ["aizensosuke", "altersaber", "ichigo"]; // 3 banners ativos // único banner ativo: Aizen Sōsuke (5 dias) // banners ativos: Ichigo e Alter Saber (Gilgamesh, Lupa e Hitori encerrados)
+const BANNER_DURATIONS = { aizensosuke: 5 * 24 * 60 * 60 * 1000, altersaber: 5 * 24 * 60 * 60 * 1000, ichigo: 5 * 24 * 60 * 60 * 1000 }; // 5 dias cada
 // ══ Títulos de chat — desbloqueados ao levar um personagem ao E6 (todas as cópias) ══
 const E6_TITLES = {
   lupa:        { t: "Predador de Fusão",       c: "#FF6A3D" },
@@ -195,7 +195,7 @@ const WEAPONS = [
   { id: "aegis",       name: "Egide Brilhante",     rarity: 4, role: "shield",   atk: 396, def: 396, shieldBonus: 38,    passive: "Muralha Brilhante: +38% no valor dos Escudos gerados pelo portador." },
 ];
 const WEAPON_MAP = Object.fromEntries(WEAPONS.map((w) => [w.id, w]));
-const WEAPON_5_IDS = ["kyoka_suigetsu", "excalibur_morgan", "portao_ea"]; // cones de Aizen, Alter Saber e Gilgamesh // único banner de arma ativo: cone do Aizen // banner de armas: cones de Gilgamesh, Alter Saber, Lupa e Hitori
+const WEAPON_5_IDS = ["kyoka_suigetsu", "excalibur_morgan", "tensa_zangetsu"]; // cones de Aizen, Alter Saber e Ichigo
 const DEFAULT_FEATURED_WEAPON = "kyoka_suigetsu";
 
 /* ---------- MOCHILEIRO (seletor de personagem inicial) ---------- */
@@ -3505,8 +3505,8 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
   const cycleWeapon = (d) => { const i = WEAPON_5_IDS.indexOf(featuredWeapon); setFeaturedWeapon(WEAPON_5_IDS[(i + d + WEAPON_5_IDS.length) % WEAPON_5_IDS.length]); };
   const headColor = isWeapon ? "#B98BFF" : isStd ? C.gold : isSpecial ? "#FF5E9E" : ELEMENTS[fc.element].color;
   const arrow = { background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 8, color: C.text, width: 28, height: 28, fontWeight: 800 };
-  const charMs = useBannerTimer("char_" + featuredChar + ((featuredChar === "altersaber" || featuredChar === "gilgamesh") ? "_3h_v2" : ""), BANNER_DURATIONS[featuredChar] || (7 * 24 * 60 * 60 * 1000)); // cada personagem tem seu próprio prazo de encerramento
-  const weaponMs = useBannerTimer("weapon_3h_v2", 3 * 60 * 60 * 1000); // banner de armas: relâmpago de 3 HORAS junto com Gilgamesh/Alter Saber
+  const charMs = useBannerTimer("char_" + featuredChar + ((featuredChar === "altersaber" || featuredChar === "ichigo") ? "_3h_v2" : ""), BANNER_DURATIONS[featuredChar] || (7 * 24 * 60 * 60 * 1000)); // cada personagem tem seu próprio prazo de encerramento
+  const weaponMs = useBannerTimer("weapon_3h_v2", 3 * 60 * 60 * 1000); // banner de armas: relâmpago de 3 HORAS junto com Ichigo/Alter Saber
   const specialMs = useAbsoluteTimer(SPECIAL_BANNER_END); // data fixa de verdade — acaba pra todo mundo junto, não reseta por dispositivo
   const specialExpired = specialMs <= 0;
   const bannerMs = isChar ? charMs : isWeapon ? weaponMs : isSpecial ? specialMs : null;
