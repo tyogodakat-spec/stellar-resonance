@@ -3647,6 +3647,7 @@ function PoolRow({ ids, ownedSet }) {
 
 // ── Assinaturas visuais únicas por personagem 5★ — cada um com combinação própria de partícula/cor/movimento ──
 const PULL_SIGNATURES = {
+  ichigo:        { type: "streak",  c1: "#EAEAEA", c2: "#8B0000", count: 9, cross: true, motif: "eclipse" }, // Lua Vazia — eclipse negro com fio de sangue espiritual
   miyabi:        { type: "fall",   shape: "❄",  c1: "#BEEFFF", c2: "#3FA9E8", speed: 1.0, spin: true  , motif: "slash" }, // Glacial — fragmentos de gelo
   kaiba:         { type: "fall",   shape: "🎴", c1: "#FFD76A", c2: "#3D6BFF", speed: 1.6, spin: true  , motif: "cardspiral" }, // cartas de duelo girando
   kirara:        { type: "spiral", shape: "•",  c1: "#FF8A3D", c2: "#B93DFF", speed: 1.1 , motif: "foxfire" },              // labaredas de raposa em espiral
@@ -3713,6 +3714,11 @@ function CutsceneIntro({ id, onDone }) {
         @keyframes ctBloomPetal{0%{transform:rotate(var(--pr)) translateY(0) scaleY(.2);opacity:0}30%{opacity:1}100%{transform:rotate(var(--pr)) translateY(-130px) scaleY(1);opacity:.9}}
         @keyframes ctBloomCore{0%{transform:scale(.2);opacity:0}40%{opacity:1}100%{transform:scale(1);opacity:1}}
         @keyframes ctPulseSlow{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+        @keyframes ctEclipseMoonIn{0%{transform:translateX(-38vmin) scale(.6);opacity:0}40%{opacity:1}100%{transform:translateX(0) scale(1);opacity:1}}
+        @keyframes ctEclipseCorona{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+        @keyframes ctEclipseCrack{0%{opacity:0;clip-path:polygon(50% 50%,50% 50%,50% 50%,50% 50%)}60%{opacity:0}72%{opacity:1;clip-path:polygon(50% 0,58% 30%,50% 45%,66% 55%,52% 70%,50% 100%,48% 68%,34% 58%,48% 44%,42% 28%)}100%{opacity:1}}
+        @keyframes ctEclipseDark{0%{opacity:0}70%{opacity:0}100%{opacity:.85}}
+        @keyframes ctEclipseStreak2{0%{transform:scaleX(0);opacity:0}70%{opacity:0}78%{opacity:1;transform:scaleX(1)}100%{opacity:.6;transform:scaleX(1)}}
       `}</style>
       <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 50% 50%, ${sig.c1}22, #000 72%)`, animation: "ctFadeIn 1.2s ease-out" }} />
       {Motif ? <Motif sig={sig} /> : null}
@@ -3956,7 +3962,25 @@ function MotifDoomspiral({ sig }) { // Calamidade — vórtice sombrio vermelho/
     <div style={{ width: "10vmin", height: "10vmin", background: sig.c1, transform: "rotate(45deg)", boxShadow: `0 0 8vmin ${sig.c1}`, animation: "ctFoxCore 1s ease-in-out infinite" }} />
   </>;
 }
+function MotifEclipse({ sig }) { // Ichigo — eclipse negro cobrindo um disco branco, com fenda de energia espiritual rasgando o centro
+  return <>
+    {/* Disco branco (poder comum) sendo coberto pela lua negra (Mugetsu — "céu sem lua") */}
+    <div style={{ position: "absolute", width: "40vmin", height: "40vmin", borderRadius: "50%", background: "radial-gradient(circle, #fff, #cfd6e8)", boxShadow: "0 0 14vmin #fff8" }} />
+    <div style={{ position: "absolute", width: "42vmin", height: "42vmin", borderRadius: "50%", background: "#000", boxShadow: `0 0 6vmin 1vmin ${sig.c2}`, animation: "ctEclipseMoonIn 1.5s cubic-bezier(.3,.6,.2,1) forwards" }} />
+    {/* Corona vermelha pulsando na borda do eclipse total */}
+    <div style={{ position: "absolute", width: "44vmin", height: "44vmin", borderRadius: "50%", border: `2px solid ${sig.c2}`, boxShadow: `0 0 4vmin ${sig.c2}`, animation: "ctEclipseCorona 1.1s 1.4s ease-in-out infinite" }} />
+    {/* Escurecimento geral do ambiente no clímax do eclipse total */}
+    <div style={{ position: "absolute", inset: 0, background: "#000", animation: "ctEclipseDark 1.9s ease-in forwards" }} />
+    {/* Fenda de energia espiritual rasgando o centro do disco */}
+    <div style={{ position: "absolute", width: "18vmin", height: "50vmin", background: `linear-gradient(${sig.c1}, ${sig.c2}, ${sig.c1})`, filter: "blur(1px)", boxShadow: `0 0 3vmin ${sig.c1}`, animation: "ctEclipseCrack 1.9s ease-out forwards" }} />
+    {/* Fios de energia se espalhando na horizontal a partir da fenda */}
+    {Array.from({ length: 5 }).map((_, i) => (
+      <div key={i} style={{ position: "absolute", top: `${38 + i * 6}%`, left: "50%", width: "45vw", height: 2, transformOrigin: "left center", background: `linear-gradient(90deg, ${sig.c2}, transparent)`, animation: `ctEclipseStreak2 1.9s ${1.5 + i * 0.05}s ease-out forwards` }} />
+    ))}
+  </>;
+}
 const CUTSCENE_MOTIFS = {
+  eclipse: MotifEclipse,
   slash: MotifSlash, cardspiral: MotifCardSpiral, foxfire: MotifFoxfire, shunpo: MotifShunpo,
   crosshair: MotifCrosshair, bloodbloom: MotifBloodbloom, snowmandala: MotifSnowmandala,
   wolfhowl: MotifWolfhowl, soundwave: MotifSoundwave, voidcrack: MotifVoidcrack,
