@@ -93,7 +93,7 @@ const ROSTER = [
   mk({ id: "altersaber", name: "Alter Saber", title: "O Rei do Fim de Todas as Eras", element: "Chaos", role: "dps", rarity: 5, avatar: "⚔️", hp: 1180, atk: 980, def: 470, spd: 110, energy: 160, cr: 20, cd: 92, elemDmg: 22.4, tags: ["Chaos", "DPS", "Hypercarry", "Sem Caminho", "Ruína"],
     skill: { basicMul: 100, asBasic: true, skillMul: 0, asSkill: true, ultMul: 760, asUlt: true } }),
   // ---- Ichigo Kurosaki · Limitado · Unknown ----
-  mk({ id: "ichigo", name: "Ichigo Kurosaki", title: "O Vazio Entre Mundos", element: "Unknown", role: "dps", rarity: 5, avatar: "🌑", hp: 1200, atk: 1020, def: 460, spd: 108, energy: 9999, cr: 12, cd: 56, tags: ["Unknown", "DPS", "Transformação", "Fragmentos"],
+  mk({ id: "ichigo", name: "Ichigo Kurosaki", title: "O Vazio Entre Mundos", element: "Unknown", role: "dps", rarity: 5, avatar: "🌑", hp: 1220, atk: 1120, def: 460, spd: 108, energy: 9999, cr: 16, cd: 68, tags: ["Unknown", "DPS", "Transformação", "Fragmentos"],
     skill: { basicMul: 95, ichBasic: true, skillMul: 215, ichSkill: true, ultMul: 0, ichUlt: true } }),
   // ---- Aizen Sōsuke · Limitado · Sem Caminho ----
   mk({ id: "aizensosuke", name: "Aizen Sōsuke", title: "A Existência Que Superou o Céu", element: "Chaos", role: "debuffer", rarity: 5, avatar: "🌙", hp: 1180, atk: 880, def: 520, spd: 104, energy: 180, cr: 10, cd: 60, elemDmg: 14.4, energyRegen: 10, tags: ["Chaos", "Sub-DPS", "Amplificador", "Sem Caminho", "Hipnose"],
@@ -6140,6 +6140,10 @@ function yoruFollowupProc(follower, enemyTarget, dmgDealt, fx, allowSelf) {
   if (!follower || follower.side !== "H" || !enemyTarget || !enemyTarget.alive) return;
   const yoru = (follower._sibs || []).find(h => h.id === "yoruichi" && h.alive);
   if (!yoru || (!allowSelf && yoru.uid === follower.uid)) return;
+  // Limite de disparos por turno (evita cascata infinita de Clones/Colapso Elétrico e o vazamento visual de texto que isso causava)
+  const CAP = 4;
+  if ((yoru._yoruProcsThisTurn || 0) >= CAP) return;
+  yoru._yoruProcsThisTurn = (yoru._yoruProcsThisTurn || 0) + 1;
   const ySpd = effStat(yoru, "spd"), yAtk = Math.max(1, effStat(yoru, "atk"));
   // Visual: um Clone Residual "aparece" no card da Yoruichi e some rápido (badge com fade-out)
   fx.push({ uid: yoru.uid, yoruCloneFlash: true, id: Math.random() });
@@ -6693,6 +6697,12 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     const red = (defender.buffs || []).filter((b) => b.stat === "dmgReduce").reduce((a, b) => a + (b.value || 0), 0);
     if (red) dmg = Math.max(1, Math.round(dmg * Math.max(0.1, 1 - red / 100))); // Protocolo de Infecção
     if (defender.id === "omegamon" || (defender.buffs || []).some((b) => b.name === "Protocolo")) defender._omgHit = (defender._omgHit || 0) + 1;
+  }
+  if (defender.side !== "H" && attacker.side === "H" && !defender._dummy && defender.boss) {
+    // Protege especificamente BOSSES (não inimigos comuns — não queremos atrapalhar a velocidade de farm) contra hits que zerariam o HP inteiro de uma vez.
+    // Um único golpe do jogador nunca tira mais de 40% do HP Máximo de um chefe.
+    const enemyOneShotCap = Math.round(defender.maxHp * 0.40);
+    if (dmg > enemyOneShotCap) dmg = enemyOneShotCap;
   }
   if (defender.shield > 0 && !opts?.pierceShield && !attacker._ignoresShield) { const shBefore = defender.shield; const a = Math.min(defender.shield, dmg); dmg = drainShield(defender, dmg); if (shBefore > 0 && defender.shield === 0 && defender.id === "omegamon" && defender.stFlags && defender.stFlags.omgContagio && attacker.side !== "H") { attacker.dots = attacker.dots || []; if (!attacker.dots.some(function(d){return d.type==="corrosao";})) attacker.dots.push({ type: "corrosao", dmg: Math.max(1, Math.round(defender.base.atk * 0.35)), turns: 2 }); fx.push({ uid: attacker.uid, txt: "CORROSAO", dot: "corrosao", id: Math.random() }); } }
   else if (defender.shield > 0 && attacker._ignoresShield && !opts?.pierceShield) { fx.push({ uid: defender.uid, txt: "ESCUDO IGNORADO!", crit: true, id: Math.random(), el: "Chaos" }); }
@@ -7254,7 +7264,7 @@ function ichigoEnterMugetsu(u, s, fx) {
   if (u.stFlags?.ichTrace3 && u.av != null) u.av = Math.max(0.01, (u.av || 1) * 0.70); // Rastro Especial 3 · Salto no Vazio: +30% VA
   pushLog(s, `🌑 ${u.name} consome os Fragmentos do Dangai e entra em FORMA MUGETSU! (12 Reservas)`);
   const enemies = aliveEnemies(s);
-  enemies.forEach((e) => dealDamage(u, e, Math.round(supScale(300, lvl)) * (u.ampUlt || 1), fx, { el: "Unknown", isFollowup: true }));
+  enemies.forEach((e) => dealDamage(u, e, Math.round(supScale(380, lvl)) * (u.ampUlt || 1), fx, { el: "Unknown", isFollowup: true }));
 }
 function ichigoSpendReserve(u, n, s, fx) {
   u._ichReserve = Math.max(0, (u._ichReserve || 0) - n);
@@ -7265,7 +7275,7 @@ function ichigoGetsugaFinal(u, s, fx) {
   const e6 = u.stFlags?.ichE6;
   let kills = 0;
   aliveEnemies(s).forEach((e) => {
-    const r = dealDamage(u, e, Math.round(supScale(480, lvl)) * (u.ampUlt || 1), fx, { el: "Unknown", isFollowup: true, defPen: e6 ? 42 : 25, resPen: e6 ? 25 : 0, forceCrit: !!e6 });
+    const r = dealDamage(u, e, Math.round(supScale(620, lvl)) * (u.ampUlt || 1), fx, { el: "Unknown", isFollowup: true, defPen: e6 ? 42 : 25, resPen: e6 ? 25 : 0, forceCrit: !!e6 });
     if (!e.alive) kills++;
   });
   pushLog(s, `🌑⚔️ GETSUGA FINAL! Corte devastador atinge todos os inimigos.`);
@@ -7975,6 +7985,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       const f = u.stFlags || {}; // flags de constelação/relíquia do personagem que está agindo (faltava — corrigido)
       if (u.id === "ichigo" && u._ichPendingTransform && !u._ichMugetsu) { u._ichPendingTransform = false; ichigoEnterMugetsu(u, s, s.fx); } // processa a transformação pendente (12º Fragmento ganho tomando dano no turno do inimigo)
       u._calamidadeEnergyThisAction = false; // reseta a cada ação — 1 energia de Calamidade por ação, não por aplicação de buff/debuff
+      if (u.id === "yoruichi") u._yoruProcsThisTurn = 0; // reseta o limite de Clones Residuais/Colapso Elétrico a cada turno próprio dela
       s.heroTurns = (s.heroTurns || 0) + 1;
       // Tempestade Eletro (4pç): a cada ação do portador, +2% de dano (empilha até +12%)
       if (f.setEletro4) {
@@ -8192,7 +8203,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           if (u._ichMugetsu && enemy) {
             if ((u._ichReserve || 0) < 1) { const r = dealDamage(u, enemy, (sk.basicMul || 95) * (u.tBasic || 1) * ampB, fx, { el: "Unknown" }); msg = `⚔️ Corte de Zangetsu em ${enemy.name} — ${r.dmg} de Dano Unknown.`; }
             else {
-              const r = dealDamage(u, enemy, Math.round(supScale(230, u.tBasic || 1)) * ampB, fx, { el: "Unknown" });
+              const r = dealDamage(u, enemy, Math.round(supScale(300, u.tBasic || 1)) * ampB, fx, { el: "Unknown" });
               let extra = "";
               if (u.stFlags?.ichE4) {
                 u._ichCorrosao = u._ichCorrosao || {};
@@ -8430,7 +8441,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             } else {
               const targets = aliveEnemies(s);
               let tot = 0, anyCrit = false;
-              targets.forEach((e) => { const r = dealDamage(u, e, Math.round(supScale(310, u.tSkill || 1)) * ampS, fx, { el: "Unknown" }); tot += r.dmg; if (r.crit) anyCrit = true; });
+              targets.forEach((e) => { const r = dealDamage(u, e, Math.round(supScale(380, u.tSkill || 1)) * ampS, fx, { el: "Unknown" }); tot += r.dmg; if (r.crit) anyCrit = true; });
               if (enemy && enemy.alive) enemy.debuffs = [...(enemy.debuffs || []).filter((b) => b.name !== "Corte Sombrio"), { stat: "vuln", value: 22, turns: 2, name: "Corte Sombrio" }];
               ichigoSpendReserve(u, cost, s, fx);
               msg = `🌑⚔️ Kuroi Getsuga: Lâmina do Vazio — ${tot} de Dano Unknown em todos os inimigos${anyCrit ? " (CRÍTICO!)" : ""}. Reservas: ${u._ichReserve || 0}/${u._ichReserveMax || 12}.`;
@@ -8443,7 +8454,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             others.forEach((e) => { const rs = dealDamage(u, e, (sk.skillMul || 215) * sMul * 0.35, fx, { el: "Unknown" }); splash += rs.dmg; });
             const kills = (!enemy.alive ? 1 : 0) + others.filter((e) => !e.alive).length;
             if (kills > 0) ichigoGainFragment(u, kills, s, fx);
-            ichigoGainFragment(u, 2, s, fx);
+            ichigoGainFragment(u, 3, s, fx);
             let bonus = "";
             if (u.weapon?.buff?.ichWeapon && Math.random() < 0.55) { ichigoGainFragment(u, 1, s, fx); bonus = " ✨ Eco do Corte Perdido concede +1 Fragmento adicional!"; }
             msg = `⚔️🗡️ Getsuga Tenshō: Onda Espiritual em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""}${others.length ? ` + ${splash} em área` : ""} de Dano Unknown. Fragmentos: ${u._ichFrag || 0}/12.${bonus}`;
@@ -9305,7 +9316,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       if (kind === "ult" && u.id !== "yoruichi") {
         const yoru3 = s.heroes.find(h => h.id === "yoruichi" && h.alive && h.stFlags?.yoruS3);
         const t3 = yoru3 && targetEnemy(s);
-        if (yoru3 && t3 && t3.alive) {
+        if (yoru3 && t3 && t3.alive && (yoru3._yoruProcsThisTurn || 0) < 4) {
+          yoru3._yoruProcsThisTurn = (yoru3._yoruProcsThisTurn || 0) + 1;
           const ySpd = effStat(yoru3, "spd"), yAtk = Math.max(1, effStat(yoru3, "atk"));
           const cloneMul = (ySpd * 30.0 / yAtk) * 100; // 3000% da VEL
           const cr3 = dealDamage(yoru3, t3, cloneMul, s.fx, { el: "Eletro", isYoruClone: true, breakW: 1 });
@@ -10775,7 +10787,7 @@ function FX({ fx, uid }) {
       <style>{`@keyframes srCloneFlash{0%{opacity:0;transform:scale(0.5)}20%{opacity:1;transform:scale(1.15)}70%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.85)}}`}</style>
     </div>}
     {items.length > 0 && <div style={{ position: "absolute", top: -6, left: 0, right: 0, textAlign: "center", pointerEvents: "none", zIndex: 5 }}>
-      {items.map((f) => <div key={f.id} style={{ animation: "srFloat 1s ease-out forwards", fontWeight: 800, fontSize: f.enhanced ? 20 : f.crit ? 18 : f.dot ? 11 : 14, color: colorOf(f), textShadow: f.crit && f.el && ELEMENTS[f.el] ? `0 0 12px ${ELEMENTS[f.el].color}, 0 1px 3px #000` : f.enhanced ? "0 0 10px #5CFF7Aaa, 0 1px 3px #000" : "0 1px 3px #000" }}>{f.el && ELEMENTS[f.el] && !f.heal && !f.dot ? <span style={{ marginRight: 3, opacity: .85 }}>{ELEMENTS[f.el].glyph}</span> : null}{f.dot ? "🔥" : f.enhanced ? "🌿" : ""}{f.txt}{f.crit ? "!" : ""}</div>)}
+      {items.slice(-4).map((f, i) => <div key={f.id} style={{ animation: `srFloat 1s ${i * 0.12}s ease-out forwards`, opacity: 0, transform: `translateX(${(i - (Math.min(items.length, 4) - 1) / 2) * 26}px)`, fontWeight: 800, fontSize: f.enhanced ? 20 : f.crit ? 18 : f.dot ? 11 : 14, color: colorOf(f), textShadow: f.crit && f.el && ELEMENTS[f.el] ? `0 0 12px ${ELEMENTS[f.el].color}, 0 1px 3px #000` : f.enhanced ? "0 0 10px #5CFF7Aaa, 0 1px 3px #000" : "0 1px 3px #000" }}>{f.el && ELEMENTS[f.el] && !f.heal && !f.dot ? <span style={{ marginRight: 3, opacity: .85 }}>{ELEMENTS[f.el].glyph}</span> : null}{f.dot ? "🔥" : f.enhanced ? "🌿" : ""}{f.txt}{f.crit ? "!" : ""}</div>)}
     </div>}
   </>;
 }
@@ -11237,6 +11249,68 @@ function AdminPlayersTab({ flash }) {
     </div>
   );
 }
+function AdminAccountRescue({ flash }) {
+  const [email, setEmail] = useState("");
+  const [acc, setAcc] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [newPass, setNewPass] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function lookup() {
+    const e = emailKey(email);
+    if (!validEmail(e)) { flash("Email inválido.", C.bad); return; }
+    setLoading(true);
+    try {
+      const accounts = await loadAccounts();
+      const found = accounts[e];
+      setAcc(found ? { ...found, _email: e } : null);
+      if (!found) flash("Nenhuma conta encontrada com esse email.", C.bad);
+    } catch { flash("Erro ao buscar contas.", C.bad); }
+    setLoading(false);
+  }
+
+  async function forceSetPassword() {
+    if (newPass.length < 4) { flash("A senha precisa de pelo menos 4 caracteres.", C.bad); return; }
+    setBusy(true);
+    try {
+      const accounts = await loadAccounts();
+      const e = acc._email;
+      if (!accounts[e]) { flash("Conta não existe mais.", C.bad); setBusy(false); return; }
+      accounts[e] = { ...accounts[e], hash: hashPass(newPass) };
+      await saveAccounts(accounts);
+      flash(`✅ Senha de ${e} redefinida. Já pode avisar o jogador pra entrar com a senha nova.`, C.good);
+      setNewPass("");
+    } catch { flash("Erro ao salvar.", C.bad); }
+    setBusy(false);
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <Panel style={{ padding: 12 }}>
+        <b style={{ fontSize: 14 }}>🔑 Resgate de conta</b>
+        <p style={{ fontSize: 12, color: C.mute, marginTop: 6, lineHeight: 1.6 }}>
+          Se um jogador perdeu a senha E o código de recuperação, essa é a única forma de recuperar o progresso dele: você define uma senha nova diretamente aqui, pelo e-mail da conta. O progresso salvo (personagens, gemas, tudo) fica intacto — só a senha muda.
+        </p>
+      </Panel>
+      <Panel style={{ padding: 12 }}>
+        <label style={{ fontSize: 12, color: C.mute }}>Email do jogador</label>
+        <div className="flex gap-2 mt-1">
+          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jogador@email.com" style={{ flex: 1, background: C.panel, border: `1px solid ${C.line}`, borderRadius: 8, padding: "8px 10px", fontSize: 13, color: C.text }} />
+          <Btn onClick={lookup} disabled={loading} style={{ padding: "8px 16px" }}>{loading ? "Buscando…" : "Buscar"}</Btn>
+        </div>
+      </Panel>
+      {acc && (
+        <Panel style={{ padding: 12 }}>
+          <div style={{ fontSize: 13, marginBottom: 4 }}>Conta encontrada: <b>{acc._email}</b></div>
+          <div style={{ fontSize: 11, color: C.mute, marginBottom: 10 }}>Criada em {acc.created ? new Date(acc.created).toLocaleDateString("pt-BR") : "—"} · Último acesso: {acc.lastSeen ? new Date(acc.lastSeen).toLocaleDateString("pt-BR") : "—"}{acc.recoveryHash ? "" : " · ⚠️ conta antiga, sem código de recuperação salvo"}</div>
+          <label style={{ fontSize: 12, color: C.mute }}>Nova senha pra essa conta</label>
+          <input value={newPass} onChange={(e) => setNewPass(e.target.value)} type="text" placeholder="Digite a senha nova" style={{ width: "100%", background: C.panel, border: `1px solid ${C.line}`, borderRadius: 8, padding: "8px 10px", fontSize: 13, color: C.text, marginTop: 4, marginBottom: 10 }} />
+          <Btn kind="danger" onClick={forceSetPassword} disabled={busy} style={{ width: "100%" }}>{busy ? "Salvando…" : "Definir senha nova pra essa conta"}</Btn>
+        </Panel>
+      )}
+    </div>
+  );
+}
 function Admin({ images, setImages, tierList, setTierList, flash, isAdmin, draftActive, setDraftActive }) {
   const [tab, setTab] = useState("chars");
   const setImg = (id, url) => setImages((m) => { const next = { ...m, [id]: url }; cloudSet("meta", "images", { map: next }); _ls.set("sr_shared_images", JSON.stringify(next)); return next; });
@@ -11254,7 +11328,8 @@ function Admin({ images, setImages, tierList, setTierList, flash, isAdmin, draft
         <div style={{ ...ORB, fontSize: 18, fontWeight: 800 }}>🛠️ Painel Admin</div>
         <p style={{ fontSize: 13, color: C.mute, marginTop: 6 }}>Cole o link direto da imagem (Imgur) de cada personagem e arma. Use o link que termina em <b>.jpg</b>/<b>.png</b> (ex: <span style={{ color: C.text }}>https://i.imgur.com/XXXX.png</span>). A imagem aparece no jogo inteiro na hora.</p>
       </Panel>
-      <div className="flex gap-2" style={{ flexWrap: "wrap" }}><TabBtn active={tab === "chars"} onClick={() => setTab("chars")}>Personagens</TabBtn><TabBtn active={tab === "weapons"} onClick={() => setTab("weapons")}>Armas</TabBtn><TabBtn active={tab === "summons"} onClick={() => setTab("summons")}>Invocações</TabBtn><TabBtn active={tab === "items"} onClick={() => setTab("items")}>🎒 Itens</TabBtn><TabBtn active={tab === "bosses"} onClick={() => setTab("bosses")}>💀 Chefes</TabBtn><TabBtn active={tab === "players"} onClick={() => setTab("players")}>👥 Players</TabBtn><TabBtn active={tab === "evento"} onClick={() => setTab("evento")}>🎲 Evento</TabBtn><TabBtn active={tab === "roteiro"} onClick={() => setTab("roteiro")}>🎬 Roteiro</TabBtn><TabBtn active={tab === "tierlist"} onClick={() => setTab("tierlist")}>📊 Tier List</TabBtn></div>
+      <div className="flex gap-2" style={{ flexWrap: "wrap" }}><TabBtn active={tab === "chars"} onClick={() => setTab("chars")}>Personagens</TabBtn><TabBtn active={tab === "weapons"} onClick={() => setTab("weapons")}>Armas</TabBtn><TabBtn active={tab === "summons"} onClick={() => setTab("summons")}>Invocações</TabBtn><TabBtn active={tab === "items"} onClick={() => setTab("items")}>🎒 Itens</TabBtn><TabBtn active={tab === "bosses"} onClick={() => setTab("bosses")}>💀 Chefes</TabBtn><TabBtn active={tab === "players"} onClick={() => setTab("players")}>👥 Players</TabBtn><TabBtn active={tab === "accounts"} onClick={() => setTab("accounts")}>🔑 Contas</TabBtn><TabBtn active={tab === "evento"} onClick={() => setTab("evento")}>🎲 Evento</TabBtn><TabBtn active={tab === "roteiro"} onClick={() => setTab("roteiro")}>🎬 Roteiro</TabBtn><TabBtn active={tab === "tierlist"} onClick={() => setTab("tierlist")}>📊 Tier List</TabBtn></div>
+      {tab === "accounts" && <AdminAccountRescue flash={flash} />}
       {tab === "tierlist" && <div className="flex flex-col gap-2">
         <Panel style={{ padding: 10 }}><p style={{ fontSize: 12, color: C.mute }}>Toque no tier pra mover o personagem. As mudanças valem pra todo mundo na hora. "—" tira ele da Tier List.</p></Panel>
         {ROSTER.map((c) => {
@@ -13613,12 +13688,23 @@ function Social({ email, flash, owned, activeTitle, setActiveTitle, playerName }
    LOGIN (local, por email) + PORTÃO DE AUTENTICAÇÃO
    ========================================================================== */
 function Login({ onLogin }) {
-  const [mode, setMode] = useState("login");
+  const [mode, setMode] = useState("login"); // login | register | forgot | reset | showcode
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [pass2, setPass2] = useState("");
+  const [code, setCode] = useState("");
+  const [newPass, setNewPass] = useState("");
+  const [newPass2, setNewPass2] = useState("");
+  const [genCode, setGenCode] = useState(""); // código de recuperação recém-gerado, mostrado uma vez
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+
+  function makeRecoveryCode() {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sem caracteres ambíguos (0/O, 1/I/L)
+    let c = "";
+    for (let i = 0; i < 10; i++) { if (i === 5) c += "-"; c += chars[Math.floor(Math.random() * chars.length)]; }
+    return c;
+  }
 
   async function submit() {
     setErr("");
@@ -13631,9 +13717,13 @@ function Login({ onLogin }) {
       const accounts = await loadAccounts();
       if (mode === "register") {
         if (accounts[e]) { setErr("Já existe uma conta com esse email. Faça login."); setBusy(false); return; }
-        accounts[e] = { hash: hashPass(pass), created: Date.now(), lastSeen: Date.now() };
+        const rc = makeRecoveryCode();
+        accounts[e] = { hash: hashPass(pass), created: Date.now(), lastSeen: Date.now(), recoveryHash: hashPass(rc) };
         await saveAccounts(accounts);
-        await onLogin(e);
+        setGenCode(rc);
+        setBusy(false);
+        setMode("showcode");
+        return;
       } else {
         const acc = accounts[e];
         if (!acc) { setErr("Conta não encontrada. Crie uma conta."); setBusy(false); return; }
@@ -13647,7 +13737,54 @@ function Login({ onLogin }) {
       setBusy(false);
     }
   }
-  const onKey = (ev) => { if (ev.key === "Enter") submit(); };
+
+  async function submitForgot() {
+    setErr("");
+    const e = emailKey(email);
+    if (!validEmail(e)) { setErr("Digite um email válido."); return; }
+    if (!code.trim()) { setErr("Digite o código de recuperação."); return; }
+    setBusy(true);
+    try {
+      const accounts = await loadAccounts();
+      const acc = accounts[e];
+      if (!acc) { setErr("Conta não encontrada."); setBusy(false); return; }
+      if (!acc.recoveryHash) { setErr("Essa conta foi criada antes do sistema de recuperação existir — não há código salvo pra ela. Fale com o suporte."); setBusy(false); return; }
+      if (acc.recoveryHash !== hashPass(code.trim().toUpperCase())) { setErr("Código de recuperação incorreto."); setBusy(false); return; }
+      setBusy(false);
+      setMode("reset");
+    } catch {
+      setErr("Erro ao acessar o armazenamento.");
+      setBusy(false);
+    }
+  }
+
+  async function submitReset() {
+    setErr("");
+    const e = emailKey(email);
+    if (newPass.length < 4) { setErr("A nova senha precisa de pelo menos 4 caracteres."); return; }
+    if (newPass !== newPass2) { setErr("As senhas não conferem."); return; }
+    setBusy(true);
+    try {
+      const accounts = await loadAccounts();
+      const acc = accounts[e];
+      if (!acc) { setErr("Conta não encontrada."); setBusy(false); return; }
+      accounts[e] = { ...acc, hash: hashPass(newPass), lastSeen: Date.now() };
+      await saveAccounts(accounts);
+      setBusy(false);
+      setPass(newPass);
+      setMode("login");
+      setErr("");
+      setNewPass(""); setNewPass2(""); setCode("");
+      flashLoginMsg("Senha alterada! Já pode entrar.");
+    } catch {
+      setErr("Erro ao acessar o armazenamento.");
+      setBusy(false);
+    }
+  }
+  const [okMsg, setOkMsg] = useState("");
+  function flashLoginMsg(m) { setOkMsg(m); setTimeout(() => setOkMsg(""), 5000); }
+
+  const onKey = (ev) => { if (ev.key === "Enter") { if (mode === "forgot") submitForgot(); else if (mode === "reset") submitReset(); else submit(); } };
 
   return (
     <div style={{ minHeight: "100vh", background: `radial-gradient(1200px 600px at 75% -12%, ${C.bg1}, ${C.bg0}), radial-gradient(900px 500px at 10% 110%, #0d1524, ${C.bg0})`, color: C.text, fontFamily: "ui-sans-serif, system-ui, 'Segoe UI', sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: 18 }}>
@@ -13655,29 +13792,65 @@ function Login({ onLogin }) {
         <div style={{ textAlign: "center", marginBottom: 18 }}>
           <div style={{ fontSize: 44 }}>🌌</div>
           <div style={{ ...ORB, fontWeight: 800, letterSpacing: 3, fontSize: 24 }}><Glow color={C.gold}>STELLAR</Glow> RESONANCE</div>
-          <div style={{ color: C.mute, fontSize: 13, marginTop: 2 }}>{mode === "login" ? "Entre na sua conta" : "Crie sua conta de Pioneiro"}</div>
+          <div style={{ color: C.mute, fontSize: 13, marginTop: 2 }}>{mode === "login" ? "Entre na sua conta" : mode === "register" ? "Crie sua conta de Pioneiro" : mode === "forgot" ? "Recuperar acesso" : mode === "reset" ? "Definir nova senha" : "Guarde seu código!"}</div>
         </div>
+        {okMsg && <div style={{ background: "#123a1e", border: "1px solid #2f7a4a", color: C.good, borderRadius: 10, padding: "8px 12px", fontSize: 13, marginBottom: 10, textAlign: "center" }}>✅ {okMsg}</div>}
         <Panel glow={C.gold}>
-          <div className="flex gap-2 mb-3">
-            <TabBtn active={mode === "login"} onClick={() => { setMode("login"); setErr(""); }}>Entrar</TabBtn>
-            <TabBtn active={mode === "register"} onClick={() => { setMode("register"); setErr(""); }}>Criar conta</TabBtn>
-          </div>
-          <label style={{ fontSize: 12, color: C.mute }}>Email</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={onKey} type="email" autoComplete="email" placeholder="voce@email.com"
-            style={{ width: "100%", background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", color: C.text, outline: "none", fontSize: 14, marginTop: 4, marginBottom: 12 }} />
-          <label style={{ fontSize: 12, color: C.mute }}>Senha</label>
-          <input value={pass} onChange={(e) => setPass(e.target.value)} onKeyDown={onKey} type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} placeholder="••••••"
-            style={{ width: "100%", background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", color: C.text, outline: "none", fontSize: 14, marginTop: 4, marginBottom: 12 }} />
-          {mode === "register" && <>
-            <label style={{ fontSize: 12, color: C.mute }}>Confirmar senha</label>
-            <input value={pass2} onChange={(e) => setPass2(e.target.value)} onKeyDown={onKey} type="password" autoComplete="new-password" placeholder="••••••"
-              style={{ width: "100%", background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", color: C.text, outline: "none", fontSize: 14, marginTop: 4, marginBottom: 12 }} />
-          </>}
-          {err && <div style={{ color: C.bad, fontSize: 13, marginBottom: 10 }}>{err}</div>}
-          <Btn onClick={submit} disabled={busy} style={{ width: "100%" }}>{busy ? "Aguarde…" : mode === "login" ? "Entrar" : "Criar conta e entrar"}</Btn>
-          <div style={{ fontSize: 11, color: C.dim, marginTop: 12, lineHeight: 1.5 }}>
-            Login local no seu dispositivo (sem servidor). Cada conta tem seu próprio progresso salvo.
-          </div>
+          {mode === "showcode" ? (
+            <div>
+              <div style={{ textAlign: "center", fontSize: 13, color: C.mute, marginBottom: 10 }}>Conta criada! Esse código é a <b style={{ color: C.text }}>única forma</b> de recuperar sua senha se você esquecer. Anote em um lugar seguro — ele não será mostrado de novo.</div>
+              <div style={{ ...ORB, textAlign: "center", fontSize: 26, fontWeight: 800, letterSpacing: 3, color: C.gold, background: C.panelHi, border: `1px solid ${C.gold}55`, borderRadius: 12, padding: "14px 8px", marginBottom: 14 }}>{genCode}</div>
+              <Btn onClick={async () => { await onLogin(emailKey(email)); }} style={{ width: "100%" }}>Já anotei — entrar agora</Btn>
+            </div>
+          ) : mode === "forgot" ? (
+            <div>
+              <label style={{ fontSize: 12, color: C.mute }}>Email</label>
+              <input value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={onKey} type="email" autoComplete="email" placeholder="voce@email.com"
+                style={{ width: "100%", background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", color: C.text, outline: "none", fontSize: 14, marginTop: 4, marginBottom: 12 }} />
+              <label style={{ fontSize: 12, color: C.mute }}>Código de recuperação</label>
+              <input value={code} onChange={(e) => setCode(e.target.value)} onKeyDown={onKey} placeholder="XXXXX-XXXXX" autoCapitalize="characters"
+                style={{ width: "100%", background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", color: C.text, outline: "none", fontSize: 14, marginTop: 4, marginBottom: 6, letterSpacing: 2, textTransform: "uppercase" }} />
+              <div style={{ fontSize: 11, color: C.dim, marginBottom: 12 }}>O código foi mostrado uma única vez quando você criou a conta.</div>
+              {err && <div style={{ color: C.bad, fontSize: 13, marginBottom: 10 }}>{err}</div>}
+              <Btn onClick={submitForgot} disabled={busy} style={{ width: "100%" }}>{busy ? "Verificando…" : "Verificar código"}</Btn>
+              <button onClick={() => { setMode("login"); setErr(""); }} style={{ width: "100%", textAlign: "center", color: C.mute, fontSize: 12, marginTop: 12 }}>‹ Voltar ao login</button>
+            </div>
+          ) : mode === "reset" ? (
+            <div>
+              <label style={{ fontSize: 12, color: C.mute }}>Nova senha</label>
+              <input value={newPass} onChange={(e) => setNewPass(e.target.value)} onKeyDown={onKey} type="password" autoComplete="new-password" placeholder="••••••"
+                style={{ width: "100%", background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", color: C.text, outline: "none", fontSize: 14, marginTop: 4, marginBottom: 12 }} />
+              <label style={{ fontSize: 12, color: C.mute }}>Confirmar nova senha</label>
+              <input value={newPass2} onChange={(e) => setNewPass2(e.target.value)} onKeyDown={onKey} type="password" autoComplete="new-password" placeholder="••••••"
+                style={{ width: "100%", background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", color: C.text, outline: "none", fontSize: 14, marginTop: 4, marginBottom: 12 }} />
+              {err && <div style={{ color: C.bad, fontSize: 13, marginBottom: 10 }}>{err}</div>}
+              <Btn onClick={submitReset} disabled={busy} style={{ width: "100%" }}>{busy ? "Salvando…" : "Salvar nova senha"}</Btn>
+            </div>
+          ) : (
+            <div>
+              <div className="flex gap-2 mb-3">
+                <TabBtn active={mode === "login"} onClick={() => { setMode("login"); setErr(""); }}>Entrar</TabBtn>
+                <TabBtn active={mode === "register"} onClick={() => { setMode("register"); setErr(""); }}>Criar conta</TabBtn>
+              </div>
+              <label style={{ fontSize: 12, color: C.mute }}>Email</label>
+              <input value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={onKey} type="email" autoComplete="email" placeholder="voce@email.com"
+                style={{ width: "100%", background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", color: C.text, outline: "none", fontSize: 14, marginTop: 4, marginBottom: 12 }} />
+              <label style={{ fontSize: 12, color: C.mute }}>Senha</label>
+              <input value={pass} onChange={(e) => setPass(e.target.value)} onKeyDown={onKey} type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} placeholder="••••••"
+                style={{ width: "100%", background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", color: C.text, outline: "none", fontSize: 14, marginTop: 4, marginBottom: 12 }} />
+              {mode === "register" && <>
+                <label style={{ fontSize: 12, color: C.mute }}>Confirmar senha</label>
+                <input value={pass2} onChange={(e) => setPass2(e.target.value)} onKeyDown={onKey} type="password" autoComplete="new-password" placeholder="••••••"
+                  style={{ width: "100%", background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", color: C.text, outline: "none", fontSize: 14, marginTop: 4, marginBottom: 12 }} />
+              </>}
+              {err && <div style={{ color: C.bad, fontSize: 13, marginBottom: 10 }}>{err}</div>}
+              <Btn onClick={submit} disabled={busy} style={{ width: "100%" }}>{busy ? "Aguarde…" : mode === "login" ? "Entrar" : "Criar conta e entrar"}</Btn>
+              {mode === "login" && <button onClick={() => { setMode("forgot"); setErr(""); }} style={{ width: "100%", textAlign: "center", color: C.mute, fontSize: 12, marginTop: 12 }}>Esqueci minha senha</button>}
+              <div style={{ fontSize: 11, color: C.dim, marginTop: mode === "login" ? 6 : 12, lineHeight: 1.5 }}>
+                Login local no seu dispositivo (sem servidor). Cada conta tem seu próprio progresso salvo.
+              </div>
+            </div>
+          )}
         </Panel>
       </div>
     </div>
