@@ -1357,7 +1357,7 @@ async function loadAccounts() {
   try {
     const c = await cloudGet("meta", "accounts");
     if (c && c.list && Object.keys(c.list).length > 0) {
-      const merged = { ...c.list, ...local }; // local tem prioridade
+      const merged = { ...local, ...c.list }; // nuvem tem prioridade — corrige senha/redefinições feitas em outro dispositivo (ex: painel Admin) não sendo sobrescritas pelo cache antigo do próprio jogador
       try { await SS.set(ACCOUNTS_KEY, JSON.stringify(merged)); } catch {}
       return merged;
     }
@@ -1843,7 +1843,7 @@ function Panel({ children, style, glow, onClick, ...rest }) {
 // ══ Menu central de modos — abas por categoria, sem precisar arrastar a barra ══
 function NavMenu({ screen, setScreen, onClose, draftActive, isAdmin }) {
   const CATS = [
-    { id: "batalha", name: "Batalha", icon: "⚔️", items: [["tower", "Torre Estelar", "🗼"], ["darktower", "Torre Sombria", "🌑"], ["weekly", "Chefe Semanal", "👹"], ["abismo", "Abismo", "🕳️"], ["espiral", "Espiral", "🌀"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : [])] },
+    { id: "batalha", name: "Batalha", icon: "⚔️", items: [["tower", "Torre Estelar", "🗼"], ["darktower", "Torre Sombria", "🌑"], ["weekly", "Chefe Semanal", "👹"], ["convergencia", "Convergência Tríplice", "🌌"], ["abismo", "Abismo", "🕳️"], ["espiral", "Espiral", "🌀"], ...(draftActive ? [["draft", "Catacumba", "🎲"]] : [])] },
     { id: "farm", name: "Progressão", icon: "🌱", items: [["farm", "Farm", "🌱"], ["relics", "Relíquias", "💠"], ["roster", "Elenco", "👥"], ["gacha", "Invocar", "🎴"]] },
     { id: "social", name: "Social", icon: "🤝", items: [["social", "Social", "🤝"], ["correio", "Correio", "📬"], ["loja", "Loja", "🛒"], ["roleta", "Pacto", "🎰"]] },
     { id: "info", name: "Informação", icon: "📚", items: [["wiki", "Wiki", "📚"], ["tierlist", "Tier List", "📊"], ["roteiro", "Roteiro", "📖"], ["novidades", "Novidades", "🆕"], ...(isAdmin ? [["admin", "Admin", "🛠️"]] : [])] },
@@ -2002,6 +2002,8 @@ function Game({ email, isAdmin, onLogout }) {
   // Sanitiza a Stamina: qualquer NaN/undefined vindo de save antigo ou custo inválido volta a ser número
   useEffect(() => { setStamina((v) => (Number.isFinite(v) ? v : 320)); }, []);
   const [towerCleared, setTowerCleared] = useState(0);
+  const [convergenciaProgress, setConvergenciaProgress] = useState({}); // { arquivista: true, engrenagem: true, eco_juizo: true }
+  const [convergenciaRewardClaimed, setConvergenciaRewardClaimed] = useState(false);
   const [darkTowerCleared, setDarkTowerCleared] = useState(0);
   const [darkTowerClaimed, setDarkTowerClaimed] = useState([]);
   const [towerClaimed, setTowerClaimed] = useState([]);
@@ -2084,6 +2086,7 @@ function Game({ email, isAdmin, onLogout }) {
         setDarkTowerCleared(s.darkTowerCleared ?? 0); setDarkTowerClaimed(Array.isArray(s.darkTowerClaimed) ? s.darkTowerClaimed : []); }
       setExpItems(s.expItems ?? 80); setBossMats(s.bossMats ?? 4); setAscMats(s.ascMats ?? 4); setWeaponMats(s.weaponMats ?? 15); setSkillMats(s.skillMats ?? 15); setTagMats(s.tagMats ?? {}); setLastWeeklyBoss(s.lastWeeklyBoss ?? 0); setChronicles(s.chronicles ?? 0); setDailyClaimedAt(s.dailyClaimedAt ?? 0); setWeeklyClaimedAt(s.weeklyClaimedAt ?? 0);
       setDraftRoomCleared(s.draftRoomCleared ?? 0); setDraftClaimedGems(s.draftClaimedGems ?? 0); setDraftBoons(Array.isArray(s.draftBoons) ? s.draftBoons : []);
+      setConvergenciaProgress(s.convergenciaProgress && typeof s.convergenciaProgress === "object" ? s.convergenciaProgress : {}); setConvergenciaRewardClaimed(s.convergenciaRewardClaimed ?? false);
       setMailClaimed(prev => prev || (s.mailClaimed ?? false)); setRelicMats(s.relicMats ?? 0); setRouletteCleared(s.rouletteCleared ?? false); setNextRouletteClaimAt(s.nextRouletteClaimAt ?? 0); setShopResetAt(s.shopResetAt ?? 0); setShopPurchases(s.shopPurchases ?? {});
       // mail3/4/5 usam chaves v2 — não carrega valores antigos do save cloud para forçar reaparição
       setMailIniciante(prev => prev || (s.mailIniciante ?? false));
@@ -2145,7 +2148,7 @@ function Game({ email, isAdmin, onLogout }) {
 
   useEffect(() => {
     if (!loaded) return;
-    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredSpecial, featuredStandard, featuredWeapon, activeTitle, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed, mail8Claimed });
+    writeSave(SAVE_KEY, { jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredSpecial, featuredStandard, featuredWeapon, activeTitle, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, rouletteCleared, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed, mail8Claimed, convergenciaProgress, convergenciaRewardClaimed });
     setLastSavedAt(Date.now());
   }, [loaded, SAVE_KEY, jade, chronicles, charTickets, weaponTickets, standardTickets, featuredChar, featuredSpecial, featuredStandard, featuredWeapon, activeTitle, pity, pullHistory, owned, ownedWeapons, relicInv, team, teamPresets, stamina, lastStamina, playerName, images, towerCleared, towerClaimed, towerSeason, towerTop1Claimed, darkTowerCleared, darkTowerClaimed, expItems, bossMats, ascMats, weaponMats, skillMats, tagMats, lastWeeklyBoss, dailyClaimedAt, weeklyClaimedAt, bossRushCleared, draftRoomCleared, draftClaimedGems, draftBoons, mailClaimed, mail2Claimed, relicMats, shopResetAt, shopPurchases, mail3Claimed, mail3CharPicked, nextRouletteClaimAt, espiralClearedAt, abismoRun, abismoFrags, abismoMeta, abismoFirstClears, abismoWeekly, mailIniciante, mail4Claimed, mail5Claimed, mail6Claimed, mail7Claimed, mail8Claimed]);
 
@@ -2499,6 +2502,7 @@ function Game({ email, isAdmin, onLogout }) {
   }
   function startBossRush(bossId) { setPendingBoss(bossId); }
   function launchBossRush(bossId, customTeam) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===bossId;}); if (!bd) return; setPendingBoss(null); setBattle({ context: "bossrush", bossId: bossId, customTeam: customTeam||null, encounter: { bossRush: true, bossId: bossId, level: bd.level, count: 1, boss: true, bossName: bd.name, bossElement: bd.element, bossKind: bd.kind, bossImgId: bd.imgKey, teamPower: teamPower() }, ally: null }); }
+  function launchConvergencia(bossId, customTeam) { const bd = CONVERGENCIA_BOSSES.find(function(b){return b.id===bossId;}); if (!bd) return; setBattle({ context: "convergencia", bossId: bossId, customTeam: customTeam||null, encounter: { convergencia: true, bossId: bossId, level: bd.level, count: 1, boss: true, bossName: bd.name, bossElement: bd.element, bossKind: bd.kind, bossImgId: bd.imgKey, teamPower: teamPower() }, ally: null }); }
 
   function startDraftRoom(roomIdx, draftTeamIds) {
     if (!draftActive) { flash("A Catacumba não está ativa no momento.", C.bad); return; }
@@ -2800,6 +2804,23 @@ function Game({ email, isAdmin, onLogout }) {
         });
       }
       if (result.win && !bossRushCleared.includes(b.bossId)) { setBossRushCleared(function(prev){return [...prev, b.bossId];}); const _bd = BOSS_RUSH_BOSSES.find(x => x.id === b.bossId); const _rw = (_bd && _bd.reward) || 1000; setJade(function(j){return j + _rw;}); flash("Boss Rush concluido! +" + _rw + "💎", C.gold); } else if (result.win) { flash("Boss ja foi derrotado — sem recompensa extra.", C.mute); } else { flash("Voce foi derrotado no Boss Rush...", C.bad); }
+    } else if (b.context === "convergencia") {
+      if (result.win) {
+        setConvergenciaProgress((prev) => {
+          const next = { ...prev, [b.bossId]: true };
+          const allDone = CONVERGENCIA_BOSSES.every((cb) => next[cb.id]);
+          if (allDone && !convergenciaRewardClaimed) {
+            setConvergenciaRewardClaimed(true);
+            setJade((j) => j + 25000);
+            setTimeout(() => flash("🌌 CONVERGÊNCIA COMPLETA! Os 3 Guardiões caíram — +25.000 💎!", C.gold), 400);
+          } else {
+            flash(`✅ ${CONVERGENCIA_BOSSES.find((c) => c.id === b.bossId)?.name || "Chefe"} derrotado!`, C.good);
+          }
+          return next;
+        });
+      } else {
+        flash("Você foi derrotado na Convergência Tríplice... o time volta intacto, tente de novo.", C.bad);
+      }
     }
   }
   // Corrige bug: "Farmar de novo" / "Jogar Novamente" só reiniciava a MESMA batalha sem processar a recompensa
@@ -2869,6 +2890,7 @@ function Game({ email, isAdmin, onLogout }) {
               {screen === "tower" && <Tower towerCleared={towerCleared} towerClaimed={towerClaimed} start={startTower} team={team} flash={flash} />}
               {screen === "darktower" && <DarkTowerScreen darkTowerCleared={darkTowerCleared} darkTowerClaimed={darkTowerClaimed} start={startDarkTower} team={team} flash={flash} />}
               {screen === "weekly" && <WeeklyBoss start={startWeekly} stamina={stamina} bossMats={bossMats} lastWeeklyBoss={lastWeeklyBoss} startAscension={startAscension} ascMats={ascMats} />}
+              {screen === "convergencia" && <ConvergenciaScreen owned={owned} launch={launchConvergencia} progress={convergenciaProgress} rewardClaimed={convergenciaRewardClaimed} stamina={stamina} flash={flash} />}
               {screen === "coop" && (
                 <Panel glow="#FF8A5C">
                   <div style={{ textAlign: "center", padding: "24px 8px" }}>
@@ -3396,6 +3418,52 @@ function Farm({ stamina, start, expItems, startTagDungeon, tagMats, weaponMats, 
       </div>
     </Panel>
   </div>;
+}
+function ConvergenciaScreen({ owned, launch, progress, rewardClaimed, stamina, flash }) {
+  const cleared = CONVERGENCIA_BOSSES.filter((b) => progress[b.id]).length;
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel glow="#B98BFF" style={{ position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(420px 200px at 90% 0%, #6B21A833, transparent)" }} />
+        <div style={{ position: "relative" }}>
+          <div style={{ ...ORB, fontWeight: 900, fontSize: 20 }}>🌌 Convergência Tríplice</div>
+          <div style={{ fontSize: 13, color: C.mute, marginTop: 4, lineHeight: 1.6 }}>
+            Três Guardiões, cada um exigindo uma abordagem diferente. Todos são resistentes à maioria dos elementos — Sagrado e Caos especialmente — então times de um elemento só não bastam aqui. Não custa Stamina.
+          </div>
+          <div className="flex items-center gap-2 mt-3">
+            <Bar value={cleared} max={3} color="#B98BFF" />
+            <span style={{ fontSize: 12, color: C.mute, whiteSpace: "nowrap" }}>{cleared}/3</span>
+          </div>
+          {rewardClaimed ? (
+            <div style={{ marginTop: 10, fontSize: 13, color: C.good, fontWeight: 700 }}>✅ Recompensa de 25.000 💎 já resgatada — os 3 Guardiões continuam disponíveis pra reentrar sem recompensa extra.</div>
+          ) : (
+            <div style={{ marginTop: 10, fontSize: 13, color: C.gold, fontWeight: 700 }}>🎁 Derrote os 3 pela primeira vez para receber 25.000 💎 de uma vez.</div>
+          )}
+        </div>
+      </Panel>
+      {CONVERGENCIA_BOSSES.map((b) => {
+        const done = !!progress[b.id];
+        return (
+          <Panel key={b.id} style={{ padding: 14, opacity: done ? 0.85 : 1 }}>
+            <div className="flex items-center gap-3">
+              <div style={{ fontSize: 34 }}>{b.avatar}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 800, fontSize: 15 }}>{b.name} {done && <span style={{ color: C.good, fontSize: 12 }}>✓ Derrotado</span>}</div>
+                <div style={{ fontSize: 11, color: C.mute }}>{ELEMENTS[b.element]?.glyph} {b.element} · Nv {b.level} · {fmtNum(b.hp)} HP</div>
+              </div>
+            </div>
+            <div style={{ fontSize: 12, color: C.mute, marginTop: 8, fontStyle: "italic" }}>{b.lore}</div>
+            <div className="flex flex-col gap-1 mt-2">
+              {b.mechanics.map((m, i) => <div key={i} style={{ fontSize: 11, color: C.text, opacity: 0.85 }}>⚠️ {m}</div>)}
+            </div>
+            <Btn kind={done ? "soft" : "primary"} style={{ width: "100%", marginTop: 10 }} onClick={() => { if (!owned.length) { flash("Monte um time antes de entrar.", C.bad); return; } launch(b.id); }}>
+              {done ? "Reentrar (sem recompensa extra)" : "⚔️ Entrar na luta"}
+            </Btn>
+          </Panel>
+        );
+      })}
+    </div>
+  );
 }
 function WeeklyBoss({ start, stamina, bossMats, lastWeeklyBoss, startAscension, ascMats }) {
   const ready = Date.now() - lastWeeklyBoss > 7 * 24 * 3600 * 1000;
@@ -5836,6 +5904,7 @@ function makeEnemy(idx, enc) {
   const def = Math.round(lvl * 6 * _comp + power * 0.012 + (boss ? lvl * 4 * _comp : 0)); // DEF também por nível (HSR)
   const spd = 102 + idx * 3 + (boss ? 14 : 4);
   if (enc.bossRush && idx === 0) { const bd = BOSS_RUSH_BOSSES.find(function(b){return b.id===enc.bossId;}); if (bd) { const atkBr = Math.round(3300 + (enc.level||90) * 11); const defBr = Math.round(2450 + (enc.level||90) * 8); return { uid: "E0", side: "enemy", name: bd.name, bossTitle: bd.lore, bossImgId: bd.imgKey, avatar: bd.avatar, element: bd.element, level: bd.level, roleKey: "dps", bossKind: bd.kind, boss: true, finalBoss: false, weekly: false, ascend: false, elite: false, res: bd.res || [], weak: bd.weak || [], base: { atk: atkBr, def: defBr, spd: 112, critRate: 15, critDmg: 60, dmgBonus: 0 }, hp: bd.hp, maxHp: bd.hp, shield: 0, av: 10000 / 112, buffs: [], debuffs: [], dots: [], alive: true, actCount: 0, _hasToughness: (bd.weak || []).length > 0, toughness: 150, maxToughness: 150 }; } }
+  if (enc.convergencia && idx === 0) { const bd = CONVERGENCIA_BOSSES.find(function(b){return b.id===enc.bossId;}); if (bd) { const atkCv = Math.round(3600 + (enc.level||96) * 12); const defCv = Math.round(2700 + (enc.level||96) * 9); return { uid: "E0", side: "enemy", name: bd.name, bossTitle: bd.lore, bossImgId: bd.imgKey, avatar: bd.avatar, element: bd.element, level: bd.level, roleKey: "dps", bossKind: bd.kind, boss: true, finalBoss: false, weekly: false, ascend: false, elite: false, res: bd.res || [], weak: bd.weak || [], base: { atk: atkCv, def: defCv, spd: 115, critRate: 18, critDmg: 65, dmgBonus: 0 }, hp: bd.hp, maxHp: bd.hp, shield: 0, av: 10000 / 115, buffs: [], debuffs: [], dots: [], alive: true, actCount: 0, _hasToughness: (bd.weak || []).length > 0, toughness: 180, maxToughness: 180 }; } }
   const bossEl = enc.bossElement || pick(ELEMENT_NAMES);
   const name = ascend ? (enc.bossName || "Guardião da Ascensão") : weekly ? (enc.bossName || "Tirano do Vazio") : finalBoss ? "Soberano do Vazio" : boss ? "Guardião do Andar" : "Aberração " + (idx + 1);
   // Alguns chefes têm RESISTÊNCIA (1-3 elementos) e FRAQUEZA (1-2 elementos)
@@ -5994,6 +6063,41 @@ function effStat(u, key) {
 function vulnOf(u) { let v = 0; for (const b of u.debuffs) if (b.stat === "vuln") v += b.value; return v; }
 function defMult(attacker, defenderDef) { const lvl = (attacker && attacker.level) || 50; const d = Math.max(0, defenderDef || 0); return 1 - d / (d + 200 + 10 * lvl); }
 /* ---------- BOSS RUSH BOSSES ---------- */
+const CONVERGENCIA_BOSSES = [
+  {
+    id: "arquivista", name: "O Arquivista Sem Rosto", avatar: "📜", imgKey: "boss_arquivista",
+    hp: 45000000, element: "Holy", level: 95,
+    lore: "Guardião de um arquivo que não deveria existir. Suas Sentinelas de Arquivo protegem seus segredos com a própria vida — matar na ordem errada só as fortalece.",
+    mechanics: [
+      "Invoca 3 Sentinelas de Arquivo (elementos diferentes). Enquanto qualquer uma estiver viva, o Arquivista recebe -35% de dano.",
+      "Matar uma Sentinela fora da ordem certa (indicada no log a cada rodada) dá Escudo às sentinelas restantes.",
+      "Resistente a quase todos os elementos — só a fraqueza indicada nas Sentinelas rende dano cheio.",
+    ],
+    kind: "arquivista", weak: ["Vento"], res: ["Holy", "Chaos", "Fogo", "Virus", "Eletro", "Glacial"],
+  },
+  {
+    id: "engrenagem", name: "A Engrenagem que Nunca Para", avatar: "⚙️", imgKey: "boss_engrenagem",
+    hp: 50000000, element: "Eletro", level: 96,
+    lore: "Uma máquina de guerra que não conhece parada. Cada engrenagem extra que ela solta é mais um motivo pra ela girar mais rápido.",
+    mechanics: [
+      "A cada 3 ações, invoca 2 Engrenagens Menores automaticamente.",
+      "Ganha +8 de VEL para cada minion vivo em campo — deixar a tela encher é deixar ela mais rápida.",
+      "Acumula Sobrecarga sozinha; ao chegar a 100%, cura 30% do HP máximo. Só reseta quebrando a fraqueza dela (que muda a cada quebra).",
+    ],
+    kind: "engrenagem", weak: ["Eletro"], res: ["Holy", "Chaos", "Fogo", "Vento", "Virus", "Glacial"],
+  },
+  {
+    id: "eco_juizo", name: "O Eco do Juízo Final", avatar: "⚖️", imgKey: "boss_eco",
+    hp: 55000000, element: "Chaos", level: 97,
+    lore: "Um eco que julga quem concentra poder demais em si. Ele não pune o time — pune quem tenta carregar sozinho.",
+    mechanics: [
+      "Se um único personagem causar mais de 40% do dano total da luta, reflete 25% do próximo golpe dele nele mesmo.",
+      "Times balanceados (dano bem distribuído) evitam o reflexo por completo.",
+      "Resistente a quase todos os elementos — pune hipercarregamento em qualquer composição.",
+    ],
+    kind: "eco_juizo", weak: ["Fogo"], res: ["Holy", "Chaos", "Vento", "Virus", "Eletro", "Glacial"],
+  },
+];
 const BOSS_RUSH_BOSSES = [
   {
     id: "aizen", name: "Sōsuke Aizen", avatar: "\uD83D\uDDE1\uFE0F", imgKey: "boss_aizen",
@@ -6051,6 +6155,14 @@ function applyBreakEffect(attacker, defender, el, fx) {
   defender.hp = Math.max(0, defender.hp - breakDmg);
   if (defender.hp <= 0) defender.alive = false;
   fx.push({ uid: defender.uid, txt: "💢 PERFURAÇÃO! " + breakDmg, crit: true, id: Math.random(), el });
+  // Convergência Tríplice — A Engrenagem que Nunca Para: quebrar a fraqueza reduz o acúmulo de Engrenagens e desconta a Sobrecarga
+  if (defender.bossKind === "engrenagem") {
+    defender._engGears = Math.max(0, (defender._engGears || 0) - 2);
+    defender.buffs = (defender.buffs || []).filter((b) => b.name !== "Engrenagens Girando");
+    if (defender._engGears > 0) defender.buffs.push({ stat: "spd", value: defender._engGears * 8, turns: 9999, name: "Engrenagens Girando" });
+    defender._engOverload = Math.max(0, (defender._engOverload || 0) - 35);
+    fx.push({ uid: defender.uid, txt: "⚙️ Engrenagens travadas!", id: Math.random() });
+  }
   if (!defender.alive) return;
   // Atraso de ação base +25%; Holy/Chaos/Glacial escalam com o Efeito de Perfuração (cap 3.5x total)
   const isControl = el === "Holy" || el === "Chaos" || el === "Glacial";
@@ -6706,6 +6818,34 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   }
   if (defender.shield > 0 && !opts?.pierceShield && !attacker._ignoresShield) { const shBefore = defender.shield; const a = Math.min(defender.shield, dmg); dmg = drainShield(defender, dmg); if (shBefore > 0 && defender.shield === 0 && defender.id === "omegamon" && defender.stFlags && defender.stFlags.omgContagio && attacker.side !== "H") { attacker.dots = attacker.dots || []; if (!attacker.dots.some(function(d){return d.type==="corrosao";})) attacker.dots.push({ type: "corrosao", dmg: Math.max(1, Math.round(defender.base.atk * 0.35)), turns: 2 }); fx.push({ uid: attacker.uid, txt: "CORROSAO", dot: "corrosao", id: Math.random() }); } }
   else if (defender.shield > 0 && attacker._ignoresShield && !opts?.pierceShield) { fx.push({ uid: defender.uid, txt: "ESCUDO IGNORADO!", crit: true, id: Math.random(), el: "Chaos" }); }
+  // ── Convergência Tríplice — O Eco do Juízo Final: pune hipercarregamento num só personagem ──
+  if (dmg > 0 && defender.bossKind === "eco_juizo" && attacker.side === "H" && !attacker.isSummon) {
+    const key = attacker.id === "ichigo" && attacker._ichMugetsu ? "ichigo_mugetsu" : attacker.id; // Forma Mugetsu conta separado — folga real pro Ichigo
+    defender._ecoDmgByHero = defender._ecoDmgByHero || {};
+    defender._ecoTotal = (defender._ecoTotal || 0) + dmg;
+    defender._ecoDmgByHero[key] = (defender._ecoDmgByHero[key] || 0) + dmg;
+    if (defender._ecoTotal > 0 && (defender._ecoDmgByHero[key] / defender._ecoTotal) > 0.40) {
+      defender._ecoMarked = defender._ecoMarked || {};
+      defender._ecoMarked[key] = true;
+    }
+    if (defender._ecoMarked?.[key] && !opts?.isEcoReflect) {
+      const reflect = Math.round(dmg * 0.25);
+      attacker.hp = Math.max(attacker.boss ? 1 : 0, attacker.hp - reflect);
+      if (!attacker.boss && attacker.hp <= 0) attacker.alive = false;
+      fx.push({ uid: attacker.uid, txt: "⚖️ -" + reflect, id: Math.random() });
+      delete defender._ecoMarked[key]; // reflete uma vez, depois reavalia na próxima checagem de %
+    }
+  }
+  // ── Convergência Tríplice — O Arquivista Sem Rosto: selos que reduzem dano, quebram em marcos de HP, punem burst ──
+  if (dmg > 0 && defender.bossKind === "arquivista") {
+    if (defender._arqSeals == null) defender._arqSeals = 3;
+    if (defender._arqSeals > 0) dmg = Math.round(dmg * (1 - defender._arqSeals * 0.12));
+    const burstThreshold = Math.round(defender.maxHp * 0.15);
+    if (dmg > burstThreshold && !opts?.isEcoReflect) {
+      defender.shield = (defender.shield || 0) + Math.round(defender.maxHp * 0.03);
+      fx.push({ uid: defender.uid, txt: "🛡️ Selo Retaliatório!", id: Math.random() });
+    }
+  }
   defender.hp -= dmg;
   if (defender._dummy) { defender.hp = defender.maxHp; defender.alive = true; } // Boneco de Treino: HP infinito, só serve pra medir dano
   // Ichigo — Instabilidade Hollow: tomar dano concede Fragmento do Dangai (1x/turno inimigo sem E1, ilimitado com E1)
@@ -9839,6 +9979,34 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       }
       tickDots(u, s.fx, s.heroes.filter((h) => h.alive));
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
+      // ── Convergência Tríplice — O Arquivista Sem Rosto: selos quebram em marcos de HP ──
+      if (u.alive && u.boss && u.bossKind === "arquivista") {
+        if (u._arqSeals == null) u._arqSeals = 3;
+        const hpPct = u.hp / u.maxHp;
+        const marks = [0.75, 0.50, 0.25];
+        u._arqMarksHit = u._arqMarksHit || [];
+        for (const m of marks) {
+          if (hpPct <= m && !u._arqMarksHit.includes(m) && u._arqSeals > 0) {
+            u._arqMarksHit.push(m); u._arqSeals--;
+            pushLog(s, `📜 Um Selo do Arquivo se rompe! (${u._arqSeals} restante${u._arqSeals === 1 ? "" : "s"}) — a redução de dano do Arquivista diminui.`);
+          }
+        }
+      }
+      // ── Convergência Tríplice — A Engrenagem que Nunca Para: "invocações" simuladas como acúmulo de VEL + Sobrecarga que cura ──
+      if (u.alive && u.boss && u.bossKind === "engrenagem") {
+        if (u.actCount % 3 === 0 && u.actCount > 0) {
+          u._engGears = Math.min(6, (u._engGears || 0) + 2);
+          u.buffs = u.buffs.filter((b) => b.name !== "Engrenagens Girando");
+          u.buffs.push({ stat: "spd", value: u._engGears * 8, turns: 9999, name: "Engrenagens Girando" });
+          pushLog(s, `⚙️ Mais Engrenagens entram em rotação! (${u._engGears}/6) — +${u._engGears * 8} de VEL total. Quebrar a fraqueza dela reduz esse acúmulo.`);
+        }
+        u._engOverload = (u._engOverload || 0) + 7;
+        if (u._engOverload >= 100) {
+          u._engOverload = 0;
+          const heal = Math.round(u.maxHp * 0.30); u.hp = Math.min(u.maxHp, u.hp + heal);
+          pushLog(s, `🔋 SOBRECARGA! A Engrenagem cura ${heal} de HP. Quebre a fraqueza dela pra resetar essa barra mais cedo!`);
+        }
+      }
       // ══ Mecânicas exclusivas dos chefes da Ascensão Estelar (andares 201–450) ══
       switch (u.bossKind) {
         case "temporal": { // Kronarch: acelera a cada turno e rouba a ação de quem for mais lento
