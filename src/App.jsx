@@ -246,6 +246,9 @@ const RELIC_SETS = {
   "Traje do Astrólogo do Destino": { color: "#D4A017", el: "Holy", p2: { energyRegen: 15 }, flag2: "setAstrologo2", flag4: "setAstrologo4",
     d2: "+15% de Eficiência de Recarga de Energia · ao usar a Perícia, compartilha 10% do atributo mais alto (ATK ou DEF) com o aliado de menor HP por 2 rodadas",
     d4: "Cada Acerto Crítico de qualquer aliado gera 1 Energia Estelar pro portador (máx 8). Ao atingir 8 acúmulos: ativa Apogeu do Zodíaco — concede +30% de CRIT DMG a todo o time por 1 rodada. Ideal para Athena." },
+  "Vestígios do Shinigami Renegado": { color: "#1A1A2E", el: "Unknown", p2: { atk: 12 }, flag4: "setRenegado4",
+    d2: "+12% de ATQ",
+    d4: "Ao entrar em Forma Mugetsu, o portador ganha Fúria Reprimida: os primeiros 3 ataques aprimorados (Básico ou Perícia) usados nessa transformação recebem +35% de Dano CRÍTICO cada. Ao usar a Perícia comum (Fase Shinigami), há 35% de chance de não consumir Ponto de Perícia. Se a Perícia aprimorada (Kuroi Getsuga) for usada 2 ou mais vezes durante a Forma Mugetsu, o Getsuga Final que encerra a transformação ignora +15% de DEF adicional. Ideal para Ichigo Kurosaki." },
   "Muralha do Guardião": { color: "#4FC3F7", el: "Holy", p2: { shieldBonus: 30 }, flag2: "setMuralha2",
     d2: "+30% no valor de todos os Escudos gerados pelo portador — toda barreira criada pela Habilidade, Ultimate ou efeito passivo absorve 30% a mais de dano. Ideal para personagens que geram escudos (Kirara, Omegamon etc.).",
     d4: null },
@@ -1951,6 +1954,7 @@ const ORB = { fontFamily: "Orbitron, ui-sans-serif, system-ui, sans-serif" };
 function Game({ email, isAdmin, onLogout }) {
   const SAVE_KEY = useMemo(() => saveKeyFor(email), [email]);
   const [loaded, setLoaded] = useState(false);
+  const levelUpBusyRef = useRef(false);
   const [lastSavedAt, setLastSavedAt] = useState(0);
   const [screen, setScreen] = useState("home");
   const [toast, setToast] = useState(null);
@@ -2268,6 +2272,9 @@ function Game({ email, isAdmin, onLogout }) {
     setOwnedField(id, { level: Math.min(cap, o.level + 1) });
   }
   function levelUpMax(id) {
+    if (levelUpBusyRef.current) return; // trava contra clique duplo rápido (evitava dobrar o gasto de XP incorretamente)
+    levelUpBusyRef.current = true;
+    setTimeout(() => { levelUpBusyRef.current = false; }, 400);
     const o = ownedMap[id]; if (!o) return;
     const cap = levelCap(o.asc || 0);
     if (o.level >= cap) { flash(o.level >= MAX_LEVEL ? "Nível máximo (90)" : `Ascenda primeiro para passar do nível ${cap}`, C.bad); return; }
@@ -6829,7 +6836,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
       defender._ecoMarked[key] = true;
     }
     if (defender._ecoMarked?.[key] && !opts?.isEcoReflect) {
-      const reflect = Math.round(dmg * 0.25);
+      const reflect = 800;
       attacker.hp = Math.max(attacker.boss ? 1 : 0, attacker.hp - reflect);
       if (!attacker.boss && attacker.hp <= 0) attacker.alive = false;
       fx.push({ uid: attacker.uid, txt: "⚖️ -" + reflect, id: Math.random() });
@@ -6845,6 +6852,10 @@ function dealDamage(attacker, defender, mult, fx, opts) {
       defender.shield = (defender.shield || 0) + Math.round(defender.maxHp * 0.03);
       fx.push({ uid: defender.uid, txt: "🛡️ Selo Retaliatório!", id: Math.random() });
     }
+  }
+  // ── Torre: Espelho de Nyx — acumula dano recebido pra refletir no próprio turno ──
+  if (dmg > 0 && defender.bossKind === "espelho") {
+    defender._espDmgTaken = (defender._espDmgTaken || 0) + dmg;
   }
   defender.hp -= dmg;
   if (defender._dummy) { defender.hp = defender.maxHp; defender.alive = true; } // Boneco de Treino: HP infinito, só serve pra medir dano
@@ -10021,6 +10032,26 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         case "tirano": { // Tirano: fica mais forte a cada turno, sem teto
           u._tir = (u._tir || 0) + 1; u.buffs.push({ stat: "dmgBonus", value: 15, turns: 9999, name: "Tirania" });
           s.fx.push({ uid: u.uid, txt: `👑 TIRANIA ${u._tir}`, crit: true, id: Math.random(), el: "Chaos" });
+          break; }
+        case "devorador": { // Devorador de Égides: consome escudos aliados pra se curar
+          const shd = s.heroes.filter(h => h.alive && (h.shield || 0) > 0);
+          if (shd.length) { const t = shd[0]; const eaten = Math.min(t.shield, Math.round(u.maxHp * 0.04)); t.shield -= eaten; const heal = eaten * 2; u.hp = Math.min(u.maxHp, u.hp + heal); pushLog(s, `🍽️ ${u.name} devora o Escudo de ${t.name} e recupera ${heal} de HP!`); }
+          else { u.buffs.push({ stat: "atk", value: 6, pct: true, turns: 9999, name: "Fome Crescente" }); pushLog(s, `😋 Sem escudos pra devorar — ${u.name} fica faminto e mais forte (+6% ATQ permanente).`); }
+          break; }
+        case "espelho": { // Espelho de Nyx: reflete uma porção do dano recebido no turno anterior
+          const refl = Math.round((u._espDmgTaken || 0) * 0.20);
+          if (refl > 0) { const tgt = s.heroes.filter(h => h.alive)[0]; if (tgt) { tgt.hp = Math.max(0, tgt.hp - refl); s.fx.push({ uid: tgt.uid, txt: "🪞 -" + refl, id: Math.random() }); pushLog(s, `🪞 O Espelho devolve ${refl} de dano refletido!`); } }
+          u._espDmgTaken = 0;
+          break; }
+        case "juiz": { // Juiz Escarlate: aplica um veredito que pune quem não atacar ele no próprio turno seguinte
+          const alvo = s.heroes.filter(h => h.alive)[Math.floor(Math.random() * s.heroes.filter(h => h.alive).length)];
+          if (alvo) { alvo.debuffs.push({ stat: "vuln", value: 18, turns: 2, name: "Veredito Escarlate" }); pushLog(s, `⚖️ ${u.name} lê o Veredito sobre ${alvo.name} — +18% de dano recebido por 2 turnos!`); }
+          break; }
+        case "colosso": { // Colosso de Gaia: acumula DEF quanto mais turnos sobrevive
+          u._colDef = (u._colDef || 0) + 1;
+          u.buffs = u.buffs.filter(b => b.name !== "Postura de Pedra");
+          u.buffs.push({ stat: "def", value: Math.min(60, u._colDef * 6), pct: true, turns: 9999, name: "Postura de Pedra" });
+          s.fx.push({ uid: u.uid, txt: `🗿 +${Math.min(60, u._colDef * 6)}% DEF`, id: Math.random() });
           break; }
         case "leviata": { // Leviatã: regenera HP todo turno, a menos que esteja com a barra quebrada
           if (!u._broken) { const hl = Math.round(u.maxHp * 0.06); u.hp = Math.min(u.maxHp, u.hp + hl); s.fx.push({ uid: u.uid, txt: "🌊 +" + hl, heal: true, id: Math.random() }); }
