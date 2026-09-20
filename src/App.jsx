@@ -182,7 +182,7 @@ const WEAPONS = [
   { id: "hailstorm",        name: "Nevasca de Outono",     rarity: 5, role: "aoe",      atk: 700, critRate: 30.0, critDmg: 52.0,    passive: "Fio do Zero Absoluto: DoTs de Geada amplificados. Apos a Habilidade, +24% Bonus de Dano por 2 turnos.",                         buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
   { id: "thunderclaws",     name: "Garras do Trovao",      rarity: 5, role: "dps",      atk: 850, critRate: 38.0,                   passive: "Descarga Predatoria: apos a Habilidade, +20% de VEL por 2 turnos.",                                                             buff: { onSkill: { spd: 20, turns: 2 } } },
   { id: "tensa_zangetsu", name: "Tensa Zangetsu", rarity: 5, role: "dps", atk: 700, def: 350, critRate: 18.0, passive: "Eco do Corte Perdido: aumenta o ATQ do usuario em 30%. Ao usar a Pericia em Fase Shinigami, existe 55% de chance de conceder 1 Fragmento do Dangai adicional (nao afeta a Pericia aprimorada da Forma Mugetsu). O primeiro Ataque Basico aprimorado de cada Forma Mugetsu nao consome Reserva. O golpe final da Forma Mugetsu causa 28% de dano adicional.", buff: { ichWeapon: true } },
-  { id: "ampulheta_invertida", name: "Ampulheta Invertida", rarity: 5, role: "dps", atk: 756, critDmg: 58.0, passive: "Toda Marca do Fim Selado plantada pelo portador nasce com 1 turno a menos de duracao natural. Sempre que uma Marca detonar (por expiracao ou pela Suprema), o portador ganha +8% de ATQ por 2 turnos (acumula ate 4x). Ao usar a Suprema com 3+ acumulos ativos, todos sao consumidos e convertidos em Dano Verdadeiro imediato equivalente a 60% do ATQ em cada inimigo, antes da sequencia normal da Suprema.", buff: { achWeapon: true } },
+  { id: "ampulheta_invertida", name: "Ampulheta Invertida", rarity: 5, role: "dps", atk: 756, critDmg: 58.0, passive: "Toda Marca do Fim Selado plantada pelo portador nasce com 1 turno a menos de duração natural (2 em vez de 3) — o relógio corre mais rápido, então as detonações naturais chegam antes. Em troca, sempre que uma Marca detona (por expiração, aceleração do Básico ou pela Suprema) o portador ganha +8% de ATQ por 2 turnos, acumulando até 4 vezes (+32% de ATQ no máximo). Ao usar a Suprema com 3 ou mais acúmulos ativos, todos são consumidos e convertidos em Dano Verdadeiro imediato equivalente a 60% do ATQ em cada inimigo, antes da sequência normal da Suprema — o dano ignora DEF e transforma o ritmo acelerado das Marcas numa abertura devastadora.", buff: { achWeapon: true } },
   { id: "originpistol",     name: "Pistola da Origem",     rarity: 5, role: "debuffer", atk: 840, critDmg: 58.8, extraDefDown: 14,  passive: "Mira Calculada: debuffs reduzem +14% de DEF adicional do alvo." },
   { id: "starmantle",       name: "Manto Estelar",         rarity: 5, role: "shield",   atk: 476, def: 476, shieldBonus: 52,        passive: "Barreira Estelar: +52% no valor dos Escudos gerados pelo portador." },
   { id: "ferrao_borboleta", name: "Ferrao da Borboleta",   rarity: 5, role: "dps",      atk: 840, spd: 36.0, critRate: 36.0,        passive: "Carga Eletrica: acumula 1 carga por golpe de Vento (max 5). Cada carga +10% dano follow-up. Na Postura de Ferrao, consome todas e concede +24% Dano Verdadeiro por carga. Exclusivo: Soi Fon." },
@@ -255,7 +255,7 @@ const RELIC_SETS = {
     d4: "Ao entrar em Forma Mugetsu, o portador ganha Fúria Reprimida: os primeiros 3 ataques aprimorados (Básico ou Perícia) usados nessa transformação recebem +35% de Dano CRÍTICO cada. Ao usar a Perícia comum (Fase Shinigami), há 35% de chance de não consumir Ponto de Perícia. Se a Perícia aprimorada (Kuroi Getsuga) for usada 2 ou mais vezes durante a Forma Mugetsu, o Getsuga Final que encerra a transformação ignora +15% de DEF adicional. Ideal para Ichigo Kurosaki." },
   "Cinzas do Amanhã Que Não Vem": { color: "#FFD700", el: "Eletro", p2: { critDmg: 20 }, flag4: "setCinzas4",
     d2: "+20% de Dano CRÍTICO",
-    d4: "Ao usar a Suprema, todas as Marcas do Fim Selado ativas detonam com +50% de dano adicional cada. Toda vez que uma Marca detonar (por qualquer fonte), o portador ganha 1 acúmulo de Ecoar do Fim (máximo 6, dura a batalha inteira) — cada acúmulo concede +6% de Dano CRÍTICO e +4% de ATQ, permanentes. Ao atingir 6 acúmulos, a próxima Suprema usada é garantidamente CRÍTICA em todos os hits e ignora 30% de DEF e 20% de Resistência de todos os alvos atingidos. Ideal para Acheron." },
+    d4: "Ao usar a Suprema, todas as Marcas do Fim Selado ativas detonam com +50% de dano adicional cada. Toda vez que uma Marca detonar (por qualquer fonte: contagem natural, Básico ou Suprema), o portador ganha 1 acúmulo de Ecoar do Fim (máximo 6, dura a batalha inteira) — cada acúmulo concede +6% de Dano CRÍTICO e +4% de ATQ, permanentes (até +36% de Dano CRÍTICO e +24% de ATQ). Ao atingir 6 acúmulos, a próxima Suprema usada é garantidamente CRÍTICA em todos os hits e ignora 30% de DEF e 20% de Resistência de todos os alvos atingidos; o empoderamento é consumido ao usar e volta a ser ganho se os 6 acúmulos forem completados de novo. Ideal para Acheron." },
   "Muralha do Guardião": { color: "#4FC3F7", el: "Holy", p2: { shieldBonus: 30 }, flag2: "setMuralha2",
     d2: "+30% no valor de todos os Escudos gerados pelo portador — toda barreira criada pela Habilidade, Ultimate ou efeito passivo absorve 30% a mais de dano. Ideal para personagens que geram escudos (Kirara, Omegamon etc.).",
     d4: null },
@@ -590,7 +590,7 @@ const PASSIVE = {
   gilgamesh: { name: "Rei dos Heróis", desc: "Sempre que Gilgamesh causar dano, executar Ataque Extra, derrotar um inimigo ou consumir Tesouros, recebe Autoridade Real (máximo: 12). Ao atingir o máximo, entra automaticamente em Trono do Rei por 2 turnos. Enquanto ativo: todos os ataques sempre causam CRÍTICO, +140% Dano CRÍTICO, +50 Velocidade, ataques ignoram Escudos, e Ataques Extras ignoram 40% DEF. Além disso, cada Ataque Extra executa imediatamente Tesouro Celestial: dispara 6 armas, cada uma causando 90% do ATQ, e cada arma possui um efeito aleatório — causar dano adicional, gerar Tesouro, recuperar 3 Energia, reduzir DEF do alvo em 10% por 2 turnos, ou reduzir Resistência Unknown em 10% por 2 turnos. Quando Tesouro Celestial for executado três vezes, Gilgamesh dispara automaticamente Ea Fragmentada: um corte dimensional causando 450% do ATQ em todos os inimigos. — Mecânica Exclusiva · Portão da Babilônia: recurso exclusivo chamado Tesouros Reais (máximo inicial: 16). Obtém Tesouros ao usar Ataque Básico (+1), Perícia (+4), Ataque Extra (+1), derrotar um inimigo (+2) e Suprema (+8). Ao atingir 16 Tesouros, entra automaticamente em Reinado Dourado por 3 turnos: todos os ataques se tornam Dano Unknown, Ataques Extras ignoram 30% DEF, todo Ataque Extra gera outro disparo do Portão (máximo de 3 cadeias), o limite passa para 30 Tesouros e cada Tesouro acima de 16 aumenta o dano em 4%. — Técnica · A Chave do Rei: antes da batalha, obtém 10 Tesouros, recupera 70 de Energia e ativa imediatamente o Portão da Babilônia. Nos dois primeiros turnos, todos os Ataques Extras disparam o dobro de armas.", flag: "gilTalent" },
   altersaber: { name: "O Rei Nunca Cai", desc: "Talento: sempre que Alter Saber acertar um CRÍTICO, executar um Ataque Extra, derrotar um inimigo ou usar a Suprema, recebe uma Marca do Rei (máx 10). Ao atingir 10 marcas, todas são consumidas e ela entra automaticamente em Reino Absoluto por 2 turnos: todos os ataques SEMPRE causam CRIT, +140% de Dano CRÍTICO, +40% de Penetração de Resistência, +50 de Velocidade, ataques ignoram Escudos, e cada golpe cria uma Cópia Espectral (55% do dano do ataque original; a cada 3ª cópia, dispara Excalibur Negra: 300% do ATQ em Dano Chaos em todos os inimigos). Mecânica exclusiva — Reino da Ruína: acumule 12 Ruínas (ataques, contra-ataques, Suprema, abates e Ataques Extras) para entrar em Reino da Ruína, um estado que não pode ser dissipado: não consome Pontos de Perícia, todos os ataques viram Dano Chaos e ignoram 25% DEF, todo CRIT gera uma Ruína Fantasma (sem limite normal), e a cada 3 Ruínas Fantasma consumidas realiza imediatamente um Ataque Extra. Ao terminar o estado, todas as Ruínas Fantasma explodem causando dano proporcional ao acumulado.", flag: "asTalent" },
   ichigo: { name: "Instabilidade Hollow", desc: "Ichigo não acumula Energia como os demais combatentes. Em vez disso, ele carrega um resíduo espiritual instável chamado Fragmentos do Dangai (máximo: 12), nascido do treinamento em um corredor entre mundos que quase o destruiu. O Ataque Básico não gera nenhum Fragmento — o corte comum é rápido demais pra deixar qualquer resíduo. A Perícia gera 2 Fragmentos fixos, sem bônus por crítico. Derrotar um inimigo concede 1 Fragmento adicional, e sempre que Ichigo for atingido por um inimigo, ele ganha 1 Fragmento — a instabilidade que carrega dentro de si desperta sob pressão, não em segurança. Ao atingir 12 Fragmentos, todos são consumidos automaticamente: Ichigo golpeia todos os inimigos de uma vez e entra em Forma Mugetsu, onde recebe 12 Reservas de Mugetsu (um medidor separado) e seus atributos de ataque sobem drasticamente. Durante a Forma Mugetsu, o Ataque Básico e a Perícia são substituídos por versões aprimoradas que não custam Ponto de Perícia — custam Reservas de Mugetsu. O Básico aprimorado consome 1 Reserva e causa dano superior ao de qualquer ataque comum. A Perícia aprimorada consome 3 Reservas e atinge uma área maior, aplicando um corte que deixa o alvo mais vulnerável. Quando as Reservas de Mugetsu chegam a zero, um golpe final devastador dispara sozinho contra todos os inimigos em campo — ninguém precisa apertar nada, ele simplesmente acontece — e então Ichigo retorna à sua forma comum, com os Fragmentos do Dangai zerados e prontos pra começar o ciclo de novo.", flag: "ichTalent" },
-  acheron: { name: "Cinzas do Fim", desc: "Acheron não acumula Energia como os demais combatentes. Em vez disso, carrega Cinzas do Fim (máximo: 8). A Perícia dela planta uma Marca do Fim Selado num inimigo — um debuff silencioso que não faz nada sozinho, apenas conta o tempo. O Ataque Básico causa dano e acelera em 1 a contagem da Marca com menos tempo restante em qualquer inimigo. Sempre que uma Marca chega a zero (por aceleração do Básico ou pela passagem natural dos turnos), ela detona sozinha causando dano baseado no ATQ dela e concede 1 Cinza do Fim. A Perícia crítica concede 2 Cinzas do Fim diretamente. Derrotar um inimigo que carregue qualquer Marca ativa concede 1 Cinza adicional. Ao atingir 8 Cinzas, a Suprema fica disponível — diferente de Ichigo, aqui é você quem escolhe a hora certa de apertar, não um gatilho automático.", flag: "achTalent" },
+  acheron: { name: "Cinzas do Fim", desc: "Acheron não acumula Energia como os demais combatentes. Em vez disso ela carrega Cinzas do Fim (máximo: 8) — o card dela na batalha e o anel do retrato mostram esse contador no lugar da barra de Energia. As Cinzas são o único combustível da Suprema, e só existe um jeito de enchê-las: fazer Marcas do Fim Selado chegarem a zero. COMO FUNCIONA A MARCA: a Perícia planta uma Marca do Fim Selado no alvo (dura 3 turnos). A Marca é silenciosa — enquanto existe ela não causa dano nem aplica efeito nenhum, apenas conta o tempo. A contagem de TODAS as Marcas cai 1 turno no início de cada ação de Acheron; o Ataque Básico ainda acelera em mais 1 turno a Marca mais próxima de detonar, em qualquer inimigo. Só a ação da Suprema não faz a contagem andar: as Marcas ficam congeladas para chegarem frescas e renderem o máximo. COMO SE GANHAM CINZAS: quando uma Marca chega a zero (por contagem natural ou pelo Básico) ela detona sozinha, causa 90% do ATQ em Dano Eletro e concede 1 Cinza. Uma Perícia CRÍTICA concede 2 Cinzas direto. Derrotar um inimigo que ainda carregava uma Marca concede 1 Cinza extra. COMO USAR A SUPREMA: ao chegar em 8 Cinzas a Suprema libera. Ela nunca dispara sozinha — diferente do Ichigo, aqui você escolhe a hora certa de apertar. O jogo ideal é plantar Marcas em vários inimigos, deixá-las frescas e só então detonar tudo de uma vez: quanto mais turnos uma Marca ainda tinha, mais dano ela causa. No modo Auto a IA usa a Suprema assim que as 8 Cinzas fecham e alterna Perícia e Básico para não desperdiçar Marcas.", flag: "achTalent" },
   hitori: { name: "Ansiedade Amplificada", desc: "5 Estrelas - Suporte | Chaos. Ataques básicos não farão nada além de dar uma pequena quantidade de dano de Chaos. Passivas: A cada 3% de dano crítico, Hitori recebe 1 ponto de velocidade. Concede 30 de energia para todos os aliados após ativar seu supremo. Concede 30% de bônus de dano de Holy e Chaos para os aliados nos dois primeiros slots.", flag: "hitoriPassive" },
   lupa: { name: "Fome da Predadora", desc: "Lupa opera como uma força da natureza que se alimenta do caos elemental presente no campo de batalha. Acúmulo de Voracidade: Sempre que Lupa causa Dano de Fogo a um inimigo sob o efeito de qualquer Dano Contínuo (DoT de Fogo, Sangramento, Choque, etc.), ela consome 1 rodada desse efeito e ganha 1 carga de Voracidade (máximo de 10 cargas). Cada carga concede +20% de Dano de Fogo (até +200% no máximo). Cada carga também restaura 5 pontos de Energia instantaneamente para Lupa. Chama Voraz: Quando Lupa possui 10 cargas de Voracidade, ela entra no estado \"Predadora Absoluta\". Seu próximo Ataque Básico ou Perícia ignora 20% da DEF do alvo e consome todas as cargas para garantir que sua próxima Liberação de Ressonância (Ultimate) cause Dano Crítico Garantido.", flag: "lupaVoracity" },
   miyabi:    { name: "Caçadora do Vazio · Geada Profunda", desc: "Talento: sempre que Miyabi atinge um inimigo que esteja sob QUALQUER efeito contínuo (Congelamento, Queimadura, Veneno, Choque ou Sangramento), o golpe causa +30% de dano. Como suas próprias Habilidade e Ultimate marcam congelamento, ela rapidamente se auto-habilita e escala o dano contra alvos já afligidos pela equipe — quanto mais DoTs no campo, mais letal ela fica.", flag: "pShatter" },
@@ -650,15 +650,15 @@ const CONS = {
     { name: "E3 · O Nome Que a Lâmina Esqueceu", ...A_ULT, flag: "ichE3", desc: "Aumenta o nível da Suprema em +2. Aumenta o nível do Talento em +2. Nível máximo: 15." },
     { name: "E4 · Corte que Não Erra", flag: "ichE4", desc: "O custo da Perícia aprimorada da Forma Mugetsu cai permanentemente de 3 para 2 Reservas. Além disso, toda vez que o Básico aprimorado acerta, aplica 1 acúmulo de Corrosão do Vazio no alvo (máximo de 5, cada acúmulo reduz a DEF dele em 4%). Se um inimigo morrer carregando 3 ou mais acúmulos de Corrosão do Vazio, a Reserva de Mugetsu que seria gasta nesse ataque é reembolsada na hora." },
     { name: "E5 · A Lâmina Que Ainda Sonha", ...A_SKILL, flag: "ichE5", desc: "Aumenta o nível da Perícia em +2. Aumenta o nível do Ataque Básico em +2. Nível máximo: 15." },
-    { name: "E6 · A Lâmina que Cortou o Destino", flag: "ichE6", desc: "O golpe final da Forma Mugetsu é permanentemente transformado. Ele passa a acertar CRÍTICO garantido, ignora 42% da DEF e 25% da Resistência de todos os alvos atingidos, e seu dano base é substancialmente maior. Ao acertar o alvo principal, libera uma onda de choque que concede a todo o time aliado +32% de Dano CRÍTICO por 2 turnos — a explosão de poder reverbera além do próprio Ichigo. Nesse mesmo turno, ele recebe +15% de Redução de Dano recebido: o golpe o deixa momentaneamente vazio, difícil de alcançar. E o efeito mais importante: para cada inimigo que esse golpe final derrotar, Ichigo recupera instantaneamente 3 Fragmentos do Dangai assim que retorna à forma comum — contra uma onda bem limpa, ele pode sair de uma Forma Mugetsu já com metade do caminho pronto pra próxima." },
+    { name: "E6 · A Lâmina que Cortou o Destino", flag: "ichE6", desc: "A Forma Mugetsu é permanentemente levada ao limite. FORMA MAIS LONGA: Ichigo entra na Forma Mugetsu com 16 Reservas em vez de 12 — quatro ataques aprimorados a mais antes do golpe final. LÂMINAS MAIS PESADAS: o Básico aprimorado e a Perícia aprimorada causam +50% de dano. GOLPE FINAL TRANSFORMADO: o golpe final da Forma Mugetsu sobe de 1500% para 3200% do ATQ em todos os inimigos, acerta CRÍTICO garantido, ignora 60% da DEF e 25% da Resistência dos alvos. ONDA MUGETSU: ao disparar, uma onda de choque concede a todo o time aliado +45% de Dano CRÍTICO e +15% de ATQ por 2 turnos. VAZIO ENTRE MUNDOS: Ichigo recebe -25% de dano por 2 turnos e seu próximo turno chega 40% mais cedo — o golpe o deixa momentaneamente vazio e difícil de alcançar. CICLO RÁPIDO: ao voltar à forma comum ele mantém ao menos 4 Fragmentos do Dangai e ainda recupera 3 Fragmentos por inimigo que o golpe final tenha derrotado, saindo de uma Forma Mugetsu já perto da próxima." },
   ],
   acheron: [
-    { name: "E1 · O Fim Se Recusa a Ser Desfeito", flag: "achE1", desc: "Sempre que uma Marca do Fim Selado expirar naturalmente (sem ser detonada pela Suprema), ela se replica automaticamente em outro inimigo aleatório que ainda não tenha marca nenhuma." },
-    { name: "E2 · Segundo Fio", flag: "achE2", desc: "O Ataque Básico tem 40% de chance de plantar uma Marca do Fim Selado no alvo se ele ainda não tiver nenhuma, além do efeito normal de acelerar a Marca mais perto de expirar." },
-    { name: "E3 · O Sussurro Antes do Fim", ...A_ULT, flag: "achE3", desc: "Aumenta o nível da Suprema em +2. Aumenta o nível do Talento em +2. Nível máximo: 15." },
-    { name: "E4 · Reação em Cadeia", flag: "achE4", desc: "Se a Detonação Antecipada da Suprema abater um inimigo, todas as outras Marcas ainda não detonadas nessa mesma ativação recebem +20% de dano, acumulável." },
-    { name: "E5 · A Lâmina Que Ainda Espera", ...A_SKILL, flag: "achE5", desc: "Aumenta o nível da Perícia em +2. Aumenta o nível do Ataque Básico em +2. Nível máximo: 15." },
-    { name: "E6 · O Fim Não Aceita Prazo", flag: "achE6", desc: "Toda Marca do Fim Selado detonada pela Suprema que ainda tinha 3 ou mais turnos de duração restante causa dano quadruplicado em vez do bônus normal de frescor, e todas as detonações acertam CRÍTICO garantido. O golpe final da Suprema se torna Dano Verdadeiro — ignora toda Resistência e DEF dos alvos. Ao encerrar, ela mantém 3 Cinzas do Fim em vez de zerar o medidor, e cada inimigo abatido durante a Detonação Antecipada concede a todo o time +20% de Dano CRÍTICO por 2 turnos." },
+    { name: "E1 · O Fim Se Recusa a Ser Desfeito", flag: "achE1", desc: "Uma Marca do Fim Selado que chega a zero fora da Suprema — seja pela contagem natural dos turnos, seja acelerada pelo Ataque Básico — não some em silêncio: depois de detonar e render a Cinza normal, ela se replica sozinha em um inimigo aleatório que ainda não tenha nenhuma Marca, com a duração cheia. Na prática o fim 'anda' pelo campo: contra grupos, uma única Perícia pode alimentar uma cadeia de detonações que continua por vários turnos, gerando Cinzas sem gastar Pontos de Perícia. A replicação não acontece durante a Suprema e só ocorre se existir pelo menos um inimigo livre de Marca." },
+    { name: "E2 · Segundo Fio", flag: "achE2", desc: "Todo Ataque Básico de Acheron tem 40% de chance de plantar uma Marca do Fim Selado no alvo atingido, desde que ele ainda não tenha nenhuma. Isso vem somado ao efeito normal do Básico de acelerar em 1 turno a Marca mais próxima de detonar. O resultado é que Acheron passa a criar Marcas mesmo sem gastar Ponto de Perícia — sobra mais PH para a Perícia crítica (que dá 2 Cinzas) e o medidor de Cinzas sobe bem mais rápido. Melhor ainda em times de Ponto de Perícia curto, onde o Básico é a ação mais frequente." },
+    { name: "E3 · O Sussurro Antes do Fim", ...A_ULT, flag: "achE3", desc: "Aumenta o nível da Suprema em +2, elevando o dano de todas as detonações — inclusive as detonações naturais das Marcas, que escalam com o nível da Suprema — e o do golpe final. O nível do Talento também sobe +2. Nível máximo: 15." },
+    { name: "E4 · Reação em Cadeia", flag: "achE4", desc: "Quando uma detonação da Suprema derrota um inimigo, o fim se alimenta dele: cada Marca ainda não detonada na mesma ativação passa a fazer o alvo receber +20% de dano, e o bônus se acumula a cada novo abate na sequência (até +100%). As Marcas são detonadas uma a uma, então a ordem importa — comece pelos inimigos mais frágeis para gerar o bônus antes de chegar ao alvo mais forte, que será atingido já com a cadeia acumulada. Contra ondas cheias, uma Suprema bem preparada pode limpar o campo inteiro." },
+    { name: "E5 · A Lâmina Que Ainda Espera", ...A_SKILL, flag: "achE5", desc: "Aumenta o nível da Perícia em +2, elevando o dano do golpe que planta a Marca. Aumenta também o nível do Ataque Básico em +2. Nível máximo: 15." },
+    { name: "E6 · O Fim Não Aceita Prazo", flag: "achE6", desc: "A mecânica inteira de Acheron é levada ao limite — o fim deixa de ter prazo e passa a colher tudo. MARCA PERPÉTUA: toda Marca plantada nasce com +1 turno de duração (4 turnos; 3 com a Ampulheta Invertida). Uma Marca é considerada FRESCA enquanto tiver perdido no máximo 1 turno de contagem, e como a Suprema congela a contagem, quase toda Marca chega fresca. COLHEITA DO FIM: na Suprema, toda Marca fresca causa dano QUADRUPLICADO (em vez do bônus normal de frescor) e todas as detonações — naturais ou da Suprema — acertam CRÍTICO garantido. SENTENÇA FINAL: o golpe final da Suprema sobe de 220% para 320% do ATQ em todos os inimigos, é CRÍTICO garantido e vira Dano Verdadeiro — ignora toda a DEF dos alvos. CICLO SEM FIM: cada detonação de Marca passa a valer 2 Cinzas em vez de 1, e a Suprema termina mantendo 4 Cinzas em vez de zerar o medidor — bastam 2 ou 3 detonações para ela estar pronta de novo. CEIFA COLETIVA: cada inimigo derrotado durante a Detonação Antecipada concede a todo o time +20% de Dano CRÍTICO por 2 turnos (acumula por abate). PRESENÇA DO FIM: enquanto houver Marcas ativas no campo, Acheron causa +20% de Dano por Marca (até 3 Marcas = +60%) — plante várias e ela vira uma ceifadora." },
   ],
   hitori: [
     { name: "C1 · Rastreadora de Cinzas", flag: "hitoriC1", desc: "Aumenta a velocidade de Hitori em 12 pontos. Quando Hitori usar o supremo, ela concederá 24% de taxa de perfuração para todos os aliados." },
@@ -901,6 +901,7 @@ const SKILL_NAMES = {
   gilgamesh: ["Espada do Primeiro Rei", "Portão da Babilônia", "Enuma Elish — A Ruptura da Criação"],
   altersaber: ["Espada do Rei Caído", "Coroa do Rei Profanado", "Excalibur Morgan — O Fim do Trono"],
   hitori: ["Dedilhado Ansioso", "Entoar da Solidão", "Kessoku Band"],
+  acheron: ["Fio Cortado", "Marca do Fim Selado", "Detonação Antecipada"],
   };
 const skillNamesOf = (id) => SKILL_NAMES[id] || ["Ataque Básico", "Habilidade", "Ultimate"];
 
@@ -1043,9 +1044,9 @@ function specialTraces(def) {
       { name: "Rastro Especial 3 · Salto no Vazio", desc: "Rastro Especial de combate: ao entrar em Forma Mugetsu, Ichigo recupera imediatamente 30% de Valor de Ação, avançando sua posição na ordem de turnos.", combat: "ichTrace3", cost: 2 },
     ];
     if (def.id === "acheron") return [
-      { name: "Rastro Especial 1 · Colheita Dupla", desc: "Rastro Especial de combate: sempre que a Suprema detonar uma Marca do Fim Selado, existe 50% de chance dela detonar uma segunda vez automaticamente, a 60% do dano da primeira.", combat: "achTrace1", cost: 3 },
-      { name: "Rastro Especial 2 · Sob as Cinzas", desc: "Rastro Especial de combate: enquanto Acheron tiver pelo menos 1 Marca do Fim Selado ativa em qualquer inimigo, recebe -18% de todo dano recebido e fica imune a Congelamento e Atordoamento.", combat: "achTrace2", cost: 2 },
-      { name: "Rastro Especial 3 · Precognição do Fim", desc: "Rastro Especial de combate: ao ativar a Suprema, recupera 25% de Valor de Ação antes da onda de detonações, e o primeiro inimigo atingido pelo golpe final recebe Vulnerabilidade (+15% de dano recebido por 2 turnos).", combat: "achTrace3", cost: 2 },
+      { name: "Rastro Especial 1 · Colheita Dupla", desc: "Rastro Especial de combate: sempre que a Suprema detona uma Marca do Fim Selado, existe 50% de chance de ela detonar uma SEGUNDA vez automaticamente, causando 60% do dano da primeira (as duas detonações contam para o mesmo alvo). Quanto mais Marcas em campo na hora da Suprema, mais chances de proc — contra 3 inimigos marcados são 3 rolagens independentes. Custo: 3 Núcleos de Vestígio.", combat: "achTrace1", cost: 3 },
+      { name: "Rastro Especial 2 · Sob as Cinzas", desc: "Rastro Especial de combate: enquanto Acheron tiver pelo menos 1 Marca do Fim Selado ativa em qualquer inimigo, ela recebe -18% de todo o dano recebido. A proteção é reavaliada ao fim de cada ação dela: plante uma Marca antes de encerrar o turno e ela atravessa a rodada inimiga bem mais resistente; sem nenhuma Marca no campo o efeito desliga. Custo: 2 Núcleos de Vestígio.", combat: "achTrace2", cost: 2 },
+      { name: "Rastro Especial 3 · Precognição do Fim", desc: "Rastro Especial de combate: ao ativar a Suprema, Acheron recupera 25% de Valor de Ação — o próximo turno dela chega mais cedo, e ela quase sempre age de novo antes dos inimigos mais lentos. Além disso, o primeiro inimigo atingido pelo golpe final da Suprema recebe Vulnerabilidade: +15% de dano recebido por 2 turnos, o que ajuda todo o time a aproveitar a janela logo depois da explosão. Custo: 2 Núcleos de Vestígio.", combat: "achTrace3", cost: 2 },
     ];
     if (def.id === "lupa") return [
       { name: "Rastro 1 · Rastro da Caçada (Ascensão 2)", desc: "Ao entrar em combate, Lupa ganha instantaneamente 3 cargas de Voracidade e 20 pontos de Energia. Além disso, a chance-base de aplicar \"Ignição\" com seus Ataques Básicos e Perícias é aumentada para 100%.", combat: "lupaT1", cost: 2 },
@@ -4628,6 +4629,42 @@ function St({ k, v, pct, color }) {
 }
 function buffText(b) { const p = []; for (const k of ["atk", "def", "spd", "critRate", "critDmg", "dmgBonus"]) if (b[k]) p.push(`+${b[k]}${k === "spd" ? " VEL" : "% " + (STAT_LABEL[k] || k)}`); return `${p.join(", ")}${b.all ? " (time)" : ""} por ${b.turns}t`; }
 const SKILL_DESC = {
+  acheron: {
+    basic: [
+      "<b>Fio Cortado</b>",
+      "Causa <b>100% do ATQ</b> como Dano Eletro ao alvo e concede <b>+1 Ponto de Habilidade</b>.",
+      "<b>Aceleração de Marca:</b> além do dano, o corte adianta em <b>1 turno</b> a contagem da Marca do Fim Selado que estiver mais perto de detonar — em QUALQUER inimigo, não só no alvo do golpe. Se a contagem chegar a zero, a Marca detona na hora: <b>90% do ATQ</b> em Dano Eletro e <b>+1 Cinza do Fim</b>.",
+      "<b>Abate com Marca:</b> se o alvo do Básico morrer carregando uma Marca, Acheron ganha <b>+1 Cinza do Fim</b> extra.",
+      "<b>💡 Como usar:</b> o Básico é sua ferramenta de ritmo. Plante a Marca com a Perícia e use o Básico nos turnos seguintes para acelerar a detonação — cada turno poupado é Cinza mais cedo.",
+      "<b>[E2 · Segundo Fio]</b> 40% de chance de plantar uma Marca no alvo quando ele ainda não tem nenhuma.",
+      "<b>[E5]</b> Nível do Básico +2.",
+    ],
+    skill: [
+      "<b>Marca do Fim Selado</b>",
+      "Consome <b>1 Ponto de Habilidade</b>.",
+      "Causa <b>240% do ATQ</b> como Dano Eletro e planta a <b>Marca do Fim Selado</b> no alvo, com duração de <b>3 turnos</b>. Plantar uma Marca num alvo que já tem uma <b>substitui</b> a antiga (sem detonar) — espalhe as Marcas em inimigos diferentes.",
+      "<b>Como a Marca funciona:</b> ela não causa dano nem efeito enquanto existe, só conta o tempo. A contagem de todas as Marcas cai <b>1 turno</b> no início de cada ação de Acheron (exceto na ação da Suprema). Ao chegar a zero, a Marca detona sozinha: <b>90% do ATQ</b> em Dano Eletro e <b>+1 Cinza do Fim</b>.",
+      "<b>Perícia CRÍTICA:</b> concede <b>+2 Cinzas do Fim</b> diretamente, sem esperar a detonação — a forma mais rápida de encher o medidor.",
+      "<b>💡 Como usar:</b> ideal é ter uma Marca em cada inimigo antes de apertar a Suprema. Contra um alvo só (chefe), alterne Perícia e Básico para manter a Marca sempre renovada.",
+      "<b>[Ampulheta Invertida]</b> A Marca nasce com 1 turno a menos, mas cada detonação concede +8% de ATQ por 2 turnos (até 4 acúmulos).",
+      "<b>[E1]</b> Marca que expira fora da Suprema se replica em outro inimigo sem Marca.",
+      "<b>[E5]</b> Nível da Perícia +2.",
+    ],
+    ult: [
+      "<b>Detonação Antecipada</b> — Requisito: <b>8 Cinzas do Fim</b> (não usa Energia)",
+      "Diferente das outras Supremas ela <b>nunca dispara sozinha</b>: quando as 8 Cinzas fecham, o botão libera e é você quem escolhe o momento. Em modo Auto a IA usa assim que estiver pronta.",
+      "<b>Fase 1 · Colheita:</b> a contagem das Marcas fica <b>congelada</b> nessa ação e TODAS as Marcas ativas detonam de uma vez, uma após a outra. Cada uma causa de <b>180% a 340% do ATQ</b> como Dano Eletro — <b>quanto mais turnos a Marca ainda tinha, mais dano</b> ela causa. Cada detonação também conta como Cinza ganha e ativa os efeitos de arma e conjunto.",
+      "<b>Fase 2 · Sentença:</b> logo depois, um golpe final causa <b>220% do ATQ</b> como Dano Eletro a <b>todos os inimigos</b>. As Cinzas voltam a <b>0</b>.",
+      "<b>💡 Como usar:</b> não aperte assim que liberar se houver só uma Marca em campo. Espere ter Marcas frescas em vários inimigos — o dano total cresce com o número de Marcas e com o tempo restante de cada uma.",
+      "<b>[E3]</b> Nível da Suprema +2 (e do Talento +2).",
+      "<b>[E4 · Reação em Cadeia]</b> Cada inimigo abatido pelas detonações eleva em +20% (até +100%) o dano recebido pelas Marcas seguintes.",
+      "<b>[E6 · O Fim Não Aceita Prazo]</b> Marcas frescas causam <b>dano ×4</b>; todas as detonações são <b>CRÍTICAS garantidas</b>; o golpe final sobe para <b>320% do ATQ</b> como <b>Dano Verdadeiro</b>; a Suprema termina mantendo <b>4 Cinzas</b>; cada abate dá <b>+20% de Dano CRÍTICO</b> ao time por 2 turnos.",
+      "<b>[Rastro 1 · Colheita Dupla]</b> 50% de chance de cada Marca detonar uma 2ª vez (60% do dano).",
+      "<b>[Rastro 3 · Precognição do Fim]</b> Recupera 25% de Valor de Ação e o 1º inimigo atingido pelo golpe final recebe +15% de dano por 2 turnos.",
+      "<b>[Ampulheta Invertida]</b> Com 3+ acúmulos de ATQ, converte todos em <b>Dano Verdadeiro</b> (60% do ATQ em cada inimigo) antes da sequência.",
+      "<b>[Cinzas do Amanhã 4pç]</b> Detonações da Suprema causam <b>+50% de dano</b>; com 6 acúmulos de Ecoar do Fim, a próxima Suprema é <b>CRÍTICA garantida</b> e perfura 30% de DEF e 20% de RES.",
+    ],
+  },
   aizensosuke: {
     basic: ["<b>Kyōka Suigetsu — Corte Silencioso</b>", "Causa <b>110% do ATQ</b> como Dano Chaos.", "Obtém <b>1 Selo de Ilusão</b>.", "Se o alvo estiver em <b>Ilusão Absoluta</b>, recupera <b>5 de Energia</b>."],
     skill: ["<b>Kyōka Suigetsu — O Mundo Sob Meus Olhos</b>", "Consome <b>1 Ponto de Perícia</b>.", "Causa <b>240% do ATQ</b> como Dano Chaos ao alvo principal e <b>140% do ATQ</b> aos inimigos adjacentes.", "Aplica <b>Marca da Hipnose</b> por 3 turnos.", "Enquanto a marca existir: o alvo recebe <b>25% mais Dano Chaos</b>; a DEF do alvo é reduzida em <b>20%</b> contra ataques Chaos; personagens Chaos ganham <b>15% de Dano CRÍTICO</b> ao atacar esse alvo; e sempre que esse alvo sofrer dano de Chaos, recebe <b>1 Camada de Colapso Mental</b> (máximo de 10).", "Se um alvo atingir 10 Camadas, elas explodem imediatamente causando <b>320% do ATQ</b> de Aizen como Dano Chaos e renovando a Marca da Hipnose em 1 turno."],
@@ -6584,9 +6621,25 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     fx.push({ uid: defender.uid, txt: "ERROU!", crit: false, id: Math.random(), el: attacker.element || "Holy" });
     return { dmg: 0, crit: false };
   }
+  const f = attacker.stFlags || {};
+  // Corrente Trovão-Relâmpago (4pç): pré-computa acúmulos de Condutividade para uso no dano e na DEF
+  const _trovaoHitStacks = ((opts?.isFollowup || opts?.isYoruClone) && f.setTrovao4) ? Math.min(4, attacker._trovaoStacks || 0) : 0;
+  const _trovaoIsMax = _trovaoHitStacks >= 4;
+  // Mutador Espelhos: 25% de chance de erro em qualquer ataque
+  if ((attacker._mut || defender._mut) === "espelhos" && (attacker._espelhosMissStreak || 0) < 1 && Math.random() < 0.15) { attacker._espelhosMissStreak = (attacker._espelhosMissStreak || 0) + 1; fx.push({ uid: defender.uid, txt: "ERROU!", crit: false, id: Math.random() }); return { dmg: 0, crit: false }; }
+  if ((attacker._mut || defender._mut) === "espelhos") attacker._espelhosMissStreak = 0;
+  // Vírus Esmaga-Cards (Kaiba): ataques inimigos fortes (mult >= 150%) contra o time protegido são reduzidos a 50% de dano
+  if (attacker.side === "enemy" && (defender._kaibaVirusTurns || 0) > 0 && mult >= 150) mult = mult * (50 / mult);
+  let dmg = effStat(attacker, "atk") * (mult / 100);
+  // Mutador Miasma Cegante: Chance Crítica travada em 0%
+  const _lupaC5Crit = (attacker.id === "lupa" && f.lupaC5) ? 12 : 0;
+  const _infernoCrit = (f.setInferno4 && (defender.dots || []).length > 0) ? 12 : 0; // Inferno Devorador de Almas 4pç: +12% Taxa Crítica ao atacar alvo com DoT
+  const crit = opts?.hardCrit ? true : (attacker._mut || defender._mut) === "miasma" ? false : (((attacker._asAbs || 0) > 0 || (attacker._gilTrono || 0) > 0 || ((attacker._gilEa || 0) > 0 && opts?.isFollowup)) ? true : Math.random() * 100 < Math.min(100, effStat(attacker, "critRate") + _lupaC5Crit + _infernoCrit)); // Reino Absoluto: CRIT garantido
+  if (crit) dmg *= 1 + effStat(attacker, "critDmg") / 100;
+  // ── Modificadores de chefe (movidos pra cá: antes ficavam ANTES de `dmg`/`crit` existirem e quebravam a Torre a partir do andar 210 com "Cannot access before initialization") ──
   // ══ Chefe Protegido: só toma dano de verdade depois que os Minions morrerem ══
   if (defender._gated && defender.boss) {
-    const minionsVivos = (defender._sibs || []).filter((e) => e.alive && !e.boss).length;
+    const minionsVivos = (defender._gateSibs || defender._sibs || []).filter((e) => e.alive && !e.boss).length;
     if (minionsVivos > 0) {
       dmg = Math.max(1, Math.round(dmg * 0.05)); // 95% reduzido — a fraqueza está selada
       defender.toughness = defender.maxToughness; // não dá pra quebrar enquanto protegido
@@ -6602,39 +6655,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   if (attacker.side === "H" && defender.archResist && attacker._arch === defender.archResist) dmg = Math.round(dmg * 0.70);
   // Chefe vulnerável a um MONO específico (ex.: só cai rápido contra time inteiro de Chaos)
   if (attacker.side === "H" && defender.monoWeakEl && attacker._arch === "mono" && attacker._archEl === defender.monoWeakEl) dmg = Math.round(dmg * 1.60);
-  // ══ Chefes da Ascensão Estelar ══
-  if (defender.bossKind === "devorador" && defender.alive) { // Vharok: devora escudos e se cura com eles
-    const st = (attacker._shields || []).reduce((a, sh) => a + sh.val, 0);
-    if (st > 0) { attacker._shields = []; attacker.shield = 0; defender.hp = Math.min(defender.maxHp, defender.hp + Math.round(st * 0.5)); fx.push({ uid: defender.uid, txt: "🍽️ ESCUDO DEVORADO!", crit: true, id: Math.random(), el: "Chaos" }); }
-  }
-  if (defender.bossKind === "espelho" && dmg > 0 && attacker.side === "H" && !opts?.isDot) { // Espelho de Nyx: reflete 22%
-    const rf = Math.round(dmg * 0.22); attacker.hp -= rf; if (attacker.hp <= 0) { attacker.hp = 0; attacker.alive = false; }
-    fx.push({ uid: attacker.uid, txt: "🪞 " + rf, crit: false, id: Math.random(), el: "Unknown" });
-  }
-  if (defender.bossKind === "juiz" && crit) { // Juiz Escarlate: cada CRIT o fortalece
-    defender.buffs.push({ stat: "def", value: Math.round(defender.base.def * 0.08), turns: 9999, name: "Sentença" });
-  }
   if (defender.bossKind === "colosso" && !opts?.aoe) dmg = Math.round(dmg * 0.55); // Colosso: resiste a alvo único, fraco a área
-  if (defender.bossKind === "fenix" && dmg > 0 && defender.hp - dmg <= 0 && !defender._fenixUsed) { // Fênix: renasce 1x
-    defender._fenixUsed = true; dmg = 0; defender.hp = Math.round(defender.maxHp * 0.5); defender.alive = true;
-    fx.push({ uid: defender.uid, txt: "🔥 RENASCE!", crit: true, id: Math.random(), el: "Fogo" });
-  }
-  if (defender.bossKind === "aizen") defender._aizenMissStreak = 0; // acertou — zera a sequência de erros (pity: nunca erra 2x seguidas)
-  const f = attacker.stFlags || {};
-  // Corrente Trovão-Relâmpago (4pç): pré-computa acúmulos de Condutividade para uso no dano e na DEF
-  const _trovaoHitStacks = ((opts?.isFollowup || opts?.isYoruClone) && f.setTrovao4) ? Math.min(4, attacker._trovaoStacks || 0) : 0;
-  const _trovaoIsMax = _trovaoHitStacks >= 4;
-  // Mutador Espelhos: 25% de chance de erro em qualquer ataque
-  if ((attacker._mut || defender._mut) === "espelhos" && (attacker._espelhosMissStreak || 0) < 1 && Math.random() < 0.15) { attacker._espelhosMissStreak = (attacker._espelhosMissStreak || 0) + 1; fx.push({ uid: defender.uid, txt: "ERROU!", crit: false, id: Math.random() }); return { dmg: 0, crit: false }; }
-  if ((attacker._mut || defender._mut) === "espelhos") attacker._espelhosMissStreak = 0;
-  // Vírus Esmaga-Cards (Kaiba): ataques inimigos fortes (mult >= 150%) contra o time protegido são reduzidos a 50% de dano
-  if (attacker.side === "enemy" && (defender._kaibaVirusTurns || 0) > 0 && mult >= 150) mult = mult * (50 / mult);
-  let dmg = effStat(attacker, "atk") * (mult / 100);
-  // Mutador Miasma Cegante: Chance Crítica travada em 0%
-  const _lupaC5Crit = (attacker.id === "lupa" && f.lupaC5) ? 12 : 0;
-  const _infernoCrit = (f.setInferno4 && (defender.dots || []).length > 0) ? 12 : 0; // Inferno Devorador de Almas 4pç: +12% Taxa Crítica ao atacar alvo com DoT
-  const crit = (attacker._mut || defender._mut) === "miasma" ? false : (((attacker._asAbs || 0) > 0 || (attacker._gilTrono || 0) > 0 || ((attacker._gilEa || 0) > 0 && opts?.isFollowup)) ? true : Math.random() * 100 < Math.min(100, effStat(attacker, "critRate") + _lupaC5Crit + _infernoCrit)); // Reino Absoluto: CRIT garantido
-  if (crit) dmg *= 1 + effStat(attacker, "critDmg") / 100;
   // Crisol da Chama Primordial (4pç): acerto crítico de Fogo → ganha 1 acúmulo de Núcleo Incandescente
   if (crit && f.setCrisol4 && (opts?.el || attacker.element) === "Fogo") crisolAddStack(attacker, fx);
   // Traje do Astrólogo do Destino (4pç): qualquer crítico ALIADO gera 1 Energia Estelar pro portador (máx 8) — ao completar, Apogeu do Zodíaco
@@ -6825,6 +6846,7 @@ function dealDamage(attacker, defender, mult, fx, opts) {
   // Protocolo de Ruína em Cadeia (6pç): +20% de Perfuração de DEF pra QUALQUER aliado contra um alvo com 3+ DoTs
   if (attacker.side === "H") { const rp = (defender.debuffs || []).find(d => d.name === "Ruína em Cadeia"); if (rp) pen += rp.value; }
   if ((defender.debuffs || []).some(d => d.name === "Ruptura de Realidade")) pen = 100; // C5: dano tratado como Verdadeiro
+  if (opts?.trueDef) pen = 100; // Acheron E6 / Ampulheta Invertida: Dano Verdadeiro ignora toda a DEF
   if (attacker.id === "agumon" && (attacker.agModoX || 0) > 0 && attacker.stFlags?.aguT3) pen = Math.min(100, pen + Math.min(50, Math.floor((attacker._aguXHeat || 0) / 10) * 10)); // Rastro Critical Pressure
   // C6 · Soberana da Costa Negra (Zero Absoluto): time inteiro ignora 25% de DEF durante o Estágio 2/3 do Estelarador
   if (attacker.side === "H") { const shkC6 = (attacker._sibs || []).find(h => h.id === "shorekeeper" && h.alive && h.stFlags?.shkC6 && (h._domainStage || 0) >= 2); if (shkC6) pen = Math.min(100, pen + 25); }
@@ -6874,6 +6896,23 @@ function dealDamage(attacker, defender, mult, fx, opts) {
       fx.push({ uid: defender.uid, txt: "🛡️ Selo Retaliatório!", id: Math.random() });
     }
   }
+  // ══ Chefes da Ascensão Estelar (efeitos pós-dano: usam o dano final já calculado) ══
+  if (defender.bossKind === "devorador" && defender.alive) { // Vharok: devora escudos e se cura com eles
+    const st = (attacker._shields || []).reduce((a, sh) => a + sh.val, 0);
+    if (st > 0) { attacker._shields = []; attacker.shield = 0; defender.hp = Math.min(defender.maxHp, defender.hp + Math.round(st * 0.5)); fx.push({ uid: defender.uid, txt: "🍽️ ESCUDO DEVORADO!", crit: true, id: Math.random(), el: "Chaos" }); }
+  }
+  if (defender.bossKind === "espelho" && dmg > 0 && attacker.side === "H" && !opts?.isDot) { // Espelho de Nyx: reflete 22%
+    const rf = Math.min(Math.round(dmg * 0.22), Math.round(attacker.maxHp * 0.25)); attacker.hp -= rf; // teto de 25% do HP máx. de quem atacou: evita morte instantânea por reflexo if (attacker.hp <= 0) { attacker.hp = 0; attacker.alive = false; }
+    fx.push({ uid: attacker.uid, txt: "🪞 " + rf, crit: false, id: Math.random(), el: "Unknown" });
+  }
+  if (defender.bossKind === "juiz" && crit) { // Juiz Escarlate: cada CRIT o fortalece
+    defender.buffs.push({ stat: "def", value: Math.round(defender.base.def * 0.08), turns: 9999, name: "Sentença" });
+  }
+  if (defender.bossKind === "fenix" && dmg > 0 && defender.hp - dmg <= 0 && !defender._fenixUsed) { // Fênix: renasce 1x
+    defender._fenixUsed = true; dmg = 0; defender.hp = Math.round(defender.maxHp * 0.5); defender.alive = true;
+    fx.push({ uid: defender.uid, txt: "🔥 RENASCE!", crit: true, id: Math.random(), el: "Fogo" });
+  }
+  if (defender.bossKind === "aizen") defender._aizenMissStreak = 0; // acertou — zera a sequência de erros (pity: nunca erra 2x seguidas)
   // ── Torre: Espelho de Nyx — acumula dano recebido pra refletir no próprio turno ──
   if (dmg > 0 && defender.bossKind === "espelho") {
     defender._espDmgTaken = (defender._espDmgTaken || 0) + dmg;
@@ -7425,8 +7464,9 @@ function ichigoGainFragment(u, n, s, fx) {
 function ichigoEnterMugetsu(u, s, fx) {
   u._ichFrag = 0;
   u._ichMugetsu = true;
-  u._ichReserve = 12;
-  u._ichReserveMax = 12;
+  const _rsv = u.stFlags?.ichE6 ? 16 : 12; // E6: entra na Forma Mugetsu com 16 Reservas
+  u._ichReserve = _rsv;
+  u._ichReserveMax = _rsv;
   u._ichCorrosao = {}; // uid do alvo -> acúmulos de Corrosão do Vazio (E4)
   const lvl = u.tUlt || 1;
   u.buffs = u.buffs.filter((b) => !["MugetsuAtk", "MugetsuCD", "MugetsuTraceCD"].includes(b.name));
@@ -7434,7 +7474,7 @@ function ichigoEnterMugetsu(u, s, fx) {
   u.buffs.push({ stat: "critDmg", value: Math.round(supScale(45, lvl)), turns: 9999, name: "MugetsuCD" });
   if (u.stFlags?.ichTrace1) u.buffs.push({ stat: "critDmg", value: 200, turns: 9999, name: "MugetsuTraceCD" }); // Rastro Especial 1 · Ruptura da Máscara
   if (u.stFlags?.ichTrace3 && u.av != null) u.av = Math.max(0.01, (u.av || 1) * 0.70); // Rastro Especial 3 · Salto no Vazio: +30% VA
-  pushLog(s, `🌑 ${u.name} consome os Fragmentos do Dangai e entra em FORMA MUGETSU! (12 Reservas)`);
+  pushLog(s, `🌑 ${u.name} consome os Fragmentos do Dangai e entra em FORMA MUGETSU! (${_rsv} Reservas)`);
   const enemies = aliveEnemies(s);
   enemies.forEach((e) => dealDamage(u, e, Math.round(supScale(900, lvl)) * (u.ampUlt || 1), fx, { el: "Unknown", isFollowup: true }));
 }
@@ -7447,13 +7487,21 @@ function ichigoGetsugaFinal(u, s, fx) {
   const e6 = u.stFlags?.ichE6;
   let kills = 0;
   aliveEnemies(s).forEach((e) => {
-    const r = dealDamage(u, e, Math.round(supScale(1500, lvl)) * (u.ampUlt || 1), fx, { el: "Unknown", isFollowup: true, defPen: e6 ? 42 : 25, resPen: e6 ? 25 : 0, forceCrit: !!e6 });
+    // E6: base 1500% → 3200%, CRÍTICO garantido, ignora 60% da DEF e 25% da RES
+    const r = dealDamage(u, e, Math.round(supScale(e6 ? 3200 : 1500, lvl)) * (u.ampUlt || 1), fx, { el: "Unknown", isFollowup: true, defPen: e6 ? 60 : 25, resPen: e6 ? 25 : 0, hardCrit: !!e6 });
     if (!e.alive) kills++;
   });
   pushLog(s, `🌑⚔️ GETSUGA FINAL! Corte devastador atinge todos os inimigos.`);
   if (e6) {
-    u.buffs.push({ stat: "dmgReduce", value: 15, turns: 1, name: "GetsugaFinalDR" });
-    (u._sibs || []).filter((h) => h.alive && !h.isSummon).forEach((h) => h.buffs.push({ stat: "critDmg", value: 32, turns: 2, name: "OndaMugetsu" }));
+    u.buffs = u.buffs.filter((b) => b.name !== "GetsugaFinalDR");
+    u.buffs.push({ stat: "dmgReduce", value: 25, turns: 2, name: "GetsugaFinalDR" }); // 2 turnos: sobrevive ao turno inimigo (antes 1 turno expirava antes de valer)
+    s.heroes.filter((h) => h.alive && !h.isSummon).forEach((h) => { // usa o estado ATUAL (o antigo _sibs apontava pra cópias velhas e o buff nunca chegava ao time)
+      h.buffs = h.buffs.filter((b) => b.name !== "OndaMugetsu");
+      h.buffs.push({ stat: "critDmg", value: 45, turns: 2, name: "OndaMugetsu" });
+      h.buffs.push({ stat: "atk", value: 15, pct: true, turns: 2, name: "OndaMugetsu" });
+    });
+    u._avMul = (u._avMul != null ? u._avMul : 1) * 0.6; // age 40% mais cedo depois do golpe final
+    pushLog(s, "🌑 A onda de choque fortalece todo o time: +45% Dano CRÍTICO e +15% ATQ por 2 turnos!");
   }
   // E2 · Ruptura da Máscara: estende a Forma Mugetsu em vez de encerrar, com 4 Reservas extras
   if (u.stFlags?.ichE2 && !u._ichE2Used) {
@@ -7465,6 +7513,7 @@ function ichigoGetsugaFinal(u, s, fx) {
   u._ichMugetsu = false;
   u._ichE2Used = false;
   u.buffs = u.buffs.filter((b) => !["MugetsuAtk", "MugetsuCD", "MugetsuTraceCD"].includes(b.name));
+  if (e6) u._ichFrag = Math.max(u._ichFrag || 0, 4); // E6: volta à forma comum com pelo menos 4 Fragmentos
   if (e6 && kills > 0) ichigoGainFragment(u, kills * 3, s, fx); // E6: +3 Fragmentos por abate do golpe final
 }
 // ── Acheron — Cinzas do Fim / Marca do Fim Selado ──────────────────────────
@@ -7472,6 +7521,7 @@ function acheronGainCinzas(u, n) { u._achCinzas = Math.min(8, (u._achCinzas || 0
 function acheronPlantMark(u, enemy) {
   if (!enemy) return;
   let dur = 3;
+  if (u.stFlags?.achE6) dur += 1; // E6 · Marca Perpétua: nasce com 1 turno a mais
   if (u.weapon?.buff?.achWeapon) dur -= 1; // Ampulheta Invertida: nasce com 1 turno a menos
   dur = Math.max(1, dur);
   enemy._achMark = { left: dur, max: dur };
@@ -7482,18 +7532,23 @@ function acheronDetonate(u, enemy, s, fx, isUlt) {
   const freshness = mk.left / mk.max; // 0-1, quanto mais fresca (mais tempo restante), maior o bônus na Suprema
   const lvl = u.tUlt || 1;
   const e6 = u.stFlags?.achE6;
+  const eco = !!(isUlt && u._achEcoNow); // Ecoar do Fim no máximo: Suprema crítica garantida + perfuração
   let mult = isUlt ? Math.round(supScale(180 + freshness * 160, lvl)) : Math.round(supScale(90, lvl));
-  if (isUlt && e6 && mk.left >= 3) mult *= 4; // E6: marca fresca (3+ turnos) causa dano quadruplicado
-  dealDamage(u, enemy, mult * (isUlt ? (u.ampUlt || 1) : 1), fx, { el: "Eletro", isFollowup: true, defPen: isUlt && e6 ? 100 : 0, forceCrit: !!(isUlt && e6) });
+  const fresh = mk.left >= Math.max(1, mk.max - 1); // "fresca": perdeu no máximo 1 turno de contagem
+  if (isUlt && e6 && fresh) mult *= 4; // E6: marca fresca causa dano quadruplicado
+  if (isUlt && u.stFlags?.setCinzas4) mult = Math.round(mult * 1.5); // Cinzas do Amanhã 4pç: +50% de dano nas detonações da Suprema
+  dealDamage(u, enemy, mult * (isUlt ? (u.ampUlt || 1) : 1), fx, { el: "Eletro", isFollowup: true, defPen: (isUlt && e6 ? 100 : 0) + (eco ? 30 : 0), resPen: eco ? 20 : 0, hardCrit: !!(e6 || eco) });
   enemy._achMark = null;
-  acheronGainCinzas(u, 1);
+  acheronGainCinzas(u, e6 ? 2 : 1); // E6 · Ciclo Sem Fim: cada detonação vale 2 Cinzas
   if (u.weapon?.buff?.achWeapon) {
     u._achWpnStacks = Math.min(4, (u._achWpnStacks || 0) + 1);
     u.buffs = u.buffs.filter((b) => b.name !== "AmpulhetaStack");
     u.buffs.push({ stat: "atk", value: u._achWpnStacks * 8, pct: true, turns: 2, name: "AmpulhetaStack" });
   }
   if (u.stFlags?.setCinzas4) {
-    u._achEco = Math.min(6, (u._achEco || 0) + 1);
+    const prevEco = u._achEco || 0;
+    u._achEco = Math.min(6, prevEco + 1);
+    if (prevEco < 6 && u._achEco >= 6) u._achEcoReady = true; // 6 acúmulos: a próxima Suprema fica empoderada
     u.buffs = u.buffs.filter((b) => b.name !== "EcoDoFimCD" && b.name !== "EcoDoFimAtk");
     u.buffs.push({ stat: "critDmg", value: u._achEco * 6, turns: 9999, name: "EcoDoFimCD" });
     u.buffs.push({ stat: "atk", value: u._achEco * 4, pct: true, turns: 9999, name: "EcoDoFimAtk" });
@@ -7504,9 +7559,28 @@ function acheronDetonate(u, enemy, s, fx, isUlt) {
   }
   if (!enemy.alive) acheronGainCinzas(u, 1); // abate com marca concede Cinza extra
 }
+// Mantém os buffs dinâmicos que dependem de quantas Marcas estão ativas (E6 · Presença do Fim e Rastro 2 · Sob as Cinzas)
+function acheronSync(u, s) {
+  const n = aliveEnemies(s).filter((e) => e._achMark).length;
+  u.buffs = u.buffs.filter((b) => b.name !== "Presença do Fim" && b.name !== "Sob as Cinzas");
+  if (u.stFlags?.achE6 && n > 0) u.buffs.push({ stat: "dmgBonus", value: 20 * Math.min(3, n), turns: 9999, name: "Presença do Fim" });
+  if (u.stFlags?.achTrace2 && n > 0) u.buffs.push({ stat: "dmgReduce", value: 18, turns: 9999, name: "Sob as Cinzas" });
+}
 function acheronUltimate(u, s, fx) {
-  const marked = aliveEnemies(s).filter((e) => e._achMark);
+  const e6 = !!u.stFlags?.achE6;
+  const lvl = u.tUlt || 1;
+  const ecoFull = !!u._achEcoReady; u._achEcoReady = false; u._achEcoNow = ecoFull; // consome o empoderamento do Ecoar do Fim
+  const aliveBefore = aliveEnemies(s).length;
+  acheronSync(u, s); // garante o bônus de Marcas ativas antes das detonações
   pushLog(s, `⚡ ${u.name} ativa DETONAÇÃO ANTECIPADA!`);
+  if (ecoFull) pushLog(s, `🌀 Ecoar do Fim no máximo — a Suprema é CRÍTICA garantida e perfura DEF/RES!`);
+  // Ampulheta Invertida: 3+ acúmulos viram Dano Verdadeiro (60% do ATQ) em cada inimigo, antes da sequência normal
+  if (u.weapon?.buff?.achWeapon && (u._achWpnStacks || 0) >= 3) {
+    aliveEnemies(s).forEach((e) => dealDamage(u, e, 60, fx, { el: "Eletro", isFollowup: true, trueDef: true }));
+    u._achWpnStacks = 0; u.buffs = u.buffs.filter((b) => b.name !== "AmpulhetaStack");
+    pushLog(s, `⏳ Ampulheta Invertida converte os acúmulos em Dano Verdadeiro!`);
+  }
+  const marked = aliveEnemies(s).filter((e) => e._achMark);
   let chainBonus = 0;
   marked.forEach((e) => {
     if (u.stFlags?.achE4 && chainBonus > 0) e.debuffs.push({ stat: "vuln", value: chainBonus, turns: 1, name: "ReaçãoEmCadeia" });
@@ -7514,18 +7588,26 @@ function acheronUltimate(u, s, fx) {
     acheronDetonate(u, e, s, fx, true);
     if (wasAlive && !e.alive && u.stFlags?.achE4) chainBonus = Math.min(100, chainBonus + 20);
     if (u.stFlags?.achTrace1 && e.alive && Math.random() < 0.5) {
-      dealDamage(u, e, Math.round(supScale(108, u.tUlt || 1)) * (u.ampUlt || 1), fx, { el: "Eletro", isFollowup: true });
+      dealDamage(u, e, Math.round(supScale(108, lvl)) * (u.ampUlt || 1), fx, { el: "Eletro", isFollowup: true, hardCrit: e6 || ecoFull });
       pushLog(s, `⚡ Colheita Dupla! Segunda detonação em ${e.name}.`);
     }
   });
-  const lvl = u.tUlt || 1;
   let firstHit = true;
   aliveEnemies(s).forEach((e) => {
-    dealDamage(u, e, Math.round(supScale(220, lvl)) * (u.ampUlt || 1), fx, { el: "Eletro", isFollowup: true, forceCrit: !!u.stFlags?.achE6 });
+    // E6: golpe final vira Dano Verdadeiro e crítico garantido. Ecoar do Fim cheio: crítico + perfuração extra
+    dealDamage(u, e, Math.round(supScale(e6 ? 320 : 220, lvl)) * (u.ampUlt || 1), fx, { el: "Eletro", isFollowup: true, hardCrit: e6 || ecoFull, trueDef: e6, defPen: ecoFull ? 30 : 0, resPen: ecoFull ? 20 : 0 });
     if (firstHit && u.stFlags?.achTrace3) { e.debuffs.push({ stat: "vuln", value: 15, turns: 2, name: "Vulnerabilidade do Fim" }); firstHit = false; }
   });
-  if (u.stFlags?.achTrace3 && u.av != null) u.av = Math.max(0.01, (u.av || 1) * 0.75);
-  u._achCinzas = u.stFlags?.achE6 ? 3 : 0;
+  // E6: cada inimigo abatido na Detonação Antecipada concede +20% de Dano CRÍTICO ao time por 2 turnos
+  const kills = Math.max(0, aliveBefore - aliveEnemies(s).length);
+  if (e6 && kills > 0) {
+    s.heroes.filter((h) => h.alive && !h.isSummon).forEach((h) => { for (let i = 0; i < kills; i++) h.buffs.push({ stat: "critDmg", value: 20, turns: 2, name: "Fim Sem Prazo" }); });
+    pushLog(s, `⚡ ${kills} abate(s) — o time ganha +${kills * 20}% de Dano CRÍTICO por 2 turnos!`);
+  }
+  if (u.stFlags?.achTrace3) u._avMul = (u._avMul != null ? u._avMul : 1) * 0.75; // Rastro 3: aplicado depois do reset de AV do fim da ação (antes era sobrescrito)
+  u._achEcoNow = false;
+  u._achCinzas = e6 ? 4 : 0; // E6: mantém 4 Cinzas
+  acheronSync(u, s);
 }
 function asMark(u, s) {
   u._asMarks = Math.min(10, (u._asMarks || 0) + 1);
@@ -7887,7 +7969,12 @@ function tickBuffs(u) {
   });
   u.debuffs = u.debuffs.map((b) => ({ ...b, turns: b.turns - 1 })).filter((b) => b.turns > 0);
 }
-function cloneU(u) { return { ...u, buffs: u.buffs.map((b) => ({ ...b })), debuffs: u.debuffs.map((b) => ({ ...b })), dots: (u.dots || []).map((d) => ({ ...d })), base: { ...u.base }, stFlags: { ...(u.stFlags || {}) } }; }
+function cloneU(u) { return { ...u, ...(u._achMark ? { _achMark: { ...u._achMark } } : {}), buffs: u.buffs.map((b) => ({ ...b })), debuffs: u.debuffs.map((b) => ({ ...b })), dots: (u.dots || []).map((d) => ({ ...d })), base: { ...u.base }, stFlags: { ...(u.stFlags || {}) } }; }
+function relinkGate(s) { // o Chefe Protegido precisa enxergar os lacaios do estado ATUAL (o _sibs criado no início da batalha aponta pra cópias antigas e o selo nunca abria)
+  const bg = s.enemies.find((e) => e.boss && e._gated);
+  if (bg) bg._gateSibs = s.enemies;
+  return s;
+}
 function findUnit(s, uid) { return [...s.heroes, ...s.enemies].find((u) => u.uid === uid); }
 // Suportes: buffs/debuffs escalam com o nível da habilidade + amps de constelação, com teto de +12%
 // Escala de nível para EFEITOS (buff/cura/escudo/debuff), no molde do HSR:
@@ -8165,6 +8252,12 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
   function targetEnemy(s) { const al = aliveEnemies(s); return al[target] || al[0]; }
 
   function skillPreviewLines(hero, kind) {
+    if (hero.id === "acheron") {
+      const _a = Math.round(effStat(hero, "atk"));
+      if (kind === "basic") return [`Dano: <b>${hero.skill.basicMul}% de ATK</b> (Eletro)`, `≈ <b>${Math.round(_a * hero.skill.basicMul / 100)}</b> de dano (sem crítico)`, `Acelera em <b>1 turno</b> a Marca mais próxima de detonar`, `Ganha <b>+1 Ponto de Habilidade</b>`];
+      if (kind === "skill") return [`Custo: <b>1 Ponto de Habilidade</b>`, `Dano: <b>${hero.skill.skillMul}% de ATK</b> (Eletro)`, `≈ <b>${Math.round(_a * hero.skill.skillMul / 100)}</b> de dano`, `Planta a <b>Marca do Fim Selado</b> (3 turnos)`, `CRÍTICO: <b>+2 Cinzas do Fim</b>`];
+      return [`Requer <b>8 Cinzas do Fim</b> (${hero._achCinzas || 0}/8)`, `Detona <b>todas as Marcas</b> (180–340% de ATK cada)`, `Golpe final: <b>220% de ATK</b> em todos os inimigos`];
+    }
     const sk = hero.skill || {};
     const atk = Math.round(effStat(hero, "atk"));
     const lines = [];
@@ -8211,19 +8304,22 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     if (_now - actionLockRef.current < 400) return; // ignora disparo duplicado da mesma ação (toque duplo / race de estado)
     actionLockRef.current = _now;
     setState((s0) => {
-      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
+      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] }; relinkGate(s);
       const u = findUnit(s, current.uid); if (!u || !u.alive) { s.turn = null; return s; }
       if (kind === "skill" && s.sp <= 0) return s;
       const f = u.stFlags || {}; // flags de constelação/relíquia do personagem que está agindo (faltava — corrigido)
       if (u.id === "ichigo" && u._ichPendingTransform && !u._ichMugetsu) { u._ichPendingTransform = false; ichigoEnterMugetsu(u, s, s.fx); } // processa a transformação pendente (12º Fragmento ganho tomando dano no turno do inimigo)
       u._calamidadeEnergyThisAction = false; // reseta a cada ação — 1 energia de Calamidade por ação, não por aplicação de buff/debuff
       if (u.id === "acheron") {
-        aliveEnemies(s).forEach((e) => {
-          if (e._achMark) {
-            e._achMark.left -= 1;
-            if (e._achMark.left <= 0) acheronDetonate(u, e, s, s.fx, false);
-          }
-        });
+        if (kind !== "ult") { // na ação da Suprema as Marcas ficam congeladas: chegam frescas e rendem o dano máximo
+          aliveEnemies(s).forEach((e) => {
+            if (e._achMark) {
+              e._achMark.left -= 1;
+              if (e._achMark.left <= 0) acheronDetonate(u, e, s, s.fx, false);
+            }
+          });
+        }
+        acheronSync(u, s);
       }
       if (u.id === "yoruichi") u._yoruProcsThisTurn = 0; // reseta o limite de Clones Residuais/Colapso Elétrico a cada turno próprio dela
       s.heroTurns = (s.heroTurns || 0) + 1;
@@ -8443,7 +8539,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           if (u._ichMugetsu && enemy) {
             if ((u._ichReserve || 0) < 1) { const r = dealDamage(u, enemy, (sk.basicMul || 95) * (u.tBasic || 1) * ampB, fx, { el: "Unknown" }); msg = `⚔️ Corte de Zangetsu em ${enemy.name} — ${r.dmg} de Dano Unknown.`; }
             else {
-              const r = dealDamage(u, enemy, Math.round(supScale(750, u.tBasic || 1)) * ampB, fx, { el: "Unknown" });
+              const r = dealDamage(u, enemy, Math.round(supScale(750, u.tBasic || 1)) * ampB * (u.stFlags?.ichE6 ? 1.5 : 1), fx, { el: "Unknown" }); // E6: +50% de dano no Básico aprimorado
               let extra = "";
               if (u.stFlags?.ichE4) {
                 u._ichCorrosao = u._ichCorrosao || {};
@@ -8699,7 +8795,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             } else {
               const targets = aliveEnemies(s);
               let tot = 0, anyCrit = false;
-              targets.forEach((e) => { const r = dealDamage(u, e, Math.round(supScale(950, u.tSkill || 1)) * ampS, fx, { el: "Unknown" }); tot += r.dmg; if (r.crit) anyCrit = true; });
+              targets.forEach((e) => { const r = dealDamage(u, e, Math.round(supScale(950, u.tSkill || 1)) * ampS * (u.stFlags?.ichE6 ? 1.5 : 1), fx, { el: "Unknown" }); tot += r.dmg; if (r.crit) anyCrit = true; }); // E6: +50% de dano na Perícia aprimorada
               if (enemy && enemy.alive) enemy.debuffs = [...(enemy.debuffs || []).filter((b) => b.name !== "Corte Sombrio"), { stat: "vuln", value: 22, turns: 2, name: "Corte Sombrio" }];
               ichigoSpendReserve(u, cost, s, fx);
               msg = `🌑⚔️ Kuroi Getsuga: Lâmina do Vazio — ${tot} de Dano Unknown em todos os inimigos${anyCrit ? " (CRÍTICO!)" : ""}. Reservas: ${u._ichReserve || 0}/${u._ichReserveMax || 12}.`;
@@ -9520,6 +9616,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       }
       u._actDmg = 0; u._turnSeq = (u._turnSeq || 0) + 1; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       if (u._avMul != null) { u.av = Math.max(0.01, u.av * u._avMul); u._avMul = null; }
+      if (u.id === "acheron") acheronSync(u, s); // Marcas plantadas/detonadas nesta ação → atualiza Presença do Fim / Sob as Cinzas
       if (u.id === "miyabi" && (s.frostZone || 0) > 0) s.frostZone -= 1;
       if (u.id === "lupa" && (u._lupaOverclock || 0) > 0) { u._lupaOverclock -= 1; if (u._lupaOverclock <= 0) pushLog(s, `🔥 O Overclock de ${u.name} terminou.`); }
       if (u.id === "lupa" && (u._lupaSupernova || 0) > 0) u._lupaSupernova -= 1;
@@ -9676,7 +9773,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     if (_now - actionLockRef.current < 400) return;
     actionLockRef.current = _now;
     setState((s0) => {
-      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
+      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] }; relinkGate(s);
       const u = s.heroes.find(h => h.id === "kaiba" && h.alive); if (!u) { s.turn = null; return s; }
       const hand = u._kaibaHand || [];
       const cardId = hand[cardIdx]; if (!cardId) { s.turn = null; return s; }
@@ -9757,7 +9854,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
   }
   function resolveKaibaUlt(which) {
     setState((s0) => {
-      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null };
+      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null }; relinkGate(s);
       const u = s.heroes.find((h) => h.id === "kaiba" && h.alive); if (!u) { s.turn = null; return s; }
       const fx = s.fx, ampU = u.ampUlt || 1, ff = u.stFlags || {};
       const allies = s.heroes.filter((h) => h.alive);
@@ -9796,7 +9893,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
 
   function resolveFrierenUlt(which) {
     setState((s0) => {
-      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null };
+      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null }; relinkGate(s);
       const u = s.heroes.find((h) => h.id === "frieren" && h.alive); if (!u) { s.turn = null; return s; }
       const fx = s.fx, sk = u.skill, allies = s.heroes.filter((h) => h.alive), enems = aliveEnemies(s), mainT = targetEnemy(s);
       const f = u.stFlags || {}, ampU = u.ampUlt || 1;
@@ -9849,7 +9946,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
   }
   function resolveAgumonEvolve(formId) {
     setState((s0) => {
-      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null };
+      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null }; relinkGate(s);
       const u = s.heroes.find(h => h.id === "agumon" && h.alive); if (!u) { s.turn = null; return s; }
       const F = AGU_FORMS[formId]; if (!F || !F.req) { s.turn = null; return s; }
       if ((u.agSP || 0) < F.req.sp) { pushLog(s, "🧬 TamerSP insuficiente para " + F.name + "."); s.turn = null; return s; }
@@ -9896,7 +9993,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
   }
   function resolveAthenaUlt(chosenUid) {
     setState((s0) => {
-      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null };
+      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null }; relinkGate(s);
       const u = s.heroes.find((h) => h.id === "athena" && h.alive); if (!u) { s.turn = null; return s; }
       const fx = s.fx, f = u.stFlags || {};
       const allies = s.heroes.filter((h) => h.alive);
@@ -9929,7 +10026,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
 
   function resolveUrarakaSkill(chosenUid) {
     setState((s0) => {
-      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null };
+      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [], choice: null }; relinkGate(s);
       const u = s.heroes.find((h) => h.id === "uraraka" && h.alive); if (!u) { s.turn = null; return s; }
       const fx = s.fx, sk = u.skill, f = u.stFlags || {};
       const allies = s.heroes.filter((h) => h.alive);
@@ -9987,9 +10084,13 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
   // IA do Modo Automático: decide a MELHOR ação no momento (Suprema > Perícia > Básico), igual jogador otimizado faria
   function decideAutoKind(u, s) {
     if (!u) return "basic";
-    const fullEnergy = u.energyMax && u.energy >= u.energyMax;
+    const fullEnergy = u.id === "acheron" ? (u._achCinzas || 0) >= 8 : (u.energyMax && u.energy >= u.energyMax); // Acheron usa Cinzas do Fim (8), não Energia
     // Suprema pronta: sempre prioridade máxima (seja ela numérica ou de mecânica customizada — heroAction sabe executar as duas)
     if (fullEnergy) return "ult";
+    if (u.id === "acheron") { // Perícia só quando o alvo mais frágil ainda não tem Marca; senão o Básico acelera a Marca existente
+      const _al = s.enemies.filter((e) => e.alive); const _t = _al.length ? _al.reduce((a, b) => (b.hp < a.hp ? b : a)) : null;
+      return ((s.sp || 0) > 0 && _t && !_t._achMark) ? "skill" : "basic";
+    }
     // Perícia disponível (tem Ponto de Habilidade — SP): usa sempre, é quase sempre melhor que o básico (dano maior, buff, cura, debuff...)
     if ((s.sp || 0) > 0) return "skill";
     return "basic";
@@ -9999,7 +10100,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     if (_now - actionLockRef.current < 400) return; // trava contra disparo duplicado (ex: invocação atacando 2x)
     actionLockRef.current = _now;
     setState((s0) => {
-      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
+      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] }; relinkGate(s);
       const u = findUnit(s, uid); if (!u || !u.alive) { s.turn = null; return s; }
       tickDots(u, s.fx);
       if ((u._kaibaVirusTurns || 0) > 0) u._kaibaVirusTurns -= 1; // Vírus Esmaga-Cards (Kaiba): decai no turno de cada aliado protegido
@@ -10074,7 +10175,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         }
         else if (role === "buffer" && sk.skillBuff) { applyBuff(allies, sk.skillBuff, u.name, fx, u); msg = `${u.name} fortalece o time`; }
         else if (role === "shield" && sk.shield) {
-          const shBa = 1 + ((u.weapon?.shieldBonus || 0) + (f.setMuralha2 ? 30 : 0)) / 100;
+          const shBa = 1 + ((u.weapon?.shieldBonus || 0) + (u.stFlags?.setMuralha2 ? 30 : 0)) / 100;
           const shVal = Math.round((effStat(u, "def") * (sk.shield.defMul / 100) + sk.shield.flat) * shBa * (u.tSkill || 1));
           if (u.stFlags?.kirC1) {
             allies.forEach((a) => { const _sv = a.uid === u.uid ? shVal : Math.round(shVal * 0.80); a.shield = (a.shield || 0) + capShieldAdd(a, _sv); });
@@ -10099,7 +10200,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     if (_now - actionLockRef.current < 400) return; // trava contra disparo duplicado
     actionLockRef.current = _now;
     setState((s0) => {
-      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] };
+      let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] }; relinkGate(s);
       const u = findUnit(s, current.uid); if (!u || !u.alive) { s.turn = null; return s; }
       const _ichHero = s.heroes.find((h) => h.id === "ichigo"); if (_ichHero) _ichHero._ichHitFragThisTurn = false; // reseta a trava "1x por turno inimigo" no início de cada turno inimigo
       // Boneco de Treino (Batalha de Teste): não ataca nem aplica nada nos heróis — só passa o turno, pra você testar builds sem tomar dano
@@ -10659,6 +10760,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
                 </div>}
               </div>}
               {e.debuffs.length > 0 && <div style={{ fontSize: 9, color: "#FF8FA0", marginTop: 1 }}>{[...new Set(e.debuffs.map((d) => d.name))].join(" ")}</div>}
+              {e._achMark && <div style={{ fontSize: 9, color: "#B98BFF", fontWeight: 700, marginTop: 1 }}>⚡ Marca do Fim · {e._achMark.left}t</div>}
             </button>); })}
         </div>
         {state.summonFx && <SummonFx data={state.summonFx} />}
@@ -10776,7 +10878,8 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: lupaOC ? "#FF8A5C" : undefined }}>{lupaOC ? "🔥 " : ""}{h.name}{h.isSummon && <span style={{ color: el.color }}> ⟡</span>}</div>
                   {h.isSummon && isFinite(h.life) && <div style={{ fontSize: 9, color: el.color }}>⏳ {h.life} turno(s)</div>}
-                  {!h.isSummon && h.energyMax > 0 && <div style={{ fontSize: 9, color: full ? C.gold : "#6FA8FF" }}>⚡ {Math.round(h.energy)}/{h.energyMax}{full ? " · PRONTO" : ""}</div>}
+                  {!h.isSummon && h.energyMax > 0 && h.id !== "acheron" && <div style={{ fontSize: 9, color: full ? C.gold : "#6FA8FF" }}>⚡ {Math.round(h.energy)}/{h.energyMax}{full ? " · PRONTO" : ""}</div>}
+                  {h.id === "acheron" && <div style={{ fontSize: 9, fontWeight: (h._achCinzas || 0) >= 8 ? 800 : 400, color: (h._achCinzas || 0) >= 8 ? C.gold : "#B98BFF" }}>⚡ Cinzas do Fim: {h._achCinzas || 0}/8{(h._achCinzas || 0) >= 8 ? " · SUPREMA PRONTA" : ""}</div>}
                   {h.id === "agumon" && <div style={{ fontSize: 9, color: (h.agHeat || 0) > 70 ? "#FF7043" : "#FFB74D" }}>{AGU_FORMS[h.agForm || "agumon"]?.emoji} {AGU_FORMS[h.agForm || "agumon"]?.name}{(h.agModoX || 0) > 0 ? " · MODO X⚡" : ""} · 🔥{h.agHeat || 0} · 🧬{h.agSP || 0} SP{(h.agHeat || 0) >= 85 ? " ☢️" : ""}</div>}
                   {h.id === "miyabi" && (h.stFlags?.miPostura) && <div style={{ fontSize: 9, color: "#6FE3FF" }}>{"❄".repeat(Math.min(h.posturePH || 0, h.stFlags?.miC6 ? 4 : 3))}{"·".repeat(Math.max(0, (h.stFlags?.miC6 ? 4 : 3) - (h.posturePH || 0)))} {((h.posturePH || 0) >= (h.stFlags?.miC6 ? 4 : 3)) ? "Postura Iaido!" : "PH"}</div>}
                   {h.id === "ichigo" && !h._ichMugetsu && <div style={{ fontSize: 9, color: (h._ichFrag || 0) >= 12 ? "#EAEAEA" : "#9aa" }}>🌑 Fragmentos: {h._ichFrag || 0}/12</div>}
@@ -10998,6 +11101,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
 function abilityHint(h) {
   const sk = h.skill || {};
   if (h.id === "kaiba") return "Habilidade invoca Blue-Eyes (até 3). Com 3 em campo, o Ultimate libera Obelisco ou o Dragão Definitivo.";
+  if (h.id === "acheron") return "Perícia planta a Marca do Fim; o Básico a acelera. Cada detonação dá 1 Cinza — com 8, a Suprema detona todas as Marcas.";
   const parts = [];
   if (sk.heal || sk.ultHeal) parts.push("cura aliados");
   if (sk.shield || sk.ultShield) parts.push("concede escudo");
@@ -11022,8 +11126,9 @@ function DotPips({ unit }) {
 }
 function CombatPortrait({ h, size = 44, active }) {
   const el = ELEMENTS[h.element] || { color: C.line };
-  const pct = h.energyMax ? h.energy / h.energyMax : 0;
-  const full = h.energyMax && h.energy >= h.energyMax;
+  const _isAch = h.id === "acheron"; // Acheron: o anel mostra as Cinzas do Fim (8), não a Energia
+  const pct = _isAch ? Math.min(1, (h._achCinzas || 0) / 8) : (h.energyMax ? h.energy / h.energyMax : 0);
+  const full = _isAch ? (h._achCinzas || 0) >= 8 : (h.energyMax && h.energy >= h.energyMax);
   // Corrige bug: buffs ofensivos (dano/crítico) não refletiam visualmente no retrato — agora acende um selo dourado pulsante
   const buffed = (h.buffs || []).some((b) => ["dmgBonus", "critRate", "critDmg", "elemDmg", "atk", "followupDmg"].includes(b.stat) && (b.value || 0) > 0);
   return <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
