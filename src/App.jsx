@@ -94,10 +94,10 @@ const ROSTER = [
     skill: { basicMul: 100, asBasic: true, skillMul: 0, asSkill: true, ultMul: 760, asUlt: true } }),
   // ---- Ichigo Kurosaki · Limitado · Unknown ----
   mk({ id: "ichigo", name: "Ichigo Kurosaki", title: "O Vazio Entre Mundos", element: "Unknown", role: "dps", rarity: 5, avatar: "🌑", hp: 1220, atk: 1120, def: 460, spd: 108, energy: 9999, cr: 16, cd: 68, tags: ["Unknown", "DPS", "Transformação", "Fragmentos"],
-    skill: { basicMul: 133, ichBasic: true, skillMul: 301, ichSkill: true, ultMul: 0, ichUlt: true } }),
+    skill: { basicMul: 147, ichBasic: true, skillMul: 332, ichSkill: true, ultMul: 0, ichUlt: true } }),
   // ---- Acheron · Limitado · Eletro ----
   mk({ id: "acheron", name: "Acheron", title: "A Que Anda Sobre o Fim", element: "Eletro", role: "dps", rarity: 5, avatar: "⚡", hp: 1150, atk: 1080, def: 440, spd: 112, energy: 9999, cr: 18, cd: 70, tags: ["Eletro", "DPS", "Debuff", "Marcas"],
-    skill: { basicMul: 100, achBasic: true, skillMul: 240, achSkill: true, ultMul: 0, achUlt: true } }),
+    skill: { basicMul: 160, achBasic: true, skillMul: 380, achSkill: true, ultMul: 0, achUlt: true } }),
   // ---- Aizen Sōsuke · Limitado · Sem Caminho ----
   mk({ id: "aizensosuke", name: "Aizen Sōsuke", title: "A Existência Que Superou o Céu", element: "Chaos", role: "debuffer", rarity: 5, avatar: "🌙", hp: 1180, atk: 880, def: 520, spd: 104, energy: 180, cr: 10, cd: 60, elemDmg: 14.4, energyRegen: 10, tags: ["Chaos", "Sub-DPS", "Amplificador", "Sem Caminho", "Hipnose"],
     skill: { basicMul: 110, azBasic: true, skillMul: 240, azSkill: true, ultMul: 450, ultAoe: true, azUlt: true } }),
@@ -122,6 +122,8 @@ const ROSTER = [
   // ---- Tsukishiro Yanagi · Teorema da Desordem (Limitada) ----
   mk({ id: "shorekeeper", name: "Shorekeeper", title: "Guardiã da Costa Negra", element: "Unknown", role: "healer", rarity: 5, avatar: "🌌", hp: 2400, atk: 340, def: 460, spd: 100, energy: 130, cr: 5, cd: 50, er: 20, tags: ["Desconhecido", "Suporte", "Cura", "Domínio"],
     skill: { basicMul: 100, shkBasic: true, skillMul: 0, shkSkill: true, ultMul: 300, shkUlt: true } }),
+  mk({ id: "koleda", name: "Koleda Belobog", title: "Chefe de Obras de Belobog", element: "Eletro", role: "buffer", rarity: 5, avatar: "🔨", hp: 1240, atk: 640, def: 560, spd: 104, energy: 140, cr: 5, cd: 50, tags: ["Eletro", "Suporte de DoT", "Buffer", "Belobog"],
+    skill: { basicMul: 90, koBasic: true, skillMul: 70, koSkill: true, aoe: true, ultMul: 180, koUlt: true, ultAoe: true } }),
   mk({ id: "yanagi", name: "Tsukishiro Yanagi", title: "Teorema da Desordem", element: "Eletro", role: "debuffer", rarity: 5, avatar: "🌀", hp: 1100, atk: 780, def: 440, spd: 104, energy: 190, cr: 8, cd: 55, tags: ["Eletro", "Suporte de DoT", "Habilitadora", "Perfuração"],
       skill: { basicMul: 100, yanaBasic: true, skillMul: 0, yanaSkill: true, ultMul: 180, yanaUlt: true } }),
   ];
@@ -129,9 +131,9 @@ const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 // Tag primária de um personagem (usada como requisito de nó) e todas as tags únicas do elenco
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
-const LIMITED_5 = ["miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon", "lupa", "hitori", "altersaber", "gilgamesh", "aizensosuke", "ichigo"];     // limitados (pool 50/50): só via rate-up
-const FEATURED_LIMITEDS = ["aizensosuke", "acheron", "ichigo"]; // 3 banners ativos // único banner ativo: Aizen Sōsuke (5 dias) // banners ativos: Ichigo e Acheron (Alter Saber, Gilgamesh, Lupa e Hitori encerrados)
-const BANNER_DURATIONS = { aizensosuke: 5 * 24 * 60 * 60 * 1000, acheron: 5 * 24 * 60 * 60 * 1000, ichigo: 5 * 24 * 60 * 60 * 1000 }; // 5 dias cada
+const LIMITED_5 = ["koleda", "miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon", "lupa", "hitori", "altersaber", "gilgamesh", "aizensosuke", "ichigo"];     // limitados (pool 50/50): só via rate-up
+const FEATURED_LIMITEDS = ["koleda", "aizensosuke", "acheron", "ichigo"]; // 3 banners ativos // único banner ativo: Aizen Sōsuke (5 dias) // banners ativos: Ichigo e Acheron (Alter Saber, Gilgamesh, Lupa e Hitori encerrados)
+const BANNER_DURATIONS = { koleda: 5 * 24 * 60 * 60 * 1000, aizensosuke: 5 * 24 * 60 * 60 * 1000, acheron: 5 * 24 * 60 * 60 * 1000, ichigo: 5 * 24 * 60 * 60 * 1000 }; // 5 dias cada
 // ══ Títulos de chat — desbloqueados ao levar um personagem ao E6 (todas as cópias) ══
 const E6_TITLES = {
   lupa:        { t: "Predador de Fusão",       c: "#FF6A3D" },
@@ -150,12 +152,13 @@ const E6_TITLES = {
   athena:      { t: "Sabedoria do Olimpo",     c: "#FFD9A0" },
   wonderofyou: { t: "Calamidade Inevitável",   c: "#FF7AC8" },
   yanagi:      { t: "Anomalia Voltaica",       c: "#B98BFF" },
+  koleda:      { t: "Chefe de Obras de Belobog", c: "#FFB84D" },
 };
 function earnedTitles(owned) {
   return (owned || []).filter((o) => (o.eidolon || 0) >= 6 && E6_TITLES[o.id]).map((o) => ({ id: o.id, ...E6_TITLES[o.id] }));
 }
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
-const DEFAULT_FEATURED_CHAR = "aizensosuke";
+const DEFAULT_FEATURED_CHAR = "koleda";
 // Banner Especial Limitado — pool de 5, dura 3 dias corridos pra TODO mundo (data fixa, não reseta por dispositivo)
 const SPECIAL_BANNER_CHARS = ["soifon", "omegamon", "ryoshu", "wonderofyou", "frieren"];
 const SPECIAL_BANNER_START = new Date("2026-07-20T18:00:00Z").getTime();
@@ -182,6 +185,7 @@ const WEAPONS = [
   { id: "hailstorm",        name: "Nevasca de Outono",     rarity: 5, role: "aoe",      atk: 700, critRate: 30.0, critDmg: 52.0,    passive: "Fio do Zero Absoluto: DoTs de Geada amplificados. Apos a Habilidade, +24% Bonus de Dano por 2 turnos.",                         buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
   { id: "thunderclaws",     name: "Garras do Trovao",      rarity: 5, role: "dps",      atk: 850, critRate: 38.0,                   passive: "Descarga Predatoria: apos a Habilidade, +20% de VEL por 2 turnos.",                                                             buff: { onSkill: { spd: 20, turns: 2 } } },
   { id: "tensa_zangetsu", name: "Tensa Zangetsu", rarity: 5, role: "dps", atk: 700, def: 350, critRate: 18.0, passive: "Eco do Corte Perdido: aumenta o ATQ do usuario em 30%. Ao usar a Pericia em Fase Shinigami, existe 55% de chance de conceder 1 Fragmento do Dangai adicional (nao afeta a Pericia aprimorada da Forma Mugetsu). O primeiro Ataque Basico aprimorado de cada Forma Mugetsu nao consome Reserva. O golpe final da Forma Mugetsu causa 28% de dano adicional.", buff: { ichWeapon: true } },
+  { id: "ate_ultima_faisca", name: "Até a Última Faísca", rarity: 5, role: "buffer", atk: 582, hp: 1058, def: 463, hpFlat: 1058, defFlat: 463, atkPct: 18.0, dotDmg: 32.0, energyRegen: 10.0, koWeapon: true, passive: "Faísca de Obra (exclusiva de Koleda Belobog) — Aumenta o ATQ da portadora em 18%, o Dano de DoT em 32% e a Regeneração de Energia em 10%. BRASAS: sempre que um inimigo com 2 ou mais TIPOS diferentes de DoT sofre o tique de DoT, a portadora ganha 1 Brasa (máx. 6, dura a batalha). Cada Brasa concede a TODOS os aliados +4% de Dano de DoT (até +24%). ÚLTIMA FAÍSCA: ao acumular a 6ª Brasa todas são consumidas: por 2 turnos o time inteiro ganha +20% de ATQ e +25% de Dano de DoT, todos os DoTs em campo ganham +1 turno (máx. 6) e a caldeira de Koleda ganha +3 de Pressão de Impacto (o que pode disparar a Reação em Cadeia). Depois disso as Brasas ficam bloqueadas por 2 ações da portadora. Para Koleda Belobog: cada Brasa também concede +1 de Calor de Superaquecimento. «Ela nunca pediu um milagre — só mais uma martelada. Quando o último parafuso soltar, ainda vai sobrar uma faísca, e uma faísca é tudo de que uma fábrica precisa.»", buff: { koWeapon: true } },
   { id: "ampulheta_invertida", name: "Ampulheta Invertida", rarity: 5, role: "dps", atk: 756, critDmg: 58.0, passive: "Toda Marca do Fim Selado plantada pelo portador nasce com 1 turno a menos de duração natural (2 em vez de 3) — o relógio corre mais rápido, então as detonações naturais chegam antes. Em troca, sempre que uma Marca detona (por expiração, aceleração do Básico ou pela Suprema) o portador ganha +8% de ATQ por 2 turnos, acumulando até 4 vezes (+32% de ATQ no máximo). Ao usar a Suprema com 3 ou mais acúmulos ativos, todos são consumidos e convertidos em Dano Verdadeiro imediato equivalente a 60% do ATQ em cada inimigo, antes da sequência normal da Suprema — o dano ignora DEF e transforma o ritmo acelerado das Marcas numa abertura devastadora.", buff: { achWeapon: true } },
   { id: "originpistol",     name: "Pistola da Origem",     rarity: 5, role: "debuffer", atk: 840, critDmg: 58.8, extraDefDown: 14,  passive: "Mira Calculada: debuffs reduzem +14% de DEF adicional do alvo." },
   { id: "starmantle",       name: "Manto Estelar",         rarity: 5, role: "shield",   atk: 476, def: 476, shieldBonus: 52,        passive: "Barreira Estelar: +52% no valor dos Escudos gerados pelo portador." },
@@ -199,8 +203,8 @@ const WEAPONS = [
   { id: "aegis",       name: "Egide Brilhante",     rarity: 4, role: "shield",   atk: 396, def: 396, shieldBonus: 38,    passive: "Muralha Brilhante: +38% no valor dos Escudos gerados pelo portador." },
 ];
 const WEAPON_MAP = Object.fromEntries(WEAPONS.map((w) => [w.id, w]));
-const WEAPON_5_IDS = ["kyoka_suigetsu", "ampulheta_invertida", "tensa_zangetsu"]; // cones de Aizen, Acheron e Ichigo
-const DEFAULT_FEATURED_WEAPON = "kyoka_suigetsu";
+const WEAPON_5_IDS = ["ate_ultima_faisca", "kyoka_suigetsu", "ampulheta_invertida", "tensa_zangetsu"]; // cones de Aizen, Acheron e Ichigo
+const DEFAULT_FEATURED_WEAPON = "ate_ultima_faisca";
 
 /* ---------- MOCHILEIRO (seletor de personagem inicial) ---------- */
 const BEGINNER_PICK_CHARS = [
@@ -285,6 +289,9 @@ const RELIC_SETS = {
   "Sinfonia do Trono Prateado": { color: "#C0C0C0", p2: { energyRegen: 12 }, flag4: "setSinfonia4",
     d2: "+12% de Taxa de Regeneração de Energia.",
     d4: "Ao usar a Perícia ou a Habilidade Suprema, concede 'Ressonância Brilhante' a todos os aliados por 3 turnos: +25% de Dano Crítico. Efeito Bônus de Transbordo: se o portador possuir 200%+ de Dano Crítico total, concede adicionalmente +15% do seu próprio Dano Crítico como bônus ao aliado no 1º Slot. Ideal para Hitori Gotoh (Bocchi) e futuros buffers de CRIT DMG." },
+  "Elo Rompido da Tempestade": { color: "#8CE0FF", el: null, p2: { critDmg: 12, defPen: 6 }, flag4: "setFiosTempestade4",
+    d2: "+12% de Dano Crítico e +6% de Perfuração de DEF.",
+    d4: "Circuito Exposto — sempre que uma Marca, DoT ou debuff especial se encerra (por detonação ou expiração natural) em um inimigo, dispara um Elo de Descarga: até 2 outros inimigos sofrem 80% do ATK do portador como Dano Verdadeiro e recebem Contato Exposto (-15% de RES Elemental) por 2 turnos. Cada disparo dá 1 acúmulo de Tensão Acumulada (máx 5, permanente na batalha): +4% de Dano Crítico por acúmulo. Bônus Eletro: se o elemento do portador for Eletro, o Elo ricocheteia em +1 inimigo adicional e o Dano Verdadeiro causado é sempre CRÍTICO." },
 };
 const RELIC_SET_NAMES = Object.keys(RELIC_SETS);
 const ROTATING_FARM_SETS = RELIC_SET_NAMES.filter((s) => s !== "Protocolo Ômega"); // Ômega já tem domínio fixo (Rede Corrompida)
@@ -321,6 +328,7 @@ const RELIC_ITEM_ID = {
   "Tesouros da Primeira Babilônia": "item_relic_babilonia",
   "Matilha Voraz": "item_relic_matilha",
   "Sinfonia do Trono Prateado": "item_relic_sinfonia",
+  "Elo Rompido da Tempestade": "item_relic_elorompido",
 };
 const RELIC_EMOJI = {
   "Tempestade Eletro": "⚡",
@@ -346,6 +354,7 @@ const RELIC_EMOJI = {
   "Tesouros da Primeira Babilônia": "🗝️",
   "Matilha Voraz": "🐺",
   "Sinfonia do Trono Prateado": "🎵",
+  "Elo Rompido da Tempestade": "🌩️",
 };
 const GAME_ITEMS = [
   { id: "item_jade",        name: "Jade Estelar",           icon: "💎" },
@@ -590,7 +599,8 @@ const PASSIVE = {
   gilgamesh: { name: "Rei dos Heróis", desc: "Sempre que Gilgamesh causar dano, executar Ataque Extra, derrotar um inimigo ou consumir Tesouros, recebe Autoridade Real (máximo: 12). Ao atingir o máximo, entra automaticamente em Trono do Rei por 2 turnos. Enquanto ativo: todos os ataques sempre causam CRÍTICO, +140% Dano CRÍTICO, +50 Velocidade, ataques ignoram Escudos, e Ataques Extras ignoram 40% DEF. Além disso, cada Ataque Extra executa imediatamente Tesouro Celestial: dispara 6 armas, cada uma causando 90% do ATQ, e cada arma possui um efeito aleatório — causar dano adicional, gerar Tesouro, recuperar 3 Energia, reduzir DEF do alvo em 10% por 2 turnos, ou reduzir Resistência Unknown em 10% por 2 turnos. Quando Tesouro Celestial for executado três vezes, Gilgamesh dispara automaticamente Ea Fragmentada: um corte dimensional causando 450% do ATQ em todos os inimigos. — Mecânica Exclusiva · Portão da Babilônia: recurso exclusivo chamado Tesouros Reais (máximo inicial: 16). Obtém Tesouros ao usar Ataque Básico (+1), Perícia (+4), Ataque Extra (+1), derrotar um inimigo (+2) e Suprema (+8). Ao atingir 16 Tesouros, entra automaticamente em Reinado Dourado por 3 turnos: todos os ataques se tornam Dano Unknown, Ataques Extras ignoram 30% DEF, todo Ataque Extra gera outro disparo do Portão (máximo de 3 cadeias), o limite passa para 30 Tesouros e cada Tesouro acima de 16 aumenta o dano em 4%. — Técnica · A Chave do Rei: antes da batalha, obtém 10 Tesouros, recupera 70 de Energia e ativa imediatamente o Portão da Babilônia. Nos dois primeiros turnos, todos os Ataques Extras disparam o dobro de armas.", flag: "gilTalent" },
   altersaber: { name: "O Rei Nunca Cai", desc: "Talento: sempre que Alter Saber acertar um CRÍTICO, executar um Ataque Extra, derrotar um inimigo ou usar a Suprema, recebe uma Marca do Rei (máx 10). Ao atingir 10 marcas, todas são consumidas e ela entra automaticamente em Reino Absoluto por 2 turnos: todos os ataques SEMPRE causam CRIT, +140% de Dano CRÍTICO, +40% de Penetração de Resistência, +50 de Velocidade, ataques ignoram Escudos, e cada golpe cria uma Cópia Espectral (55% do dano do ataque original; a cada 3ª cópia, dispara Excalibur Negra: 300% do ATQ em Dano Chaos em todos os inimigos). Mecânica exclusiva — Reino da Ruína: acumule 12 Ruínas (ataques, contra-ataques, Suprema, abates e Ataques Extras) para entrar em Reino da Ruína, um estado que não pode ser dissipado: não consome Pontos de Perícia, todos os ataques viram Dano Chaos e ignoram 25% DEF, todo CRIT gera uma Ruína Fantasma (sem limite normal), e a cada 3 Ruínas Fantasma consumidas realiza imediatamente um Ataque Extra. Ao terminar o estado, todas as Ruínas Fantasma explodem causando dano proporcional ao acumulado.", flag: "asTalent" },
   ichigo: { name: "Instabilidade Hollow", desc: "Ichigo não acumula Energia como os demais combatentes. Em vez disso, ele carrega um resíduo espiritual instável chamado Fragmentos do Dangai (máximo: 12), nascido do treinamento em um corredor entre mundos que quase o destruiu. O Ataque Básico não gera nenhum Fragmento — o corte comum é rápido demais pra deixar qualquer resíduo. A Perícia gera 2 Fragmentos fixos, sem bônus por crítico. Derrotar um inimigo concede 1 Fragmento adicional, e sempre que Ichigo for atingido por um inimigo, ele ganha 1 Fragmento — a instabilidade que carrega dentro de si desperta sob pressão, não em segurança. Ao atingir 12 Fragmentos, todos são consumidos automaticamente: Ichigo golpeia todos os inimigos de uma vez e entra em Forma Mugetsu, onde recebe 12 Reservas de Mugetsu (um medidor separado) e seus atributos de ataque sobem drasticamente. Durante a Forma Mugetsu, o Ataque Básico e a Perícia são substituídos por versões aprimoradas que não custam Ponto de Perícia — custam Reservas de Mugetsu. O Básico aprimorado consome 1 Reserva e causa dano superior ao de qualquer ataque comum. A Perícia aprimorada consome 3 Reservas e atinge uma área maior, aplicando um corte que deixa o alvo mais vulnerável. Quando as Reservas de Mugetsu chegam a zero, um golpe final devastador dispara sozinho contra todos os inimigos em campo — ninguém precisa apertar nada, ele simplesmente acontece — e então Ichigo retorna à sua forma comum, com os Fragmentos do Dangai zerados e prontos pra começar o ciclo de novo.", flag: "ichTalent" },
-  acheron: { name: "Cinzas do Fim", desc: "Acheron não acumula Energia como os demais combatentes. Em vez disso ela carrega Cinzas do Fim (máximo: 8) — o card dela na batalha e o anel do retrato mostram esse contador no lugar da barra de Energia. As Cinzas são o único combustível da Suprema, e só existe um jeito de enchê-las: fazer Marcas do Fim Selado chegarem a zero. COMO FUNCIONA A MARCA: a Perícia planta uma Marca do Fim Selado no alvo (dura 3 turnos). A Marca é silenciosa — enquanto existe ela não causa dano nem aplica efeito nenhum, apenas conta o tempo. A contagem de TODAS as Marcas cai 1 turno no início de cada ação de Acheron; o Ataque Básico ainda acelera em mais 1 turno a Marca mais próxima de detonar, em qualquer inimigo. Só a ação da Suprema não faz a contagem andar: as Marcas ficam congeladas para chegarem frescas e renderem o máximo. COMO SE GANHAM CINZAS: quando uma Marca chega a zero (por contagem natural ou pelo Básico) ela detona sozinha, causa 90% do ATQ em Dano Eletro e concede 1 Cinza. Uma Perícia CRÍTICA concede 2 Cinzas direto. Derrotar um inimigo que ainda carregava uma Marca concede 1 Cinza extra. COMO USAR A SUPREMA: ao chegar em 8 Cinzas a Suprema libera. Ela nunca dispara sozinha — diferente do Ichigo, aqui você escolhe a hora certa de apertar. O jogo ideal é plantar Marcas em vários inimigos, deixá-las frescas e só então detonar tudo de uma vez: quanto mais turnos uma Marca ainda tinha, mais dano ela causa. No modo Auto a IA usa a Suprema assim que as 8 Cinzas fecham e alterna Perícia e Básico para não desperdiçar Marcas.", flag: "achTalent" },
+  koleda: { name: "Mestra da Demolição · Superaquecimento", desc: "MESTRA DA DEMOLIÇÃO — PRESSÃO DE IMPACTO (0–12). Koleda trata os DoTs do time como combustível de uma caldeira: cada TIPO diferente de DoT num inimigo é um combustível, e a caldeira enche sempre que ele queima — não importa quem aplicou o DoT. COMO GANHAR PRESSÃO: ① quando um inimigo com DoT sofre o tique no próprio turno: +1 por TIPO de DoT nele (máx. +2), +1 se estiver sob Estresse Estrutural (máx. +3 por tique) e +2 se morrer para o DoT; ② +1 por novo TIPO de DoT que um aliado aplicar num inimigo que ainda não tinha aquele tipo (máx. +3 por ação); ③ Ataque Básico +1 (+2 se o alvo tiver 2+ tipos), Perícia +2 (+1 por inimigo com DoT, máx. +3) e Suprema +4. REAÇÃO EM CADEIA: ao chegar a 12 (havendo ao menos um DoT em campo) toda a Pressão é consumida e a caldeira estoura — ① DESCARGA EM CASCATA: cada inimigo com DoT sofre 1 tique instantâneo e gratuito de todos os seus DoTs (100% do dano armazenado; máx. 35% do HP do inimigo, 10% em chefes), começando pelo DoT que acaba primeiro; ② ESTRUTURA FRATURADA: DEF −(10% +4% por tipo, até 4 tipos) e RES Eletro −10% por 2 turnos; ③ todos os DoTs ganham +1 turno; ④ SOBREALIMENTAÇÃO: aliados +6 de Energia, Koleda +12; ⑤ REAÇÃO POR DIVERSIDADE (tipos distintos de DoT em campo): 1 tipo = +8 Calor; 2 tipos = FAÍSCA DUPLA (inimigos com 2+ tipos recebem +25% de dano de DoT por 2 turnos) e +14 Calor; 3+ tipos = FUSÃO (o DoT mais forte de cada inimigo é duplicado por 2 turnos) e +22 Calor. Cada Reação também sobe o MOTOR (máx. 3, dura a batalha): +15% de potência da Descarga por nível. SUPERAQUECIMENTO (Passiva Única): Koleda acumula Calor (0–100): +1 a cada 2 DoTs que dão tique num inimigo (máx. +4 por inimigo), +3 com o Básico, +6 com a Perícia, +25 com a Suprema e o Calor das Reações. Ao chegar a 100 entra em SUPERAQUECIMENTO por 3 ações dela (o Calor zera e não acumula durante o estado): inimigos sofrem +35% de dano de DoT, DEF −16% e RES Eletro −14%, e cada tique dispara uma FAÍSCA ADICIONAL (+30% do dano do tique); aliados aplicam DoTs com +30% de Dano de DoT; a cada ação de Koleda todos os DoTs em campo ganham +1 turno (máx. 6); e a Pressão ganha com tiques é DOBRADA. TÉCNICA — ENTRADA EM SERVIÇO: ao iniciar a batalha aplica Choque (2 turnos) e Estresse Estrutural (2 turnos) em todos os inimigos, começa com 4 de Pressão e 25 de Calor e concede +20 de Energia a ela e aos aliados especialistas em DoT.", flag: "koTalent" },
+  acheron: { name: "Cinzas do Fim", desc: "Acheron não acumula Energia como os demais combatentes. Em vez disso ela carrega Cinzas do Fim (máximo: 8) — o card dela na batalha e o anel do retrato mostram esse contador no lugar da barra de Energia. As Cinzas são o único combustível da Suprema, e só existe um jeito de enchê-las: fazer Marcas do Fim Selado chegarem a zero. COMO FUNCIONA A MARCA: a Perícia planta uma Marca do Fim Selado no alvo (dura 3 turnos). A Marca é silenciosa — enquanto existe ela não causa dano nem aplica efeito nenhum, apenas conta o tempo. A contagem de TODAS as Marcas cai 1 turno no início de cada ação de Acheron; o Ataque Básico ainda acelera em mais 1 turno a Marca mais próxima de detonar, em qualquer inimigo. Só a ação da Suprema não faz a contagem andar: as Marcas ficam congeladas para chegarem frescas e renderem o máximo. COMO SE GANHAM CINZAS: quando uma Marca chega a zero (por contagem natural ou pelo Básico) ela detona sozinha, causa 160% do ATQ em Dano Eletro e concede 1 Cinza. Uma Perícia CRÍTICA concede 2 Cinzas direto. Derrotar um inimigo que ainda carregava uma Marca concede 1 Cinza extra. COMO USAR A SUPREMA: ao chegar em 8 Cinzas a Suprema libera. Ela nunca dispara sozinha — diferente do Ichigo, aqui você escolhe a hora certa de apertar. O jogo ideal é plantar Marcas em vários inimigos, deixá-las frescas e só então detonar tudo de uma vez: quanto mais turnos uma Marca ainda tinha, mais dano ela causa. No modo Auto a IA usa a Suprema assim que as 8 Cinzas fecham e alterna Perícia e Básico para não desperdiçar Marcas.", flag: "achTalent" },
   hitori: { name: "Ansiedade Amplificada", desc: "5 Estrelas - Suporte | Chaos. Ataques básicos não farão nada além de dar uma pequena quantidade de dano de Chaos. Passivas: A cada 3% de dano crítico, Hitori recebe 1 ponto de velocidade. Concede 30 de energia para todos os aliados após ativar seu supremo. Concede 30% de bônus de dano de Holy e Chaos para os aliados nos dois primeiros slots.", flag: "hitoriPassive" },
   lupa: { name: "Fome da Predadora", desc: "Lupa opera como uma força da natureza que se alimenta do caos elemental presente no campo de batalha. Acúmulo de Voracidade: Sempre que Lupa causa Dano de Fogo a um inimigo sob o efeito de qualquer Dano Contínuo (DoT de Fogo, Sangramento, Choque, etc.), ela consome 1 rodada desse efeito e ganha 1 carga de Voracidade (máximo de 10 cargas). Cada carga concede +20% de Dano de Fogo (até +200% no máximo). Cada carga também restaura 5 pontos de Energia instantaneamente para Lupa. Chama Voraz: Quando Lupa possui 10 cargas de Voracidade, ela entra no estado \"Predadora Absoluta\". Seu próximo Ataque Básico ou Perícia ignora 20% da DEF do alvo e consome todas as cargas para garantir que sua próxima Liberação de Ressonância (Ultimate) cause Dano Crítico Garantido.", flag: "lupaVoracity" },
   miyabi:    { name: "Caçadora do Vazio · Geada Profunda", desc: "Talento: sempre que Miyabi atinge um inimigo que esteja sob QUALQUER efeito contínuo (Congelamento, Queimadura, Veneno, Choque ou Sangramento), o golpe causa +30% de dano. Como suas próprias Habilidade e Ultimate marcam congelamento, ela rapidamente se auto-habilita e escala o dano contra alvos já afligidos pela equipe — quanto mais DoTs no campo, mais letal ela fica.", flag: "pShatter" },
@@ -650,7 +660,15 @@ const CONS = {
     { name: "E3 · O Nome Que a Lâmina Esqueceu", ...A_ULT, flag: "ichE3", desc: "Aumenta o nível da Suprema em +2. Aumenta o nível do Talento em +2. Nível máximo: 15." },
     { name: "E4 · Corte que Não Erra", flag: "ichE4", desc: "O custo da Perícia aprimorada da Forma Mugetsu cai permanentemente de 3 para 2 Reservas. Além disso, toda vez que o Básico aprimorado acerta, aplica 1 acúmulo de Corrosão do Vazio no alvo (máximo de 5, cada acúmulo reduz a DEF dele em 4%). Se um inimigo morrer carregando 3 ou mais acúmulos de Corrosão do Vazio, a Reserva de Mugetsu que seria gasta nesse ataque é reembolsada na hora." },
     { name: "E5 · A Lâmina Que Ainda Sonha", ...A_SKILL, flag: "ichE5", desc: "Aumenta o nível da Perícia em +2. Aumenta o nível do Ataque Básico em +2. Nível máximo: 15." },
-    { name: "E6 · A Lâmina que Cortou o Destino", flag: "ichE6", desc: "A Forma Mugetsu é permanentemente levada ao limite. FORMA MAIS LONGA: Ichigo entra na Forma Mugetsu com 16 Reservas em vez de 12 — quatro ataques aprimorados a mais antes do golpe final. LÂMINAS MAIS PESADAS: o Básico aprimorado e a Perícia aprimorada causam +50% de dano. GOLPE FINAL TRANSFORMADO: o golpe final da Forma Mugetsu sobe de 1500% para 3200% do ATQ em todos os inimigos, acerta CRÍTICO garantido, ignora 60% da DEF e 25% da Resistência dos alvos. ONDA MUGETSU: ao disparar, uma onda de choque concede a todo o time aliado +45% de Dano CRÍTICO e +15% de ATQ por 2 turnos. VAZIO ENTRE MUNDOS: Ichigo recebe -25% de dano por 2 turnos e seu próximo turno chega 40% mais cedo — o golpe o deixa momentaneamente vazio e difícil de alcançar. CICLO RÁPIDO: ao voltar à forma comum ele mantém ao menos 4 Fragmentos do Dangai e ainda recupera 3 Fragmentos por inimigo que o golpe final tenha derrotado, saindo de uma Forma Mugetsu já perto da próxima." },
+    { name: "E6 · A Lâmina que Cortou o Destino", flag: "ichE6", desc: "A Forma Mugetsu é permanentemente levada ao limite. FORMA MAIS LONGA: Ichigo entra na Forma Mugetsu com 16 Reservas em vez de 12 — quatro ataques aprimorados a mais antes do golpe final. LÂMINAS MAIS PESADAS: o Básico aprimorado e a Perícia aprimorada causam +50% de dano. GOLPE FINAL TRANSFORMADO: o golpe final da Forma Mugetsu sobe de 1650% para 3500% do ATQ em todos os inimigos, acerta CRÍTICO garantido, ignora 60% da DEF e 25% da Resistência dos alvos. ONDA MUGETSU: ao disparar, uma onda de choque concede a todo o time aliado +45% de Dano CRÍTICO e +15% de ATQ por 2 turnos. VAZIO ENTRE MUNDOS: Ichigo recebe -25% de dano por 2 turnos e seu próximo turno chega 40% mais cedo — o golpe o deixa momentaneamente vazio e difícil de alcançar. CICLO RÁPIDO: ao voltar à forma comum ele mantém ao menos 4 Fragmentos do Dangai e ainda recupera 3 Fragmentos por inimigo que o golpe final tenha derrotado, saindo de uma Forma Mugetsu já perto da próxima." },
+  ],
+  koleda: [
+    { name: "E1 · O Primeiro Golpe Abre Caminho", flag: "koE1", desc: "A VÁLVULA DE ESCAPE. A caldeira de Koleda ganha um mecanismo de alívio controlado pelo martelo. ① MARTELADA DE VÁLVULA: com 8 a 11 de Pressão, o Ataque Básico libera a caldeira antes da hora — a Reação em Cadeia dispara na hora com potência proporcional à Pressão (Pressão ÷ 12: 8 = 67%, 11 = 92%) e a Pressão vai a 0. ② RESERVA DA VÁLVULA: Pressão ganha além de 12 não se perde — vai para a Reserva (máx. 6) e volta como Pressão logo após a próxima Reação. ③ RETENÇÃO: uma Reação que dispara sozinha ao chegar a 12 mantém 3 de Pressão em vez de zerar. A DECISÃO: esperar os 12 (potência total + retém 3, mas cada turno de espera custa tempo) ou soltar a válvula cedo com o Básico (menos potência, no momento exato). A Perícia constrói Pressão (+2 a +5); o Básico libera." },
+    { name: "E2 · A Fornalha Não Esfria", flag: "koE2", desc: "RISCO OU RECOMPENSA. O Calor necessário para o Superaquecimento cai de 100 para 85 — e, uma vez aceso, Koleda escolhe o que fazer com ele. MANTER: usar a Perícia durante o Superaquecimento o estende em +1 ação (máx. 5 no total) e empilha 1 FADIGA TÉRMICA (máx. 3; cada acúmulo faz Koleda receber +10% de dano). Na 3ª Fadiga ocorre a PANE DE VÁLVULA: o Superaquecimento se encerra ao fim da ação e o próximo turno dela demora 20% mais. CONSUMIR: usar o Ataque Básico durante o Superaquecimento vira VÁLVULA DE ALÍVIO — o estado é consumido na hora e dispara uma Reação em Cadeia GRATUITA (não gasta Pressão) com potência de 100% +35% por ação de Superaquecimento que ainda restava (máx. 205%)." },
+    { name: "E3 · Belobog Continua de Pé", flag: "koE3", amp: "skill", ampV: 25, desc: "Nível da Perícia +2 e do Ataque Básico +1. Além disso, o Estresse Estrutural passa a durar +1 turno (4) e cada vez que a Perícia atinge um inimigo que JÁ estava sob Estresse Estrutural, ele acumula 1 FADIGA DE METAL (máx. 3): +6% de bônus de dano de DoT do Estresse por acúmulo. A Perícia deixa de ser só «reaplicar» e passa a recompensar manter o mesmo alvo sob pressão contínua. Escalas de potência do Estresse Estrutural aumentam com o nível da Perícia." },
+    { name: "E4 · Martelo, Faísca e Impacto", flag: "koE4", desc: "A TABELA DE COMBUSTÃO. Cada tipo de DoT ganha um PAPEL: COMBUSTÍVEL (Ignis, Corrosão), FAÍSCA (Choque, Fulgur), IMPACTO (Sangramento, Afundamento) e CATALISADOR (Veneno, Glacier, Ciclone, Aero). Em cada Reação em Cadeia, cada inimigo é analisado pelos papéis que carrega: COMBUSTÍVEL + FAÍSCA = IGNIÇÃO (a Descarga desse alvo é DOBRADA); FAÍSCA + IMPACTO = PERCUSSÃO (golpe extra de 200% do ATQ de Koleda com 30% de perfuração de DEF e o alvo atrasa 12%); COMBUSTÍVEL + IMPACTO = ESTILHAÇO INCANDESCENTE (40% da Descarga espirra em todos os outros inimigos); CATALISADOR + qualquer outro papel = CATÁLISE (o DoT de menor duração é renovado para no mínimo 3 turnos e ganha +30% de dano); os 4 papéis no mesmo alvo = TRINDADE COMPLETA (nova Descarga a 50%, +1 Ponto de Habilidade e +10% de Dano de DoT ao time por 2 turnos). Quanto mais variado o time, mais reações simultâneas." },
+    { name: "E5 · A Chefe Deu a Ordem", flag: "koE5", amp: "ult", ampV: 50, desc: "Nível da Suprema +2 e do Talento +2, e nasce a ÚLTIMA MARTELADA: a Suprema muda conforme a Pressão no momento do uso. MARTELADA FRIA (0–3 de Pressão): a caldeira sobe para 7 de Pressão e o time ganha +8 de Energia — a Suprema vira preparação. MARTELADA QUENTE (4–8): a Combustão Forçada detona cada DoT DUAS vezes e todos os DoTs ganham +1 turno. MARTELADA CRÍTICA (9–12): toda a Pressão é convertida numa Reação em Cadeia completa na hora, a Janela de Sobrecarga dura +1 ação e o time ignora 20% da DEF por 2 turnos. Escalas de potência da Janela de Sobrecarga aumentam com o nível da Suprema." },
+    { name: "E6 · Enquanto Eu Estiver Aqui, Ninguém Para", flag: "koE6", desc: "O CICLO DE FUNDIÇÃO PERPÉTUA. LINGOTES (0–3): Koleda ganha 1 Lingote por Reação em Cadeia (fora da Forja), por Suprema e por rodada em que um inimigo com 3+ tipos de DoT sofre o tique. Com 3 Lingotes a FORJA ABERTA se acende (mesmo sem Calor): ela entra em Superaquecimento (+1 ação) e o ciclo passa ao 2º estado. Na FORJA ABERTA: cada DoT que dá tique gera +1 Pressão extra; o Estresse Estrutural conta todos os alvos como tendo 4 tipos; e as Reações viram REAÇÕES TERMINAIS (potência ×1,4, máx. 2 por Forja). Toda Reação TEMPERA os DoTs: +25% de dano (1 vez por DoT) e +1 turno — e cada DoT Temperado que dá tique gera +1 Pressão e +1 Calor, realimentando o ciclo. Usar a SUPREMA durante a Forja dispara as Reações Terminais restantes de uma vez (ÚLTIMA MARTELADA FINAL) e fecha a Forja. LIMITE: ao fechar (por fim do Superaquecimento ou Suprema), a fornalha esfria 2 ações e os Lingotes zeram. Superaquecimento passa a durar +1 ação." },
   ],
   acheron: [
     { name: "E1 · O Fim Se Recusa a Ser Desfeito", flag: "achE1", desc: "Uma Marca do Fim Selado que chega a zero fora da Suprema — seja pela contagem natural dos turnos, seja acelerada pelo Ataque Básico — não some em silêncio: depois de detonar e render a Cinza normal, ela se replica sozinha em um inimigo aleatório que ainda não tenha nenhuma Marca, com a duração cheia. Na prática o fim 'anda' pelo campo: contra grupos, uma única Perícia pode alimentar uma cadeia de detonações que continua por vários turnos, gerando Cinzas sem gastar Pontos de Perícia. A replicação não acontece durante a Suprema e só ocorre se existir pelo menos um inimigo livre de Marca." },
@@ -658,7 +676,7 @@ const CONS = {
     { name: "E3 · O Sussurro Antes do Fim", ...A_ULT, flag: "achE3", desc: "Aumenta o nível da Suprema em +2, elevando o dano de todas as detonações — inclusive as detonações naturais das Marcas, que escalam com o nível da Suprema — e o do golpe final. O nível do Talento também sobe +2. Nível máximo: 15." },
     { name: "E4 · Reação em Cadeia", flag: "achE4", desc: "Quando uma detonação da Suprema derrota um inimigo, o fim se alimenta dele: cada Marca ainda não detonada na mesma ativação passa a fazer o alvo receber +20% de dano, e o bônus se acumula a cada novo abate na sequência (até +100%). As Marcas são detonadas uma a uma, então a ordem importa — comece pelos inimigos mais frágeis para gerar o bônus antes de chegar ao alvo mais forte, que será atingido já com a cadeia acumulada. Contra ondas cheias, uma Suprema bem preparada pode limpar o campo inteiro." },
     { name: "E5 · A Lâmina Que Ainda Espera", ...A_SKILL, flag: "achE5", desc: "Aumenta o nível da Perícia em +2, elevando o dano do golpe que planta a Marca. Aumenta também o nível do Ataque Básico em +2. Nível máximo: 15." },
-    { name: "E6 · O Fim Não Aceita Prazo", flag: "achE6", desc: "A mecânica inteira de Acheron é levada ao limite — o fim deixa de ter prazo e passa a colher tudo. MARCA PERPÉTUA: toda Marca plantada nasce com +1 turno de duração (4 turnos; 3 com a Ampulheta Invertida). Uma Marca é considerada FRESCA enquanto tiver perdido no máximo 1 turno de contagem, e como a Suprema congela a contagem, quase toda Marca chega fresca. COLHEITA DO FIM: na Suprema, toda Marca fresca causa dano QUADRUPLICADO (em vez do bônus normal de frescor) e todas as detonações — naturais ou da Suprema — acertam CRÍTICO garantido. SENTENÇA FINAL: o golpe final da Suprema sobe de 220% para 320% do ATQ em todos os inimigos, é CRÍTICO garantido e vira Dano Verdadeiro — ignora toda a DEF dos alvos. CICLO SEM FIM: cada detonação de Marca passa a valer 2 Cinzas em vez de 1, e a Suprema termina mantendo 4 Cinzas em vez de zerar o medidor — bastam 2 ou 3 detonações para ela estar pronta de novo. CEIFA COLETIVA: cada inimigo derrotado durante a Detonação Antecipada concede a todo o time +20% de Dano CRÍTICO por 2 turnos (acumula por abate). PRESENÇA DO FIM: enquanto houver Marcas ativas no campo, Acheron causa +20% de Dano por Marca (até 3 Marcas = +60%) — plante várias e ela vira uma ceifadora." },
+    { name: "E6 · O Fim Não Aceita Prazo", flag: "achE6", desc: "A mecânica inteira de Acheron é levada ao limite — o fim deixa de ter prazo e passa a colher tudo. MARCA PERPÉTUA: toda Marca plantada nasce com +1 turno de duração (4 turnos; 3 com a Ampulheta Invertida). Uma Marca é considerada FRESCA enquanto tiver perdido no máximo 1 turno de contagem, e como a Suprema congela a contagem, quase toda Marca chega fresca. COLHEITA DO FIM: na Suprema, toda Marca fresca causa dano QUADRUPLICADO (em vez do bônus normal de frescor) e todas as detonações — naturais ou da Suprema — acertam CRÍTICO garantido. SENTENÇA FINAL: o golpe final da Suprema sobe de 400% para 500% do ATQ em todos os inimigos, é CRÍTICO garantido e vira Dano Verdadeiro — ignora toda a DEF dos alvos. CICLO SEM FIM: cada detonação de Marca passa a valer 2 Cinzas em vez de 1, e a Suprema termina mantendo 4 Cinzas em vez de zerar o medidor — bastam 2 ou 3 detonações para ela estar pronta de novo. CEIFA COLETIVA: cada inimigo derrotado durante a Detonação Antecipada concede a todo o time +20% de Dano CRÍTICO por 2 turnos (acumula por abate). PRESENÇA DO FIM: enquanto houver Marcas ativas no campo, Acheron causa +20% de Dano por Marca (até 3 Marcas = +60%) — plante várias e ela vira uma ceifadora." },
   ],
   hitori: [
     { name: "C1 · Rastreadora de Cinzas", flag: "hitoriC1", desc: "Aumenta a velocidade de Hitori em 12 pontos. Quando Hitori usar o supremo, ela concederá 24% de taxa de perfuração para todos os aliados." },
@@ -902,6 +920,7 @@ const SKILL_NAMES = {
   altersaber: ["Espada do Rei Caído", "Coroa do Rei Profanado", "Excalibur Morgan — O Fim do Trono"],
   hitori: ["Dedilhado Ansioso", "Entoar da Solidão", "Kessoku Band"],
   acheron: ["Fio Cortado", "Marca do Fim Selado", "Detonação Antecipada"],
+  koleda: ["Martelo em Ação", "Impacto de Alta Pressão", "Martelo Demolidor: Sobrecarga"],
   };
 const skillNamesOf = (id) => SKILL_NAMES[id] || ["Ataque Básico", "Habilidade", "Ultimate"];
 
@@ -916,6 +935,18 @@ const TRACE_NODES = [
 ];
 // Nós específicos por personagem (Hypercarry de Gelo etc.). Quem não tiver usa o set genérico.
 const TRACE_NODE_SETS = {
+  koleda: [
+    { stat: "atk", value: 6, label: "ATQ +6%", cost: 500 },
+    { stat: "dotDmg", value: 8, label: "Dano de DoT +8%", cost: 700 },
+    { stat: "spd", value: 4, label: "VEL +4", cost: 900 },
+    { stat: "hp", value: 8, label: "HP +8%", cost: 500 },
+    { stat: "elemDmg", element: "Eletro", value: 8, label: "Dano Eletro +8%", cost: 600 },
+    { stat: "def", value: 8, label: "DEF +8%", cost: 500 },
+    { stat: "dotDmg", value: 12, label: "Dano de DoT +12%", cost: 900 },
+    { stat: "atk", value: 8, label: "ATQ +8%", cost: 700 },
+    { stat: "spd", value: 4, label: "VEL +4", cost: 1100 },
+    { stat: "energyRegen", value: 6, label: "Regen. de Energia +6%", cost: 800 },
+  ],
   yoruichi: [
     { stat: "spd", value: 6, label: "VEL +6", cost: 700 },
     { stat: "critDmg", value: 10, label: "CRIT DMG +10%", cost: 700 },
@@ -1042,6 +1073,11 @@ function specialTraces(def) {
       { name: "Rastro Especial 1 · Ruptura da Máscara", desc: "Rastro Especial de combate: sempre que Ichigo entra em Forma Mugetsu, recebe +200% de Dano CRÍTICO pela duração inteira da transformação — esse bônus desaparece assim que ele retorna à forma comum.", combat: "ichTrace1", cost: 3 },
       { name: "Rastro Especial 2 · Instabilidade Estável", desc: "Rastro Especial de combate: enquanto estiver em Forma Mugetsu, Ichigo se torna imune a Congelamento, Atordoamento e Enraizamento, e recebe -20% de todo dano recebido.", combat: "ichTrace2", cost: 2 },
       { name: "Rastro Especial 3 · Salto no Vazio", desc: "Rastro Especial de combate: ao entrar em Forma Mugetsu, Ichigo recupera imediatamente 30% de Valor de Ação, avançando sua posição na ordem de turnos.", combat: "ichTrace3", cost: 2 },
+    ];
+    if (def.id === "koleda") return [
+      { name: "Rastro Especial 1 · Faísca de Belobog", desc: "Rastro de combate: todo DoT aplicado por um aliado (ou por Koleda) num inimigo que esteja sob Estresse Estrutural nasce com +20% de dano e +1 turno de duração. A Perícia passa a ser a «autorização de obra» do time: aplicar Estresse antes dos DoTs faz cada DoT novo nascer reforçado. Custo: 3 Núcleos de Vestígio.", combat: "koTrace1", cost: 3 },
+      { name: "Rastro Especial 2 · Motor em Sobrecarga", desc: "Rastro de combate: cada TIPO diferente de DoT presente em qualquer inimigo (máx. 4) concede a todos os aliados +6% de Dano de DoT (até +24%), atualizado a cada tique e a cada ação de Koleda. Com 4 tipos em campo o Estresse Estrutural trata todos os inimigos como se tivessem 4 tipos. Times com vários tipos de DoT giram o motor mais rápido. Custo: 2 Núcleos de Vestígio.", combat: "koTrace2", cost: 2 },
+      { name: "Rastro Especial 3 · Demolição Sem Pausa", desc: "Rastro de combate: o Superaquecimento dura +1 ação. Ao entrar em Superaquecimento, o próximo turno de Koleda é adiantado em 50% e ela recupera 20 de Energia; e cada Reação em Cadeia durante o estado o estende em +1 ação (máx. +2). É a janela em que a Reação em Cadeia gera a própria continuação. Custo: 2 Núcleos de Vestígio.", combat: "koTrace3", cost: 2 },
     ];
     if (def.id === "acheron") return [
       { name: "Rastro Especial 1 · Colheita Dupla", desc: "Rastro Especial de combate: sempre que a Suprema detona uma Marca do Fim Selado, existe 50% de chance de ela detonar uma SEGUNDA vez automaticamente, causando 60% do dano da primeira (as duas detonações contam para o mesmo alvo). Quanto mais Marcas em campo na hora da Suprema, mais chances de proc — contra 3 inimigos marcados são 3 rolagens independentes. Custo: 3 Núcleos de Vestígio.", combat: "achTrace1", cost: 3 },
@@ -1193,7 +1229,7 @@ function computeStats(owned) {
   flat.energyRegen += def.base.energyRegen || 0;
   if (def.base.elemDmg) addElem(def.element, def.base.elemDmg);
   if (w) {
-    ["critRate", "critDmg", "energyRegen", "dmgBonus", "defPen", "spd", "healBonus"].forEach((k) => { if (w[k]) flat[k] += w[k] * wm; });
+    ["critRate", "critDmg", "energyRegen", "dmgBonus", "defPen", "spd", "healBonus", "dotDmg"].forEach((k) => { if (w[k]) flat[k] += w[k] * wm; });
     if (w.atkPct) pct.atk += w.atkPct * wm;
   }
 
@@ -1392,7 +1428,7 @@ async function loadAccounts() {
 async function saveAccounts(a) { try { await SS.set(ACCOUNTS_KEY, JSON.stringify(a)); } catch {} cloudSet("meta", "accounts", { list: a }); }
 
 /* ---------- TORRE ---------- */
-const TOWER_SEASON = "s5_reset_total"; // troque para forçar um novo reset global da Torre/Torre Sombria
+const TOWER_SEASON = "s6_koleda_reset_total"; // troque para forçar um novo reset global da Torre/Torre Sombria
 const TOWER_FLOORS = 450; // +250 andares novos (201–450): Ascensão Estelar
 const TOWER_BOSSES = {
   // ══ ASCENSÃO ESTELAR — 250 andares novos (201–450), 25 chefes com mecânicas exclusivas ══
@@ -2085,11 +2121,13 @@ function Game({ email, isAdmin, onLogout }) {
     if (s) {
       setJade(s.jade ?? 12000); setCharTickets(s.charTickets ?? 15); setWeaponTickets(s.weaponTickets ?? 8);
       setStandardTickets(s.standardTickets ?? 10);
-      setFeaturedChar(FEATURED_LIMITEDS.includes(s.featuredChar) ? s.featuredChar : DEFAULT_FEATURED_CHAR);
+      { let _seenKo = false; try { _seenKo = localStorage.getItem("sr_banner_koleda_v1") === "1"; } catch {} // primeira vez com o patch da Koleda: abre já no banner dela (personagem + arma)
+        setFeaturedChar(!_seenKo ? "koleda" : (FEATURED_LIMITEDS.includes(s.featuredChar) ? s.featuredChar : DEFAULT_FEATURED_CHAR));
+        if (!_seenKo) { try { localStorage.setItem("sr_banner_koleda_v1", "1"); } catch {} } }
       setFeaturedSpecial(SPECIAL_BANNER_CHARS.includes(s.featuredSpecial) ? s.featuredSpecial : SPECIAL_BANNER_CHARS[0]);
       setFeaturedStandard(STANDARD_5.includes(s.featuredStandard) ? s.featuredStandard : STANDARD_5[0]);
       setActiveTitle(s.activeTitle || null);
-      setFeaturedWeapon(WEAPON_5_IDS.includes(s.featuredWeapon) ? s.featuredWeapon : DEFAULT_FEATURED_WEAPON);
+      setFeaturedWeapon((() => { let _sk = false; try { _sk = localStorage.getItem("sr_banner_koleda_v1w") === "1"; } catch {} if (!_sk) { try { localStorage.setItem("sr_banner_koleda_v1w", "1"); } catch {} return "ate_ultima_faisca"; } return WEAPON_5_IDS.includes(s.featuredWeapon) ? s.featuredWeapon : DEFAULT_FEATURED_WEAPON; })());
       setPity({ char: 0, weapon: 0, standard: 0, special: 0, guaranteeChar: false, ...(s.pity || {}) });
       setPullHistory(s.pullHistory ?? []);
       if (s.owned) setOwned(s.owned.map(normChar).filter((o) => CHAR_MAP[o.id])); setOwnedWeapons((Array.isArray(s.ownedWeapons) ? s.ownedWeapons : []).map((x) => typeof x === "string" ? { id: x, lv: 1 } : x).filter((x) => x && WEAPON_MAP[x.id])); setRelicInv((Array.isArray(s.relicInv) ? s.relicInv : []).filter(isValidRelic));
@@ -3603,7 +3641,7 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
   const headColor = isWeapon ? "#B98BFF" : isStd ? C.gold : isSpecial ? "#FF5E9E" : ELEMENTS[fc.element].color;
   const arrow = { background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 8, color: C.text, width: 28, height: 28, fontWeight: 800 };
   const charMs = useBannerTimer("char_" + featuredChar + ((featuredChar === "acheron" || featuredChar === "ichigo") ? "_3h_v2" : ""), BANNER_DURATIONS[featuredChar] || (7 * 24 * 60 * 60 * 1000)); // cada personagem tem seu próprio prazo de encerramento
-  const weaponMs = useBannerTimer("weapon_3h_v2", 3 * 60 * 60 * 1000); // banner de armas: relâmpago de 3 HORAS junto com Ichigo/Alter Saber
+  const weaponMs = useBannerTimer("weapon_koleda_v1", 5 * 24 * 60 * 60 * 1000); // banner de armas: 5 dias, junto com o banner da Koleda
   const specialMs = useAbsoluteTimer(SPECIAL_BANNER_END); // data fixa de verdade — acaba pra todo mundo junto, não reseta por dispositivo
   const specialExpired = specialMs <= 0;
   const bannerMs = isChar ? charMs : isWeapon ? weaponMs : isSpecial ? specialMs : null;
@@ -3763,7 +3801,8 @@ const PULL_SIGNATURES = {
   athena:        { type: "ring",   c1: "#FFE9A8", c2: "#FFD24B", count: 6, rays: true , motif: "sunburst" },                  // raios olímpicos
   agumon:        { type: "rise",   c1: "#FF7A29", c2: "#FFCF4A", burst: true , motif: "flamecore" },                           // explosão de chamas
   shorekeeper:   { type: "fall",   shape: "✦",  c1: "#7FDBFF", c2: "#FFE08A", speed: 0.6, gentle: true , motif: "tidestar" },// estrelas à deriva
-  yanagi:        { type: "streak", c1: "#B98BFF", c2: "#3D6BFF", count: 11, erratic: true , motif: "voltbranch" },              // arcos elétricos ramificados
+  yanagi:        { type: "streak", c1: "#B98BFF", c2: "#3D6BFF", count: 11, erratic: true , motif: "voltbranch" },
+  koleda:        { type: "streak", c1: "#FFD24B", c2: "#FF6B2E", count: 9, cross: true, motif: "voltbranch" },              // faíscas de solda e marteladas              // arcos elétricos ramificados
   // ── Armas Lendárias 5★ (Cones de Luz) ──
   digivice:      { type: "rise",   c1: "#FF9A2E", c2: "#FFE24B", burst: true , motif: "evoring" },                           // Digivice — explosão de evolução
   starblade:     { type: "streak", c1: "#EAF1FB", c2: "#7ADFFF", count: 7, cross: true , motif: "starcut" },                  // Lâmina Estelar — cortes de luz estelar
@@ -4629,11 +4668,43 @@ function St({ k, v, pct, color }) {
 }
 function buffText(b) { const p = []; for (const k of ["atk", "def", "spd", "critRate", "critDmg", "dmgBonus"]) if (b[k]) p.push(`+${b[k]}${k === "spd" ? " VEL" : "% " + (STAT_LABEL[k] || k)}`); return `${p.join(", ")}${b.all ? " (time)" : ""} por ${b.turns}t`; }
 const SKILL_DESC = {
+  koleda: {
+    basic: [
+      "<b>Martelo em Ação</b>",
+      "Causa <b>90% do ATQ</b> como Dano Eletro a um inimigo. Ganha <b>+1 Ponto de Habilidade</b>.",
+      "<b>Pressão de Impacto:</b> o golpe dá <b>+1 de Pressão</b> à caldeira de Koleda — <b>+2</b> se o alvo carregar 2 ou mais TIPOS diferentes de DoT. Também gera <b>+3 de Calor</b> (Superaquecimento).",
+      "<b>Junta Reforçada:</b> se o alvo tiver 2+ tipos de DoT, o DoT com menos duração restante ganha <b>+1 turno</b> — o martelo «solda» o combustível mais fraco antes que apague.",
+      "<b>💡 Como usar:</b> é o ataque de manutenção: mantém DoTs vivos e enche a caldeira devagar quando você não tem Ponto de Habilidade.",
+      "<b>[E1]</b> Com 8–11 de Pressão o Básico vira <b>Martelada de Válvula</b>: libera a Reação em Cadeia cedo (potência = Pressão ÷ 12).",
+      "<b>[E2]</b> Durante o Superaquecimento o Básico vira <b>Válvula de Alívio</b>: consome o estado numa Reação gratuita.",
+      "<b>[E3]</b> Nível do Básico +1.",
+    ],
+    skill: [
+      "<b>Impacto de Alta Pressão</b>",
+      "Consome <b>1 Ponto de Habilidade</b>. Causa <b>70% do ATQ</b> como Dano Eletro a <b>todos os inimigos</b>.",
+      "<b>Estresse Estrutural</b> (3 turnos, em todos os inimigos): os DoTs do alvo causam <b>+25% de dano</b> e mais <b>+8% por TIPO de DoT</b> presente nele (até 4 tipos = <b>+57%</b>). Os valores sobem com o nível da Perícia. Inimigos sob Estresse Estrutural também rendem <b>+1 Pressão</b> extra a cada tique de DoT.",
+      "<b>Pressão de Impacto:</b> <b>+2</b>, mais <b>+1</b> por inimigo que já carregue DoT (máx. <b>+3</b>) = de +2 a +5. Gera <b>+6 de Calor</b>.",
+      "<b>💡 Como usar:</b> aplique o Estresse ANTES dos DoTs do time — ele amplifica cada tique e (com o Rastro 1) reforça cada DoT novo. Reaplique quando faltar 1 turno.",
+      "<b>[Rastro 1 · Faísca de Belobog]</b> DoTs novos em alvo estressado nascem com +20% de dano e +1 turno.",
+      "<b>[E2]</b> Durante o Superaquecimento a Perícia o estende (+1 ação, Fadiga Térmica até 3).",
+      "<b>[E3]</b> Nível da Perícia +2; Estresse dura 4 turnos e acumula Fadiga de Metal (+6% por acúmulo, máx. 3).",
+    ],
+    ult: [
+      "<b>Martelo Demolidor: Sobrecarga</b> — Custo: <b>140 de Energia</b>",
+      "<b>Impacto:</b> Koleda ergue o martelo, aquece a cabeça de aço até ficar branca e o desce sobre o chão: <b>180% do ATQ</b> como Dano Eletro em <b>todos os inimigos</b>.",
+      "<b>Combustão Forçada:</b> TODO DoT em campo dá <b>1 tique instantâneo</b> na hora, sem gastar duração (máx. 30% do HP do inimigo; 10% em chefes) — inclui Sangramento e Afundamento, que normalmente não dão tique.",
+      "<b>Janela de Sobrecarga (3 ações):</b> inimigos sofrem <b>+40% de dano de DoT</b>; o time inteiro ganha <b>+25% de Dano de DoT</b> (vale para DoTs aplicados dentro da janela) e <b>+12% de ATQ</b>.",
+      "<b>Caldeira:</b> a Suprema dá <b>+4 de Pressão</b> e <b>+25 de Calor</b> — quase sempre empurra Koleda para o Superaquecimento.",
+      "<b>💡 Como usar:</b> entre na Janela com vários tipos de DoT em campo: os aliados aplicam DoTs reforçados e a Combustão Forçada já cobra o que existe.",
+      "<b>[E5 · Última Martelada]</b> Fria (0–3 Pressão): Pressão sobe a 7 e time +8 Energia. Quente (4–8): Combustão Forçada ×2 e DoTs +1 turno. Crítica (9–12): Reação em Cadeia completa na hora, Janela +1 ação e time ignora 20% da DEF.",
+      "<b>[E6]</b> Durante a Forja Aberta dispara as Reações Terminais restantes e fecha a Forja; fora dela dá +1 Lingote.",
+    ],
+  },
   acheron: {
     basic: [
       "<b>Fio Cortado</b>",
-      "Causa <b>100% do ATQ</b> como Dano Eletro ao alvo e concede <b>+1 Ponto de Habilidade</b>.",
-      "<b>Aceleração de Marca:</b> além do dano, o corte adianta em <b>1 turno</b> a contagem da Marca do Fim Selado que estiver mais perto de detonar — em QUALQUER inimigo, não só no alvo do golpe. Se a contagem chegar a zero, a Marca detona na hora: <b>90% do ATQ</b> em Dano Eletro e <b>+1 Cinza do Fim</b>.",
+      "Causa <b>160% do ATQ</b> como Dano Eletro ao alvo e concede <b>+1 Ponto de Habilidade</b>.",
+      "<b>Aceleração de Marca:</b> além do dano, o corte adianta em <b>1 turno</b> a contagem da Marca do Fim Selado que estiver mais perto de detonar — em QUALQUER inimigo, não só no alvo do golpe. Se a contagem chegar a zero, a Marca detona na hora: <b>160% do ATQ</b> em Dano Eletro e <b>+1 Cinza do Fim</b>.",
       "<b>Abate com Marca:</b> se o alvo do Básico morrer carregando uma Marca, Acheron ganha <b>+1 Cinza do Fim</b> extra.",
       "<b>💡 Como usar:</b> o Básico é sua ferramenta de ritmo. Plante a Marca com a Perícia e use o Básico nos turnos seguintes para acelerar a detonação — cada turno poupado é Cinza mais cedo.",
       "<b>[E2 · Segundo Fio]</b> 40% de chance de plantar uma Marca no alvo quando ele ainda não tem nenhuma.",
@@ -4642,8 +4713,8 @@ const SKILL_DESC = {
     skill: [
       "<b>Marca do Fim Selado</b>",
       "Consome <b>1 Ponto de Habilidade</b>.",
-      "Causa <b>240% do ATQ</b> como Dano Eletro e planta a <b>Marca do Fim Selado</b> no alvo, com duração de <b>3 turnos</b>. Plantar uma Marca num alvo que já tem uma <b>substitui</b> a antiga (sem detonar) — espalhe as Marcas em inimigos diferentes.",
-      "<b>Como a Marca funciona:</b> ela não causa dano nem efeito enquanto existe, só conta o tempo. A contagem de todas as Marcas cai <b>1 turno</b> no início de cada ação de Acheron (exceto na ação da Suprema). Ao chegar a zero, a Marca detona sozinha: <b>90% do ATQ</b> em Dano Eletro e <b>+1 Cinza do Fim</b>.",
+      "Causa <b>380% do ATQ</b> como Dano Eletro e planta a <b>Marca do Fim Selado</b> no alvo, com duração de <b>3 turnos</b>. Plantar uma Marca num alvo que já tem uma <b>substitui</b> a antiga (sem detonar) — espalhe as Marcas em inimigos diferentes.",
+      "<b>Como a Marca funciona:</b> ela não causa dano nem efeito enquanto existe, só conta o tempo. A contagem de todas as Marcas cai <b>1 turno</b> no início de cada ação de Acheron (exceto na ação da Suprema). Ao chegar a zero, a Marca detona sozinha: <b>160% do ATQ</b> em Dano Eletro e <b>+1 Cinza do Fim</b>.",
       "<b>Perícia CRÍTICA:</b> concede <b>+2 Cinzas do Fim</b> diretamente, sem esperar a detonação — a forma mais rápida de encher o medidor.",
       "<b>💡 Como usar:</b> ideal é ter uma Marca em cada inimigo antes de apertar a Suprema. Contra um alvo só (chefe), alterne Perícia e Básico para manter a Marca sempre renovada.",
       "<b>[Ampulheta Invertida]</b> A Marca nasce com 1 turno a menos, mas cada detonação concede +8% de ATQ por 2 turnos (até 4 acúmulos).",
@@ -4653,12 +4724,12 @@ const SKILL_DESC = {
     ult: [
       "<b>Detonação Antecipada</b> — Requisito: <b>8 Cinzas do Fim</b> (não usa Energia)",
       "Diferente das outras Supremas ela <b>nunca dispara sozinha</b>: quando as 8 Cinzas fecham, o botão libera e é você quem escolhe o momento. Em modo Auto a IA usa assim que estiver pronta.",
-      "<b>Fase 1 · Colheita:</b> a contagem das Marcas fica <b>congelada</b> nessa ação e TODAS as Marcas ativas detonam de uma vez, uma após a outra. Cada uma causa de <b>180% a 340% do ATQ</b> como Dano Eletro — <b>quanto mais turnos a Marca ainda tinha, mais dano</b> ela causa. Cada detonação também conta como Cinza ganha e ativa os efeitos de arma e conjunto.",
-      "<b>Fase 2 · Sentença:</b> logo depois, um golpe final causa <b>220% do ATQ</b> como Dano Eletro a <b>todos os inimigos</b>. As Cinzas voltam a <b>0</b>.",
+      "<b>Fase 1 · Colheita:</b> a contagem das Marcas fica <b>congelada</b> nessa ação e TODAS as Marcas ativas detonam de uma vez, uma após a outra. Cada uma causa de <b>300% a 540% do ATQ</b> como Dano Eletro — <b>quanto mais turnos a Marca ainda tinha, mais dano</b> ela causa. Cada detonação também conta como Cinza ganha e ativa os efeitos de arma e conjunto.",
+      "<b>Fase 2 · Sentença:</b> logo depois, um golpe final causa <b>400% do ATQ</b> como Dano Eletro a <b>todos os inimigos</b>. As Cinzas voltam a <b>0</b>.",
       "<b>💡 Como usar:</b> não aperte assim que liberar se houver só uma Marca em campo. Espere ter Marcas frescas em vários inimigos — o dano total cresce com o número de Marcas e com o tempo restante de cada uma.",
       "<b>[E3]</b> Nível da Suprema +2 (e do Talento +2).",
       "<b>[E4 · Reação em Cadeia]</b> Cada inimigo abatido pelas detonações eleva em +20% (até +100%) o dano recebido pelas Marcas seguintes.",
-      "<b>[E6 · O Fim Não Aceita Prazo]</b> Marcas frescas causam <b>dano ×4</b>; todas as detonações são <b>CRÍTICAS garantidas</b>; o golpe final sobe para <b>320% do ATQ</b> como <b>Dano Verdadeiro</b>; a Suprema termina mantendo <b>4 Cinzas</b>; cada abate dá <b>+20% de Dano CRÍTICO</b> ao time por 2 turnos.",
+      "<b>[E6 · O Fim Não Aceita Prazo]</b> Marcas frescas causam <b>dano ×4</b>; todas as detonações são <b>CRÍTICAS garantidas</b>; o golpe final sobe para <b>500% do ATQ</b> como <b>Dano Verdadeiro</b>; a Suprema termina mantendo <b>4 Cinzas</b>; cada abate dá <b>+20% de Dano CRÍTICO</b> ao time por 2 turnos.",
       "<b>[Rastro 1 · Colheita Dupla]</b> 50% de chance de cada Marca detonar uma 2ª vez (60% do dano).",
       "<b>[Rastro 3 · Precognição do Fim]</b> Recupera 25% de Valor de Ação e o 1º inimigo atingido pelo golpe final recebe +15% de dano por 2 turnos.",
       "<b>[Ampulheta Invertida]</b> Com 3+ acúmulos de ATQ, converte todos em <b>Dano Verdadeiro</b> (60% do ATQ em cada inimigo) antes da sequência.",
@@ -5386,6 +5457,8 @@ function WeaponRow({ w, active, match, lv }) {
   if (w.defPen)      sec.push({ k:"PERFUR.",    v:(w.defPen*wm).toFixed(1)+"%" });
   if (w.spd)         sec.push({ k:"VEL",        v:(w.spd*wm).toFixed(1) });
   if (w.def)         sec.push({ k:"DEF",        v:Math.round(w.def*wm) });
+  if (w.dotDmg)      sec.push({ k:"DANO DoT",   v:(w.dotDmg*wm).toFixed(1)+"%" });
+  if (w.hp)          sec.push({ k:"HP",         v:Math.round(w.hp*wm) });
   if (w.shieldBonus) sec.push({ k:"ESCUDO",     v:w.shieldBonus+"%" });
   return (
     <div style={{ background: active ? C.panelHi : C.panel, border: `2px solid ${active ? rarColor : C.line}`, borderRadius: 12, padding: 12 }}>
@@ -6027,6 +6100,10 @@ const SYNERGY_PAIRS = [
   { a: "yanagi",   b: "lupa",       v: 28, why: "Lupa detona os DoTs que a Yanagi acumula" },
   { a: "yanagi",   b: "miyabi",     v: 24, why: "Geada da Miyabi vira combustível pra Desordem" },
   { a: "lupa",     b: "miyabi",     v: 20, why: "Dois aplicadores de DoT saturam o alvo" },
+  { a: "koleda",   b: "yanagi",     v: 30, why: "Cada Fagulha e cada tipo de DoT da Yanagi vira Pressão de Impacto" },
+  { a: "koleda",   b: "lupa",       v: 28, why: "Koleda superaquece o Fogo da Lupa e a Reação em Cadeia explode a Fusão" },
+  { a: "koleda",   b: "miyabi",     v: 26, why: "Geada da Miyabi entra como Catalisador na Tabela de Combustão" },
+  { a: "koleda",   b: "ace",        v: 22, why: "Queimadura do Ace é Combustível puro para a caldeira" },
   { a: "shorekeeper", b: "altersaber", v: 22, why: "Escudo e CRIT DMG sustentam o Reino Absoluto" },
   { a: "shorekeeper", b: "gilgamesh",  v: 20, why: "Cura constante mantém o Portão aberto" },
   { a: "athena",   b: "altersaber", v: 18, why: "Proteção do Olimpo cobre a agressividade do Rei" },
@@ -6054,8 +6131,8 @@ function teamArchetype(heroes) {
   const summ = roles.filter((r) => r === "summoner").length;
   const els = [...new Set(live.map((h) => h.element))];
   const breakers = live.filter((h) => (effStat(h, "breakEffect") || 0) >= 40).length;
-  const dotters = live.filter((h) => ["yanagi", "lupa", "miyabi", "nanami", "ace"].includes(h.id)).length;
-  const dotSpec = live.some((h) => h.id === "yanagi"); // especialista de verdade em DoT
+  const dotters = live.filter((h) => ["yanagi", "lupa", "miyabi", "nanami", "ace", "koleda"].includes(h.id)).length;
+  const dotSpec = live.some((h) => h.id === "yanagi" || h.id === "koleda"); // especialista de verdade em DoT
   const fu = live.filter((h) => ["yoruichi", "soifon", "gilgamesh", "nami"].includes(h.id)).length;
 
   if (els.length === 1 && live.length >= 3) return { id: "mono", el: els[0],
@@ -7093,7 +7170,7 @@ function applyDot(targets, spec, source, fx) {
   if (f.setFire2 && spec.type === "burn") m *= 1.1; // Núcleo Ardente 2pç
   if (f.setInferno2 && spec.type === "burn") m *= 1.10; // Inferno Devorador de Almas 2pç: DoT de Fogo +10%
   if (f.setInferno4 && spec.type === "burn") m *= 1.30; // Inferno Devorador de Almas 4pç: DoT de Fogo +30% adicional
-  m *= 1 + (source.base.dotDmg || 0) / 100; // substatus "Dano de DoT"
+  m *= 1 + (effStat(source, "dotDmg") || 0) / 100; // substatus "Dano de DoT" (base + buffs, ex.: Koleda)
   if (source.id === "yanagi") m *= 1.55; // Teorema da Desordem: ela é a especialista em DoT do jogo
   const dmg = dotDamageRoll(source, m); // novo sistema: aleatório, piso de 80k escalando com o personagem
   const glacial = spec.type === "freeze" || spec.type === "geada";
@@ -7113,6 +7190,11 @@ function applyDot(targets, spec, source, fx) {
     }
     if (spec.type === "sinking") { const ex = t.dots.find(d => d.type === "sinking"); if (ex) { ex.dmg = Math.min(9999, ex.dmg + dmg); ex.turns = Math.min(9, ex.turns + spec.turns); return; } } // Afundamento: Potência acumula, Count soma
     t.dots.push({ type: spec.type, dmg, turns: spec.turns });
+    if (source.side === "H") { // Koleda: novo TIPO de DoT alimenta a Pressão de Impacto; Rastro 1 (Faísca de Belobog) reforça o DoT em alvo sob Estresse Estrutural
+      if (!sameType.length) t._koNew = (t._koNew || 0) + 1;
+      const _es = (t.debuffs || []).find((b) => b.name === "Estresse Estrutural");
+      if (_es && _es.t1) { const _nd = t.dots[t.dots.length - 1]; _nd.dmg = Math.round(_nd.dmg * 1.2); _nd.turns += 1; }
+    }
     if (f.setGlacial4 && glacial) { const cur = t.debuffs.find((d) => d.name === "GlacialSet"); if (cur) cur.value = Math.min(15, cur.value + 3); else t.debuffs.push({ stat: "vuln", value: 3, turns: 3, name: "GlacialSet" }); } // Sopro Glacial 4pç (buffado)
     // Protocolo de Ruína em Cadeia (4pç): todo DoT aplicado dá Falha Estrutural — +18% de dano de DoT por 2 turnos
     if (f.setRuina4) { const ex2 = t.debuffs.find(d => d.name === "Falha Estrutural"); if (ex2) { ex2.turns = 2; } else t.debuffs.push({ stat: "dotAmp", value: 18, turns: 2, name: "Falha Estrutural" }); }
@@ -7476,7 +7558,7 @@ function ichigoEnterMugetsu(u, s, fx) {
   if (u.stFlags?.ichTrace3 && u.av != null) u.av = Math.max(0.01, (u.av || 1) * 0.70); // Rastro Especial 3 · Salto no Vazio: +30% VA
   pushLog(s, `🌑 ${u.name} consome os Fragmentos do Dangai e entra em FORMA MUGETSU! (${_rsv} Reservas)`);
   const enemies = aliveEnemies(s);
-  enemies.forEach((e) => dealDamage(u, e, Math.round(supScale(900, lvl)) * (u.ampUlt || 1), fx, { el: "Unknown", isFollowup: true }));
+  enemies.forEach((e) => dealDamage(u, e, Math.round(supScale(990, lvl)) * (u.ampUlt || 1), fx, { el: "Unknown", isFollowup: true }));
 }
 function ichigoSpendReserve(u, n, s, fx) {
   u._ichReserve = Math.max(0, (u._ichReserve || 0) - n);
@@ -7488,7 +7570,7 @@ function ichigoGetsugaFinal(u, s, fx) {
   let kills = 0;
   aliveEnemies(s).forEach((e) => {
     // E6: base 1500% → 3200%, CRÍTICO garantido, ignora 60% da DEF e 25% da RES
-    const r = dealDamage(u, e, Math.round(supScale(e6 ? 3200 : 1500, lvl)) * (u.ampUlt || 1), fx, { el: "Unknown", isFollowup: true, defPen: e6 ? 60 : 25, resPen: e6 ? 25 : 0, hardCrit: !!e6 });
+    const r = dealDamage(u, e, Math.round(supScale(e6 ? 3500 : 1650, lvl)) * (u.ampUlt || 1), fx, { el: "Unknown", isFollowup: true, defPen: e6 ? 60 : 25, resPen: e6 ? 25 : 0, hardCrit: !!e6 });
     if (!e.alive) kills++;
   });
   pushLog(s, `🌑⚔️ GETSUGA FINAL! Corte devastador atinge todos os inimigos.`);
@@ -7526,6 +7608,327 @@ function acheronPlantMark(u, enemy) {
   dur = Math.max(1, dur);
   enemy._achMark = { left: dur, max: dur };
 }
+// ══════════════════════════ KOLEDA BELOBOG ══════════════════════════
+// Pressão de Impacto (0–12) → Reação em Cadeia · Calor (0–100) → Superaquecimento · Motor (0–3)
+const KO_ROLE = { burn: "comb", corrosao: "comb", shock: "faisca", fulgur: "faisca", bleed: "impacto", sinking: "impacto", freeze: "cata", geada: "cata", poison: "cata", cyclone: "cata", aero: "cata" };
+const KO_SYNC_NAMES = ["Superaquecimento", "Sobrecarga de Linha", "Motor em Sobrecarga", "Brasas de Belobog"];
+function koLive(s) { return (s && s.heroes ? s.heroes : []).find((h) => h.id === "koleda" && h.alive); }
+function koTypes(e) { return [...new Set(((e && e.dots) || []).map((d) => d.type))]; }
+function koRoles(e) { return new Set(koTypes(e).map((t) => KO_ROLE[t] || "cata")); }
+function koAllTypes(s) { const st = new Set(); aliveEnemies(s).forEach((e) => koTypes(e).forEach((t) => st.add(t))); return st; }
+function koStressAmp(est, e) { // Estresse Estrutural: +X% de dano de DoT, cresce com os TIPOS de DoT no alvo
+  const nT = est.full ? 4 : Math.min(4, new Set(((e && e.dots) || []).map((d) => d.type)).size);
+  return (est.value || 0) + (est.perType || 0) * nT + (est.fadiga || 0) * 6;
+}
+function koTickMult(e) {
+  let m = 1 + vulnOf(e) / 100;
+  const dotAmp = (e.debuffs || []).filter((b) => b.stat === "dotAmp").reduce((a, b) => a + (b.value || 0), 0);
+  if (dotAmp) m *= 1 + dotAmp / 100;
+  const est = (e.debuffs || []).find((b) => b.name === "Estresse Estrutural");
+  if (est) m *= 1 + koStressAmp(est, e) / 100;
+  return m;
+}
+// tique "grátis": dispara todos os DoTs do alvo uma vez, sem gastar duração
+function koForcedTick(e, fx, factor, capFrac) {
+  if (!e || !e.alive || !(e.dots || []).length) return 0;
+  let raw = 0; e.dots.forEach((d) => { raw += d.dmg; });
+  let dmg = Math.max(1, Math.round(raw * factor * koTickMult(e)));
+  dmg = Math.min(dmg, Math.max(1, Math.round(e.maxHp * (e.boss ? 0.10 : capFrac))));
+  e.hp -= dmg; if (e.hp <= 0) { e.hp = 0; e.alive = false; }
+  fx.push({ uid: e.uid, txt: "⚡" + dmg, crit: true, id: Math.random(), el: "Eletro" });
+  return dmg;
+}
+function koGainCalor(k, n, s, fx) {
+  if (!k || !k.alive || !(n > 0)) return;
+  if ((k._koSuper || 0) > 0) return; // durante o Superaquecimento o Calor não acumula
+  const need = k.stFlags?.koE2 ? 85 : 100;
+  k._koCalor = Math.min(need, (k._koCalor || 0) + n);
+  if (k._koCalor >= need) koEnterSuper(k, s, fx);
+}
+function koEnterSuper(k, s, fx) {
+  const f = k.stFlags || {};
+  if ((k._koSuper || 0) > 0) { k._koSuper += 1; return; }
+  k._koSuper = 3 + (f.koTrace3 ? 1 : 0) + (f.koE6 ? 1 : 0);
+  k._koSuperExt = 0; k._koFadiga = 0; k._koCalor = 0;
+  k._koSuperFresh = !!k._koActing; // se entrou durante a própria ação, essa ação não gasta duração
+  if (f.koTrace3) {
+    if (k._koActing) k._avMul = (k._avMul != null ? k._avMul : 1) * 0.5; else k.av = Math.max(0.01, (k.av || 1) * 0.5);
+    if (k.energyMax) k.energy = Math.min(k.energyMax, k.energy + 20);
+  }
+  fx.push({ uid: k.uid, txt: "🔥 SUPERAQUECIMENTO!", crit: true, id: Math.random(), el: "Eletro" });
+  pushLog(s, `🔥 ${k.name} entra em SUPERAQUECIMENTO! DoTs +35%, DEF −16%, RES −14% nos inimigos e Faíscas Adicionais a cada tique (${k._koSuper} ações).`);
+  koSync(k, s);
+}
+function koEndSuper(k, s) {
+  k._koSuper = 0; k._koSuperExt = 0; k._koSuperFresh = false; k._koFadiga = 0; k._koPane = false;
+  k.debuffs = k.debuffs.filter((b) => b.name !== "Fadiga Térmica");
+  if ((k._koForja || 0) > 0) { k._koForja = 0; k._koForjaRx = 0; k._koFria = 2; k._koLing = 0; pushLog(s, "🏭 A Forja Aberta se fecha — a fornalha precisa esfriar por 2 ações."); }
+  else pushLog(s, "🔥 O Superaquecimento se dissipa.");
+  koSync(k, s);
+}
+function koOpenForja(k, s, fx) { // E6 · Ciclo de Fundição Perpétua
+  k._koLing = 0; k._koForja = 1; k._koForjaRx = 0;
+  if ((k._koSuper || 0) > 0) k._koSuper += 1; else koEnterSuper(k, s, fx);
+  fx.push({ uid: k.uid, txt: "🏭 FORJA ABERTA", crit: true, id: Math.random(), el: "Eletro" });
+  pushLog(s, `🏭 FORJA ABERTA! ${k.name} funde os 3 Lingotes — durante o Superaquecimento as Reações viram Reações Terminais (×1,4, máx. 2).`);
+}
+// mantém buffs/debuffs dinâmicos (Superaquecimento, Sobrecarga, Motor, Brasas). Chamado a cada ação/tique relevante.
+function koSync(k, s) {
+  if (!k) return;
+  const f = k.stFlags || {};
+  const sup = (k._koSuper || 0) > 0, win = (k._koWin || 0) > 0;
+  const T = Math.min(4, koAllTypes(s).size);
+  const ampU = 1 + ((k.ampUlt || 1) - 1) * 0.5;
+  s.enemies.forEach((e) => {
+    e.debuffs = e.debuffs.filter((b) => !KO_SYNC_NAMES.includes(b.name));
+    if (!e.alive) return;
+    if (sup) { e.debuffs.push({ stat: "dotAmp", value: 35, turns: 3, name: "Superaquecimento", spark: 30 }, { stat: "def", value: -16, pct: true, turns: 3, name: "Superaquecimento" }, { stat: "elemRes", value: -14, turns: 3, name: "Superaquecimento" }); }
+    if (win) e.debuffs.push({ stat: "dotAmp", value: Math.round(40 * ampU), turns: 3, name: "Sobrecarga de Linha" });
+    if (f.koTrace2 && T >= 4) { const es = e.debuffs.find((b) => b.name === "Estresse Estrutural"); if (es) es.full = true; }
+    if (f.koE6 && (k._koForja || 0) > 0) { const es = e.debuffs.find((b) => b.name === "Estresse Estrutural"); if (es) es.full = true; }
+  });
+  const brasas = k._koBrasas || 0;
+  s.heroes.forEach((h) => {
+    if (h.isSummon || !h.alive) return;
+    h.buffs = h.buffs.filter((b) => !KO_SYNC_NAMES.includes(b.name));
+    if (sup) h.buffs.push({ stat: "dotDmg", value: 30, turns: 3, name: "Superaquecimento" });
+    if (win) { h.buffs.push({ stat: "dotDmg", value: Math.round(25 * ampU), turns: 3, name: "Sobrecarga de Linha" }, { stat: "atk", value: 12, pct: true, turns: 3, name: "Sobrecarga de Linha" }); }
+    if (f.koTrace2 && T > 0) h.buffs.push({ stat: "dotDmg", value: 6 * T, turns: 3, name: "Motor em Sobrecarga" });
+    if (brasas > 0) h.buffs.push({ stat: "dotDmg", value: 4 * brasas, turns: 3, name: "Brasas de Belobog" });
+  });
+}
+function koGainPI(k, n, s, fx) {
+  if (!k || !k.alive || !(n > 0)) return;
+  k._koPI = (k._koPI || 0) + n;
+  if (k._koPI > 12) { const over = k._koPI - 12; k._koPI = 12; if (k.stFlags?.koE1) k._koReserva = Math.min(6, (k._koReserva || 0) + over); }
+  koTryReaction(k, s, fx);
+}
+function koTryReaction(k, s, fx) {
+  if (k._koBusy || (k._koPI || 0) < 12) return;
+  if (!aliveEnemies(s).some((e) => (e.dots || []).length)) return; // sem combustível a pressão espera
+  if (k.stFlags?.koE6 && (k._koForja || 0) > 0 && (k._koForjaRx || 0) >= 2) return; // limite: 2 Reações por Forja Aberta
+  koChainReaction(k, s, fx, { natural: true });
+}
+function koGainBrasa(k, n, s, fx) { // Arma: Até a Última Faísca
+  if (!k.weapon?.buff?.koWeapon || (k._koWpnCd || 0) > 0) return;
+  k._koBrasas = Math.min(6, (k._koBrasas || 0) + n);
+  koGainCalor(k, n, s, fx); // arma: cada Brasa também dá +1 de Calor à Koleda
+  if (k._koBrasas < 6) return;
+  k._koBrasas = 0; k._koWpnCd = 2;
+  s.heroes.filter((h) => h.alive && !h.isSummon).forEach((h) => {
+    h.buffs = h.buffs.filter((b) => b.name !== "Última Faísca");
+    h.buffs.push({ stat: "atk", value: 20, pct: true, turns: 2, name: "Última Faísca" }, { stat: "dotDmg", value: 25, turns: 2, name: "Última Faísca" });
+  });
+  aliveEnemies(s).forEach((e) => (e.dots || []).forEach((d) => { if (d.turns < 6) d.turns += 1; }));
+  fx.push({ uid: k.uid, txt: "✨ ÚLTIMA FAÍSCA", crit: true, id: Math.random(), el: "Eletro" });
+  pushLog(s, `✨ ÚLTIMA FAÍSCA! Seis Brasas se acendem — time +20% ATQ e +25% Dano de DoT por 2 turnos, DoTs +1 turno, e a caldeira ganha +3 Pressão.`);
+  koGainPI(k, 3, s, fx);
+}
+function koChainReaction(k, s, fx, opt) {
+  opt = opt || {};
+  if (k._koBusy) return 0;
+  const f = k.stFlags || {};
+  const enemies = aliveEnemies(s).filter((e) => (e.dots || []).length);
+  if (!enemies.length) return 0;
+  k._koBusy = true;
+  let total = 0; const notes = [];
+  try {
+    const forja = !!(f.koE6 && (k._koForja || 0) > 0);
+    const mot = k._koMotor || 0;
+    const pot = (opt.potency != null ? opt.potency : 1) * (forja ? 1.4 : 1) * (1 + 0.15 * mot);
+    const T = koAllTypes(s).size;
+    if (!opt.free) {
+      const keep = opt.retain != null ? opt.retain : ((opt.natural && f.koE1) ? 3 : 0);
+      k._koPI = keep;
+      if (f.koE1 && (k._koReserva || 0) > 0) { k._koPI = Math.min(11, k._koPI + k._koReserva); k._koReserva = 0; }
+    }
+    if (forja) k._koForjaRx = (k._koForjaRx || 0) + 1;
+    const order = enemies.slice().sort((a, b) => Math.min(...a.dots.map((d) => d.turns)) - Math.min(...b.dots.map((d) => d.turns)));
+    order.forEach((e) => {
+      if (!e.alive || !(e.dots || []).length) return;
+      const types = koTypes(e), roles = koRoles(e), combos = [];
+      let mult = pot;
+      if (f.koE4 && roles.has("comb") && roles.has("faisca")) { mult *= 2; combos.push("Ignição"); }
+      const d1 = koForcedTick(e, fx, mult, 0.35); total += d1;
+      if (f.koE4 && roles.has("faisca") && roles.has("impacto") && e.alive) { const r = dealDamage(k, e, 200 * (k.tSkill || 1), fx, { el: "Eletro", isFollowup: true, defPen: 30 }); total += r.dmg; e.av = (e.av || 1) * 1.12; combos.push("Percussão"); }
+      if (f.koE4 && roles.has("comb") && roles.has("impacto") && d1 > 0) {
+        const sp = Math.max(1, Math.round(d1 * 0.4));
+        aliveEnemies(s).forEach((o) => { if (o.uid !== e.uid) { o.hp -= sp; if (o.hp <= 0) { o.hp = 0; o.alive = false; } fx.push({ uid: o.uid, txt: "🔥" + sp, id: Math.random(), el: "Eletro" }); total += sp; } });
+        combos.push("Estilhaço");
+      }
+      if (f.koE4 && roles.has("cata") && roles.size >= 2 && e.alive && e.dots.length) { const dd = e.dots.reduce((a, b) => (b.turns < a.turns ? b : a), e.dots[0]); dd.turns = Math.max(dd.turns, 3); dd.dmg = Math.round(dd.dmg * 1.3); combos.push("Catálise"); }
+      if (f.koE4 && roles.size >= 4 && e.alive) { total += koForcedTick(e, fx, pot * 0.5, 0.2); combos.push("Trindade Completa"); k._koTrindade = true; }
+      if (combos.length) notes.push(`${e.name}: ${combos.join(" + ")}`);
+      if (e.alive) {
+        const nT = Math.min(4, types.length);
+        e.debuffs = e.debuffs.filter((b) => b.name !== "Estrutura Fraturada");
+        e.debuffs.push({ stat: "def", value: -(10 + 4 * nT), pct: true, turns: 2, name: "Estrutura Fraturada" }, { stat: "elemRes", value: -10, turns: 2, name: "Estrutura Fraturada" });
+        e.dots.forEach((d) => { d.turns += 1; if (f.koE6 && !d.temp) { d.temp = true; d.dmg = Math.round(d.dmg * 1.25); } }); // E6: DoTs Temperados
+        if (T >= 2 && types.length >= 2) e.debuffs.push({ stat: "dotAmp", value: 25, turns: 2, name: "Faísca Dupla" });
+        if (T >= 3) { const top = e.dots.reduce((a, b) => (b.dmg > a.dmg ? b : a), e.dots[0]); if (e.dots.filter((d) => d.type === top.type).length < 5) e.dots.push({ type: top.type, dmg: top.dmg, turns: 2, temp: top.temp }); }
+      }
+    });
+    s.heroes.filter((h) => h.alive && !h.isSummon && h.energyMax).forEach((h) => { h.energy = Math.min(h.energyMax, h.energy + (h.uid === k.uid ? 12 : 6)); });
+    if (k._koTrindade) { k._koTrindade = false; s.sp = Math.min(spCapOf(s), (s.sp || 0) + 1); s.heroes.filter((h) => h.alive && !h.isSummon).forEach((h) => { h.buffs = h.buffs.filter((b) => b.name !== "Trindade Completa"); h.buffs.push({ stat: "dotDmg", value: 10, turns: 2, name: "Trindade Completa" }); }); notes.push("+1 PH e +10% Dano de DoT ao time"); }
+    k._koMotor = Math.min(3, mot + 1);
+    if (f.koTrace3 && (k._koSuper || 0) > 0 && (k._koSuperExt || 0) < 2) { k._koSuper += 1; k._koSuperExt = (k._koSuperExt || 0) + 1; }
+    fx.push({ uid: k.uid, txt: "🔨 REAÇÃO EM CADEIA!", crit: true, id: Math.random(), el: "Eletro" });
+    pushLog(s, `🔨 REAÇÃO EM CADEIA${forja ? " TERMINAL" : ""}! ${total} de dano de DoT liberado (${T} tipo${T === 1 ? "" : "s"} de DoT, Motor ${k._koMotor}/3).${notes.length ? " " + notes.join(" · ") + "." : ""}`);
+    koGainCalor(k, T >= 3 ? 22 : T === 2 ? 14 : 8, s, fx);
+    if (f.koE6 && !forja) { k._koLing = Math.min(3, (k._koLing || 0) + 1); if (k._koLing >= 3 && !((k._koFria || 0) > 0)) koOpenForja(k, s, fx); }
+    koSync(k, s);
+  } finally { k._koBusy = false; }
+  return total;
+}
+// chamado pelo enemyAct depois do tickDots do inimigo
+function koOnEnemyTick(s, e) {
+  const t = e._koTick; e._koTick = null;
+  const k = koLive(s); if (!k || !t) return;
+  const f = k.stFlags || {}, fx = s.fx || [];
+  const nTypes = (t.present || []).length; if (!nTypes) return;
+  const stressed = (e.debuffs || []).some((b) => b.name === "Estresse Estrutural");
+  const sup = (k._koSuper || 0) > 0, forja = !!(f.koE6 && (k._koForja || 0) > 0);
+  let pi = Math.min(2, nTypes) + (stressed ? 1 : 0);
+  if (sup) pi *= 2;
+  if (forja) pi += t.n;
+  pi += t.tempTicks || 0; // E6: cada DoT Temperado que deu tique alimenta a caldeira
+  pi = Math.min(pi, sup ? 8 : 4);
+  if (!e.alive) pi += 2; // morreu para o DoT: Sucata Quente
+  koGainCalor(k, Math.min(4, Math.ceil(t.n / 2)) + Math.min(2, t.tempTicks || 0), s, fx);
+  if (nTypes >= 2) koGainBrasa(k, 1, s, fx);
+  if (f.koE6 && nTypes >= 3 && !k._koLingRound && !forja) { k._koLingRound = true; k._koLing = Math.min(3, (k._koLing || 0) + 1); if (k._koLing >= 3 && !((k._koFria || 0) > 0)) koOpenForja(k, s, fx); }
+  koGainPI(k, pi, s, fx);
+  koSync(k, s);
+}
+// novos TIPOS de DoT aplicados por aliados (applyDot marca _koNew) viram Pressão
+function koCollect(s) {
+  let n = 0;
+  (s.enemies || []).forEach((e) => { if (e._koNew) { n += e._koNew; e._koNew = 0; } });
+  const k = koLive(s); if (!k) return;
+  if (n > 0) koGainPI(k, Math.min(3, n), s, s.fx || []); else koTryReaction(k, s, s.fx || []);
+}
+function koActionStart(u, s) {
+  u._koActing = true;
+  if ((u._koSuper || 0) > 0) aliveEnemies(s).forEach((e) => (e.dots || []).forEach((d) => { if (d.turns < 6) d.turns += 1; })); // Superaquecimento: DoTs ganham +1 turno a cada ação
+  koSync(u, s);
+}
+function koActionEnd(u, s) {
+  u._koActing = false;
+  if ((u._koWpnCd || 0) > 0) u._koWpnCd -= 1;
+  if ((u._koFria || 0) > 0) u._koFria -= 1;
+  if ((u._koWin || 0) > 0) u._koWin -= 1;
+  if ((u._koSuper || 0) > 0) {
+    if (u._koSuperFresh) u._koSuperFresh = false;
+    else { u._koSuper -= 1; if (u._koSuper <= 0) koEndSuper(u, s); }
+  }
+  if (u._koPane && (u._koSuper || 0) > 0) { u._koPane = false; koEndSuper(u, s); u._avMul = (u._avMul != null ? u._avMul : 1) * 1.2; pushLog(s, "💥 PANE DE VÁLVULA! O Superaquecimento se encerra e o próximo turno de Koleda demora 20% mais."); }
+  u._koLingRound = false;
+  koSync(u, s);
+}
+function koledaBasic(s, u, enemy, fx, ampB) {
+  const f = u.stFlags || {};
+  if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
+  if (!enemy) return `${u.name} não encontra alvo.`;
+  const r = dealDamage(u, enemy, 90 * (u.tBasic || 1) * ampB, fx, { el: "Eletro" });
+  let msg = `🔨 Martelo em Ação em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} de Dano Eletro.`;
+  const nT = koTypes(enemy).length;
+  if (nT >= 2 && enemy.alive && enemy.dots.length) { const dd = enemy.dots.reduce((a, b) => (b.turns < a.turns ? b : a), enemy.dots[0]); dd.turns += 1; msg += " 🔧 Junta Reforçada: o DoT mais curto ganha +1 turno."; }
+  koGainCalor(u, 3, s, fx);
+  if (f.koE2 && (u._koSuper || 0) > 0) { // E2 · CONSUMIR: Válvula de Alívio
+    const left = u._koSuper; const pot = Math.min(2.05, 1 + 0.35 * left);
+    msg += ` 💨 VÁLVULA DE ALÍVIO! O Superaquecimento é consumido (${left} ação${left > 1 ? "ões" : ""} restante${left > 1 ? "s" : ""}) numa Reação gratuita de ${Math.round(pot * 100)}% de potência.`;
+    koChainReaction(u, s, fx, { free: true, potency: pot });
+    koEndSuper(u, s);
+    return msg;
+  }
+  const gain = 1 + (nT >= 2 ? 1 : 0);
+  if (f.koE1 && (u._koPI || 0) >= 8 && (u._koPI || 0) + gain < 12 && aliveEnemies(s).some((e) => (e.dots || []).length)) { // E1 · Martelada de Válvula
+    const pot = ((u._koPI || 0) + gain) / 12;
+    msg += ` 💨 MARTELADA DE VÁLVULA! Pressão liberada cedo — Reação com ${Math.round(pot * 100)}% de potência.`;
+    koChainReaction(u, s, fx, { potency: pot, retain: 0 });
+  } else koGainPI(u, gain, s, fx);
+  koSync(u, s);
+  return msg + ` Pressão ${u._koPI || 0}/12.`;
+}
+function koledaSkill(s, u, fx, ampS) {
+  const f = u.stFlags || {};
+  const ens = aliveEnemies(s);
+  if (!ens.length) return `${u.name} não encontra alvos.`;
+  const lv = u.tSkill || 1, ampK = 1 + (ampS - 1) * 0.5;
+  let tot = 0, comDot = 0;
+  ens.forEach((e) => { const r = dealDamage(u, e, 70 * lv * ampS, fx, { el: "Eletro" }); tot += r.dmg; });
+  const dur = 3 + (f.koE3 ? 1 : 0), forja = !!(f.koE6 && (u._koForja || 0) > 0);
+  ens.forEach((e) => {
+    if (!e.alive) return;
+    if ((e.dots || []).length) comDot++;
+    const base = Math.round(supScale(25, lv) * ampK), per = Math.round(supScale(8, lv) * ampK);
+    const est = e.debuffs.find((b) => b.name === "Estresse Estrutural");
+    if (est) { est.turns = Math.max(est.turns, dur); est.value = base; est.perType = per; if (f.koE3) est.fadiga = Math.min(3, (est.fadiga || 0) + 1); est.t1 = !!f.koTrace1; est.full = est.full || forja; }
+    else e.debuffs.push({ stat: "koStress", value: base, perType: per, fadiga: 0, turns: dur, name: "Estresse Estrutural", t1: !!f.koTrace1, full: forja });
+  });
+  let msg = `🔧 Impacto de Alta Pressão — ${tot} de Dano Eletro em área. Estresse Estrutural em ${ens.length} inimigo${ens.length > 1 ? "s" : ""} por ${dur} turnos (+25% de dano de DoT e +8% por tipo de DoT).`;
+  koGainCalor(u, 6, s, fx);
+  if (f.koE2 && (u._koSuper || 0) > 0) { // E2 · MANTER: estende o Superaquecimento e acumula Fadiga Térmica
+    u._koSuper = Math.min(5, u._koSuper + 1); u._koFadiga = Math.min(3, (u._koFadiga || 0) + 1);
+    u.debuffs = u.debuffs.filter((b) => b.name !== "Fadiga Térmica"); u.debuffs.push({ stat: "vuln", value: 10 * u._koFadiga, turns: 3, name: "Fadiga Térmica" });
+    msg += ` 🌡️ O Superaquecimento se estende (${u._koSuper} ações) — Fadiga Térmica ${u._koFadiga}/3.`;
+    if (u._koFadiga >= 3) { u._koPane = true; msg += " ⚠️ A válvula não aguenta: PANE ao fim desta ação!"; }
+  }
+  koGainPI(u, 2 + Math.min(3, comDot), s, fx);
+  koSync(u, s);
+  return msg + ` Pressão ${u._koPI || 0}/12.`;
+}
+function koledaUltimate(s, u, fx, ampU) {
+  const f = u.stFlags || {};
+  const ens = aliveEnemies(s);
+  if (!ens.length) return `${u.name} não encontra alvos.`;
+  const lv = u.tUlt || 1, pi0 = u._koPI || 0, forja = !!(f.koE6 && (u._koForja || 0) > 0);
+  let tot = 0;
+  ens.forEach((e) => { const r = dealDamage(u, e, 180 * lv * ampU, fx, { el: "Eletro", breakW: 3 }); tot += r.dmg; });
+  let mode = "base";
+  if (f.koE5) mode = pi0 <= 3 ? "fria" : (pi0 <= 8 ? "quente" : "critica");
+  u._koWin = 3 + (mode === "critica" ? 1 : 0); // Janela de Sobrecarga
+  koSync(u, s); // a janela já vale para a Combustão Forçada
+  let forced = 0;
+  for (let p = 0; p < (mode === "quente" ? 2 : 1); p++) aliveEnemies(s).forEach((e) => { forced += koForcedTick(e, fx, 1, 0.30); });
+  let extra = "";
+  if (mode === "fria") { u._koPI = Math.max(u._koPI || 0, 7); s.heroes.filter((h) => h.alive && !h.isSummon && h.energyMax).forEach((h) => { h.energy = Math.min(h.energyMax, h.energy + 8); }); extra = " ❄️ MARTELADA FRIA: a caldeira sobe para 7 de Pressão e o time ganha +8 Energia."; }
+  else if (mode === "quente") { aliveEnemies(s).forEach((e) => (e.dots || []).forEach((d) => { if (d.turns < 6) d.turns += 1; })); koGainPI(u, 4, s, fx); extra = " 🔥 MARTELADA QUENTE: a Combustão Forçada detona cada DoT DUAS vezes e todos ganham +1 turno."; }
+  else if (mode === "critica") { s.heroes.filter((h) => h.alive && !h.isSummon).forEach((h) => { h.buffs = h.buffs.filter((b) => b.name !== "Ordem da Chefe"); h.buffs.push({ stat: "defPen", value: 20, turns: 2, name: "Ordem da Chefe" }); }); const rx = koChainReaction(u, s, fx, { retain: 0, potency: 1 }); extra = ` 💥 MARTELADA CRÍTICA: toda a Pressão vira uma Reação em Cadeia completa (${rx} de dano), a Janela dura +1 ação e o time ignora 20% da DEF por 2 turnos.`; }
+  else koGainPI(u, 4, s, fx);
+  koGainCalor(u, 25, s, fx);
+  if (forja) { let guard = 0; while ((u._koForjaRx || 0) < 2 && guard++ < 2) { if (!koChainReaction(u, s, fx, { free: true, potency: 1 })) break; } koEndSuper(u, s); extra += " 🏭 ÚLTIMA MARTELADA FINAL: as Reações restantes da Forja são disparadas de uma vez e a Forja se fecha."; }
+  else if (f.koE6) { u._koLing = Math.min(3, (u._koLing || 0) + 1); if (u._koLing >= 3 && !((u._koFria || 0) > 0)) koOpenForja(u, s, fx); }
+  koSync(u, s);
+  return `🌩️ MARTELO DEMOLIDOR: SOBRECARGA! ${tot} de Dano Eletro em área + Combustão Forçada (${forced} de DoT). Janela de Sobrecarga aberta (${u._koWin} ações: DoTs +40% nos inimigos, time +25% Dano de DoT e +12% ATQ).${extra} Pressão ${u._koPI || 0}/12.`;
+}
+function koTechnique(k, heroes, enemies) { // Técnica · Entrada em Serviço
+  k._koPI = 4; k._koCalor = 25; k._koMotor = 0;
+  applyDot(enemies, { type: "shock", mul: 90, turns: 2 }, k, []);
+  enemies.forEach((e) => { e._koNew = 0; e.debuffs.push({ stat: "koStress", value: 25, perType: 8, fadiga: 0, turns: 2, name: "Estresse Estrutural", t1: !!k.stFlags?.koTrace1 }); });
+  heroes.forEach((h) => { if (!h.isSummon && h.energyMax && (h.uid === k.uid || ["yanagi", "lupa", "miyabi", "nanami", "ace"].includes(h.id))) h.energy = Math.min(h.energyMax, h.energy + 20); });
+}
+// Elo Rompido da Tempestade (4pç) — Circuito Exposto
+function eloRompidoChain(owner, primary, s, fx) {
+  if (!owner || !owner.stFlags?.setFiosTempestade4 || !primary) return;
+  const isEletro = owner.element === "Eletro";
+  const pool = aliveEnemies(s).filter((e) => e.uid !== primary.uid);
+  if (!pool.length) return;
+  const n = Math.min(pool.length, isEletro ? 3 : 2);
+  const picks = pool.sort(() => Math.random() - 0.5).slice(0, n);
+  const atk = effStat(owner, "atk") || owner.base?.atk || 0;
+  picks.forEach((e) => {
+    let dmg = Math.max(1, Math.round(atk * 0.8));
+    if (isEletro) dmg = Math.round(dmg * 1.5); // Dano Verdadeiro sempre crítico (aprox. via multiplicador fixo)
+    e.hp -= dmg; if (e.hp <= 0) { e.hp = 0; e.alive = false; }
+    e.debuffs = e.debuffs.filter((b) => b.name !== "Contato Exposto");
+    e.debuffs.push({ stat: "elemRes", value: -15, turns: 2, name: "Contato Exposto" });
+    fx.push({ uid: e.uid, txt: "🌩️" + dmg, crit: isEletro, id: Math.random(), el: "Eletro" });
+  });
+  const stacks = owner.buffs.filter((b) => b.name === "Tensão Acumulada").length;
+  if (stacks < 5) owner.buffs.push({ stat: "critDmg", value: 4, turns: 9999, name: "Tensão Acumulada" });
+  pushLog(s, `🌩️ Elo Rompido da Tempestade! ${picks.length} inimigo${picks.length > 1 ? "s" : ""} atingido${picks.length > 1 ? "s" : ""} por dano verdadeiro${isEletro ? " (crítico garantido, +1 alvo)" : ""}.`);
+}
 function acheronDetonate(u, enemy, s, fx, isUlt) {
   if (!enemy || !enemy._achMark || !enemy.alive) return;
   const mk = enemy._achMark;
@@ -7533,12 +7936,13 @@ function acheronDetonate(u, enemy, s, fx, isUlt) {
   const lvl = u.tUlt || 1;
   const e6 = u.stFlags?.achE6;
   const eco = !!(isUlt && u._achEcoNow); // Ecoar do Fim no máximo: Suprema crítica garantida + perfuração
-  let mult = isUlt ? Math.round(supScale(180 + freshness * 160, lvl)) : Math.round(supScale(90, lvl));
+  let mult = isUlt ? Math.round(supScale(300 + freshness * 240, lvl)) : Math.round(supScale(160, lvl));
   const fresh = mk.left >= Math.max(1, mk.max - 1); // "fresca": perdeu no máximo 1 turno de contagem
   if (isUlt && e6 && fresh) mult *= 4; // E6: marca fresca causa dano quadruplicado
   if (isUlt && u.stFlags?.setCinzas4) mult = Math.round(mult * 1.5); // Cinzas do Amanhã 4pç: +50% de dano nas detonações da Suprema
   dealDamage(u, enemy, mult * (isUlt ? (u.ampUlt || 1) : 1), fx, { el: "Eletro", isFollowup: true, defPen: (isUlt && e6 ? 100 : 0) + (eco ? 30 : 0), resPen: eco ? 20 : 0, hardCrit: !!(e6 || eco) });
   enemy._achMark = null;
+  eloRompidoChain(u, enemy, s, fx); // Elo Rompido da Tempestade: Marca do Fim detonada conta como fim de marca
   acheronGainCinzas(u, e6 ? 2 : 1); // E6 · Ciclo Sem Fim: cada detonação vale 2 Cinzas
   if (u.weapon?.buff?.achWeapon) {
     u._achWpnStacks = Math.min(4, (u._achWpnStacks || 0) + 1);
@@ -7588,14 +7992,14 @@ function acheronUltimate(u, s, fx) {
     acheronDetonate(u, e, s, fx, true);
     if (wasAlive && !e.alive && u.stFlags?.achE4) chainBonus = Math.min(100, chainBonus + 20);
     if (u.stFlags?.achTrace1 && e.alive && Math.random() < 0.5) {
-      dealDamage(u, e, Math.round(supScale(108, lvl)) * (u.ampUlt || 1), fx, { el: "Eletro", isFollowup: true, hardCrit: e6 || ecoFull });
+      dealDamage(u, e, Math.round(supScale(180, lvl)) * (u.ampUlt || 1), fx, { el: "Eletro", isFollowup: true, hardCrit: e6 || ecoFull });
       pushLog(s, `⚡ Colheita Dupla! Segunda detonação em ${e.name}.`);
     }
   });
   let firstHit = true;
   aliveEnemies(s).forEach((e) => {
     // E6: golpe final vira Dano Verdadeiro e crítico garantido. Ecoar do Fim cheio: crítico + perfuração extra
-    dealDamage(u, e, Math.round(supScale(e6 ? 320 : 220, lvl)) * (u.ampUlt || 1), fx, { el: "Eletro", isFollowup: true, hardCrit: e6 || ecoFull, trueDef: e6, defPen: ecoFull ? 30 : 0, resPen: ecoFull ? 20 : 0 });
+    dealDamage(u, e, Math.round(supScale(e6 ? 500 : 400, lvl)) * (u.ampUlt || 1), fx, { el: "Eletro", isFollowup: true, hardCrit: e6 || ecoFull, trueDef: e6, defPen: ecoFull ? 30 : 0, resPen: ecoFull ? 20 : 0 });
     if (firstHit && u.stFlags?.achTrace3) { e.debuffs.push({ stat: "vuln", value: 15, turns: 2, name: "Vulnerabilidade do Fim" }); firstHit = false; }
   });
   // E6: cada inimigo abatido na Detonação Antecipada concede +20% de Dano CRÍTICO ao time por 2 turnos
@@ -7866,6 +8270,7 @@ function tickDots(u, fx, allies) {
   // Cooldown de reaplicação de DoT (2 turnos inteiros após o encerramento) — decrementa mesmo sem dots ativos
   if (u._dotCd) { for (const k in u._dotCd) { if (u._dotCd[k] > 0) u._dotCd[k] -= 1; } }
   if (!u.dots || !u.dots.length) return;
+  u._koTick = { n: 0, tempTicks: 0, present: [...new Set(u.dots.map((d) => d.type))] }; // Koleda: registra o que deu tique neste turno
   let total = 0;
   if ((u._aeroCd || 0) > 0) u._aeroCd -= 1;
   // Glacier: na 3ª camada, QUEBRA DE GELEIRA — consome tudo e detona (trava anti-HK: máx 25% do HP atual)
@@ -7883,12 +8288,14 @@ function tickDots(u, fx, allies) {
     // Estase (Yanagi): +25% no dano de todo DoT recebido enquanto durar
     const dotAmp = (u.debuffs || []).filter(b => b.stat === "dotAmp").reduce((a, b) => a + (b.value || 0), 0);
     if (dotAmp) dmg = Math.round(dmg * (1 + dotAmp / 100));
+    { const _est = (u.debuffs || []).find((b) => b.name === "Estresse Estrutural"); if (_est) dmg = Math.round(dmg * (1 + koStressAmp(_est, u) / 100)); } // Koleda: Estresse Estrutural
+    { const _spk = (u.debuffs || []).reduce((a, b) => a + (b.spark || 0), 0); if (_spk) dmg = Math.round(dmg * (1 + _spk / 100)); } // Superaquecimento: Faísca Adicional
     // Ignis (trava anti-HK): o dano do tick nunca excede 10% do HP atual do alvo
     if (d.type === "burn") dmg = Math.max(1, Math.min(dmg, Math.round(u.hp * 0.25)));
     // Yanagi — Estase (Fagulha de Anomalia): DoTs recebidos ganham +25% de dano + escala com a Perfuração por Carga
     const sparkCt = (u.debuffs || []).filter(b => b.name === "Fagulha de Anomalia").length;
     if (sparkCt > 0) dmg = Math.round(dmg * 1.25 * (1 + Math.min(0.30, sparkCt * 0.05)));
-    u.hp -= dmg; total += dmg; d.turns -= 1; fx.push({ uid: u.uid, txt: String(dmg), dot: d.type, id: Math.random() });
+    u.hp -= dmg; total += dmg; d.turns -= 1; fx.push({ uid: u.uid, txt: String(dmg), dot: d.type, id: Math.random() }); if (u._koTick) { u._koTick.n += 1; if (d.temp) u._koTick.tempTicks += 1; }
     // Corrente Trovão-Relâmpago (4pç): quando Choque dá tick em inimigo, herói com setTrovao4 ganha +1 acúmulo de Condutividade (máx 4)
     if (d.type === "shock" && allies) {
       const trovaoHero = allies.find(h => h.stFlags?.setTrovao4 && !h.isSummon);
@@ -7918,6 +8325,11 @@ function tickDots(u, fx, allies) {
     if (allies && expiring.some(d => d.type === "burn")) {
       const infH = allies.find(h => h.stFlags?.setInferno6 && !h.isSummon);
       if (infH) infernoExplosao(infH, [u], fx);
+    }
+    // Elo Rompido da Tempestade (4pç): qualquer DoT que se encerra naturalmente conta como fim de marca/debuff
+    if (allies && expiring.length) {
+      const eloH = allies.find(h => h.stFlags?.setFiosTempestade4 && !h.isSummon);
+      if (eloH) eloRompidoChain(eloH, u, { heroes: allies, enemies: u._sibs || [u], fx }, fx);
     }
   }
   u.dots = u.dots.filter((d) => d.turns > 0);
@@ -8106,6 +8518,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     const enemies = Array.from({ length: Math.max(1, Math.min(3, encounter.count)) }, (_, i) => makeEnemy(i, { ...encounter, boss: encounter.boss && (encounter.waves || 1) <= 1 }));
     // _sibs: referências dos aliados de cada lado (Fulgur Resonance precisa achar o de menor HP)
     heroes.forEach(h => { h._sibs = heroes; });
+    { const ko0 = heroes.find((h) => h.id === "koleda"); if (ko0) koTechnique(ko0, heroes, enemies); } // Técnica · Entrada em Serviço
     // ══ Arquétipo do time: define bônus/penalidades da composição ══
     let s0Arch = null;
     { const arch = teamArchetype(heroes); s0Arch = arch;
@@ -8252,11 +8665,16 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
   function targetEnemy(s) { const al = aliveEnemies(s); return al[target] || al[0]; }
 
   function skillPreviewLines(hero, kind) {
+    if (hero.id === "koleda") {
+      if (kind === "basic") return [`Dano: <b>90% de ATK</b> (Eletro)`, `<b>+1 Pressão</b> (+2 se o alvo tiver 2+ tipos de DoT)`, `Alvo com 2+ tipos: o DoT mais curto ganha +1 turno`, `Pressão atual: <b>${hero._koPI || 0}/12</b>`];
+      if (kind === "skill") return [`Custo: <b>1 Ponto de Habilidade</b>`, `Dano em área: <b>70% de ATK</b> (Eletro)`, `Aplica <b>Estresse Estrutural</b> (+25% de dano de DoT, +8% por tipo)`, `<b>+2 Pressão</b> (+1 por inimigo com DoT, máx. +3)`];
+      return [`Dano em área: <b>180% de ATK</b> (Eletro)`, `<b>Combustão Forçada:</b> todo DoT dá 1 tique na hora`, `<b>Janela de Sobrecarga:</b> DoTs +40% e time +25% Dano de DoT`, `Pressão atual: <b>${hero._koPI || 0}/12</b>`];
+    }
     if (hero.id === "acheron") {
       const _a = Math.round(effStat(hero, "atk"));
       if (kind === "basic") return [`Dano: <b>${hero.skill.basicMul}% de ATK</b> (Eletro)`, `≈ <b>${Math.round(_a * hero.skill.basicMul / 100)}</b> de dano (sem crítico)`, `Acelera em <b>1 turno</b> a Marca mais próxima de detonar`, `Ganha <b>+1 Ponto de Habilidade</b>`];
       if (kind === "skill") return [`Custo: <b>1 Ponto de Habilidade</b>`, `Dano: <b>${hero.skill.skillMul}% de ATK</b> (Eletro)`, `≈ <b>${Math.round(_a * hero.skill.skillMul / 100)}</b> de dano`, `Planta a <b>Marca do Fim Selado</b> (3 turnos)`, `CRÍTICO: <b>+2 Cinzas do Fim</b>`];
-      return [`Requer <b>8 Cinzas do Fim</b> (${hero._achCinzas || 0}/8)`, `Detona <b>todas as Marcas</b> (180–340% de ATK cada)`, `Golpe final: <b>220% de ATK</b> em todos os inimigos`];
+      return [`Requer <b>8 Cinzas do Fim</b> (${hero._achCinzas || 0}/8)`, `Detona <b>todas as Marcas</b> (300–540% de ATK cada)`, `Golpe final: <b>400% de ATK</b> em todos os inimigos`];
     }
     const sk = hero.skill || {};
     const atk = Math.round(effStat(hero, "atk"));
@@ -8308,6 +8726,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       const u = findUnit(s, current.uid); if (!u || !u.alive) { s.turn = null; return s; }
       if (kind === "skill" && s.sp <= 0) return s;
       const f = u.stFlags || {}; // flags de constelação/relíquia do personagem que está agindo (faltava — corrigido)
+      koCollect(s); if (u.id === "koleda") koActionStart(u, s); // Koleda: novos tipos de DoT viram Pressão; Superaquecimento estende os DoTs
       if (u.id === "ichigo" && u._ichPendingTransform && !u._ichMugetsu) { u._ichPendingTransform = false; ichigoEnterMugetsu(u, s, s.fx); } // processa a transformação pendente (12º Fragmento ganho tomando dano no turno do inimigo)
       u._calamidadeEnergyThisAction = false; // reseta a cada ação — 1 energia de Calamidade por ação, não por aplicação de buff/debuff
       if (u.id === "acheron") {
@@ -8539,7 +8958,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           if (u._ichMugetsu && enemy) {
             if ((u._ichReserve || 0) < 1) { const r = dealDamage(u, enemy, (sk.basicMul || 95) * (u.tBasic || 1) * ampB, fx, { el: "Unknown" }); msg = `⚔️ Corte de Zangetsu em ${enemy.name} — ${r.dmg} de Dano Unknown.`; }
             else {
-              const r = dealDamage(u, enemy, Math.round(supScale(750, u.tBasic || 1)) * ampB * (u.stFlags?.ichE6 ? 1.5 : 1), fx, { el: "Unknown" }); // E6: +50% de dano no Básico aprimorado
+              const r = dealDamage(u, enemy, Math.round(supScale(825, u.tBasic || 1)) * ampB * (u.stFlags?.ichE6 ? 1.5 : 1), fx, { el: "Unknown" }); // E6: +50% de dano no Básico aprimorado
               let extra = "";
               if (u.stFlags?.ichE4) {
                 u._ichCorrosao = u._ichCorrosao || {};
@@ -8566,7 +8985,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         if (!miyDone && u.id === "acheron") {
           if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
           if (enemy) {
-            const r = dealDamage(u, enemy, (sk.basicMul || 100) * (u.tBasic || 1) * ampB, fx, { el: "Eletro" });
+            const r = dealDamage(u, enemy, (sk.basicMul || 160) * (u.tBasic || 1) * ampB, fx, { el: "Eletro" });
             let extra = "";
             const marked = aliveEnemies(s).filter((e) => e._achMark);
             if (marked.length) {
@@ -8579,6 +8998,10 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             msg = `⚡ Fio Cortado em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO!)" : ""} de Dano Eletro.${extra}`;
           }
           if (enemy && !enemy.alive && enemy._achMark) acheronGainCinzas(u, 1);
+          miyDone = true;
+        }
+        if (!miyDone && u.id === "koleda") {
+          msg = koledaBasic(s, u, enemy, fx, ampB);
           miyDone = true;
         }
         if (!miyDone && u.id === "hitori") {
@@ -8795,7 +9218,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
             } else {
               const targets = aliveEnemies(s);
               let tot = 0, anyCrit = false;
-              targets.forEach((e) => { const r = dealDamage(u, e, Math.round(supScale(950, u.tSkill || 1)) * ampS * (u.stFlags?.ichE6 ? 1.5 : 1), fx, { el: "Unknown" }); tot += r.dmg; if (r.crit) anyCrit = true; }); // E6: +50% de dano na Perícia aprimorada
+              targets.forEach((e) => { const r = dealDamage(u, e, Math.round(supScale(1045, u.tSkill || 1)) * ampS * (u.stFlags?.ichE6 ? 1.5 : 1), fx, { el: "Unknown" }); tot += r.dmg; if (r.crit) anyCrit = true; }); // E6: +50% de dano na Perícia aprimorada
               if (enemy && enemy.alive) enemy.debuffs = [...(enemy.debuffs || []).filter((b) => b.name !== "Corte Sombrio"), { stat: "vuln", value: 22, turns: 2, name: "Corte Sombrio" }];
               ichigoSpendReserve(u, cost, s, fx);
               msg = `🌑⚔️ Kuroi Getsuga: Lâmina do Vazio — ${tot} de Dano Unknown em todos os inimigos${anyCrit ? " (CRÍTICO!)" : ""}. Reservas: ${u._ichReserve || 0}/${u._ichReserveMax || 12}.`;
@@ -8817,11 +9240,14 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         else if (u.id === "acheron" && sk.achSkill) {
           if (!enemy || !enemy.alive) enemy = aliveEnemies(s)[0];
           if (enemy) {
-            const r = dealDamage(u, enemy, (sk.skillMul || 240) * (u.tSkill || 1) * ampS, fx, { el: "Eletro" });
+            const r = dealDamage(u, enemy, (sk.skillMul || 380) * (u.tSkill || 1) * ampS, fx, { el: "Eletro" });
             acheronPlantMark(u, enemy);
             if (r.crit) acheronGainCinzas(u, 2); else acheronGainCinzas(u, 0);
             msg = `⚡ Marca do Fim Selado em ${enemy.name} — ${r.dmg}${r.crit ? " (CRÍTICO! +2 Cinzas do Fim)" : ""} de Dano Eletro. Cinzas do Fim: ${u._achCinzas || 0}/8.`;
           }
+        }
+        else if (u.id === "koleda" && sk.koSkill) {
+          msg = koledaSkill(s, u, fx, ampS);
         }
         else if (u.id === "hitori" && sk.hitoriSkill) {
           msg = hitoriSkillAttack(s, u, fx);
@@ -9425,6 +9851,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
           const allLow = drainable.every(a => a.hp / a.maxHp < 0.5);
           if (f.ryoC6 && allLow) { u.av = 0.01; }
           msg = "A TELA DA ARANHA! " + u.name + " sacrifica " + totalDrained + " HP do time — " + tot2 + " de dano total!" + (defPenBonus > 0 ? " (perfura " + defPenBonus.toFixed(0) + "% DEF!)" : "") + (f.ryoC6 && allLow ? " [C6] Ryoshu age NOVAMENTE!" : "");
+        } else if (u.id === "koleda" && sk.koUlt) {
+          u.energy = enGain(5);
+          msg = koledaUltimate(s, u, fx, ampU);
         } else if (u.id === "acheron" && sk.achUlt) {
           acheronUltimate(u, s, fx);
           msg = "⚡ Acheron dispara DETONAÇÃO ANTECIPADA — todas as Marcas do Fim Selado explodem de uma vez!";
@@ -9615,6 +10044,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         } // end soifon ult else
       }
       u._actDmg = 0; u._turnSeq = (u._turnSeq || 0) + 1; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
+      if (u.id === "koleda") koActionEnd(u, s); // (antes do ajuste de AV: a Pane de Válvula usa _avMul)
       if (u._avMul != null) { u.av = Math.max(0.01, u.av * u._avMul); u._avMul = null; }
       if (u.id === "acheron") acheronSync(u, s); // Marcas plantadas/detonadas nesta ação → atualiza Presença do Fim / Sob as Cinzas
       if (u.id === "miyabi" && (s.frostZone || 0) > 0) s.frostZone -= 1;
@@ -10087,6 +10517,12 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     const fullEnergy = u.id === "acheron" ? (u._achCinzas || 0) >= 8 : (u.energyMax && u.energy >= u.energyMax); // Acheron usa Cinzas do Fim (8), não Energia
     // Suprema pronta: sempre prioridade máxima (seja ela numérica ou de mecânica customizada — heroAction sabe executar as duas)
     if (fullEnergy) return "ult";
+    if (u.id === "koleda") { // Perícia mantém Estresse Estrutural em todos; com E1 e Pressão ≥ 8 o Básico libera a válvula
+      const _al = s.enemies.filter((e) => e.alive); const _sem = _al.some((e) => !(e.debuffs || []).some((b) => b.name === "Estresse Estrutural"));
+      if ((u._koSuper || 0) > 0 && u.stFlags?.koE2) return (s.sp || 0) > 0 && (u._koFadiga || 0) < 2 ? "skill" : "basic";
+      if (u.stFlags?.koE1 && (u._koPI || 0) >= 8 && (u._koPI || 0) < 11) return "basic";
+      return ((s.sp || 0) > 0 && _sem) ? "skill" : (((s.sp || 0) > 0 && (u._koPI || 0) < 9) ? "skill" : "basic");
+    }
     if (u.id === "acheron") { // Perícia só quando o alvo mais frágil ainda não tem Marca; senão o Básico acelera a Marca existente
       const _al = s.enemies.filter((e) => e.alive); const _t = _al.length ? _al.reduce((a, b) => (b.hp < a.hp ? b : a)) : null;
       return ((s.sp || 0) > 0 && _t && !_t._achMark) ? "skill" : "basic";
@@ -10210,7 +10646,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         s.turn = null;
         return s;
       }
-      tickDots(u, s.fx, s.heroes.filter((h) => h.alive));
+      koCollect(s); tickDots(u, s.fx, s.heroes.filter((h) => h.alive)); koOnEnemyTick(s, u); // Koleda: Pressão de Impacto / Calor
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
       // ── Convergência Tríplice — O Arquivista Sem Rosto: selos quebram em marcos de HP ──
       if (u.alive && u.boss && u.bossKind === "arquivista") {
@@ -10879,6 +11315,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
                   <div style={{ fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: lupaOC ? "#FF8A5C" : undefined }}>{lupaOC ? "🔥 " : ""}{h.name}{h.isSummon && <span style={{ color: el.color }}> ⟡</span>}</div>
                   {h.isSummon && isFinite(h.life) && <div style={{ fontSize: 9, color: el.color }}>⏳ {h.life} turno(s)</div>}
                   {!h.isSummon && h.energyMax > 0 && h.id !== "acheron" && <div style={{ fontSize: 9, color: full ? C.gold : "#6FA8FF" }}>⚡ {Math.round(h.energy)}/{h.energyMax}{full ? " · PRONTO" : ""}</div>}
+                  {h.id === "koleda" && <div style={{ fontSize: 9, fontWeight: (h._koSuper || 0) > 0 ? 800 : 400, color: (h._koSuper || 0) > 0 ? "#FF9E45" : "#FFD24B" }}>🔨 Pressão {h._koPI || 0}/12 · {(h._koSuper || 0) > 0 ? `🔥 SUPERAQUECIMENTO ${h._koSuper}` : `Calor ${h._koCalor || 0}`}{(h._koWin || 0) > 0 ? " · ⚡ Sobrecarga" : ""}{(h._koForja || 0) > 0 ? " · 🏭 Forja" : ""}{(h._koMotor || 0) > 0 ? ` · ⚙️${h._koMotor}` : ""}</div>}
                   {h.id === "acheron" && <div style={{ fontSize: 9, fontWeight: (h._achCinzas || 0) >= 8 ? 800 : 400, color: (h._achCinzas || 0) >= 8 ? C.gold : "#B98BFF" }}>⚡ Cinzas do Fim: {h._achCinzas || 0}/8{(h._achCinzas || 0) >= 8 ? " · SUPREMA PRONTA" : ""}</div>}
                   {h.id === "agumon" && <div style={{ fontSize: 9, color: (h.agHeat || 0) > 70 ? "#FF7043" : "#FFB74D" }}>{AGU_FORMS[h.agForm || "agumon"]?.emoji} {AGU_FORMS[h.agForm || "agumon"]?.name}{(h.agModoX || 0) > 0 ? " · MODO X⚡" : ""} · 🔥{h.agHeat || 0} · 🧬{h.agSP || 0} SP{(h.agHeat || 0) >= 85 ? " ☢️" : ""}</div>}
                   {h.id === "miyabi" && (h.stFlags?.miPostura) && <div style={{ fontSize: 9, color: "#6FE3FF" }}>{"❄".repeat(Math.min(h.posturePH || 0, h.stFlags?.miC6 ? 4 : 3))}{"·".repeat(Math.max(0, (h.stFlags?.miC6 ? 4 : 3) - (h.posturePH || 0)))} {((h.posturePH || 0) >= (h.stFlags?.miC6 ? 4 : 3)) ? "Postura Iaido!" : "PH"}</div>}
@@ -11101,6 +11538,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
 function abilityHint(h) {
   const sk = h.skill || {};
   if (h.id === "kaiba") return "Habilidade invoca Blue-Eyes (até 3). Com 3 em campo, o Ultimate libera Obelisco ou o Dragão Definitivo.";
+  if (h.id === "koleda") return "Perícia aplica Estresse Estrutural em todos. Cada tique de DoT (e cada novo tipo) enche a Pressão; com 12, Reação em Cadeia. Calor 100 = Superaquecimento.";
   if (h.id === "acheron") return "Perícia planta a Marca do Fim; o Básico a acelera. Cada detonação dá 1 Cinza — com 8, a Suprema detona todas as Marcas.";
   const parts = [];
   if (sk.heal || sk.ultHeal) parts.push("cura aliados");
