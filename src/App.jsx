@@ -122,6 +122,8 @@ const ROSTER = [
   // ---- Tsukishiro Yanagi · Teorema da Desordem (Limitada) ----
   mk({ id: "shorekeeper", name: "Shorekeeper", title: "Guardiã da Costa Negra", element: "Unknown", role: "healer", rarity: 5, avatar: "🌌", hp: 2400, atk: 340, def: 460, spd: 100, energy: 130, cr: 5, cd: 50, er: 20, tags: ["Desconhecido", "Suporte", "Cura", "Domínio"],
     skill: { basicMul: 100, shkBasic: true, skillMul: 0, shkSkill: true, ultMul: 300, shkUlt: true } }),
+  mk({ id: "cyrene", name: "Cyrene", title: "Aquela que Recorda o Paraíso", element: "Glacial", role: "buffer", rarity: 5, avatar: "🌸", hp: 1560, atk: 603, def: 529, spd: 102, energy: 130, cr: 5, cd: 50, tags: ["Glacial", "Suporte", "Cura", "HP", "Elysium"],
+    skill: { basicMul: 50, cyBasic: true, skillMul: 0, cySkill: true, aoe: true, ultMul: 200, cyUlt: true, ultAoe: true } }),
   mk({ id: "koleda", name: "Koleda Belobog", title: "Chefe de Obras de Belobog", element: "Eletro", role: "buffer", rarity: 5, avatar: "🔨", hp: 1240, atk: 640, def: 560, spd: 104, energy: 140, cr: 5, cd: 50, tags: ["Eletro", "Suporte de DoT", "Buffer", "Belobog"],
     skill: { basicMul: 90, koBasic: true, skillMul: 70, koSkill: true, aoe: true, ultMul: 180, koUlt: true, ultAoe: true } }),
   mk({ id: "yanagi", name: "Tsukishiro Yanagi", title: "Teorema da Desordem", element: "Eletro", role: "debuffer", rarity: 5, avatar: "🌀", hp: 1100, atk: 780, def: 440, spd: 104, energy: 190, cr: 8, cd: 55, tags: ["Eletro", "Suporte de DoT", "Habilitadora", "Perfuração"],
@@ -131,9 +133,9 @@ const CHAR_MAP = Object.fromEntries(ROSTER.map((c) => [c.id, c]));
 // Tag primária de um personagem (usada como requisito de nó) e todas as tags únicas do elenco
 const primaryTag = (def) => (def && def.tags && def.tags[0]) || (def && def.element) || "Geral";
 const ALL_TAGS = [...new Set(ROSTER.flatMap((c) => c.tags || []))]; // deduplicadas: tags compartilhadas não criam dungeon extra
-const LIMITED_5 = ["koleda", "miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon", "lupa", "hitori", "altersaber", "gilgamesh", "aizensosuke", "ichigo"];     // limitados (pool 50/50): só via rate-up
-const FEATURED_LIMITEDS = ["koleda", "aizensosuke", "acheron", "ichigo"]; // 3 banners ativos // único banner ativo: Aizen Sōsuke (5 dias) // banners ativos: Ichigo e Acheron (Alter Saber, Gilgamesh, Lupa e Hitori encerrados)
-const BANNER_DURATIONS = { koleda: 5 * 24 * 60 * 60 * 1000, aizensosuke: 5 * 24 * 60 * 60 * 1000, acheron: 5 * 24 * 60 * 60 * 1000, ichigo: 5 * 24 * 60 * 60 * 1000 }; // 5 dias cada
+const LIMITED_5 = ["cyrene", "koleda", "miyabi", "kaiba", "ryoshu", "frieren", "soifon", "omegamon", "lupa", "hitori", "altersaber", "gilgamesh", "aizensosuke", "ichigo"];     // limitados (pool 50/50): só via rate-up
+const FEATURED_LIMITEDS = ["cyrene", "koleda", "ichigo"]; // Aizen Sōsuke e Acheron retirados do banner a pedido // banners ativos: Cyrene, Koleda e Ichigo
+const BANNER_DURATIONS = { cyrene: 5 * 24 * 60 * 60 * 1000, koleda: 5 * 24 * 60 * 60 * 1000, ichigo: 5 * 24 * 60 * 60 * 1000 }; // 5 dias cada — Aizen e Acheron retirados do banner
 // ══ Títulos de chat — desbloqueados ao levar um personagem ao E6 (todas as cópias) ══
 const E6_TITLES = {
   lupa:        { t: "Predador de Fusão",       c: "#FF6A3D" },
@@ -152,13 +154,14 @@ const E6_TITLES = {
   athena:      { t: "Sabedoria do Olimpo",     c: "#FFD9A0" },
   wonderofyou: { t: "Calamidade Inevitável",   c: "#FF7AC8" },
   yanagi:      { t: "Anomalia Voltaica",       c: "#B98BFF" },
+  cyrene:      { t: "Aquela que Recorda o Paraíso", c: "#6FE3FF" },
   koleda:      { t: "Chefe de Obras de Belobog", c: "#FFB84D" },
 };
 function earnedTitles(owned) {
   return (owned || []).filter((o) => (o.eidolon || 0) >= 6 && E6_TITLES[o.id]).map((o) => ({ id: o.id, ...E6_TITLES[o.id] }));
 }
 const STANDARD_5 = ["kirara", "yoruichi", "kiritsugu"]; // padrão: caem ao perder o 50/50 e no banner permanente
-const DEFAULT_FEATURED_CHAR = "koleda";
+const DEFAULT_FEATURED_CHAR = "cyrene";
 // Banner Especial Limitado — pool de 5, dura 3 dias corridos pra TODO mundo (data fixa, não reseta por dispositivo)
 const SPECIAL_BANNER_CHARS = ["soifon", "omegamon", "ryoshu", "wonderofyou", "frieren"];
 const SPECIAL_BANNER_START = new Date("2026-07-20T18:00:00Z").getTime();
@@ -185,6 +188,7 @@ const WEAPONS = [
   { id: "hailstorm",        name: "Nevasca de Outono",     rarity: 5, role: "aoe",      atk: 700, critRate: 30.0, critDmg: 52.0,    passive: "Fio do Zero Absoluto: DoTs de Geada amplificados. Apos a Habilidade, +24% Bonus de Dano por 2 turnos.",                         buff: { onSkill: { dmgBonus: 24, turns: 2 } } },
   { id: "thunderclaws",     name: "Garras do Trovao",      rarity: 5, role: "dps",      atk: 850, critRate: 38.0,                   passive: "Descarga Predatoria: apos a Habilidade, +20% de VEL por 2 turnos.",                                                             buff: { onSkill: { spd: 20, turns: 2 } } },
   { id: "tensa_zangetsu", name: "Tensa Zangetsu", rarity: 5, role: "dps", atk: 700, def: 350, critRate: 18.0, passive: "Eco do Corte Perdido: aumenta o ATQ do usuario em 30%. Ao usar a Pericia em Fase Shinigami, existe 55% de chance de conceder 1 Fragmento do Dangai adicional (nao afeta a Pericia aprimorada da Forma Mugetsu). O primeiro Ataque Basico aprimorado de cada Forma Mugetsu nao consome Reserva. O golpe final da Forma Mugetsu causa 28% de dano adicional.", buff: { ichWeapon: true } },
+  { id: "paraiso_florescera", name: "E o Paraíso Florescerá Novamente", rarity: 5, role: "buffer", atk: 476, hp: 1350, def: 635, hpFlat: 1350, defFlat: 635, atkPct: 0, dotDmg: 0, hpPct: 36.0, energyRegen: 8.0, cyWeapon: true, passive: "Memória que Nunca Morre (exclusiva de Cyrene) — Aumenta o HP Máx. da portadora em 36%. Sempre que ela causar dano, curar, ou aplicar um buff/debuff, ganha 1 Pétala (máx. 6, dura a batalha). Ao completar 6 Pétalas, o Círculo das Memórias ativa: para Cyrene, concede +18% de ATQ e +25% de Dano de Habilidade ao time por 2 turnos, e todos os Fragmentos de Elysium acumulados ganham +2 instantaneamente (limitado pelo teto atual). As Pétalas então são consumidas e o ciclo recomeça. «Se um dia tudo aquilo que amamos desaparecer, ainda haverá uma memória capaz de fazê-lo florescer novamente.»", buff: { cyWeapon: true } },
   { id: "ate_ultima_faisca", name: "Até a Última Faísca", rarity: 5, role: "buffer", atk: 582, hp: 1058, def: 463, hpFlat: 1058, defFlat: 463, atkPct: 18.0, dotDmg: 32.0, energyRegen: 10.0, koWeapon: true, passive: "Faísca de Obra (exclusiva de Koleda Belobog) — Aumenta o ATQ da portadora em 18%, o Dano de DoT em 32% e a Regeneração de Energia em 10%. BRASAS: sempre que um inimigo com 2 ou mais TIPOS diferentes de DoT sofre o tique de DoT, a portadora ganha 1 Brasa (máx. 6, dura a batalha). Cada Brasa concede a TODOS os aliados +4% de Dano de DoT (até +24%). ÚLTIMA FAÍSCA: ao acumular a 6ª Brasa todas são consumidas: por 2 turnos o time inteiro ganha +20% de ATQ e +25% de Dano de DoT, todos os DoTs em campo ganham +1 turno (máx. 6) e a caldeira de Koleda ganha +3 de Pressão de Impacto (o que pode disparar a Reação em Cadeia). Depois disso as Brasas ficam bloqueadas por 2 ações da portadora. Para Koleda Belobog: cada Brasa também concede +1 de Calor de Superaquecimento. «Ela nunca pediu um milagre — só mais uma martelada. Quando o último parafuso soltar, ainda vai sobrar uma faísca, e uma faísca é tudo de que uma fábrica precisa.»", buff: { koWeapon: true } },
   { id: "ampulheta_invertida", name: "Ampulheta Invertida", rarity: 5, role: "dps", atk: 756, critDmg: 58.0, passive: "Toda Marca do Fim Selado plantada pelo portador nasce com 1 turno a menos de duração natural (2 em vez de 3) — o relógio corre mais rápido, então as detonações naturais chegam antes. Em troca, sempre que uma Marca detona (por expiração, aceleração do Básico ou pela Suprema) o portador ganha +8% de ATQ por 2 turnos, acumulando até 4 vezes (+32% de ATQ no máximo). Ao usar a Suprema com 3 ou mais acúmulos ativos, todos são consumidos e convertidos em Dano Verdadeiro imediato equivalente a 60% do ATQ em cada inimigo, antes da sequência normal da Suprema — o dano ignora DEF e transforma o ritmo acelerado das Marcas numa abertura devastadora.", buff: { achWeapon: true } },
   { id: "originpistol",     name: "Pistola da Origem",     rarity: 5, role: "debuffer", atk: 840, critDmg: 58.8, extraDefDown: 14,  passive: "Mira Calculada: debuffs reduzem +14% de DEF adicional do alvo." },
@@ -203,8 +207,8 @@ const WEAPONS = [
   { id: "aegis",       name: "Egide Brilhante",     rarity: 4, role: "shield",   atk: 396, def: 396, shieldBonus: 38,    passive: "Muralha Brilhante: +38% no valor dos Escudos gerados pelo portador." },
 ];
 const WEAPON_MAP = Object.fromEntries(WEAPONS.map((w) => [w.id, w]));
-const WEAPON_5_IDS = ["ate_ultima_faisca", "kyoka_suigetsu", "ampulheta_invertida", "tensa_zangetsu"]; // cones de Aizen, Acheron e Ichigo
-const DEFAULT_FEATURED_WEAPON = "ate_ultima_faisca";
+const WEAPON_5_IDS = ["paraiso_florescera", "ate_ultima_faisca", "kyoka_suigetsu", "ampulheta_invertida", "tensa_zangetsu"]; // cones de Cyrene, Koleda, Aizen, Acheron e Ichigo
+const DEFAULT_FEATURED_WEAPON = "paraiso_florescera";
 
 /* ---------- MOCHILEIRO (seletor de personagem inicial) ---------- */
 const BEGINNER_PICK_CHARS = [
@@ -224,6 +228,11 @@ const BEGINNER_PICK_CHARS = [
 
 /* ---------- RELÍQUIAS ---------- */
 const RELIC_SETS = {
+  "Elysium Sempiterno: O Jardim Além do Fim": { color: "#6FE3FF", el: "Glacial", six: true, p2: { hp: 12 }, flag2: "setJardim2", flag4: "setJardim4", flag6: "setJardim6",
+    d2: "+12% de HP Máximo. Cyrene começa a batalha com 2 Memórias de Elysium de tipos diferentes já na fila, e toda cura que ela realiza gera 1 Memória do Coração adicional (em dobro).",
+    d4: "Memória Florescente: cada Memória de Elysium gerada por Cyrene ou por um aliado concede 1 Eco Florescente (2 se o dano veio contra um alvo sob Elysium Absoluto), até 6 (9 durante o Juramento ∞). Aos 3 Ecos (1 única vez por batalha), a próxima ação de Cyrene ganha +18%/+30% de potência (consome 3) — depois disso os Ecos passam a subir livremente rumo ao teto. Aos 6/9, tudo se converte em +2 Fragmentos de Elysium e +1 turno de Demiurgo se presente.",
+    d6: "Elysium: Jardim Além do Fim — Floração Completa gera Sementes do Paraíso (máx. 3); com 3, abre o Jardim em Flor (3 cargas: cada ação de um aliado dá a ele uma Pétala Protetora e consome 1 carga); ao esgotar as 3 cargas por ação real, o campo entra em Elysium (+15% Dano/+15% Redução de Dano à equipe, 2 turnos). Cumprindo a sequência de Memória Perfeita (Elysium Absoluto → dano aliado → cura de Cyrene → Florescer do Elysium → Suprema de um aliado → Suprema de Cyrene), a próxima Suprema de Cyrene se torna O Paraíso Que Recordamos: dano em área escalado pelo HP Máximo de todos, cura a equipe, marca o inimigo com Memória que Não se Apaga, e reinicia todo o ciclo do conjunto." },
+
   "Tempestade Eletro": { color: "#B98BFF", el: "Eletro", p2: { elemDmg: 20 }, p4: { critRate: 5 }, flag4: "setEletro4", d2: "+20% de dano Eletro", d4: "+5% CRIT; ao agir (ação avançada/turno) +2% de dano, acumula até 12%" },
   "Sopro Glacial":     { color: "#6FE3FF", el: "Glacial", p2: { critRate: 9, elemDmg: 16 }, flag4: "setGlacial4", d2: "+9% CRIT e +16% de dano Glacial", d4: "ao aplicar DoT glacial (Geada), aplica +3% de vulnerabilidade (acumula até +15%). Além disso, contra alvos Congelados o portador causa +18% de Dano." },
   "Núcleo Ardente":    { color: "#FF6B45", flag2: "setFire2", flag4: "setFire4", d2: "dano de DoT de Fogo +10%", d4: "dano da Ultimate +20%; após a Ultimate, +8% de ATK no próximo turno" },
@@ -329,6 +338,7 @@ const RELIC_ITEM_ID = {
   "Matilha Voraz": "item_relic_matilha",
   "Sinfonia do Trono Prateado": "item_relic_sinfonia",
   "Elo Rompido da Tempestade": "item_relic_elorompido",
+  "Elysium Sempiterno: O Jardim Além do Fim": "item_relic_jardimalemdofim",
 };
 const RELIC_EMOJI = {
   "Tempestade Eletro": "⚡",
@@ -355,6 +365,7 @@ const RELIC_EMOJI = {
   "Matilha Voraz": "🐺",
   "Sinfonia do Trono Prateado": "🎵",
   "Elo Rompido da Tempestade": "🌩️",
+  "Elysium Sempiterno: O Jardim Além do Fim": "🏵️",
 };
 const GAME_ITEMS = [
   { id: "item_jade",        name: "Jade Estelar",           icon: "💎" },
@@ -599,6 +610,7 @@ const PASSIVE = {
   gilgamesh: { name: "Rei dos Heróis", desc: "Sempre que Gilgamesh causar dano, executar Ataque Extra, derrotar um inimigo ou consumir Tesouros, recebe Autoridade Real (máximo: 12). Ao atingir o máximo, entra automaticamente em Trono do Rei por 2 turnos. Enquanto ativo: todos os ataques sempre causam CRÍTICO, +140% Dano CRÍTICO, +50 Velocidade, ataques ignoram Escudos, e Ataques Extras ignoram 40% DEF. Além disso, cada Ataque Extra executa imediatamente Tesouro Celestial: dispara 6 armas, cada uma causando 90% do ATQ, e cada arma possui um efeito aleatório — causar dano adicional, gerar Tesouro, recuperar 3 Energia, reduzir DEF do alvo em 10% por 2 turnos, ou reduzir Resistência Unknown em 10% por 2 turnos. Quando Tesouro Celestial for executado três vezes, Gilgamesh dispara automaticamente Ea Fragmentada: um corte dimensional causando 450% do ATQ em todos os inimigos. — Mecânica Exclusiva · Portão da Babilônia: recurso exclusivo chamado Tesouros Reais (máximo inicial: 16). Obtém Tesouros ao usar Ataque Básico (+1), Perícia (+4), Ataque Extra (+1), derrotar um inimigo (+2) e Suprema (+8). Ao atingir 16 Tesouros, entra automaticamente em Reinado Dourado por 3 turnos: todos os ataques se tornam Dano Unknown, Ataques Extras ignoram 30% DEF, todo Ataque Extra gera outro disparo do Portão (máximo de 3 cadeias), o limite passa para 30 Tesouros e cada Tesouro acima de 16 aumenta o dano em 4%. — Técnica · A Chave do Rei: antes da batalha, obtém 10 Tesouros, recupera 70 de Energia e ativa imediatamente o Portão da Babilônia. Nos dois primeiros turnos, todos os Ataques Extras disparam o dobro de armas.", flag: "gilTalent" },
   altersaber: { name: "O Rei Nunca Cai", desc: "Talento: sempre que Alter Saber acertar um CRÍTICO, executar um Ataque Extra, derrotar um inimigo ou usar a Suprema, recebe uma Marca do Rei (máx 10). Ao atingir 10 marcas, todas são consumidas e ela entra automaticamente em Reino Absoluto por 2 turnos: todos os ataques SEMPRE causam CRIT, +140% de Dano CRÍTICO, +40% de Penetração de Resistência, +50 de Velocidade, ataques ignoram Escudos, e cada golpe cria uma Cópia Espectral (55% do dano do ataque original; a cada 3ª cópia, dispara Excalibur Negra: 300% do ATQ em Dano Chaos em todos os inimigos). Mecânica exclusiva — Reino da Ruína: acumule 12 Ruínas (ataques, contra-ataques, Suprema, abates e Ataques Extras) para entrar em Reino da Ruína, um estado que não pode ser dissipado: não consome Pontos de Perícia, todos os ataques viram Dano Chaos e ignoram 25% DEF, todo CRIT gera uma Ruína Fantasma (sem limite normal), e a cada 3 Ruínas Fantasma consumidas realiza imediatamente um Ataque Extra. Ao terminar o estado, todas as Ruínas Fantasma explodem causando dano proporcional ao acumulado.", flag: "asTalent" },
   ichigo: { name: "Instabilidade Hollow", desc: "Ichigo não acumula Energia como os demais combatentes. Em vez disso, ele carrega um resíduo espiritual instável chamado Fragmentos do Dangai (máximo: 12), nascido do treinamento em um corredor entre mundos que quase o destruiu. O Ataque Básico não gera nenhum Fragmento — o corte comum é rápido demais pra deixar qualquer resíduo. A Perícia gera 2 Fragmentos fixos, sem bônus por crítico. Derrotar um inimigo concede 1 Fragmento adicional, e sempre que Ichigo for atingido por um inimigo, ele ganha 1 Fragmento — a instabilidade que carrega dentro de si desperta sob pressão, não em segurança. Ao atingir 12 Fragmentos, todos são consumidos automaticamente: Ichigo golpeia todos os inimigos de uma vez e entra em Forma Mugetsu, onde recebe 12 Reservas de Mugetsu (um medidor separado) e seus atributos de ataque sobem drasticamente. Durante a Forma Mugetsu, o Ataque Básico e a Perícia são substituídos por versões aprimoradas que não custam Ponto de Perícia — custam Reservas de Mugetsu. O Básico aprimorado consome 1 Reserva e causa dano superior ao de qualquer ataque comum. A Perícia aprimorada consome 3 Reservas e atinge uma área maior, aplicando um corte que deixa o alvo mais vulnerável. Quando as Reservas de Mugetsu chegam a zero, um golpe final devastador dispara sozinho contra todos os inimigos em campo — ninguém precisa apertar nada, ele simplesmente acontece — e então Ichigo retorna à sua forma comum, com os Fragmentos do Dangai zerados e prontos pra começar o ciclo de novo.", flag: "ichTalent" },
+  cyrene: { name: "Aquela que Recorda o Paraíso · Memórias de Elysium", desc: "MEMÓRIAS DE ELYSIUM. Sempre que qualquer aliado realiza uma ação relevante, Cyrene registra 1 Memória (fila de até 16): Memória da Esperança (causar dano), Memória do Coração (receber cura), Memória da União (receber/aplicar buff) ou Memória do Sacrifício (perder HP para um golpe inimigo). Quando a fila contém as 4 Memórias diferentes, o Demiurgo as transforma TODAS em Flores de Elysium (cada Memória vira 1 Flor, máx. 8): cada Flor concede +8% de Dano a Cyrene. Ao atingir 8 Flores, ela entra automaticamente em ELYSIUM DESPERTO: +40% de HP Máx., +50% de Dano Glacial, ignora 25% da DEF, atinge um segundo alvo a cada ação, e consome 1 Flor por ação — ao zerar, dispara Retorno ao Jardim (120% do HP Máx. em área) e o estado termina. FRAGMENTOS DE ELYSIUM. Enquanto o Demiurgo estiver presente (ativado pela Perícia, dura 2 turnos), toda ação de um aliado concede 1 Fragmento a Cyrene (máx. 3 por aliado por rodada). Ao atingir 12 Fragmentos, o Demiurgo executa Florescer do Elysium: 80% do HP Máx. de Cyrene + 6% da soma do HP Máx. de todos os aliados como Dano Glacial em área; depois, a equipe recupera 12% do HP, Elysium Compartilhado dura +1 turno e Cyrene perde 3 Fragmentos (podendo disparar de novo ao voltar a 12). ELYSIUM ABSOLUTO. O Ataque Básico, após a 1ª Suprema, torna-se 'Floreie, Elysium do Além' (100% do HP Máx.) e aplica Elysium Absoluto por 2 turnos: −55% de RES a todos os tipos de dano e +15% de dano recebido pelo alvo. Renovar o debuff (reaplicar em alvo que já o tem) dá +3 Fragmentos na hora. Enquanto ativo, todo dano de um aliado no alvo também rende +1 Fragmento a Cyrene.", flag: "cyTalent" },
   koleda: { name: "Mestra da Demolição · Superaquecimento", desc: "MESTRA DA DEMOLIÇÃO — PRESSÃO DE IMPACTO (0–12). Koleda trata os DoTs do time como combustível de uma caldeira: cada TIPO diferente de DoT num inimigo é um combustível, e a caldeira enche sempre que ele queima — não importa quem aplicou o DoT. COMO GANHAR PRESSÃO: ① quando um inimigo com DoT sofre o tique no próprio turno: +1 por TIPO de DoT nele (máx. +2), +1 se estiver sob Estresse Estrutural (máx. +3 por tique) e +2 se morrer para o DoT; ② +1 por novo TIPO de DoT que um aliado aplicar num inimigo que ainda não tinha aquele tipo (máx. +3 por ação); ③ Ataque Básico +1 (+2 se o alvo tiver 2+ tipos), Perícia +2 (+1 por inimigo com DoT, máx. +3) e Suprema +4. REAÇÃO EM CADEIA: ao chegar a 12 (havendo ao menos um DoT em campo) toda a Pressão é consumida e a caldeira estoura — ① DESCARGA EM CASCATA: cada inimigo com DoT sofre 1 tique instantâneo e gratuito de todos os seus DoTs (100% do dano armazenado; máx. 35% do HP do inimigo, 10% em chefes), começando pelo DoT que acaba primeiro; ② ESTRUTURA FRATURADA: DEF −(10% +4% por tipo, até 4 tipos) e RES Eletro −10% por 2 turnos; ③ todos os DoTs ganham +1 turno; ④ SOBREALIMENTAÇÃO: aliados +6 de Energia, Koleda +12; ⑤ REAÇÃO POR DIVERSIDADE (tipos distintos de DoT em campo): 1 tipo = +8 Calor; 2 tipos = FAÍSCA DUPLA (inimigos com 2+ tipos recebem +25% de dano de DoT por 2 turnos) e +14 Calor; 3+ tipos = FUSÃO (o DoT mais forte de cada inimigo é duplicado por 2 turnos) e +22 Calor. Cada Reação também sobe o MOTOR (máx. 3, dura a batalha): +15% de potência da Descarga por nível. SUPERAQUECIMENTO (Passiva Única): Koleda acumula Calor (0–100): +1 a cada 2 DoTs que dão tique num inimigo (máx. +4 por inimigo), +3 com o Básico, +6 com a Perícia, +25 com a Suprema e o Calor das Reações. Ao chegar a 100 entra em SUPERAQUECIMENTO por 3 ações dela (o Calor zera e não acumula durante o estado): inimigos sofrem +35% de dano de DoT, DEF −16% e RES Eletro −14%, e cada tique dispara uma FAÍSCA ADICIONAL (+30% do dano do tique); aliados aplicam DoTs com +30% de Dano de DoT; a cada ação de Koleda todos os DoTs em campo ganham +1 turno (máx. 6); e a Pressão ganha com tiques é DOBRADA. TÉCNICA — ENTRADA EM SERVIÇO: ao iniciar a batalha aplica Choque (2 turnos) e Estresse Estrutural (2 turnos) em todos os inimigos, começa com 4 de Pressão e 25 de Calor e concede +20 de Energia a ela e aos aliados especialistas em DoT.", flag: "koTalent" },
   acheron: { name: "Cinzas do Fim", desc: "Acheron não acumula Energia como os demais combatentes. Em vez disso ela carrega Cinzas do Fim (máximo: 8) — o card dela na batalha e o anel do retrato mostram esse contador no lugar da barra de Energia. As Cinzas são o único combustível da Suprema, e só existe um jeito de enchê-las: fazer Marcas do Fim Selado chegarem a zero. COMO FUNCIONA A MARCA: a Perícia planta uma Marca do Fim Selado no alvo (dura 3 turnos). A Marca é silenciosa — enquanto existe ela não causa dano nem aplica efeito nenhum, apenas conta o tempo. A contagem de TODAS as Marcas cai 1 turno no início de cada ação de Acheron; o Ataque Básico ainda acelera em mais 1 turno a Marca mais próxima de detonar, em qualquer inimigo. Só a ação da Suprema não faz a contagem andar: as Marcas ficam congeladas para chegarem frescas e renderem o máximo. COMO SE GANHAM CINZAS: quando uma Marca chega a zero (por contagem natural ou pelo Básico) ela detona sozinha, causa 160% do ATQ em Dano Eletro e concede 1 Cinza. Uma Perícia CRÍTICA concede 2 Cinzas direto. Derrotar um inimigo que ainda carregava uma Marca concede 1 Cinza extra. COMO USAR A SUPREMA: ao chegar em 8 Cinzas a Suprema libera. Ela nunca dispara sozinha — diferente do Ichigo, aqui você escolhe a hora certa de apertar. O jogo ideal é plantar Marcas em vários inimigos, deixá-las frescas e só então detonar tudo de uma vez: quanto mais turnos uma Marca ainda tinha, mais dano ela causa. No modo Auto a IA usa a Suprema assim que as 8 Cinzas fecham e alterna Perícia e Básico para não desperdiçar Marcas.", flag: "achTalent" },
   hitori: { name: "Ansiedade Amplificada", desc: "5 Estrelas - Suporte | Chaos. Ataques básicos não farão nada além de dar uma pequena quantidade de dano de Chaos. Passivas: A cada 3% de dano crítico, Hitori recebe 1 ponto de velocidade. Concede 30 de energia para todos os aliados após ativar seu supremo. Concede 30% de bônus de dano de Holy e Chaos para os aliados nos dois primeiros slots.", flag: "hitoriPassive" },
@@ -661,6 +673,14 @@ const CONS = {
     { name: "E4 · Corte que Não Erra", flag: "ichE4", desc: "O custo da Perícia aprimorada da Forma Mugetsu cai permanentemente de 3 para 2 Reservas. Além disso, toda vez que o Básico aprimorado acerta, aplica 1 acúmulo de Corrosão do Vazio no alvo (máximo de 5, cada acúmulo reduz a DEF dele em 4%). Se um inimigo morrer carregando 3 ou mais acúmulos de Corrosão do Vazio, a Reserva de Mugetsu que seria gasta nesse ataque é reembolsada na hora." },
     { name: "E5 · A Lâmina Que Ainda Sonha", ...A_SKILL, flag: "ichE5", desc: "Aumenta o nível da Perícia em +2. Aumenta o nível do Ataque Básico em +2. Nível máximo: 15." },
     { name: "E6 · A Lâmina que Cortou o Destino", flag: "ichE6", desc: "A Forma Mugetsu é permanentemente levada ao limite. FORMA MAIS LONGA: Ichigo entra na Forma Mugetsu com 16 Reservas em vez de 12 — quatro ataques aprimorados a mais antes do golpe final. LÂMINAS MAIS PESADAS: o Básico aprimorado e a Perícia aprimorada causam +50% de dano. GOLPE FINAL TRANSFORMADO: o golpe final da Forma Mugetsu sobe de 1650% para 3500% do ATQ em todos os inimigos, acerta CRÍTICO garantido, ignora 60% da DEF e 25% da Resistência dos alvos. ONDA MUGETSU: ao disparar, uma onda de choque concede a todo o time aliado +45% de Dano CRÍTICO e +15% de ATQ por 2 turnos. VAZIO ENTRE MUNDOS: Ichigo recebe -25% de dano por 2 turnos e seu próximo turno chega 40% mais cedo — o golpe o deixa momentaneamente vazio e difícil de alcançar. CICLO RÁPIDO: ao voltar à forma comum ele mantém ao menos 4 Fragmentos do Dangai e ainda recupera 3 Fragmentos por inimigo que o golpe final tenha derrotado, saindo de uma Forma Mugetsu já perto da próxima." },
+  ],
+  cyrene: [
+    { name: "E1 · Memória Imaculada", flag: "cyE1", desc: "Sempre que um aliado causa dano a um inimigo sob Elysium Absoluto, Cyrene armazena 1 Memória Imaculada — um recurso PARALELO (máx. 3) que NÃO ocupa espaço na fila normal de 16 Memórias e não conta para as Flores de Elysium. Ao usar Verso ◦ Juramento ∞, cada Memória Imaculada armazenada se converte IMEDIATAMENTE em 1 Juramento (até o teto de 8), e o estoque some. Isso permite 'pré-carregar' Juramentos antes mesmo de a Suprema ser usada: aplicar Elysium Absoluto cedo e deixar a equipe bater nele por alguns turnos aproxima Cyrene da Última Primavera assim que ela ultar." },
+    { name: "E2 · O Demiurgo Desperta", flag: "cyE2", desc: "Enquanto o Demiurgo estiver presente, Cyrene registra qual TIPO de Memória a equipe gerou mais vezes. Quando Florescer do Elysium dispara (12 Fragmentos), o Demiurgo assume um Aspecto conforme o tipo dominante: ASPECTO RADIANTE (Esperança dominante) — Florescer causa +40% de dano e aplica Fragmento Cortante (+10% de dano recebido, 2 turnos) em todos os atingidos; ASPECTO SERENO (Coração dominante) — a cura de Florescer dobra (24% do HP Máx.) e a equipe recebe um escudo de 10% do HP Máx.; ASPECTO UNIFICADOR (União dominante) — a equipe ganha +20% de Taxa de CRIT por 2 turnos; ASPECTO CONSAGRADO (Sacrifício dominante) — a equipe ganha 20% de Redução de Dano por 2 turnos e Cyrene recupera 15% do HP Máx. A contagem zera a cada Florescer, então o comportamento do Demiurgo muda de acordo com como a equipe jogou desde o último disparo — uma decisão estratégica real sobre que tipo de ação priorizar." },
+    { name: "E3 · Aprimoramento", flag: "cyE3", amp: "skill", ampV: 25, desc: "Nível da Perícia +2 e do Talento +2. Além disso, se a Perícia for usada enquanto o Demiurgo JÁ estiver presente (renovando-o em vez de invocá-lo pela primeira vez), Cyrene ganha imediatamente +2 Fragmentos de Elysium e 1 Memória de um tipo aleatório." },
+    { name: "E4 · Cadência do Elysium", flag: "cyE4", desc: "Enquanto o Demiurgo estiver presente, Cyrene registra a ORDEM dos tipos de Memória gerados pela equipe (últimos 3). Se os últimos 3 forem de 3 tipos DIFERENTES (em qualquer ordem) = CADÊNCIA PLENA: Cyrene ganha 1 Fragmento e 1 Flor de Elysium na hora. Se a sequência exata for Esperança → Coração → União = CADÊNCIA PERFEITA (substitui a Plena): dispara um golpe Glacial de 60% do HP Máx. de Cyrene num inimigo e concede um escudo de 15% do HP Máx. a toda a equipe. Em ambos os casos o registro reinicia. Isso faz a ORDEM em que a equipe age importar, não só a quantidade — times bem coordenados podem buscar deliberadamente a sequência perfeita." },
+    { name: "E5 · O Último Verso", flag: "cyE5", amp: "ult", ampV: 50, desc: "Nível da Suprema +2 e do Ataque Básico +1; o Demiurgo invocado pela Perícia passa a durar 3 turnos (em vez de 2). Ao usar Verso ◦ Juramento ∞, o total de Memórias + Fragmentos + Juramentos no momento do cast decide qual 'Verso' é ativado: 8 ou menos = VERSO DO DESPERTAR (Demiurgo garantido por 3 turnos e a equipe gera imediatamente as 4 Memórias diferentes, preparando o próximo ciclo); de 9 a 18 = VERSO DA RESSONÂNCIA (a Ultimate também dispara um Florescer do Elysium instantâneo e a equipe ganha +15% de Dano extra por 2 turnos); 19 ou mais = VERSO ABSOLUTO (Elysium Absoluto é aplicado em TODOS os inimigos de uma vez e o Juramento vai direto ao máximo de 8, deixando a Última Primavera pronta para a próxima ação de Cyrene)." },
+    { name: "E6 · Coroa do Paraíso Eterno", flag: "cyE6", desc: "SELOS DO PARAÍSO (0-3): Cyrene ganha 1 Selo sempre que Florescer do Elysium ou Última Primavera dispararem, ou quando Elysium Absoluto estiver ativo em 3+ inimigos simultaneamente no início do turno dela. Com 3 Selos, entra em PARAÍSO MANIFESTO (Estágio 1): o Demiurgo se torna PERMANENTE pelo resto do combate (não expira mais), o teto de Fragmentos sobe para 18, e a barreira entre Elysium Absoluto e o Demiurgo cai por completo. O ciclo sustenta o Estágio 1 até Cyrene alcançar 8 Juramentos durante o Juramento ∞ — nesse momento ela ASCENDE ao Estágio 2, ÁPICE DO PARAÍSO: dispara imediatamente uma explosão de 100% do HP Máx. de Cyrene + 10% da soma do HP Máx. de todos os aliados em todos os inimigos, cura a equipe inteira por completo, e reinicia o ciclo (Selos voltam a 0). Cada vez que o Ápice se completa, Cyrene ganha +3% de Dano PERMANENTE para o resto da batalha (máx. 5 acúmulos, +15%). O HP Máximo de Cyrene continua sendo a base de todo esse dano — quanto mais vida ela acumula, mais devastador o ciclo completo se torna." },
   ],
   koleda: [
     { name: "E1 · O Primeiro Golpe Abre Caminho", flag: "koE1", desc: "A VÁLVULA DE ESCAPE. A caldeira de Koleda ganha um mecanismo de alívio controlado pelo martelo. ① MARTELADA DE VÁLVULA: com 8 a 11 de Pressão, o Ataque Básico libera a caldeira antes da hora — a Reação em Cadeia dispara na hora com potência proporcional à Pressão (Pressão ÷ 12: 8 = 67%, 11 = 92%) e a Pressão vai a 0. ② RESERVA DA VÁLVULA: Pressão ganha além de 12 não se perde — vai para a Reserva (máx. 6) e volta como Pressão logo após a próxima Reação. ③ RETENÇÃO: uma Reação que dispara sozinha ao chegar a 12 mantém 3 de Pressão em vez de zerar. A DECISÃO: esperar os 12 (potência total + retém 3, mas cada turno de espera custa tempo) ou soltar a válvula cedo com o Básico (menos potência, no momento exato). A Perícia constrói Pressão (+2 a +5); o Básico libera." },
@@ -921,6 +941,7 @@ const SKILL_NAMES = {
   hitori: ["Dedilhado Ansioso", "Entoar da Solidão", "Kessoku Band"],
   acheron: ["Fio Cortado", "Marca do Fim Selado", "Detonação Antecipada"],
   koleda: ["Martelo em Ação", "Impacto de Alta Pressão", "Martelo Demolidor: Sobrecarga"],
+  cyrene: ["Eis que a Esperança Ganha Asas!", "Corações se Unem como Um", "Verso ◦ Juramento ∞"],
   };
 const skillNamesOf = (id) => SKILL_NAMES[id] || ["Ataque Básico", "Habilidade", "Ultimate"];
 
@@ -935,6 +956,18 @@ const TRACE_NODES = [
 ];
 // Nós específicos por personagem (Hypercarry de Gelo etc.). Quem não tiver usa o set genérico.
 const TRACE_NODE_SETS = {
+  cyrene: [
+    { stat: "hp", value: 4, label: "HP +4%", cost: 500 },
+    { stat: "hp", value: 4, label: "HP +4%", cost: 500 },
+    { stat: "elemDmg", element: "Glacial", value: 3.2, label: "Dano Glacial +3,2%", cost: 600 },
+    { stat: "elemDmg", element: "Glacial", value: 4.8, label: "Dano Glacial +4,8%", cost: 700 },
+    { stat: "spd", value: 2, label: "VEL +2", cost: 800 },
+    { stat: "hp", value: 6, label: "HP +6%", cost: 900 },
+    { stat: "elemDmg", element: "Glacial", value: 6.4, label: "Dano Glacial +6,4%", cost: 900 },
+    { stat: "spd", value: 3, label: "VEL +3", cost: 1100 },
+    { stat: "breakEffect", value: 5, label: "Efeito de Quebra +5%", cost: 800 },
+    { stat: "hp", value: 8, label: "HP +8%", cost: 1100 },
+  ],
   koleda: [
     { stat: "atk", value: 6, label: "ATQ +6%", cost: 500 },
     { stat: "dotDmg", value: 8, label: "Dano de DoT +8%", cost: 700 },
@@ -1073,6 +1106,11 @@ function specialTraces(def) {
       { name: "Rastro Especial 1 · Ruptura da Máscara", desc: "Rastro Especial de combate: sempre que Ichigo entra em Forma Mugetsu, recebe +200% de Dano CRÍTICO pela duração inteira da transformação — esse bônus desaparece assim que ele retorna à forma comum.", combat: "ichTrace1", cost: 3 },
       { name: "Rastro Especial 2 · Instabilidade Estável", desc: "Rastro Especial de combate: enquanto estiver em Forma Mugetsu, Ichigo se torna imune a Congelamento, Atordoamento e Enraizamento, e recebe -20% de todo dano recebido.", combat: "ichTrace2", cost: 2 },
       { name: "Rastro Especial 3 · Salto no Vazio", desc: "Rastro Especial de combate: ao entrar em Forma Mugetsu, Ichigo recupera imediatamente 30% de Valor de Ação, avançando sua posição na ordem de turnos.", combat: "ichTrace3", cost: 2 },
+    ];
+    if (def.id === "cyrene") return [
+      { name: "Rastro Especial 1 · A Primavera Não Conhece Fim", desc: "Rastro de combate: quando um aliado está com HP acima de 80%, seu Dano causado aumenta em 12%. Quando um aliado está com HP abaixo de 50%, ele recebe 20% de Redução de Dano. Os dois efeitos podem existir simultaneamente em aliados diferentes. Custo: 3 Núcleos de Vestígio.", combat: "cyTrace1", cost: 3 },
+      { name: "Rastro Especial 2 · O Coração Que Reúne Todos", desc: "Rastro de combate: quando Cyrene cura um aliado com menos de 50% de HP, ela ganha 2 Memórias do Coração. Se a cura ultrapassar o necessário para restaurar o aliado, o excedente vira um Escudo equivalente a 50% do excesso de cura. Custo: 2 Núcleos de Vestígio.", combat: "cyTrace2", cost: 2 },
+      { name: "Rastro Especial 3 · Além do Último Horizonte", desc: "Rastro de combate: enquanto Elysium Absoluto estiver ativo em pelo menos 2 inimigos, todos os aliados ignoram 20% da RES de todos os inimigos. Este efeito não acumula. Custo: 2 Núcleos de Vestígio.", combat: "cyTrace3", cost: 2 },
     ];
     if (def.id === "koleda") return [
       { name: "Rastro Especial 1 · Faísca de Belobog", desc: "Rastro de combate: todo DoT aplicado por um aliado (ou por Koleda) num inimigo que esteja sob Estresse Estrutural nasce com +20% de dano e +1 turno de duração. A Perícia passa a ser a «autorização de obra» do time: aplicar Estresse antes dos DoTs faz cada DoT novo nascer reforçado. Custo: 3 Núcleos de Vestígio.", combat: "koTrace1", cost: 3 },
@@ -1231,6 +1269,7 @@ function computeStats(owned) {
   if (w) {
     ["critRate", "critDmg", "energyRegen", "dmgBonus", "defPen", "spd", "healBonus", "dotDmg"].forEach((k) => { if (w[k]) flat[k] += w[k] * wm; });
     if (w.atkPct) pct.atk += w.atkPct * wm;
+    if (w.hpPct) pct.hp += w.hpPct * wm;
   }
 
   const setCount = {};
@@ -2121,13 +2160,13 @@ function Game({ email, isAdmin, onLogout }) {
     if (s) {
       setJade(s.jade ?? 12000); setCharTickets(s.charTickets ?? 15); setWeaponTickets(s.weaponTickets ?? 8);
       setStandardTickets(s.standardTickets ?? 10);
-      { let _seenKo = false; try { _seenKo = localStorage.getItem("sr_banner_koleda_v1") === "1"; } catch {} // primeira vez com o patch da Koleda: abre já no banner dela (personagem + arma)
-        setFeaturedChar(!_seenKo ? "koleda" : (FEATURED_LIMITEDS.includes(s.featuredChar) ? s.featuredChar : DEFAULT_FEATURED_CHAR));
-        if (!_seenKo) { try { localStorage.setItem("sr_banner_koleda_v1", "1"); } catch {} } }
+      { let _seenCy = false; try { _seenCy = localStorage.getItem("sr_banner_cyrene_v1") === "1"; } catch {} // primeira vez com o patch da Cyrene: abre já no banner dela (personagem + arma), substituindo Aizen/Acheron
+        setFeaturedChar(!_seenCy ? "cyrene" : (FEATURED_LIMITEDS.includes(s.featuredChar) ? s.featuredChar : DEFAULT_FEATURED_CHAR));
+        if (!_seenCy) { try { localStorage.setItem("sr_banner_cyrene_v1", "1"); } catch {} } }
       setFeaturedSpecial(SPECIAL_BANNER_CHARS.includes(s.featuredSpecial) ? s.featuredSpecial : SPECIAL_BANNER_CHARS[0]);
       setFeaturedStandard(STANDARD_5.includes(s.featuredStandard) ? s.featuredStandard : STANDARD_5[0]);
       setActiveTitle(s.activeTitle || null);
-      setFeaturedWeapon((() => { let _sk = false; try { _sk = localStorage.getItem("sr_banner_koleda_v1w") === "1"; } catch {} if (!_sk) { try { localStorage.setItem("sr_banner_koleda_v1w", "1"); } catch {} return "ate_ultima_faisca"; } return WEAPON_5_IDS.includes(s.featuredWeapon) ? s.featuredWeapon : DEFAULT_FEATURED_WEAPON; })());
+      setFeaturedWeapon((() => { let _sk = false; try { _sk = localStorage.getItem("sr_banner_cyrene_v1w") === "1"; } catch {} if (!_sk) { try { localStorage.setItem("sr_banner_cyrene_v1w", "1"); } catch {} return "paraiso_florescera"; } return WEAPON_5_IDS.includes(s.featuredWeapon) ? s.featuredWeapon : DEFAULT_FEATURED_WEAPON; })());
       setPity({ char: 0, weapon: 0, standard: 0, special: 0, guaranteeChar: false, ...(s.pity || {}) });
       setPullHistory(s.pullHistory ?? []);
       if (s.owned) setOwned(s.owned.map(normChar).filter((o) => CHAR_MAP[o.id])); setOwnedWeapons((Array.isArray(s.ownedWeapons) ? s.ownedWeapons : []).map((x) => typeof x === "string" ? { id: x, lv: 1 } : x).filter((x) => x && WEAPON_MAP[x.id])); setRelicInv((Array.isArray(s.relicInv) ? s.relicInv : []).filter(isValidRelic));
@@ -3641,7 +3680,7 @@ function Gacha({ doPull, pity, jade, chronicles, charTickets, weaponTickets, sta
   const headColor = isWeapon ? "#B98BFF" : isStd ? C.gold : isSpecial ? "#FF5E9E" : ELEMENTS[fc.element].color;
   const arrow = { background: C.panelHi, border: `1px solid ${C.line}`, borderRadius: 8, color: C.text, width: 28, height: 28, fontWeight: 800 };
   const charMs = useBannerTimer("char_" + featuredChar + ((featuredChar === "acheron" || featuredChar === "ichigo") ? "_3h_v2" : ""), BANNER_DURATIONS[featuredChar] || (7 * 24 * 60 * 60 * 1000)); // cada personagem tem seu próprio prazo de encerramento
-  const weaponMs = useBannerTimer("weapon_koleda_v1", 5 * 24 * 60 * 60 * 1000); // banner de armas: 5 dias, junto com o banner da Koleda
+  const weaponMs = useBannerTimer("weapon_cyrene_v1", 5 * 24 * 60 * 60 * 1000); // banner de armas: 5 dias, junto com o banner da Cyrene
   const specialMs = useAbsoluteTimer(SPECIAL_BANNER_END); // data fixa de verdade — acaba pra todo mundo junto, não reseta por dispositivo
   const specialExpired = specialMs <= 0;
   const bannerMs = isChar ? charMs : isWeapon ? weaponMs : isSpecial ? specialMs : null;
@@ -3802,7 +3841,8 @@ const PULL_SIGNATURES = {
   agumon:        { type: "rise",   c1: "#FF7A29", c2: "#FFCF4A", burst: true , motif: "flamecore" },                           // explosão de chamas
   shorekeeper:   { type: "fall",   shape: "✦",  c1: "#7FDBFF", c2: "#FFE08A", speed: 0.6, gentle: true , motif: "tidestar" },// estrelas à deriva
   yanagi:        { type: "streak", c1: "#B98BFF", c2: "#3D6BFF", count: 11, erratic: true , motif: "voltbranch" },
-  koleda:        { type: "streak", c1: "#FFD24B", c2: "#FF6B2E", count: 9, cross: true, motif: "voltbranch" },              // faíscas de solda e marteladas              // arcos elétricos ramificados
+  koleda:        { type: "streak", c1: "#FFD24B", c2: "#FF6B2E", count: 9, cross: true, motif: "voltbranch" },              // faíscas de solda e marteladas
+  cyrene:        { type: "streak", c1: "#6FE3FF", c2: "#FFFFFF", count: 10, cross: true, motif: "sakura" },                  // pétalas e flocos de gelo do Elysium              // arcos elétricos ramificados
   // ── Armas Lendárias 5★ (Cones de Luz) ──
   digivice:      { type: "rise",   c1: "#FF9A2E", c2: "#FFE24B", burst: true , motif: "evoring" },                           // Digivice — explosão de evolução
   starblade:     { type: "streak", c1: "#EAF1FB", c2: "#7ADFFF", count: 7, cross: true , motif: "starcut" },                  // Lâmina Estelar — cortes de luz estelar
@@ -4668,6 +4708,29 @@ function St({ k, v, pct, color }) {
 }
 function buffText(b) { const p = []; for (const k of ["atk", "def", "spd", "critRate", "critDmg", "dmgBonus"]) if (b[k]) p.push(`+${b[k]}${k === "spd" ? " VEL" : "% " + (STAT_LABEL[k] || k)}`); return `${p.join(", ")}${b.all ? " (time)" : ""} por ${b.turns}t`; }
 const SKILL_DESC = {
+  cyrene: {
+    basic: [
+      "<b>Eis que a Esperança Ganha Asas!</b>",
+      "Causa Dano Glacial equivalente a <b>50% do HP Máx.</b> de Cyrene a um único inimigo. Sem efeitos adicionais até que Cyrene use a Suprema pela primeira vez.",
+      "<b>Memória da Esperança:</b> registra 1 Memória.",
+      "<b>💡 Após a 1ª Suprema:</b> vira <b>Floreie, Elysium do Além</b> — 100% do HP Máx. em Dano Glacial e aplica <b>Elysium Absoluto</b> (−55% RES a todo dano, +15% dano recebido, 2 turnos). Reaplicar dá +3 Fragmentos na hora.",
+      "<b>[E1]</b> Dano a alvo sob Elysium Absoluto gera Memórias Imaculadas, convertidas em Juramentos na Suprema.",
+    ],
+    skill: [
+      "<b>Corações se Unem como Um</b>",
+      "Invoca o Demiurgo. Todos os aliados recebem <b>Elysium Compartilhado</b> (2 turnos): <b>+36% VEL, +36% HP Máx., cura total, +20% Redução de Dano, +24% de Dano causado</b>.",
+      "O Demiurgo permanece <b>2 turnos</b> (3 com E5). Enquanto presente, toda ação de um aliado dá <b>1 Fragmento de Elysium</b> a Cyrene (máx. 3 por aliado por rodada). Aos 12 Fragmentos, dispara <b>Florescer do Elysium</b>.",
+      "<b>Memória da União</b>: registra 1 Memória.",
+      "<b>[E3]</b> Renovar o Demiurgo já presente dá +2 Fragmentos e 1 Memória aleatória na hora.",
+    ],
+    ult: [
+      "<b>Verso ◦ Juramento ∞</b> — Custo: <b>130 de Energia</b>",
+      "Causa <b>200% do HP Máx.</b> de Cyrene como Dano Glacial em <b>todos os inimigos</b>.",
+      "Cyrene recebe <b>Juramento ∞</b> (2 turnos): <b>+64% de Dano, +40% de HP Máx., +40% de Dano Glacial, +30% de Efeito de Quebra</b>. A cada 1000 de HP Máx., +2% de dano de Habilidade (máx. 12 acúmulos = +24%). A equipe toda recebe +30% de Dano por 2 turnos.",
+      "<b>Efeito Talento da Suprema:</b> enquanto o Juramento ∞ estiver ativo, dano de aliados em inimigo sob Elysium Absoluto dá <b>1 Juramento</b> (máx. 8). Aos 8, a próxima ação de Cyrene vira <b>Elysium: Última Primavera</b> — 150% do HP Máx. + 5% do HP Máx. de todos os aliados + 100% do último golpe de Cyrene, em área; consome os Juramentos, cura a equipe em 30% e reinicia as Memórias.",
+      "<b>[E5]</b> O total de Memórias+Fragmentos+Juramentos no cast decide o 'Verso' ativado (Despertar / Ressonância / Absoluto).",
+    ],
+  },
   koleda: {
     basic: [
       "<b>Martelo em Ação</b>",
@@ -6104,6 +6167,9 @@ const SYNERGY_PAIRS = [
   { a: "koleda",   b: "lupa",       v: 28, why: "Koleda superaquece o Fogo da Lupa e a Reação em Cadeia explode a Fusão" },
   { a: "koleda",   b: "miyabi",     v: 26, why: "Geada da Miyabi entra como Catalisador na Tabela de Combustão" },
   { a: "koleda",   b: "ace",        v: 22, why: "Queimadura do Ace é Combustível puro para a caldeira" },
+  { a: "cyrene",   b: "koleda",     v: 27, why: "Cada Reação em Cadeia e cada tique de DoT viram Memórias e Fragmentos pro Demiurgo" },
+  { a: "cyrene",   b: "hitori",     v: 24, why: "Duas suportes de buff enchem o Demiurgo rapidamente" },
+  { a: "cyrene",   b: "acheron",    v: 22, why: "As Marcas detonando geram Memória do Sacrifício e da Esperança sem parar" },
   { a: "shorekeeper", b: "altersaber", v: 22, why: "Escudo e CRIT DMG sustentam o Reino Absoluto" },
   { a: "shorekeeper", b: "gilgamesh",  v: 20, why: "Cura constante mantém o Portão aberto" },
   { a: "athena",   b: "altersaber", v: 18, why: "Proteção do Olimpo cobre a agressividade do Rei" },
@@ -7012,6 +7078,8 @@ function dealDamage(attacker, defender, mult, fx, opts) {
       fx.push({ uid: defender.uid, txt: "IMORTALIDADE!", heal: true, id: Math.random() });
     } else { defender.hp = 0; defender.alive = false; }
   }
+  if (!defender.alive && defender.id === "cyrene" && defender.side === "H") cyRelicOnDefeat(defender); // Jardim/Sementes se perdem se Cyrene cair
+  if (!defender.alive && defender.side === "E") cyRelicOnEnemyDeath(defender, { heroes: attacker._sibs || [] }, fx); // Memória que Não se Apaga: Ação Avançada ao abater o alvo marcado
   if (!defender.alive && defender.id === "omegamon" && defender.stFlags && defender.stFlags.omgC6 && !defender._c6Used) { defender.hp = 1; defender.alive = true; defender._c6Used = true; fx.push({ uid: defender.uid, txt: "FINAL DEFEAT", heal: true, id: Math.random() }); }
   if (dmg > 0 && defender.weapon && defender.weapon.omgWeapon && defender.alive && !defender.buffs.some(function(b){return b.name==="GlitchBoost";})) { defender.buffs.push({ stat: "dmgBonus", value: 25, turns: 2, name: "GlitchBoost" }); }
   if (defender.side === "H" && !defender.isSummon && defender.energyMax) { const heavy = attacker.boss || mult >= 300; defender.energy = Math.min(defender.energyMax, defender.energy + Math.round((heavy ? 12 : 6) * (1 + (effStat(defender, "energyRegen") || 0) / 100))); }
@@ -7150,6 +7218,11 @@ function dealDamage(attacker, defender, mult, fx, opts) {
     }
   }
   fx.push({ uid: defender.uid, txt: (opts?.isYoruClone ? "🐈‍⬛ " : "") + String(dmg), crit, id: Math.random(), el: opts?.el || attacker.element, enhanced: !!opts?.enhanced || !!opts?.isYoruClone }); // clones da Yoruichi: número de dano aparece rotulado com 🐈‍⬛
+  // Cyrene — Memórias de Elysium: dano causado por um aliado (Memória da Esperança) e dano sofrido por um aliado (Memória do Sacrifício)
+  if (dmg > 0 && attacker.side === "H" && !attacker.isSummon && attacker.id !== "cyrene") cyRecordMemory(attacker._sibs, "esperanca", fx, defender._sibs, (defender.debuffs || []).some((d) => d.name === "Elysium Absoluto"));
+  if (dmg > 0 && defender.side === "H" && !defender.isSummon) cyRecordMemory(defender._sibs, "sacrificio", fx, attacker._sibs);
+  if (dmg > 0 && attacker.side === "H" && !attacker.isSummon) cyOnDamageToElysium(attacker, defender, dmg, { heroes: attacker._sibs || [], enemies: defender._sibs || [defender] }, fx);
+  if (attacker.side === "H" && !attacker.isSummon && attacker.id !== "cyrene") cyOnAllyAction(attacker._sibs, attacker, { heroes: attacker._sibs || [], enemies: defender._sibs || [defender] }, fx);
   return { dmg, crit };
 }
 // Sistema de dano de DoT: aleatório, com piso mínimo que escala com o quanto o personagem está investido (ATK efetivo)
@@ -7908,6 +7981,350 @@ function koTechnique(k, heroes, enemies) { // Técnica · Entrada em Serviço
   enemies.forEach((e) => { e._koNew = 0; e.debuffs.push({ stat: "koStress", value: 25, perType: 8, fadiga: 0, turns: 2, name: "Estresse Estrutural", t1: !!k.stFlags?.koTrace1 }); });
   heroes.forEach((h) => { if (!h.isSummon && h.energyMax && (h.uid === k.uid || ["yanagi", "lupa", "miyabi", "nanami", "ace"].includes(h.id))) h.energy = Math.min(h.energyMax, h.energy + 20); });
 }
+// ══════════════════════════ CYRENE ══════════════════════════
+// Memórias → Fragmentos de Elysium → Demiurgo → Elysium Absoluto → Juramento ∞ → Última Primavera
+const CY_MEM_TYPES = ["esperanca", "coracao", "uniao", "sacrificio"];
+// ══════════ 「Elysium Sempiterno: O Jardim Além do Fim」 — conjunto exclusivo de Cyrene ══════════
+function cyRelicOn(cy) { return !!(cy && cy.id === "cyrene" && cy.alive); }
+// 4pç · Memória Florescente — chamado toda vez que uma Memória do Talento é gerada
+function cyRelicOnMemory(cy, s, fx, doubled) {
+  if (!cyRelicOn(cy) || !cy.stFlags?.setJardim4) return;
+  fx = fx || [];
+  const oathBonus = (cy._cyOath || 0) > 0;
+  const cap = oathBonus ? 9 : 6;
+  cy._cyEco = Math.min(cap, (cy._cyEco || 0) + (doubled ? 2 : 1));
+  if (cy._cyEco >= 3 && !cy._cyEcoBroto) { // Estágio Brotar — dispara 1 ÚNICA vez por batalha (não a cada vez que cruza 3)
+    cy._cyEco -= 3;
+    cy._cyEcoBroto = true; // permanente: nunca mais dispara nesta batalha
+    cy._cyEcoBrotoReady = true; // consome no próximo Básico/Perícia/Suprema de Cyrene
+    fx.push({ uid: cy.uid, txt: "🌱 Brotar", crit: false, id: Math.random(), el: "Glacial" });
+  }
+  if (cy._cyEco >= cap) { // Estágio Floração Completa — repetível: dispara toda vez que os Ecos voltam a bater o teto
+    cy._cyEco = 0;
+    cyGainFragment(cy, 2, s, fx);
+    if ((cy._cyDemiurgo || 0) > 0) cy._cyDemiurgo += 1;
+    cyRelicGainSemente(cy, s, fx);
+    fx.push({ uid: cy.uid, txt: "🌺 Floração Completa!", crit: true, id: Math.random(), el: "Glacial" });
+    pushLog(s, "🌺 Floração Completa! Os Ecos Florescentes se transformam: +2 Fragmentos de Elysium" + ((cy._cyDemiurgo || 0) > 0 ? " e o Demiurgo dura +1 turno" : "") + ".");
+  }
+}
+// consumido no início de cyBasic/cySkill/cyUltimate — devolve o multiplicador de potência (1 = sem bônus)
+function cyRelicConsumeBroto(cy) {
+  if (!cyRelicOn(cy) || !cy._cyEcoBrotoReady) return 1;
+  cy._cyEcoBrotoReady = false;
+  return (cy._cyOath || 0) > 0 ? 1.30 : 1.18;
+}
+// 6pç · Estágio I — Sementes do Paraíso
+function cyRelicGainSemente(cy, s, fx) {
+  if (!cyRelicOn(cy) || !cy.stFlags?.setJardim6) return;
+  if ((cy._cySementes || 0) >= 3 || cy._cyJardim) return; // já em Jardim/Elysium — Sementes não acumulam até o ciclo fechar
+  cy._cySementes = Math.min(3, (cy._cySementes || 0) + 1);
+  if (cy._cySementes >= 3) {
+    cy._cySementes = 0;
+    cy._cyJardim = 1; // Estágio II: Jardim em Flor
+    cy._cyJardimCargas = 3;
+    fx.push({ uid: cy.uid, txt: "🌷 JARDIM EM FLOR", crit: true, id: Math.random(), el: "Glacial" });
+    pushLog(s, "🌷 O Jardim em Flor desperta — as próximas 3 ações de aliados concedem Pétalas Protetoras.");
+  }
+}
+// 6pç · Estágio II — 1 carga consumida por ação de QUALQUER aliado
+function cyRelicOnAnyAllyAction(cy, actor, s, fx) {
+  if (!cyRelicOn(cy) || cy._cyJardim !== 1) return;
+  fx = fx || [];
+  actor.shield = (actor.shield || 0) + Math.round((effStat(actor, "hp") || actor.maxHp) * 0.08);
+  actor.buffs = actor.buffs.filter((b) => b.name !== "Pétala Protetora");
+  actor.buffs.push({ stat: "dmgBonus", value: 8, turns: 1, name: "Pétala Protetora" });
+  cy._cyJardimCargas = Math.max(0, (cy._cyJardimCargas || 0) - 1);
+  if (cy._cyJardimCargas <= 0) {
+    cy._cyJardim = 2; // Estágio III: Elysium
+    cy._cyElysiumTurns = 2;
+    (s.heroes || []).filter((h) => h.alive && !h.isSummon).forEach((h) => { h.buffs = h.buffs.filter((b) => b.name !== "Elysium (Jardim)"); h.buffs.push({ stat: "dmgBonus", value: 15, turns: 2, name: "Elysium (Jardim)" }, { stat: "dmgReduce", value: 15, turns: 2, name: "Elysium (Jardim)" }); });
+    fx.push({ uid: cy.uid, txt: "🏵️ ELYSIUM", crit: true, id: Math.random(), el: "Glacial" });
+    pushLog(s, "🏵️ Elysium! A equipe inteira recebe +15% de Dano e +15% de Redução de Dano por 2 turnos.");
+  }
+}
+// se Cyrene sair de campo/cair: Jardim/Sementes se perdem, Ecos ficam congelados (não é preciso zerar, só o Jardim reseta)
+function cyRelicOnDefeat(cy) {
+  if (!cyRelicOn(cy)) return;
+  cy._cyJardim = 0; cy._cyJardimCargas = 0; cy._cySementes = 0; cy._cyMPStep = 0;
+}
+// Memória Perfeita — sequência de 6 passos ordenados; cada evento SÓ avança se for o próximo passo esperado
+function cyRelicMPStep(cy, n, s, fx) {
+  if (!cyRelicOn(cy) || !cy.stFlags?.setJardim6) return;
+  const cur = cy._cyMPStep || 0;
+  if (n !== cur + 1) return; // fora de ordem: não perde progresso, só não avança
+  cy._cyMPStep = n;
+  if (n === 6) {
+    cy._cyMPReady = true;
+    cy._cyMPStep = 0;
+    fx = fx || [];
+    fx.push({ uid: cy.uid, txt: "✨ MEMÓRIA PERFEITA", crit: true, id: Math.random(), el: "Glacial" });
+    pushLog(s, "✨ Memória Perfeita completa! A próxima Suprema de Cyrene se torna O Paraíso Que Recordamos.");
+  }
+}
+// 「O Paraíso Que Recordamos」 — substitui a Suprema quando Elysium (Estágio III) está ativo OU Memória Perfeita está pronta
+function cyRelicParadiseReady(cy) { return cyRelicOn(cy) && cy.stFlags?.setJardim6 && (cy._cyJardim === 2 || cy._cyMPReady); }
+function cyRelicParadise(s, cy, fx) {
+  const ecosConsumidos = cy._cyEco || 0;
+  const allies = (s.heroes || []).filter((h) => h.alive && !h.isSummon);
+  let sumMax = 0; allies.forEach((h) => sumMax += (effStat(h, "hp") || h.maxHp));
+  const myMax = effStat(cy, "hp") || cy.maxHp;
+  const dmg = Math.round(myMax * 1.2 + sumMax * 0.04 + myMax * 0.06 * ecosConsumidos);
+  let advTxt = "";
+  (s.enemies || []).filter((e) => e.alive).forEach((e) => {
+    e.hp -= dmg; if (e.hp <= 0) { e.hp = 0; e.alive = false; }
+    fx.push({ uid: e.uid, txt: "🏵️" + dmg, crit: true, id: Math.random(), el: "Glacial" });
+    if ((e.debuffs || []).some((d) => d.name === "Elysium Absoluto")) {
+      e.debuffs = e.debuffs.filter((d) => d.name !== "Memória que Não se Apaga");
+      e.debuffs.push({ stat: "vuln", value: 20, turns: 2, name: "Memória que Não se Apaga", onDeathAdvance: true });
+      advTxt = " O inimigo carrega Memória que Não se Apaga.";
+    }
+  });
+  allies.forEach((h) => healUnit(h, Math.round((effStat(h, "hp") || h.maxHp) * 0.15), fx));
+  if ((cy._cyDemiurgo || 0) > 0 || cy.stFlags?.cyE5) cy._cyDemiurgo = cy.stFlags?.cyE5 ? 3 : 2;
+  // reinicia o ciclo do conjunto por completo
+  cy._cyEco = 0; cy._cySementes = 0; cy._cyJardim = 0; cy._cyJardimCargas = 0; cy._cyMPReady = false; cy._cyMPStep = 0;
+  pushLog(s, `🏵️ O PARAÍSO QUE RECORDAMOS! ${dmg} de Dano Glacial em área, equipe curada.${advTxt} O ciclo do Jardim recomeça.`);
+  return `🏵️ O PARAÍSO QUE RECORDAMOS! ${dmg} de dano em área.${advTxt}`;
+}
+// checa Ação Avançada quando um inimigo marcado por "Memória que Não se Apaga" morre
+function cyRelicOnEnemyDeath(e, s, fx) {
+  const mark = (e.debuffs || []).find((d) => d.name === "Memória que Não se Apaga" && d.onDeathAdvance);
+  if (!mark) return;
+  (s.heroes || []).filter((h) => h.alive && !h.isSummon).forEach((h) => { h.av = Math.max(0.01, (h.av || 1) * 0.8); });
+  pushLog(s, "🏵️ Memória que Não se Apaga: a equipe recebe uma Ação Avançada.");
+}
+function cyLive(heroesOrS) { const hs = Array.isArray(heroesOrS) ? heroesOrS : (heroesOrS?.heroes || []); return hs.find((h) => h.id === "cyrene" && h.alive); }
+function cyMaxHp(u) { return Math.max(1, effStat(u, "hp") || u.maxHp || 1); }
+// registra 1 Memória (fila máx. 16); se o Demiurgo estiver presente, também alimenta a Cadência (E4) e o Aspecto (E2)
+// enemiesRef é opcional — só é necessário pra recompensa "Cadência Perfeita" (E4) que causa dano
+function cyRecordMemory(allies, type, fx, enemiesRef, elysiumBoost) { fx = fx || [];
+  const cy = cyLive(allies); if (!cy || !cy.alive) return;
+  cyRelicOnMemory(cy, { heroes: allies, enemies: enemiesRef || [] }, fx, !!elysiumBoost);
+  cy._cyMem = cy._cyMem || [];
+  cy._cyMem.push(type);
+  if (cy._cyMem.length > 16) cy._cyMem.shift();
+  if ((cy._cyDemiurgo || 0) > 0) {
+    if (cy.stFlags?.cyE2) { cy._cyAspectoCount = cy._cyAspectoCount || { esperanca: 0, coracao: 0, uniao: 0, sacrificio: 0 }; cy._cyAspectoCount[type] = (cy._cyAspectoCount[type] || 0) + 1; }
+    if (cy.stFlags?.cyE4) {
+      cy._cySeq = cy._cySeq || [];
+      cy._cySeq.push(type);
+      if (cy._cySeq.length >= 3) {
+        const seq = cy._cySeq.slice(-3);
+        const distinct = new Set(seq).size;
+        if (seq.join(">") === "esperanca>coracao>uniao") {
+          const enemies = (enemiesRef || []).filter((e) => e.alive);
+          if (enemies.length) { const alvo = enemies[0]; dealDamage(cy, alvo, cyMaxHp(cy) * 0.6, fx || [], { el: "Glacial", isFollowup: true }); }
+          (allies || []).filter((h) => h.alive && !h.isSummon).forEach((h) => { h.shield = (h.shield || 0) + Math.round(cyMaxHp(cy) * 0.15); });
+          cy._cySeq = [];
+        } else if (distinct === 3) {
+          cyGainFragment(cy, 1, { heroes: allies, enemies: enemiesRef || [] }, fx || []);
+          cy._cyFlores = Math.min(8, (cy._cyFlores || 0) + 1);
+          cy._cySeq = [];
+        }
+      }
+    }
+  }
+  // 4+ tipos distintos acumulados -> Flores de Elysium
+  const distinctAll = new Set(cy._cyMem).size;
+  if (distinctAll >= 4) {
+    cy._cyFlores = Math.min(8, (cy._cyFlores || 0) + cy._cyMem.length);
+    cy._cyMem = [];
+    if (cy._cyFlores >= 8 && !cy._cyAwake) cyEnterAwake(cy, fx || []);
+  }
+}
+function cyEnterAwake(cy, fx) { fx = fx || [];
+  cy._cyAwake = true;
+  cy.buffs = cy.buffs.filter((b) => b.name !== "Elysium Desperto");
+  cy.buffs.push({ stat: "hp", value: 40, pct: true, turns: 9999, name: "Elysium Desperto" }, { stat: "elemDmg", element: "Glacial", value: 50, turns: 9999, name: "Elysium Desperto" }, { stat: "defPen", value: 25, turns: 9999, name: "Elysium Desperto" });
+  fx.push({ uid: cy.uid, txt: "🌸 ELYSIUM DESPERTO!", crit: true, id: Math.random(), el: "Glacial" });
+}
+function cyEndAwake(cy, s, fx) { fx = fx || [];
+  cy._cyAwake = false;
+  cy.buffs = cy.buffs.filter((b) => b.name !== "Elysium Desperto");
+  const enemies = (s.enemies || []).filter((e) => e.alive);
+  const dmgEach = Math.round(cyMaxHp(cy) * 1.2);
+  enemies.forEach((e) => { e.hp -= dmgEach; if (e.hp <= 0) { e.hp = 0; e.alive = false; } fx.push({ uid: e.uid, txt: "🌸" + dmgEach, crit: false, id: Math.random(), el: "Glacial" }); });
+  pushLog(s, `🌸 Retorno ao Jardim! Explosão de ${dmgEach} de Dano Glacial em todos os inimigos.`);
+}
+function cyGainFragment(cy, n, s, fx) { fx = fx || [];
+  if (!cy || !cy.alive || !(n > 0)) return;
+  const cap = (cy.stFlags?.cyE6 && (cy._cyParaiso || 0) >= 1) ? 18 : 12;
+  cy._cyFrag = Math.min(cap, (cy._cyFrag || 0) + n);
+  if (cy._cyFrag >= 12) cyFlorescerReal(cy, s.heroes || [], s.enemies || [], s, fx);
+}
+function cyFlorescerReal(cy, allies, enemies, s, fx) { fx = fx || [];
+  cy._cyFrag = Math.max(0, (cy._cyFrag || 0) - 3);
+  const alive = allies.filter((h) => h.alive && !h.isSummon);
+  let sumMax = 0; alive.forEach((h) => sumMax += cyMaxHp(h));
+  let dmg = Math.round(cyMaxHp(cy) * 0.8 + sumMax * 0.06);
+  let healPct = 0.12, note = "";
+  const aspect = cy.stFlags?.cyE2 ? cyDominantAspect(cy) : null;
+  if (aspect === "esperanca") { dmg = Math.round(dmg * 1.4); note = " (Aspecto Radiante: +40% dano)"; }
+  if (aspect === "coracao") { healPct = 0.24; note = " (Aspecto Sereno: cura dobrada + escudo)"; }
+  enemies.filter((e) => e.alive).forEach((e) => {
+    e.hp -= dmg; if (e.hp <= 0) { e.hp = 0; e.alive = false; }
+    fx.push({ uid: e.uid, txt: "🌺" + dmg, crit: false, id: Math.random(), el: "Glacial" });
+    if (aspect === "esperanca") e.debuffs.push({ stat: "vuln", value: 10, turns: 2, name: "Fragmento Cortante" });
+  });
+  alive.forEach((h) => { const heal = Math.round(cyMaxHp(h) * healPct); healUnit(h, heal, fx); if (aspect === "coracao") h.shield = (h.shield || 0) + Math.round(cyMaxHp(h) * 0.10); });
+  alive.forEach((h) => { h.buffs.forEach((b) => { if (b.name === "Elysium Compartilhado") b.turns += 1; }); });
+  if (aspect === "uniao") alive.forEach((h) => h.buffs.push({ stat: "critRate", value: 20, turns: 2, name: "Aspecto Unificador" }));
+  if (aspect === "sacrificio") { alive.forEach((h) => h.buffs.push({ stat: "dmgReduce", value: 20, turns: 2, name: "Aspecto Consagrado" })); healUnit(cy, Math.round(cyMaxHp(cy) * 0.15), fx); }
+  pushLog(s, `🌺 Florescer do Elysium! ${dmg} de Dano Glacial em área${note}.`);
+  cyRelicMPStep(cy, 4, s, fx);
+  if (cy.stFlags?.cyE6) cyGainSelo(cy, s, fx);
+}
+function cyDominantAspect(cy) {
+  const c = cy._cyAspectoCount || {}; let best = null, bv = -1;
+  for (const t of CY_MEM_TYPES) { if ((c[t] || 0) > bv) { bv = c[t] || 0; best = t; } }
+  cy._cyAspectoCount = { esperanca: 0, coracao: 0, uniao: 0, sacrificio: 0 };
+  return bv > 0 ? best : null;
+}
+// Elysium Absoluto — aplicado pelo Básico aprimorado
+function cyApplyElysium(cy, target, s, fx) {
+  const already = target.debuffs.find((d) => d.name === "Elysium Absoluto");
+  if (already) { already.turns = 2; cyGainFragment(cy, 3, s, fx); }
+  else { target.debuffs.push({ stat: "elemRes", value: -55, turns: 2, name: "Elysium Absoluto" }, { stat: "vuln", value: 15, turns: 2, name: "Elysium Absoluto" }); cyRelicMPStep(cy, 1, s, fx); }
+}
+// hook: sempre que QUALQUER unidade sofre dano de um aliado, e ela carrega Elysium Absoluto -> Cyrene ganha Fragmento (+ E1 Memória Imaculada + Juramento durante o Oath)
+function cyOnDamageToElysium(attacker, defender, dmg, s, fx) { fx = fx || [];
+  if (!(dmg > 0) || attacker.side !== "H" || attacker.isSummon) return;
+  const hasElysium = (defender.debuffs || []).some((d) => d.name === "Elysium Absoluto");
+  if (!hasElysium) return;
+  const cy = cyLive(attacker._sibs || []); if (!cy || !cy.alive) return;
+  cyGainFragment(cy, 1, s, fx);
+  cyRelicMPStep(cy, 2, s, fx);
+  if (cy.stFlags?.cyE1) cy._cyImaculada = Math.min(3, (cy._cyImaculada || 0) + 1);
+  if ((cy._cyOath || 0) > 0) { cy._cyJuramento = Math.min(8, (cy._cyJuramento || 0) + 1); }
+}
+// Demiurgo: 1 Fragmento por aliado por ação (máx. 3/rodada aproximado por turno de Cyrene) enquanto presente
+function cyOnAllyAction(allies, actor, s, fx) { fx = fx || [];
+  const cy = cyLive(allies); if (!cy || !cy.alive || cy.uid === actor.uid) return;
+  cyRelicOnAnyAllyAction(cy, actor, s, fx);
+  if ((cy._cyDemiurgo || 0) <= 0 && !(cy.stFlags?.cyE6 && (cy._cyParaiso || 0) >= 1)) return;
+  actor._cyFragRound = actor._cyFragRound || 0;
+  if (actor._cyFragRound >= 3) return;
+  actor._cyFragRound += 1;
+  cyGainFragment(cy, 1, s, fx);
+}
+function cyActionStart(cy, s) {
+  (s.heroes || []).forEach((h) => { h._cyFragRound = 0; });
+  // E6 Estágio 1: Elysium Absoluto em 3+ inimigos no início do turno de Cyrene -> Selo
+  if (cy.stFlags?.cyE6) {
+    const n = (s.enemies || []).filter((e) => e.alive && (e.debuffs || []).some((d) => d.name === "Elysium Absoluto")).length;
+    if (n >= 3) cyGainSelo(cy, s, s.fx || []);
+  }
+}
+function cyGainSelo(cy, s, fx) { fx = fx || [];
+  if ((cy._cyParaiso || 0) >= 1) return; // já em Paraíso Manifesto — Selos não acumulam de novo até fechar o ciclo
+  cy._cySelos = Math.min(3, (cy._cySelos || 0) + 1);
+  if (cy._cySelos >= 3) {
+    cy._cyParaiso = 1;
+    fx.push({ uid: cy.uid, txt: "🏛️ PARAÍSO MANIFESTO", crit: true, id: Math.random(), el: "Glacial" });
+    pushLog(s, "🏛️ Paraíso Manifesto! O Demiurgo se torna permanente e a Fragmentação de Elysium ganha alcance total.");
+  }
+}
+function cyAscendParaiso(cy, s, fx) { fx = fx || [];
+  cy._cyParaiso = 2;
+  const allies = (s.heroes || []).filter((h) => h.alive && !h.isSummon);
+  let sumMax = 0; allies.forEach((h) => sumMax += cyMaxHp(h));
+  const dmg = Math.round(cyMaxHp(cy) * 1.0 + sumMax * 0.10);
+  (s.enemies || []).filter((e) => e.alive).forEach((e) => { e.hp -= dmg; if (e.hp <= 0) { e.hp = 0; e.alive = false; } fx.push({ uid: e.uid, txt: "🏛️" + dmg, crit: true, id: Math.random(), el: "Glacial" }); });
+  allies.forEach((h) => healUnit(h, cyMaxHp(h), fx));
+  cy._cySelos = 0; cy._cyParaiso = 0;
+  const stacks = cy.buffs.filter((b) => b.name === "Memória Ancestral").length;
+  if (stacks < 5) cy.buffs.push({ stat: "dmgBonus", value: 3, turns: 9999, name: "Memória Ancestral" });
+  fx.push({ uid: cy.uid, txt: "✨ ÁPICE DO PARAÍSO!", crit: true, id: Math.random(), el: "Glacial" });
+  pushLog(s, `✨ ÁPICE DO PARAÍSO! ${dmg} de Dano Glacial em área, equipe totalmente curada, e o ciclo reinicia.`);
+}
+function cyHpDmgAmp(cy) { // Efeito Especial da Suprema: +2% de dano de Habilidade por 1000 de HP Máx. durante o Juramento ∞ (máx 12 acúmulos)
+  if (!((cy._cyOath || 0) > 0)) return 1;
+  const stacks = Math.min(12, Math.floor(cyMaxHp(cy) / 1000));
+  return 1 + stacks * 0.02;
+}
+function cyBasic(s, cy, enemy, fx, ampB) {
+  if (!enemy || !enemy.alive) enemy = (s.enemies || []).find((e) => e.alive);
+  if (!enemy) return `${cy.name} não encontra alvo.`;
+  if ((cy._cyJuramento || 0) >= 8 && (cy._cyOath || 0) > 0) return cyUltimaPrimavera(s, cy, fx);
+  const enhanced = !!cy._cyUltUsed;
+  const mul = (enhanced ? 1.0 : 0.5) * ampB * cyHpDmgAmp(cy) * cyRelicConsumeBroto(cy);
+  const r = dealDamage(cy, enemy, cyMaxHp(cy) * mul, fx, { el: "Glacial" });
+  cy._cyLastDmg = r.dmg;
+  cyOnDamageToElysium(cy, enemy, r.dmg, s, fx);
+  cyRecordMemory(s.heroes, "esperanca", fx, s.enemies);
+  let msg = enhanced ? `🌸 Floreie, Elysium do Além em ${enemy.name} — ${r.dmg} de Dano Glacial.` : `❄️ Ataque Básico em ${enemy.name} — ${r.dmg} de Dano Glacial.`;
+  if (enhanced) { cyApplyElysium(cy, enemy, s, fx); msg += " Elysium Absoluto aplicado."; }
+  if (cy._cyAwake) {
+    cy._cyFlores = Math.max(0, (cy._cyFlores || 0) - 1);
+    const other = (s.enemies || []).find((e) => e.alive && e.uid !== enemy.uid);
+    if (other) { const r2 = dealDamage(cy, other, cyMaxHp(cy) * mul * 0.5, fx, { el: "Glacial", isFollowup: true }); cyOnDamageToElysium(cy, other, r2.dmg, s, fx); }
+    if (cy._cyFlores <= 0) cyEndAwake(cy, s, fx);
+  }
+  return msg;
+}
+function cySkill(s, cy, fx, ampS) {
+  const allies = (s.heroes || []).filter((h) => h.alive && !h.isSummon);
+  const renewing = (cy._cyDemiurgo || 0) > 0;
+  const brotar = cyRelicConsumeBroto(cy);
+  cy._cyDemiurgo = Math.max(cy._cyDemiurgo || 0, cy.stFlags?.cyE5 ? 3 : 2);
+  allies.forEach((h) => {
+    h.buffs = h.buffs.filter((b) => b.name !== "Elysium Compartilhado");
+    h.buffs.push({ stat: "spd", value: Math.round(36 * ampS), pct: true, turns: 2, name: "Elysium Compartilhado" }, { stat: "hp", value: Math.round(36 * ampS), pct: true, turns: 2, name: "Elysium Compartilhado" }, { stat: "dmgReduce", value: 20, turns: 2, name: "Elysium Compartilhado" }, { stat: "dmgBonus", value: Math.round(24 * ampS * brotar), turns: 2, name: "Elysium Compartilhado" });
+    healUnit(h, cyMaxHp(h), fx);
+  });
+  if (cy.stFlags?.cyE3 && renewing) { cyGainFragment(cy, 2, s, fx); cyRecordMemory(s.heroes, CY_MEM_TYPES[Math.floor(Math.random() * 4)], fx, s.enemies); }
+  cyRecordMemory(s.heroes, "uniao", fx, s.enemies);
+  return `🌿 Corações se Unem como Um! O Demiurgo se manifesta — equipe curada e reforçada por ${cy._cyDemiurgo} turnos.`;
+}
+function cyUltimate(s, cy, fx, ampU) {
+  const enemies = (s.enemies || []).filter((e) => e.alive);
+  if (!enemies.length) return `${cy.name} não encontra alvos.`;
+  cyRelicMPStep(cy, 6, s, fx);
+  if (cyRelicParadiseReady(cy)) { cy._cyUltUsed = true; return cyRelicParadise(s, cy, fx); }
+  cy._cyUltUsed = true;
+  let tot = 0;
+  const totalRecursos = (cy._cyMem || []).length + (cy._cyFrag || 0) + (cy._cyJuramento || 0);
+  let mode = null;
+  if (cy.stFlags?.cyE5) mode = totalRecursos <= 8 ? "despertar" : (totalRecursos <= 18 ? "ressonancia" : "absoluto");
+  enemies.forEach((e) => { const r = dealDamage(cy, e, cyMaxHp(cy) * 2.0 * ampU, fx, { el: "Glacial" }); tot += r.dmg; cy._cyLastDmg = r.dmg; cyOnDamageToElysium(cy, e, r.dmg, s, fx); if (mode === "absoluto") cyApplyElysium(cy, e, s, fx); });
+  cy.buffs = cy.buffs.filter((b) => b.name !== "Juramento ∞");
+  cy.buffs.push({ stat: "dmgBonus", value: 64, turns: 2, name: "Juramento ∞" }, { stat: "hp", value: 40, pct: true, turns: 2, name: "Juramento ∞" }, { stat: "elemDmg", element: "Glacial", value: 40, turns: 2, name: "Juramento ∞" }, { stat: "breakEffect", value: 30, turns: 2, name: "Juramento ∞" });
+  s.heroes.filter((h) => h.alive && !h.isSummon).forEach((h) => h.buffs.push({ stat: "dmgBonus", value: 30, turns: 2, name: "Juramento ∞ (Equipe)" }));
+  cy._cyOath = 2; cy._cyJuramento = Math.min(8, cy._cyJuramento || 0);
+  if (cy.stFlags?.cyE1 && (cy._cyImaculada || 0) > 0) { cy._cyJuramento = Math.min(8, cy._cyJuramento + cy._cyImaculada); cy._cyImaculada = 0; }
+  cyRecordMemory(s.heroes, "esperanca", fx, s.enemies);
+  let extra = "";
+  if (mode === "despertar") { cy._cyDemiurgo = Math.max(cy._cyDemiurgo || 0, 3); (["esperanca","coracao","uniao","sacrificio"]).forEach((t) => cyRecordMemory(s.heroes, t, fx, s.enemies)); extra = " ❄️ VERSO DO DESPERTAR: Demiurgo garantido por 3 turnos e 4 novas Memórias."; }
+  else if (mode === "ressonancia") { cyFlorescerReal(cy, s.heroes, s.enemies, s, fx); s.heroes.filter((h) => h.alive && !h.isSummon).forEach((h) => h.buffs.push({ stat: "dmgBonus", value: 15, turns: 2, name: "Verso da Ressonância" })); extra = " 🌊 VERSO DA RESSONÂNCIA: mini-Florescer disparado e +15% de dano extra à equipe."; }
+  else if (mode === "absoluto") { cy._cyJuramento = 8; extra = " 🏛️ VERSO ABSOLUTO: Elysium Absoluto em todos os inimigos e Juramento cheio — a próxima ação já pode ser a Última Primavera."; }
+  if ((cy._cyJuramento || 0) >= 8) { const p = cyUltimaPrimavera(s, cy, fx); return `🌌 Verso ◦ Juramento ∞! ${tot} de Dano Glacial em área.${extra} ${p}`; }
+  return `🌌 Verso ◦ Juramento ∞! ${tot} de Dano Glacial em área. Juramento ∞ ativo por 2 turnos.${extra}`;
+}
+function cyUltimaPrimavera(s, cy, fx) {
+  const enemies = (s.enemies || []).filter((e) => e.alive);
+  const allies = (s.heroes || []).filter((h) => h.alive && !h.isSummon);
+  let sumMax = 0; allies.forEach((h) => sumMax += cyMaxHp(h));
+  const dmg = Math.round(cyMaxHp(cy) * 1.5 + sumMax * 0.05 + (cy._cyLastDmg || 0));
+  enemies.forEach((e) => { e.hp -= dmg; if (e.hp <= 0) { e.hp = 0; e.alive = false; } fx.push({ uid: e.uid, txt: "🌌" + dmg, crit: true, id: Math.random(), el: "Glacial" }); });
+  allies.forEach((h) => healUnit(h, Math.round(cyMaxHp(h) * 0.3), fx));
+  cy._cyJuramento = 0; cy._cyMem = [];
+  if (cy.stFlags?.cyE6 && (cy._cyParaiso || 0) >= 1) cyAscendParaiso(cy, s, fx);
+  pushLog(s, `🌌 Elysium: Última Primavera! ${dmg} de Dano Glacial em área.`);
+  return `🌌 ÚLTIMA PRIMAVERA! ${dmg} de dano em área e equipe curada.`;
+}
+function cyTechnique(cy, heroes, enemies) {
+  enemies.forEach((e) => e.debuffs.push({ stat: "elemRes", value: -30, turns: 2, name: "Memória Congelada" }));
+  heroes.forEach((h) => { if (!h.isSummon) h.buffs.push({ stat: "spd", value: 15, pct: true, turns: 2, name: "Memória Congelada" }); });
+  cy._cyMem = ["esperanca", "coracao", "uniao", "sacrificio"];
+  if (enemies.some((e) => (e.debuffs || []).length > 0)) cy._cyFrag = Math.min(12, (cy._cyFrag || 0) + 2);
+  if (cy.stFlags?.setJardim2) { cy._cyMem = ["esperanca", "sacrificio"]; } // 2pç: começa a batalha só com 2 Memórias (tipos diferentes)
+}
+function cyActionEnd(cy, s, fx) {
+  if (cy.stFlags?.cyE6 && (cy._cyParaiso || 0) === 1 && (cy._cyJuramento || 0) >= 8 && (cy._cyOath || 0) > 0) cyAscendParaiso(cy, s, fx); // checagem ANTES do Oath expirar e zerar o Juramento
+  if ((cy._cyDemiurgo || 0) > 0 && !(cy.stFlags?.cyE6 && (cy._cyParaiso || 0) >= 1)) { cy._cyDemiurgo -= 1; }
+  if ((cy._cyOath || 0) > 0) { cy._cyOath -= 1; if (cy._cyOath <= 0) { cy.buffs = cy.buffs.filter((b) => b.name !== "Juramento ∞"); cy._cyJuramento = 0; } }
+}
 // Elo Rompido da Tempestade (4pç) — Circuito Exposto
 function eloRompidoChain(owner, primary, s, fx) {
   if (!owner || !owner.stFlags?.setFiosTempestade4 || !primary) return;
@@ -8260,13 +8677,20 @@ function applyMutPostAction(s, actor) {
     }
   });
 }
-function tickDots(u, fx, allies) {
-  // Trava: cada unidade só processa DoT UMA vez por turno. Chamadas repetidas no mesmo
-  // turno (vários caminhos do redutor chamam tickDots) faziam o DoT inteiro sair de uma vez.
-  const _stamp = (u._dotStamp || 0) + 1;
-  if (u._dotTickedAt === u._turnSeq) return;
-  u._turnSeq = u._turnSeq || 0;
-  u._dotTickedAt = u._turnSeq;
+function tickDots(u, fx, allies, clock) {
+  // Trava: cada unidade só processa DoT UMA vez por turno.
+  // Antes usava o próprio _turnSeq da unidade como chave — mas como _turnSeq só é incrementado
+  // NO FIM do turno (depois que tickDots já rodou), a 1ª chamada de uma unidade nova comparava
+  // undefined === undefined e ERA IGNORADA (o 1º tick sumia); e se qualquer outro caminho do
+  // reducer chamasse tickDots de novo ANTES do fim do turno, a trava não pegava — o DoT inteiro
+  // saía de uma vez, em vez de se espalhar pelos turnos seguintes. Agora usa um relógio GLOBAL
+  // da batalha (s._dotClock, incrementado 1x por turno de QUALQUER unidade, ANTES do tick),
+  // então a 1ª chamada sempre é um número real (nunca undefined) e chamadas repetidas no MESMO
+  // turno são bloqueadas de forma confiável, não importa o caminho do reducer que chamou.
+  if (clock != null) {
+    if (u._dotClock === clock) return;
+    u._dotClock = clock;
+  } else if (u._dotTickedAt === u._turnSeq) { return; } else { u._turnSeq = u._turnSeq || 0; u._dotTickedAt = u._turnSeq; } // compat: chamadas antigas sem relógio ainda funcionam
   // Cooldown de reaplicação de DoT (2 turnos inteiros após o encerramento) — decrementa mesmo sem dots ativos
   if (u._dotCd) { for (const k in u._dotCd) { if (u._dotCd[k] > 0) u._dotCd[k] -= 1; } }
   if (!u.dots || !u.dots.length) return;
@@ -8347,6 +8771,11 @@ function healUnit(u, amount, fx) {
   let amt = amount; if (u._mut === "ventos") amt = Math.round(amt * 2); if (u._glitchHealHalf) amt = Math.round(amt * 0.5);
   const before = u.hp; u.hp = Math.min(u.maxHp, u.hp + amt); const done = u.hp - before;
   fx.push({ uid: u.uid, txt: "+" + done, heal: true, id: Math.random() });
+  if (done > 0 && u.side === "H" && !u.isSummon) {
+    cyRecordMemory(u._sibs, "coracao", fx);
+    if (u.id !== "cyrene") cyOnAllyAction(u._sibs, u, { heroes: u._sibs || [] }, fx);
+    else { if (u.stFlags?.setJardim2) cyRecordMemory(u._sibs, "coracao", fx); cyRelicMPStep(u, 3, { heroes: u._sibs || [] }, fx); }
+  }
   // Benção Sagrada (4pç): ao curar, aplica escudo de 2% do HP máx do alvo (a própria cura já ganha +15% via p4.healBonus)
   if (done > 0 && u.stFlags?.setHoly4) {
     const shieldAmt = Math.round(u.maxHp * 0.02);
@@ -8382,7 +8811,12 @@ function tickBuffs(u) {
   u.debuffs = u.debuffs.map((b) => ({ ...b, turns: b.turns - 1 })).filter((b) => b.turns > 0);
 }
 function cloneU(u) { return { ...u, ...(u._achMark ? { _achMark: { ...u._achMark } } : {}), buffs: u.buffs.map((b) => ({ ...b })), debuffs: u.debuffs.map((b) => ({ ...b })), dots: (u.dots || []).map((d) => ({ ...d })), base: { ...u.base }, stFlags: { ...(u.stFlags || {}) } }; }
-function relinkGate(s) { // o Chefe Protegido precisa enxergar os lacaios do estado ATUAL (o _sibs criado no início da batalha aponta pra cópias antigas e o selo nunca abria)
+function relinkGate(s) { // Reconecta o _sibs de TODAS as unidades ao array ATUAL do estado clonado.
+  // _sibs é montado 1x no início da batalha (heroes.forEach/enemies.forEach) e nunca era atualizado depois —
+  // então qualquer código que usasse u._sibs (ex.: Chefe Protegido, Elo Rompido da Tempestade, Cyrene)
+  // enxergava um array de um estado antigo. Agora TODA unidade é religada a cada clone.
+  s.heroes.forEach((h) => { h._sibs = s.heroes; });
+  s.enemies.forEach((e) => { e._sibs = s.enemies; });
   const bg = s.enemies.find((e) => e.boss && e._gated);
   if (bg) bg._gateSibs = s.enemies;
   return s;
@@ -8407,6 +8841,7 @@ function supAmp(spec, t, amp) {
   return out;
 }
 function applyBuff(targets, spec, name, fx, caster) {
+  if (caster && caster.side === "H" && !caster.isSummon && caster.id !== "cyrene" && targets.some((t) => t.side === "H")) { cyRecordMemory(caster._sibs, "uniao", fx); cyOnAllyAction(caster._sibs, caster, { heroes: caster._sibs || [] }, fx); }
   const extra = caster?.stFlags?.buffPlus && spec.all ? 1 : 0;
   targets.forEach((t) => { for (const stat of ["atk", "def", "critRate", "critDmg", "dmgBonus", "spd"]) if (spec[stat]) {
     if (spec.maxStacks) { const st = t.buffs.filter(b => b.name === name && b.stat === stat).length; if (st >= spec.maxStacks) continue; }
@@ -8434,6 +8869,7 @@ function calamidadeStack(u, fx) {
   }
 }
 function applyDebuff(targets, spec, extraDef, caster) {
+  if (caster && caster.side === "H" && !caster.isSummon && caster.id !== "cyrene") cyOnAllyAction(caster._sibs, caster, { heroes: caster._sibs || [], enemies: targets });
   const f = caster?.stFlags || {};
   const plus = f.debuffPlus;
   const defX = (plus ? 0 : 0) + (extraDef || 0) + (f.pWeakpoint ? 12 : 0) + (f.defShredHit ? 0 : 0);
@@ -8519,6 +8955,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     // _sibs: referências dos aliados de cada lado (Fulgur Resonance precisa achar o de menor HP)
     heroes.forEach(h => { h._sibs = heroes; });
     { const ko0 = heroes.find((h) => h.id === "koleda"); if (ko0) koTechnique(ko0, heroes, enemies); } // Técnica · Entrada em Serviço
+    { const cy0 = heroes.find((h) => h.id === "cyrene"); if (cy0) cyTechnique(cy0, heroes, enemies); } // Técnica · Onde a Primavera Ainda Floresce
     // ══ Arquétipo do time: define bônus/penalidades da composição ══
     let s0Arch = null;
     { const arch = teamArchetype(heroes); s0Arch = arch;
@@ -8670,6 +9107,12 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       if (kind === "skill") return [`Custo: <b>1 Ponto de Habilidade</b>`, `Dano em área: <b>70% de ATK</b> (Eletro)`, `Aplica <b>Estresse Estrutural</b> (+25% de dano de DoT, +8% por tipo)`, `<b>+2 Pressão</b> (+1 por inimigo com DoT, máx. +3)`];
       return [`Dano em área: <b>180% de ATK</b> (Eletro)`, `<b>Combustão Forçada:</b> todo DoT dá 1 tique na hora`, `<b>Janela de Sobrecarga:</b> DoTs +40% e time +25% Dano de DoT`, `Pressão atual: <b>${hero._koPI || 0}/12</b>`];
     }
+    if (hero.id === "cyrene") {
+      const _hp = Math.round(effStat(hero, "hp") || hero.maxHp);
+      if (kind === "basic") return [hero._cyUltUsed ? `Dano: <b>100% do HP Máx.</b> (Glacial) + aplica <b>Elysium Absoluto</b>` : `Dano: <b>50% do HP Máx.</b> (Glacial)`, `≈ <b>${Math.round(_hp * (hero._cyUltUsed ? 1 : 0.5))}</b> de dano`, `Memória da Esperança`, `Aprimorado após a 1ª Suprema`];
+      if (kind === "skill") return [`Cura total a equipe + <b>Elysium Compartilhado</b> (2 turnos)`, `VEL +36%, HP +36%, Redução de Dano +20%, Dano +24%`, `Demiurgo presente por 2 turnos (3 com E5)`, `Memória da União`];
+      return [`Dano em área: <b>200% do HP Máx.</b> (Glacial)`, `≈ <b>${Math.round(_hp * 2)}</b> de dano por inimigo`, `<b>Juramento ∞</b> (2 turnos): +64% Dano, +40% HP, +40% Dano Glacial`, `Time: +30% de Dano por 2 turnos`];
+    }
     if (hero.id === "acheron") {
       const _a = Math.round(effStat(hero, "atk"));
       if (kind === "basic") return [`Dano: <b>${hero.skill.basicMul}% de ATK</b> (Eletro)`, `≈ <b>${Math.round(_a * hero.skill.basicMul / 100)}</b> de dano (sem crítico)`, `Acelera em <b>1 turno</b> a Marca mais próxima de detonar`, `Ganha <b>+1 Ponto de Habilidade</b>`];
@@ -8727,6 +9170,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       if (kind === "skill" && s.sp <= 0) return s;
       const f = u.stFlags || {}; // flags de constelação/relíquia do personagem que está agindo (faltava — corrigido)
       koCollect(s); if (u.id === "koleda") koActionStart(u, s); // Koleda: novos tipos de DoT viram Pressão; Superaquecimento estende os DoTs
+      if (u.id === "cyrene") cyActionStart(u, s); // Cyrene: zera o limite de Fragmentos por rodada e verifica Selos (E6)
       if (u.id === "ichigo" && u._ichPendingTransform && !u._ichMugetsu) { u._ichPendingTransform = false; ichigoEnterMugetsu(u, s, s.fx); } // processa a transformação pendente (12º Fragmento ganho tomando dano no turno do inimigo)
       u._calamidadeEnergyThisAction = false; // reseta a cada ação — 1 energia de Calamidade por ação, não por aplicação de buff/debuff
       if (u.id === "acheron") {
@@ -8759,7 +9203,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         const hp6 = u.weapon.buff.allyHealPct;
         s.heroes.filter(h => h.alive && !h.isSummon).forEach(a => { const h = Math.round(a.maxHp * hp6 / 100); healUnit(a, h, s.fx); });
       }
-      tickDots(u, s.fx);
+      s._dotClock = (s._dotClock || 0) + 1; tickDots(u, s.fx, s.heroes.filter((h) => h.alive), s._dotClock);
       if ((u._kaibaVirusTurns || 0) > 0) u._kaibaVirusTurns -= 1; // Vírus Esmaga-Cards (Kaiba): decai no turno de cada aliado protegido
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
       refreshKaibaBuffs(s);
@@ -9002,6 +9446,10 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         }
         if (!miyDone && u.id === "koleda") {
           msg = koledaBasic(s, u, enemy, fx, ampB);
+          miyDone = true;
+        }
+        if (!miyDone && u.id === "cyrene") {
+          msg = cyBasic(s, u, enemy, fx, ampB);
           miyDone = true;
         }
         if (!miyDone && u.id === "hitori") {
@@ -9248,6 +9696,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         }
         else if (u.id === "koleda" && sk.koSkill) {
           msg = koledaSkill(s, u, fx, ampS);
+        }
+        else if (u.id === "cyrene" && sk.cySkill) {
+          msg = cySkill(s, u, fx, ampS);
         }
         else if (u.id === "hitori" && sk.hitoriSkill) {
           msg = hitoriSkillAttack(s, u, fx);
@@ -9636,6 +10087,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         // Sinfonia do Trono Prateado (4pç): ao usar a Perícia, concede Ressonância Brilhante ao time
         sinfoniaProc(u, allies, fx);
       } else if (kind === "ult") {
+        if (u.id !== "cyrene") { const _cyMP = cyLive(s.heroes); if (_cyMP) cyRelicMPStep(_cyMP, 5, s, fx); }
         // Athena C6: pode reabrir a seleção das 7 Casas a cada 2 turnos sem custo de energia
         const _athFreeUlt = u.id === "athena" && u.stFlags?.athC6 && s._athHouseActive && (u._athC6Cd || 0) <= 0;
         const _hitoriUltCost = u.id === "hitori" ? (u.stFlags?.hitoriC4 ? 130 : 160) : null; // C4 · Economia de Ritmo: 160 → 130
@@ -9854,6 +10306,9 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         } else if (u.id === "koleda" && sk.koUlt) {
           u.energy = enGain(5);
           msg = koledaUltimate(s, u, fx, ampU);
+        } else if (u.id === "cyrene" && sk.cyUlt) {
+          u.energy = enGain(5);
+          msg = cyUltimate(s, u, fx, ampU);
         } else if (u.id === "acheron" && sk.achUlt) {
           acheronUltimate(u, s, fx);
           msg = "⚡ Acheron dispara DETONAÇÃO ANTECIPADA — todas as Marcas do Fim Selado explodem de uma vez!";
@@ -10045,6 +10500,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
       }
       u._actDmg = 0; u._turnSeq = (u._turnSeq || 0) + 1; tickBuffs(u); tickShields(u); u.av = 10000 / Math.max(1, effStat(u, "spd"));
       if (u.id === "koleda") koActionEnd(u, s); // (antes do ajuste de AV: a Pane de Válvula usa _avMul)
+      if (u.id === "cyrene") cyActionEnd(u, s, fx);
       if (u._avMul != null) { u.av = Math.max(0.01, u.av * u._avMul); u._avMul = null; }
       if (u.id === "acheron") acheronSync(u, s); // Marcas plantadas/detonadas nesta ação → atualiza Presença do Fim / Sob as Cinzas
       if (u.id === "miyabi" && (s.frostZone || 0) > 0) s.frostZone -= 1;
@@ -10538,7 +10994,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
     setState((s0) => {
       let s = { ...s0, heroes: s0.heroes.map(cloneU), enemies: s0.enemies.map(cloneU), fx: [] }; relinkGate(s);
       const u = findUnit(s, uid); if (!u || !u.alive) { s.turn = null; return s; }
-      tickDots(u, s.fx);
+      s._dotClock = (s._dotClock || 0) + 1; tickDots(u, s.fx, s.heroes.filter((h) => h.alive), s._dotClock);
       if ((u._kaibaVirusTurns || 0) > 0) u._kaibaVirusTurns -= 1; // Vírus Esmaga-Cards (Kaiba): decai no turno de cada aliado protegido
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
       refreshKaibaBuffs(s);
@@ -10646,7 +11102,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
         s.turn = null;
         return s;
       }
-      koCollect(s); tickDots(u, s.fx, s.heroes.filter((h) => h.alive)); koOnEnemyTick(s, u); // Koleda: Pressão de Impacto / Calor
+      koCollect(s); s._dotClock = (s._dotClock || 0) + 1; tickDots(u, s.fx, s.heroes.filter((h) => h.alive), s._dotClock); koOnEnemyTick(s, u); // Koleda: Pressão de Impacto / Calor
       if (!u.alive) { pushLog(s, `${u.name} sucumbe ao dano contínuo!`); s = checkEnd(s); s.turn = null; return s; }
       // ── Convergência Tríplice — O Arquivista Sem Rosto: selos quebram em marcos de HP ──
       if (u.alive && u.boss && u.bossKind === "arquivista") {
@@ -11317,6 +11773,7 @@ function Battle({ team, ownedMap, encounter, ally, context, onEnd, onRetry, onNe
                   {!h.isSummon && h.energyMax > 0 && h.id !== "acheron" && <div style={{ fontSize: 9, color: full ? C.gold : "#6FA8FF" }}>⚡ {Math.round(h.energy)}/{h.energyMax}{full ? " · PRONTO" : ""}</div>}
                   {h.id === "koleda" && <div style={{ fontSize: 9, fontWeight: (h._koSuper || 0) > 0 ? 800 : 400, color: (h._koSuper || 0) > 0 ? "#FF9E45" : "#FFD24B" }}>🔨 Pressão {h._koPI || 0}/12 · {(h._koSuper || 0) > 0 ? `🔥 SUPERAQUECIMENTO ${h._koSuper}` : `Calor ${h._koCalor || 0}`}{(h._koWin || 0) > 0 ? " · ⚡ Sobrecarga" : ""}{(h._koForja || 0) > 0 ? " · 🏭 Forja" : ""}{(h._koMotor || 0) > 0 ? ` · ⚙️${h._koMotor}` : ""}</div>}
                   {h.id === "acheron" && <div style={{ fontSize: 9, fontWeight: (h._achCinzas || 0) >= 8 ? 800 : 400, color: (h._achCinzas || 0) >= 8 ? C.gold : "#B98BFF" }}>⚡ Cinzas do Fim: {h._achCinzas || 0}/8{(h._achCinzas || 0) >= 8 ? " · SUPREMA PRONTA" : ""}</div>}
+                  {h.id === "cyrene" && <div style={{ fontSize: 9, fontWeight: (h._cyOath || 0) > 0 ? 800 : 400, color: (h._cyOath || 0) > 0 ? "#FFD24B" : "#6FE3FF" }}>🌸 Mem {((h._cyMem || []).length)}/16 · Frag {h._cyFrag || 0}/12{(h._cyDemiurgo || 0) > 0 ? ` · 🕊️Demiurgo ${h._cyDemiurgo}` : ""}{(h._cyFlores || 0) > 0 ? ` · 🌺${h._cyFlores}` : ""}{h._cyAwake ? " · 🌸DESPERTO" : ""}{(h._cyOath || 0) > 0 ? ` · ∞ Juramento ${h._cyJuramento || 0}/8 (${h._cyOath})` : ""}{h.stFlags?.cyE6 && (h._cySelos || 0) > 0 ? ` · 🏛️${h._cySelos}/3` : ""}</div>}
                   {h.id === "agumon" && <div style={{ fontSize: 9, color: (h.agHeat || 0) > 70 ? "#FF7043" : "#FFB74D" }}>{AGU_FORMS[h.agForm || "agumon"]?.emoji} {AGU_FORMS[h.agForm || "agumon"]?.name}{(h.agModoX || 0) > 0 ? " · MODO X⚡" : ""} · 🔥{h.agHeat || 0} · 🧬{h.agSP || 0} SP{(h.agHeat || 0) >= 85 ? " ☢️" : ""}</div>}
                   {h.id === "miyabi" && (h.stFlags?.miPostura) && <div style={{ fontSize: 9, color: "#6FE3FF" }}>{"❄".repeat(Math.min(h.posturePH || 0, h.stFlags?.miC6 ? 4 : 3))}{"·".repeat(Math.max(0, (h.stFlags?.miC6 ? 4 : 3) - (h.posturePH || 0)))} {((h.posturePH || 0) >= (h.stFlags?.miC6 ? 4 : 3)) ? "Postura Iaido!" : "PH"}</div>}
                   {h.id === "ichigo" && !h._ichMugetsu && <div style={{ fontSize: 9, color: (h._ichFrag || 0) >= 12 ? "#EAEAEA" : "#9aa" }}>🌑 Fragmentos: {h._ichFrag || 0}/12</div>}
@@ -11539,6 +11996,7 @@ function abilityHint(h) {
   const sk = h.skill || {};
   if (h.id === "kaiba") return "Habilidade invoca Blue-Eyes (até 3). Com 3 em campo, o Ultimate libera Obelisco ou o Dragão Definitivo.";
   if (h.id === "koleda") return "Perícia aplica Estresse Estrutural em todos. Cada tique de DoT (e cada novo tipo) enche a Pressão; com 12, Reação em Cadeia. Calor 100 = Superaquecimento.";
+  if (h.id === "cyrene") return "Perícia invoca o Demiurgo (cura+buff time). Ações da equipe geram Memórias (16 = Flores) e Fragmentos (12 = Florescer). Suprema dá Juramento ∞; 8 Juramentos = Última Primavera.";
   if (h.id === "acheron") return "Perícia planta a Marca do Fim; o Básico a acelera. Cada detonação dá 1 Cinza — com 8, a Suprema detona todas as Marcas.";
   const parts = [];
   if (sk.heal || sk.ultHeal) parts.push("cura aliados");
